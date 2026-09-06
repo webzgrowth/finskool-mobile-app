@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -sL -o \"fonts/manrope/Manrope[wght].ttf\" \"https://raw.githubusercontent.com/google/fonts/main/ofl/manrope/Manrope%5Bwght%5D.ttf\")",
+      "Bash(curl -sL -o \"fonts/manrope/OFL.txt\" \"https://raw.githubusercontent.com/google/fonts/main/ofl/manrope/OFL.txt\")",
+      "Bash(curl -sL -o \"fonts/inter/Inter[opsz,wght].ttf\" \"https://raw.githubusercontent.com/google/fonts/main/ofl/inter/Inter%5Bopsz%2Cwght%5D.ttf\")",
+      "Bash(curl -sL -o \"fonts/inter/OFL.txt\" \"https://raw.githubusercontent.com/google/fonts/main/ofl/inter/OFL.txt\")",
+      "Bash(file fonts/manrope/*.ttf fonts/inter/*.ttf)",
+      "Bash(flutter pub *)",
+      "Bash(flutter analyze *)",
+      "Bash(dart run *)",
+      "Bash(flutter devices *)",
+      "Bash(timeout 900 flutter run -d 73671995-30B8-492D-B952-BDF087AB1126 --no-hot)",
+      "Bash(echo \"started, pid $!\")",
+      "Bash(flutter build *)",
+      "Bash(python3 -m json.tool)",
+      "Bash(xcrun simctl *)"
+    ]
+  }
+}

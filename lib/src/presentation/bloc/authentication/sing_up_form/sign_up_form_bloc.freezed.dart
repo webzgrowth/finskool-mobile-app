@@ -1,0 +1,1004 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// coverage:ignore-file
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
+// ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
+
+part of 'sign_up_form_bloc.dart';
+
+// **************************************************************************
+// FreezedGenerator
+// **************************************************************************
+
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// dart format off
+T _$identity<T>(T value) => value;
+/// @nodoc
+mixin _$SignUpFormEvent {
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is SignUpFormEvent);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+    return 'SignUpFormEvent()';
+}
+
+
+}
+
+/// @nodoc
+class $SignUpFormEventCopyWith<$Res>  {
+$SignUpFormEventCopyWith(SignUpFormEvent _, $Res Function(SignUpFormEvent) __);
+}
+
+
+/// Adds pattern-matching-related methods to [SignUpFormEvent].
+extension SignUpFormEventPatterns on SignUpFormEvent {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _initials value)?  initial,TResult Function( _Register value)?  registerUser,TResult Function( _EmailOnChanged value)?  emailOnChanged,TResult Function( _FirstNameChanged value)?  firstNameChanged,TResult Function( _LastNameChanged value)?  lastNameChanged,TResult Function( _CountryCodeChanged value)?  countryCodeChanged,TResult Function( _PhonenumberChanged value)?  phonenumberChanged,TResult Function( _IsFromSocial value)?  isFromSocial,required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _initials() when initial != null:
+return initial(_that);case _Register() when registerUser != null:
+return registerUser(_that);case _EmailOnChanged() when emailOnChanged != null:
+return emailOnChanged(_that);case _FirstNameChanged() when firstNameChanged != null:
+return firstNameChanged(_that);case _LastNameChanged() when lastNameChanged != null:
+return lastNameChanged(_that);case _CountryCodeChanged() when countryCodeChanged != null:
+return countryCodeChanged(_that);case _PhonenumberChanged() when phonenumberChanged != null:
+return phonenumberChanged(_that);case _IsFromSocial() when isFromSocial != null:
+return isFromSocial(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _initials value)  initial,required TResult Function( _Register value)  registerUser,required TResult Function( _EmailOnChanged value)  emailOnChanged,required TResult Function( _FirstNameChanged value)  firstNameChanged,required TResult Function( _LastNameChanged value)  lastNameChanged,required TResult Function( _CountryCodeChanged value)  countryCodeChanged,required TResult Function( _PhonenumberChanged value)  phonenumberChanged,required TResult Function( _IsFromSocial value)  isFromSocial,}){
+final _that = this;
+switch (_that) {
+case _initials():
+return initial(_that);case _Register():
+return registerUser(_that);case _EmailOnChanged():
+return emailOnChanged(_that);case _FirstNameChanged():
+return firstNameChanged(_that);case _LastNameChanged():
+return lastNameChanged(_that);case _CountryCodeChanged():
+return countryCodeChanged(_that);case _PhonenumberChanged():
+return phonenumberChanged(_that);case _IsFromSocial():
+return isFromSocial(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _initials value)?  initial,TResult? Function( _Register value)?  registerUser,TResult? Function( _EmailOnChanged value)?  emailOnChanged,TResult? Function( _FirstNameChanged value)?  firstNameChanged,TResult? Function( _LastNameChanged value)?  lastNameChanged,TResult? Function( _CountryCodeChanged value)?  countryCodeChanged,TResult? Function( _PhonenumberChanged value)?  phonenumberChanged,TResult? Function( _IsFromSocial value)?  isFromSocial,}){
+final _that = this;
+switch (_that) {
+case _initials() when initial != null:
+return initial(_that);case _Register() when registerUser != null:
+return registerUser(_that);case _EmailOnChanged() when emailOnChanged != null:
+return emailOnChanged(_that);case _FirstNameChanged() when firstNameChanged != null:
+return firstNameChanged(_that);case _LastNameChanged() when lastNameChanged != null:
+return lastNameChanged(_that);case _CountryCodeChanged() when countryCodeChanged != null:
+return countryCodeChanged(_that);case _PhonenumberChanged() when phonenumberChanged != null:
+return phonenumberChanged(_that);case _IsFromSocial() when isFromSocial != null:
+return isFromSocial(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function( bool isSocialLogin)?  registerUser,TResult Function( String email)?  emailOnChanged,TResult Function( String firstName)?  firstNameChanged,TResult Function( String lastName)?  lastNameChanged,TResult Function( String countryCode)?  countryCodeChanged,TResult Function( String phonenumber)?  phonenumberChanged,TResult Function( bool isFromSocial)?  isFromSocial,required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _initials() when initial != null:
+return initial();case _Register() when registerUser != null:
+return registerUser(_that.isSocialLogin);case _EmailOnChanged() when emailOnChanged != null:
+return emailOnChanged(_that.email);case _FirstNameChanged() when firstNameChanged != null:
+return firstNameChanged(_that.firstName);case _LastNameChanged() when lastNameChanged != null:
+return lastNameChanged(_that.lastName);case _CountryCodeChanged() when countryCodeChanged != null:
+return countryCodeChanged(_that.countryCode);case _PhonenumberChanged() when phonenumberChanged != null:
+return phonenumberChanged(_that.phonenumber);case _IsFromSocial() when isFromSocial != null:
+return isFromSocial(_that.isFromSocial);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function( bool isSocialLogin)  registerUser,required TResult Function( String email)  emailOnChanged,required TResult Function( String firstName)  firstNameChanged,required TResult Function( String lastName)  lastNameChanged,required TResult Function( String countryCode)  countryCodeChanged,required TResult Function( String phonenumber)  phonenumberChanged,required TResult Function( bool isFromSocial)  isFromSocial,}) {final _that = this;
+switch (_that) {
+case _initials():
+return initial();case _Register():
+return registerUser(_that.isSocialLogin);case _EmailOnChanged():
+return emailOnChanged(_that.email);case _FirstNameChanged():
+return firstNameChanged(_that.firstName);case _LastNameChanged():
+return lastNameChanged(_that.lastName);case _CountryCodeChanged():
+return countryCodeChanged(_that.countryCode);case _PhonenumberChanged():
+return phonenumberChanged(_that.phonenumber);case _IsFromSocial():
+return isFromSocial(_that.isFromSocial);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function( bool isSocialLogin)?  registerUser,TResult? Function( String email)?  emailOnChanged,TResult? Function( String firstName)?  firstNameChanged,TResult? Function( String lastName)?  lastNameChanged,TResult? Function( String countryCode)?  countryCodeChanged,TResult? Function( String phonenumber)?  phonenumberChanged,TResult? Function( bool isFromSocial)?  isFromSocial,}) {final _that = this;
+switch (_that) {
+case _initials() when initial != null:
+return initial();case _Register() when registerUser != null:
+return registerUser(_that.isSocialLogin);case _EmailOnChanged() when emailOnChanged != null:
+return emailOnChanged(_that.email);case _FirstNameChanged() when firstNameChanged != null:
+return firstNameChanged(_that.firstName);case _LastNameChanged() when lastNameChanged != null:
+return lastNameChanged(_that.lastName);case _CountryCodeChanged() when countryCodeChanged != null:
+return countryCodeChanged(_that.countryCode);case _PhonenumberChanged() when phonenumberChanged != null:
+return phonenumberChanged(_that.phonenumber);case _IsFromSocial() when isFromSocial != null:
+return isFromSocial(_that.isFromSocial);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _initials implements SignUpFormEvent {
+  const _initials();
+  
+
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _initials);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+    return 'SignUpFormEvent.initial()';
+}
+
+
+}
+
+
+
+
+/// @nodoc
+
+
+class _Register implements SignUpFormEvent {
+  const _Register(this.isSocialLogin);
+  
+
+ final  bool isSocialLogin;
+
+/// Create a copy of SignUpFormEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$RegisterCopyWith<_Register> get copyWith => __$RegisterCopyWithImpl<_Register>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Register&&(identical(other.isSocialLogin, isSocialLogin) || other.isSocialLogin == isSocialLogin));
+}
+
+
+@override
+int get hashCode {
+    return Object.hash(runtimeType,isSocialLogin);
+}
+
+@override
+String toString() {
+    return 'SignUpFormEvent.registerUser(isSocialLogin: $isSocialLogin)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$RegisterCopyWith<$Res> implements $SignUpFormEventCopyWith<$Res> {
+  factory _$RegisterCopyWith(_Register value, $Res Function(_Register) _then) = __$RegisterCopyWithImpl;
+@useResult
+$Res call({
+ bool isSocialLogin
+});
+
+
+
+
+}
+/// @nodoc
+class __$RegisterCopyWithImpl<$Res>
+    implements _$RegisterCopyWith<$Res> {
+  __$RegisterCopyWithImpl(this._self, this._then);
+
+  final _Register _self;
+  final $Res Function(_Register) _then;
+
+/// Create a copy of SignUpFormEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? isSocialLogin = null,}) {
+  return _then(_Register(
+null == isSocialLogin ? _self.isSocialLogin : isSocialLogin // ignore: cast_nullable_to_non_nullable
+as bool,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class _EmailOnChanged implements SignUpFormEvent {
+  const _EmailOnChanged(this.email);
+  
+
+ final  String email;
+
+/// Create a copy of SignUpFormEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$EmailOnChangedCopyWith<_EmailOnChanged> get copyWith => __$EmailOnChangedCopyWithImpl<_EmailOnChanged>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _EmailOnChanged&&(identical(other.email, email) || other.email == email));
+}
+
+
+@override
+int get hashCode {
+    return Object.hash(runtimeType,email);
+}
+
+@override
+String toString() {
+    return 'SignUpFormEvent.emailOnChanged(email: $email)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$EmailOnChangedCopyWith<$Res> implements $SignUpFormEventCopyWith<$Res> {
+  factory _$EmailOnChangedCopyWith(_EmailOnChanged value, $Res Function(_EmailOnChanged) _then) = __$EmailOnChangedCopyWithImpl;
+@useResult
+$Res call({
+ String email
+});
+
+
+
+
+}
+/// @nodoc
+class __$EmailOnChangedCopyWithImpl<$Res>
+    implements _$EmailOnChangedCopyWith<$Res> {
+  __$EmailOnChangedCopyWithImpl(this._self, this._then);
+
+  final _EmailOnChanged _self;
+  final $Res Function(_EmailOnChanged) _then;
+
+/// Create a copy of SignUpFormEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? email = null,}) {
+  return _then(_EmailOnChanged(
+null == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class _FirstNameChanged implements SignUpFormEvent {
+  const _FirstNameChanged(this.firstName);
+  
+
+ final  String firstName;
+
+/// Create a copy of SignUpFormEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$FirstNameChangedCopyWith<_FirstNameChanged> get copyWith => __$FirstNameChangedCopyWithImpl<_FirstNameChanged>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _FirstNameChanged&&(identical(other.firstName, firstName) || other.firstName == firstName));
+}
+
+
+@override
+int get hashCode {
+    return Object.hash(runtimeType,firstName);
+}
+
+@override
+String toString() {
+    return 'SignUpFormEvent.firstNameChanged(firstName: $firstName)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$FirstNameChangedCopyWith<$Res> implements $SignUpFormEventCopyWith<$Res> {
+  factory _$FirstNameChangedCopyWith(_FirstNameChanged value, $Res Function(_FirstNameChanged) _then) = __$FirstNameChangedCopyWithImpl;
+@useResult
+$Res call({
+ String firstName
+});
+
+
+
+
+}
+/// @nodoc
+class __$FirstNameChangedCopyWithImpl<$Res>
+    implements _$FirstNameChangedCopyWith<$Res> {
+  __$FirstNameChangedCopyWithImpl(this._self, this._then);
+
+  final _FirstNameChanged _self;
+  final $Res Function(_FirstNameChanged) _then;
+
+/// Create a copy of SignUpFormEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? firstName = null,}) {
+  return _then(_FirstNameChanged(
+null == firstName ? _self.firstName : firstName // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class _LastNameChanged implements SignUpFormEvent {
+  const _LastNameChanged(this.lastName);
+  
+
+ final  String lastName;
+
+/// Create a copy of SignUpFormEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$LastNameChangedCopyWith<_LastNameChanged> get copyWith => __$LastNameChangedCopyWithImpl<_LastNameChanged>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _LastNameChanged&&(identical(other.lastName, lastName) || other.lastName == lastName));
+}
+
+
+@override
+int get hashCode {
+    return Object.hash(runtimeType,lastName);
+}
+
+@override
+String toString() {
+    return 'SignUpFormEvent.lastNameChanged(lastName: $lastName)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$LastNameChangedCopyWith<$Res> implements $SignUpFormEventCopyWith<$Res> {
+  factory _$LastNameChangedCopyWith(_LastNameChanged value, $Res Function(_LastNameChanged) _then) = __$LastNameChangedCopyWithImpl;
+@useResult
+$Res call({
+ String lastName
+});
+
+
+
+
+}
+/// @nodoc
+class __$LastNameChangedCopyWithImpl<$Res>
+    implements _$LastNameChangedCopyWith<$Res> {
+  __$LastNameChangedCopyWithImpl(this._self, this._then);
+
+  final _LastNameChanged _self;
+  final $Res Function(_LastNameChanged) _then;
+
+/// Create a copy of SignUpFormEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? lastName = null,}) {
+  return _then(_LastNameChanged(
+null == lastName ? _self.lastName : lastName // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class _CountryCodeChanged implements SignUpFormEvent {
+  const _CountryCodeChanged(this.countryCode);
+  
+
+ final  String countryCode;
+
+/// Create a copy of SignUpFormEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$CountryCodeChangedCopyWith<_CountryCodeChanged> get copyWith => __$CountryCodeChangedCopyWithImpl<_CountryCodeChanged>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _CountryCodeChanged&&(identical(other.countryCode, countryCode) || other.countryCode == countryCode));
+}
+
+
+@override
+int get hashCode {
+    return Object.hash(runtimeType,countryCode);
+}
+
+@override
+String toString() {
+    return 'SignUpFormEvent.countryCodeChanged(countryCode: $countryCode)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$CountryCodeChangedCopyWith<$Res> implements $SignUpFormEventCopyWith<$Res> {
+  factory _$CountryCodeChangedCopyWith(_CountryCodeChanged value, $Res Function(_CountryCodeChanged) _then) = __$CountryCodeChangedCopyWithImpl;
+@useResult
+$Res call({
+ String countryCode
+});
+
+
+
+
+}
+/// @nodoc
+class __$CountryCodeChangedCopyWithImpl<$Res>
+    implements _$CountryCodeChangedCopyWith<$Res> {
+  __$CountryCodeChangedCopyWithImpl(this._self, this._then);
+
+  final _CountryCodeChanged _self;
+  final $Res Function(_CountryCodeChanged) _then;
+
+/// Create a copy of SignUpFormEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? countryCode = null,}) {
+  return _then(_CountryCodeChanged(
+null == countryCode ? _self.countryCode : countryCode // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class _PhonenumberChanged implements SignUpFormEvent {
+  const _PhonenumberChanged(this.phonenumber);
+  
+
+ final  String phonenumber;
+
+/// Create a copy of SignUpFormEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$PhonenumberChangedCopyWith<_PhonenumberChanged> get copyWith => __$PhonenumberChangedCopyWithImpl<_PhonenumberChanged>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _PhonenumberChanged&&(identical(other.phonenumber, phonenumber) || other.phonenumber == phonenumber));
+}
+
+
+@override
+int get hashCode {
+    return Object.hash(runtimeType,phonenumber);
+}
+
+@override
+String toString() {
+    return 'SignUpFormEvent.phonenumberChanged(phonenumber: $phonenumber)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$PhonenumberChangedCopyWith<$Res> implements $SignUpFormEventCopyWith<$Res> {
+  factory _$PhonenumberChangedCopyWith(_PhonenumberChanged value, $Res Function(_PhonenumberChanged) _then) = __$PhonenumberChangedCopyWithImpl;
+@useResult
+$Res call({
+ String phonenumber
+});
+
+
+
+
+}
+/// @nodoc
+class __$PhonenumberChangedCopyWithImpl<$Res>
+    implements _$PhonenumberChangedCopyWith<$Res> {
+  __$PhonenumberChangedCopyWithImpl(this._self, this._then);
+
+  final _PhonenumberChanged _self;
+  final $Res Function(_PhonenumberChanged) _then;
+
+/// Create a copy of SignUpFormEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? phonenumber = null,}) {
+  return _then(_PhonenumberChanged(
+null == phonenumber ? _self.phonenumber : phonenumber // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class _IsFromSocial implements SignUpFormEvent {
+  const _IsFromSocial(this.isFromSocial);
+  
+
+ final  bool isFromSocial;
+
+/// Create a copy of SignUpFormEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$IsFromSocialCopyWith<_IsFromSocial> get copyWith => __$IsFromSocialCopyWithImpl<_IsFromSocial>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _IsFromSocial&&(identical(other.isFromSocial, isFromSocial) || other.isFromSocial == isFromSocial));
+}
+
+
+@override
+int get hashCode {
+    return Object.hash(runtimeType,isFromSocial);
+}
+
+@override
+String toString() {
+    return 'SignUpFormEvent.isFromSocial(isFromSocial: $isFromSocial)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$IsFromSocialCopyWith<$Res> implements $SignUpFormEventCopyWith<$Res> {
+  factory _$IsFromSocialCopyWith(_IsFromSocial value, $Res Function(_IsFromSocial) _then) = __$IsFromSocialCopyWithImpl;
+@useResult
+$Res call({
+ bool isFromSocial
+});
+
+
+
+
+}
+/// @nodoc
+class __$IsFromSocialCopyWithImpl<$Res>
+    implements _$IsFromSocialCopyWith<$Res> {
+  __$IsFromSocialCopyWithImpl(this._self, this._then);
+
+  final _IsFromSocial _self;
+  final $Res Function(_IsFromSocial) _then;
+
+/// Create a copy of SignUpFormEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? isFromSocial = null,}) {
+  return _then(_IsFromSocial(
+null == isFromSocial ? _self.isFromSocial : isFromSocial // ignore: cast_nullable_to_non_nullable
+as bool,
+  ));
+}
+
+
+}
+
+/// @nodoc
+mixin _$SignUpFormState {
+
+ RequestState get state; String get message; String get firstName; String get lastName; String get countryCode; String get phonenumber; String get email; bool get isFromSocial;
+/// Create a copy of SignUpFormState
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$SignUpFormStateCopyWith<SignUpFormState> get copyWith => _$SignUpFormStateCopyWithImpl<SignUpFormState>(this as SignUpFormState, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  final _this = this as SignUpFormState;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SignUpFormState&&(identical(other.state, _this.state) || other.state == _this.state)&&(identical(other.message, _this.message) || other.message == _this.message)&&(identical(other.firstName, _this.firstName) || other.firstName == _this.firstName)&&(identical(other.lastName, _this.lastName) || other.lastName == _this.lastName)&&(identical(other.countryCode, _this.countryCode) || other.countryCode == _this.countryCode)&&(identical(other.phonenumber, _this.phonenumber) || other.phonenumber == _this.phonenumber)&&(identical(other.email, _this.email) || other.email == _this.email)&&(identical(other.isFromSocial, _this.isFromSocial) || other.isFromSocial == _this.isFromSocial));
+}
+
+
+@override
+int get hashCode {
+  final _this = this as SignUpFormState;
+  return Object.hash(runtimeType,_this.state,_this.message,_this.firstName,_this.lastName,_this.countryCode,_this.phonenumber,_this.email,_this.isFromSocial);
+}
+
+@override
+String toString() {
+  final _this = this as SignUpFormState;
+  return 'SignUpFormState(state: ${_this.state}, message: ${_this.message}, firstName: ${_this.firstName}, lastName: ${_this.lastName}, countryCode: ${_this.countryCode}, phonenumber: ${_this.phonenumber}, email: ${_this.email}, isFromSocial: ${_this.isFromSocial})';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $SignUpFormStateCopyWith<$Res>  {
+  factory $SignUpFormStateCopyWith(SignUpFormState value, $Res Function(SignUpFormState) _then) = _$SignUpFormStateCopyWithImpl;
+@useResult
+$Res call({
+ RequestState state, String message, String firstName, String lastName, String countryCode, String phonenumber, String email, bool isFromSocial
+});
+
+
+
+
+}
+/// @nodoc
+class _$SignUpFormStateCopyWithImpl<$Res>
+    implements $SignUpFormStateCopyWith<$Res> {
+  _$SignUpFormStateCopyWithImpl(this._self, this._then);
+
+  final SignUpFormState _self;
+  final $Res Function(SignUpFormState) _then;
+
+/// Create a copy of SignUpFormState
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? state = null,Object? message = null,Object? firstName = null,Object? lastName = null,Object? countryCode = null,Object? phonenumber = null,Object? email = null,Object? isFromSocial = null,}) {
+  return _then(SignUpFormState(
+state: null == state ? _self.state : state // ignore: cast_nullable_to_non_nullable
+as RequestState,message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
+as String,firstName: null == firstName ? _self.firstName : firstName // ignore: cast_nullable_to_non_nullable
+as String,lastName: null == lastName ? _self.lastName : lastName // ignore: cast_nullable_to_non_nullable
+as String,countryCode: null == countryCode ? _self.countryCode : countryCode // ignore: cast_nullable_to_non_nullable
+as String,phonenumber: null == phonenumber ? _self.phonenumber : phonenumber // ignore: cast_nullable_to_non_nullable
+as String,email: null == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
+as String,isFromSocial: null == isFromSocial ? _self.isFromSocial : isFromSocial // ignore: cast_nullable_to_non_nullable
+as bool,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [SignUpFormState].
+extension SignUpFormStatePatterns on SignUpFormState {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _SignUpFormState value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _SignUpFormState() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _SignUpFormState value)  $default,){
+final _that = this;
+switch (_that) {
+case _SignUpFormState():
+return $default(_that);}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _SignUpFormState value)?  $default,){
+final _that = this;
+switch (_that) {
+case _SignUpFormState() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( RequestState state,  String message,  String firstName,  String lastName,  String countryCode,  String phonenumber,  String email,  bool isFromSocial)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _SignUpFormState() when $default != null:
+return $default(_that.state,_that.message,_that.firstName,_that.lastName,_that.countryCode,_that.phonenumber,_that.email,_that.isFromSocial);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( RequestState state,  String message,  String firstName,  String lastName,  String countryCode,  String phonenumber,  String email,  bool isFromSocial)  $default,) {final _that = this;
+switch (_that) {
+case _SignUpFormState():
+return $default(_that.state,_that.message,_that.firstName,_that.lastName,_that.countryCode,_that.phonenumber,_that.email,_that.isFromSocial);}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( RequestState state,  String message,  String firstName,  String lastName,  String countryCode,  String phonenumber,  String email,  bool isFromSocial)?  $default,) {final _that = this;
+switch (_that) {
+case _SignUpFormState() when $default != null:
+return $default(_that.state,_that.message,_that.firstName,_that.lastName,_that.countryCode,_that.phonenumber,_that.email,_that.isFromSocial);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _SignUpFormState implements SignUpFormState {
+  const _SignUpFormState({required this.state, required this.message, required this.firstName, required this.lastName, required this.countryCode, required this.phonenumber, required this.email, required this.isFromSocial});
+  
+
+@override final  RequestState state;
+@override final  String message;
+@override final  String firstName;
+@override final  String lastName;
+@override final  String countryCode;
+@override final  String phonenumber;
+@override final  String email;
+@override final  bool isFromSocial;
+
+/// Create a copy of SignUpFormState
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$SignUpFormStateCopyWith<_SignUpFormState> get copyWith => __$SignUpFormStateCopyWithImpl<_SignUpFormState>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _SignUpFormState&&(identical(other.state, state) || other.state == state)&&(identical(other.message, message) || other.message == message)&&(identical(other.firstName, firstName) || other.firstName == firstName)&&(identical(other.lastName, lastName) || other.lastName == lastName)&&(identical(other.countryCode, countryCode) || other.countryCode == countryCode)&&(identical(other.phonenumber, phonenumber) || other.phonenumber == phonenumber)&&(identical(other.email, email) || other.email == email)&&(identical(other.isFromSocial, isFromSocial) || other.isFromSocial == isFromSocial));
+}
+
+
+@override
+int get hashCode {
+    return Object.hash(runtimeType,state,message,firstName,lastName,countryCode,phonenumber,email,isFromSocial);
+}
+
+@override
+String toString() {
+    return 'SignUpFormState(state: $state, message: $message, firstName: $firstName, lastName: $lastName, countryCode: $countryCode, phonenumber: $phonenumber, email: $email, isFromSocial: $isFromSocial)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$SignUpFormStateCopyWith<$Res> implements $SignUpFormStateCopyWith<$Res> {
+  factory _$SignUpFormStateCopyWith(_SignUpFormState value, $Res Function(_SignUpFormState) _then) = __$SignUpFormStateCopyWithImpl;
+@override @useResult
+$Res call({
+ RequestState state, String message, String firstName, String lastName, String countryCode, String phonenumber, String email, bool isFromSocial
+});
+
+
+
+
+}
+/// @nodoc
+class __$SignUpFormStateCopyWithImpl<$Res>
+    implements _$SignUpFormStateCopyWith<$Res> {
+  __$SignUpFormStateCopyWithImpl(this._self, this._then);
+
+  final _SignUpFormState _self;
+  final $Res Function(_SignUpFormState) _then;
+
+/// Create a copy of SignUpFormState
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? state = null,Object? message = null,Object? firstName = null,Object? lastName = null,Object? countryCode = null,Object? phonenumber = null,Object? email = null,Object? isFromSocial = null,}) {
+  return _then(_SignUpFormState(
+state: null == state ? _self.state : state // ignore: cast_nullable_to_non_nullable
+as RequestState,message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
+as String,firstName: null == firstName ? _self.firstName : firstName // ignore: cast_nullable_to_non_nullable
+as String,lastName: null == lastName ? _self.lastName : lastName // ignore: cast_nullable_to_non_nullable
+as String,countryCode: null == countryCode ? _self.countryCode : countryCode // ignore: cast_nullable_to_non_nullable
+as String,phonenumber: null == phonenumber ? _self.phonenumber : phonenumber // ignore: cast_nullable_to_non_nullable
+as String,email: null == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
+as String,isFromSocial: null == isFromSocial ? _self.isFromSocial : isFromSocial // ignore: cast_nullable_to_non_nullable
+as bool,
+  ));
+}
+
+
+}
+
+// dart format on
