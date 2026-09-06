@@ -1,5 +1,4 @@
 import 'package:bloc/bloc.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:finskool/src/comman/enum.dart';
@@ -29,14 +28,7 @@ class GoogleSigninBloc extends Bloc<GoogleSigninEvent, GoogleSigninState> {
           return;
         }
 
-        final user = await _authenticateWithGoogle(googleUser);
-        final email = user.user?.email;
-        if (email == null) {
-          emit(state.copyWith(
-              requestState: RequestState.error,
-              message: 'User email not found'));
-          return;
-        }
+        final email = googleUser.email;
 
         final isAlreadyUser = await _checkIfUserAlreadyRegistered(email);
         if (isAlreadyUser) {
@@ -65,16 +57,6 @@ class GoogleSigninBloc extends Bloc<GoogleSigninEvent, GoogleSigninState> {
 
   Future<GoogleSignInAccount?> _handleGoogleSignIn() async {
     return await GoogleSignIn.instance.authenticate();
-  }
-
-  Future<UserCredential> _authenticateWithGoogle(
-      GoogleSignInAccount googleUser) async {
-    final googleAuth = await googleUser.authentication;
-    final credential = GoogleAuthProvider.credential(
-      accessToken: googleAuth.idToken,
-      idToken: googleAuth.idToken,
-    );
-    return await FirebaseAuth.instance.signInWithCredential(credential);
   }
 
   Future<bool> _checkIfUserAlreadyRegistered(String email) async {

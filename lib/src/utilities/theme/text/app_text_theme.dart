@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 
 import 'text_style_factory.dart';
 
-/// Type scale from the Figma guide: h1 28 Manrope, headline 12-14 Manrope,
-/// body 10 Inter — extended across all Material text slots.
-///
-/// Headings use Manrope, body and labels use Inter.
+/// Type scale matching the Figma screens: Manrope is reserved for the big
+/// hero headline and section titles (h1 28, headlineMedium/Small).
+/// Everything else — field labels, buttons, tab labels, body, hints — is
+/// Inter, per the actual screen designs (not just the abstract size guide).
 class AppTextTheme {
   AppTextTheme._();
 
@@ -23,10 +23,10 @@ class AppTextTheme {
       headlineMedium: manrope(size: 22, weight: 700, height: 1.27, color: ink),
       headlineSmall: manrope(size: 18, weight: 600, height: 1.30, color: ink),
 
-      // headline band (12-14)
-      titleLarge: manrope(size: 16, weight: 600, height: 1.35, color: ink),
-      titleMedium: manrope(size: 14, weight: 600, height: 1.40, color: ink),
-      titleSmall: manrope(size: 12, weight: 600, height: 1.40, color: ink),
+      // titles: buttons, tab labels, field labels — Inter per the screens
+      titleLarge: inter(size: 16, weight: 600, height: 1.35, color: ink),
+      titleMedium: inter(size: 14, weight: 600, height: 1.40, color: ink),
+      titleSmall: inter(size: 12, weight: 500, height: 1.40, color: ink),
 
       // body
       bodyLarge: inter(size: 14, weight: 400, height: 1.50, color: ink),

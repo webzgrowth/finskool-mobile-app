@@ -103,6 +103,19 @@ directly.
 > `sign_up_form`). Leave it as-is unless renaming it is the actual task —
 > other code paths and generated files reference it.
 
+Form validation goes through `comman/validators.dart`, not inline checks —
+validate on submit, store each field's error as `String?` on the state, and
+clear it on that field's own `*Changed` event.
+
+## Authentication screens
+
+`presentation/pages/authentication/login/` and `.../signup/` are two states
+of one tab-switch screen, matching the Figma design. Reusable pieces live in
+`.../widgets/` (header, animated tab switch, entrance-animated card, text
+field, phone field, Google button, divider). Wired to `LoginFormBloc`,
+`SignUpFormBloc`, and `GoogleSigninBloc`. Splash routes to `/login` on a
+timer — see Known gaps below for why.
+
 ## Design system
 
 Lives in `lib/src/utilities/theme/`. Import the barrel, nothing else:
@@ -165,21 +178,15 @@ against white).
 These are pre-existing and intentional to leave alone unless they're the
 actual task:
 
-- **The app does not start yet.** `Firebase.initializeApp` is commented out
-  in `main.dart` and `firebase_options.dart` doesn't exist, yet
-  `AuthenticatorWatcherBloc` calls `FirebaseAuth.instance` in its
-  constructor. Because injectable registers blocs as `@singleton` (eager,
-  not lazy), `configureDependencies()` constructs that bloc immediately at
-  startup — so it throws before anything renders, showing a blank white
-  screen. Fix by initializing Firebase, or by switching to `@lazySingleton`
-  and moving `FirebaseAuth.instance` out of the constructor body.
-- **Splash never advances.** `AuthenticatorWatcherEvent.authCheckRequest`
-  emits nothing, so the `BlocListener` in `splash_screen.dart` never fires.
+- **Firebase has been removed** — no `firebase_auth`/`firebase_storage`, no
+  backend yet. `AuthenticatorWatcherBloc.authCheckRequest` still emits
+  nothing, so `splash_screen.dart` routes to `/login` on a timer instead of
+  waiting on that bloc.
 - `GoogleSigninBloc._signUpNewUser` and `_checkIfUserAlreadyRegistered` are
-  stubs returning `false`; `SignUpFormEvent.registerUser` has an empty
-  handler.
-- Only `SplashScreen` is routed in `utilities/go_router.dart`, though
-  `comman/routes.dart` declares ~64 route constants.
+  stubs returning `false`; `LoginFormEvent.submit` and
+  `SignUpFormEvent.registerUser` validate but don't call a backend yet.
+- Only `Splash`, `Login`, and `SignUp` are routed in `utilities/go_router.dart`,
+  though `comman/routes.dart` declares ~64 route constants.
 - `comman/constant.dart`, `utilities/base_data_center.dart`, and
   `extensions/sheet_open.dart` are entirely commented out.
 - `comman/toast.dart` and `comman/enum_to_string.dart` are empty files.

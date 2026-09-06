@@ -10,8 +10,11 @@ OutlineInputBorder _border(Color color, {double width = 1}) =>
 
 InputDecorationTheme buildInputTheme(ColorScheme cs, TextTheme tt) =>
     InputDecorationTheme(
+      // Figma's fields have no fill tint — just a border on the white
+      // card — so fill with `surface` (white in light) rather than a
+      // tinted container color.
       filled: true,
-      fillColor: cs.surfaceContainerLow,
+      fillColor: cs.surface,
       isDense: false,
       contentPadding: const EdgeInsets.symmetric(
         horizontal: 16,

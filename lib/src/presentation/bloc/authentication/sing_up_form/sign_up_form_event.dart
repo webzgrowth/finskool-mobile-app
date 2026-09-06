@@ -15,6 +15,14 @@ class SignUpFormEvent with _$SignUpFormEvent {
       _CountryCodeChanged;
   const factory SignUpFormEvent.phonenumberChanged(String phonenumber) =
       _PhonenumberChanged;
+  const factory SignUpFormEvent.passwordChanged(String password) =
+      _PasswordChanged;
+  const factory SignUpFormEvent.confirmPasswordChanged(
+      String confirmPassword) = _ConfirmPasswordChanged;
+  const factory SignUpFormEvent.togglePasswordVisibility() =
+      _TogglePasswordVisibility;
+  const factory SignUpFormEvent.toggleConfirmPasswordVisibility() =
+      _ToggleConfirmPasswordVisibility;
 
   // isfrom social
   const factory SignUpFormEvent.isFromSocial(bool isFromSocial) = _IsFromSocial;

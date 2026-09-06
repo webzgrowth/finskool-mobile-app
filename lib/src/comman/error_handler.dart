@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:finskool/src/comman/exception.dart';
 
 import 'package:finskool/src/comman/failure.dart';
@@ -14,8 +13,6 @@ Future<Either<Failure, T>> handleErrors<T>(Future<T> Function() action) async {
     return Left(ServerFailure(e.message));
   } on SocketException {
     return const Left(ConnectionFailure('No internet connection'));
-  } on FirebaseAuthException catch (e) {
-    return Left(ServerFailure(getMessageFromErrorCode(e.code, e.message)));
   } on DioException catch (e) {
     return Left(ServerFailure(e.response?.data['error'].toString() ??
         "Error occurred. Please try again."));
