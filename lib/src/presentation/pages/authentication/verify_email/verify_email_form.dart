@@ -3,25 +3,26 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:finskool/src/comman/routes.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
-import 'package:finskool/src/presentation/bloc/authentication/password_reset/password_reset_bloc.dart';
+import 'package:finskool/src/presentation/bloc/authentication/signup_verification/signup_verification_bloc.dart';
 import '../widgets/otp_boxes.dart';
 import '../widgets/auth_submit_button.dart';
 import '../widgets/privacy_footer_note.dart';
 import '../widgets/back_arrow_button.dart';
-import '../widgets/resend_code_row.dart';
 import '../widgets/change_link_row.dart';
+import '../widgets/resend_code_row.dart';
 
-class VerifyResetCodeForm extends StatelessWidget {
-  const VerifyResetCodeForm({super.key});
+class VerifyEmailForm extends StatelessWidget {
+  const VerifyEmailForm({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final bloc = context.read<PasswordResetBloc>();
+    final bloc = context.read<SignupVerificationBloc>();
     final tt = Theme.of(context).textTheme;
     final cs = Theme.of(context).colorScheme;
-    return BlocBuilder<PasswordResetBloc, PasswordResetState>(
+    return BlocBuilder<SignupVerificationBloc, SignupVerificationState>(
       builder: (context, state) {
-        final boldSpan = inter(size: 14, weight: 600, height: 1.3, color: cs.onSurface);
+        final boldSpan =
+            inter(size: 14, weight: 600, height: 1.3, color: cs.onSurface);
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -41,30 +42,27 @@ class VerifyResetCodeForm extends StatelessWidget {
             ),
             const SizedBox(height: AppSpacing.xl),
             OtpBoxes(
-              onChanged: (v) => bloc.add(PasswordResetEvent.codeChanged(v)),
+              onChanged: (v) =>
+                  bloc.add(SignupVerificationEvent.emailCodeChanged(v)),
             ),
-            if (state.codeError != null) ...[
+            if (state.emailCodeError != null) ...[
               const SizedBox(height: AppSpacing.xs),
-              Text(state.codeError!,
-                  style: tt.bodySmall?.copyWith(
-                      color: Theme.of(context).colorScheme.error)),
+              Text(state.emailCodeError!,
+                  style: tt.bodySmall?.copyWith(color: cs.error)),
             ],
             const SizedBox(height: AppSpacing.md),
             ResendCodeRow(
-              secondsRemaining: state.resendSeconds,
+              secondsRemaining: state.emailResendSeconds,
               onResend: () =>
-                  bloc.add(const PasswordResetEvent.resendCode()),
+                  bloc.add(const SignupVerificationEvent.resendEmailCode()),
             ),
             const SizedBox(height: AppSpacing.xl),
             AuthSubmitButton(
               label: 'Verify & Continue',
               loading: false,
-              // Validate (so errors still show if you navigate back), but
-              // don't gate navigation on it — there's no real backend yet,
-              // so every button should move the flow forward for testing.
               onPressed: () {
-                bloc.add(const PasswordResetEvent.verifyCode());
-                context.push(AppRoutes.NEW_PASSWORD_ROUTE_PATH);
+                bloc.add(const SignupVerificationEvent.verifyEmailCode());
+                context.push(AppRoutes.SIGNUP_SUCCESS_ROUTE_PATH);
               },
             ),
             const SizedBox(height: AppSpacing.lg),
@@ -73,10 +71,7 @@ class VerifyResetCodeForm extends StatelessWidget {
             ChangeLinkRow(
               question: 'Wrong E-mail?',
               actionLabel: 'Change it',
-              onTap: () {
-                bloc.add(const PasswordResetEvent.changeEmail());
-                context.pop();
-              },
+              onTap: () => context.go(AppRoutes.SIGNUP_ROUTE_PATH),
             ),
           ],
         );

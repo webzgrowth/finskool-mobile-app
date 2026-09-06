@@ -1,11 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
 
-/// "Wrong E-mail? Change it" link on the verify-code screen.
-class WrongEmailRow extends StatelessWidget {
-  const WrongEmailRow({super.key, required this.onChangeEmail});
+/// "Wrong E-mail? Change it" / "Wrong number? Change it" style link row
+/// used at the bottom of the signup verification screens.
+class ChangeLinkRow extends StatelessWidget {
+  const ChangeLinkRow({
+    super.key,
+    required this.question,
+    required this.actionLabel,
+    required this.onTap,
+  });
 
-  final VoidCallback onChangeEmail;
+  final String question;
+  final String actionLabel;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -13,11 +21,11 @@ class WrongEmailRow extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text('Wrong E-mail? ', style: tt.bodySmall),
+        Text('$question ', style: tt.bodySmall),
         GestureDetector(
-          onTap: onChangeEmail,
+          onTap: onTap,
           child: Text(
-            'Change it',
+            actionLabel,
             style: inter(
               size: 10,
               weight: 700,

@@ -39,15 +39,21 @@ class MemberHintCard extends StatelessWidget {
                 Text.rich(
                   TextSpan(
                     style: tt.bodySmall,
-                    children: const [
-                      TextSpan(
+                    children: [
+                      const TextSpan(
                           text: 'Enter the same phone number you registered '
                               'with on our '),
                       TextSpan(
                         text: 'WhatsApp community,',
-                        style: TextStyle(fontWeight: FontWeight.w700),
+                        style: inter(
+                          size: 10,
+                          weight: 700,
+                          height: 1.6,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
                       ),
-                      TextSpan(text: ' and your access will be restored automatically.'),
+                      const TextSpan(
+                          text: ' and your access will be restored automatically.'),
                     ],
                   ),
                 ),

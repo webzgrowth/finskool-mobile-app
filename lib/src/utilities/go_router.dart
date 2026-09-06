@@ -8,6 +8,10 @@ import 'package:finskool/src/presentation/pages/authentication/reset_password/re
 import 'package:finskool/src/presentation/pages/authentication/verify_reset_code/verify_reset_code_screen.dart';
 import 'package:finskool/src/presentation/pages/authentication/new_password/new_password_screen.dart';
 import 'package:finskool/src/presentation/pages/authentication/password_reset_success/password_reset_success_screen.dart';
+import 'package:finskool/src/presentation/pages/authentication/verify_phone/verify_phone_screen.dart';
+import 'package:finskool/src/presentation/pages/authentication/verify_email/verify_email_screen.dart';
+import 'package:finskool/src/presentation/pages/authentication/google_last_step/google_last_step_screen.dart';
+import 'package:finskool/src/presentation/pages/authentication/signup_success/signup_success_screen.dart';
 
 GoRouter routerinit = GoRouter(
   routes: <RouteBase>[
@@ -69,6 +73,38 @@ GoRouter routerinit = GoRouter(
       path: AppRoutes.PASSWORD_RESET_SUCCESS_ROUTE_PATH,
       builder: (BuildContext context, GoRouterState state) {
         return const PasswordResetSuccessScreen();
+      },
+    ),
+
+    ///  =================================================================
+    ///  ****************** Signup Verification Routes ********************
+    ///  =================================================================
+    GoRoute(
+      name: AppRoutes.VERIFY_PHONE_ROUTE_NAME,
+      path: AppRoutes.VERIFY_PHONE_ROUTE_PATH,
+      builder: (BuildContext context, GoRouterState state) {
+        return const VerifyPhoneScreen();
+      },
+    ),
+    GoRoute(
+      name: AppRoutes.VERIFY_EMAIL_ROUTE_NAME,
+      path: AppRoutes.VERIFY_EMAIL_ROUTE_PATH,
+      builder: (BuildContext context, GoRouterState state) {
+        return const VerifyEmailScreen();
+      },
+    ),
+    GoRoute(
+      name: AppRoutes.GOOGLE_LAST_STEP_ROUTE_NAME,
+      path: AppRoutes.GOOGLE_LAST_STEP_ROUTE_PATH,
+      builder: (BuildContext context, GoRouterState state) {
+        return const GoogleLastStepScreen();
+      },
+    ),
+    GoRoute(
+      name: AppRoutes.SIGNUP_SUCCESS_ROUTE_NAME,
+      path: AppRoutes.SIGNUP_SUCCESS_ROUTE_PATH,
+      builder: (BuildContext context, GoRouterState state) {
+        return const SignupSuccessScreen();
       },
     ),
   ],

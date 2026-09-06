@@ -138,9 +138,12 @@ at `/reset-password`, `/reset-password/verify`, `/reset-password/new`,
 `/reset-password/success`. `PasswordResetBloc` (singleton, like the other
 auth blocs) carries `email`/`code`/`newPassword` across all four screens —
 each screen just reads the same bloc instance rather than passing data
-through route params. Navigation between steps uses a `BlocConsumer`'s
-`listenWhen: (p, c) => p.state != c.state && c.state == RequestState.loaded`
-to `context.push` on success, not a manual callback.
+through route params. Each submit button's `onPressed` dispatches the
+validating bloc event (so field errors still show) **and** unconditionally
+`context.push`es the next route in the same call, via a plain `BlocBuilder`
+— there's no backend yet, so navigation isn't gated on `RequestState.loaded`.
+Wire it the same way (gated `BlocConsumer`/`listenWhen`) once a real
+verify-code endpoint exists.
 
 The resend-code countdown runs on a `Timer.periodic` owned by the bloc
 (cancelled in `close()`) — the one bloc in this app that manages its own
@@ -155,6 +158,56 @@ screen shares the same chrome.
 `authSpan(text, {bool bold, int? weight})`), not a `subtitle`/`emphasis`
 string pair — several of these screens bold text mid-sentence, not just a
 trailing clause, so build whatever run pattern the copy actually needs.
+
+### Signup verification flow
+
+After "Send Verification Code" on the sign-up form: `verify_phone/` →
+`verify_email/` → `signup_success/`, routed at `/signup/verify-phone`,
+`/signup/verify-email`, `/signup/success`. **`verify_phone/` is one screen,
+not two** — per Figma, the WhatsApp number confirmation (inline icon + number
++ "Change" link, no bordered field, no separate label) and the 6-digit OTP
+entry live on the same screen, not a "confirm number" screen followed by a
+separate "enter code" screen. Don't split it back out.
+
+One singleton `SignupVerificationBloc` carries both channels' state
+(`phoneCode`/`emailCode`, independent `phoneResendSeconds`/
+`emailResendSeconds` each backed by their own `Timer.periodic`) — same
+pattern as `PasswordResetBloc`, just two of everything since there are two
+channels to verify. The signup form's submit button calls
+`SignupVerificationEvent.prefill(...)` **and** `sendPhoneCode()` (which
+starts the resend timer) right before pushing — the code is sent
+immediately on arrival since there's no separate "send" button on this
+screen — rather than the verification screens reading `SignUpFormBloc`
+directly, keeping the flow able to run standalone from the Google path too.
+
+**`verify_email/` has no Figma source** — Figma only designed the WhatsApp
+pair. It's built to reuse the exact chrome (`AuthHeader`, `AuthCard`,
+`OtpBoxes`, `ResendCodeRow`) already pixel-matched for the password-reset
+email-code screen, since a signup flow that verifies a phone but not the
+email it was created with isn't standard. If Figma adds this screen later,
+diff against it rather than assuming the current copy is final.
+
+`ResendCodeRow` and `ChangeLinkRow` (the "Wrong X? Change it" line) live in
+`widgets/` and are shared across the password-reset and signup-verification
+flows — don't fork per-flow copies; pass the question/label text in.
+
+**Google signup is intentionally static for now.** Tapping "Sign up with
+Google" on the sign-up form pushes `google_last_step/`
+(`/signup/google-last-step`), the "One last step" screen — a fixed mock
+Google account (`GoogleAccountChip`: avatar + name/email + verified
+checkmark, not tappable) followed by the **same** `PhoneField` +
+`MemberHintCard` used on the manual sign-up form, then "Send Verification
+Code". This pushes `verify_phone/` directly (no email OTP afterwards, since
+Google already verifies the email) — `SignUpFormBloc` drives the phone
+field here too (shared with the manual form), and
+`SignUpFormEvent.isFromSocial(true)` plus
+`SignupVerificationEvent.prefill(isFromSocial: true)` are what make
+`verify_phone_form.dart` skip to `signup_success/` instead of
+`verify_email/` on its "Verify & Continue" button. `GoogleSigninBloc`'s real
+flow is untouched and still backs the **Login** screen's Google button. Wire
+a real Google account picker and a real WhatsApp/email OTP backend here when
+ready — the branching logic is already in place, only the data source is
+mocked.
 
 ### Responsive layout (iOS + Android, phone + tablet)
 

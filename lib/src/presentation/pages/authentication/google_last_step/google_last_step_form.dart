@@ -5,20 +5,20 @@ import 'package:finskool/src/comman/routes.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
 import 'package:finskool/src/presentation/bloc/authentication/sing_up_form/sign_up_form_bloc.dart';
 import 'package:finskool/src/presentation/bloc/authentication/signup_verification/signup_verification_bloc.dart';
-import '../widgets/auth_text_field.dart';
+import '../widgets/back_arrow_button.dart';
 import '../widgets/phone_field.dart';
 import '../widgets/member_hint_card.dart';
+import '../widgets/auth_submit_button.dart';
 import '../widgets/auth_divider.dart';
 import '../widgets/google_auth_button.dart';
-import '../widgets/auth_switch_prompt.dart';
-import '../widgets/auth_tab_switch.dart';
-import '../widgets/auth_field_icons.dart';
-import '../widgets/auth_submit_button.dart';
-import '../auth_tab_scope.dart';
-import 'signup_password_fields.dart';
+import '../widgets/privacy_footer_note.dart';
+import 'google_account_chip.dart';
 
-class SignUpForm extends StatelessWidget {
-  const SignUpForm({super.key});
+class GoogleLastStepForm extends StatelessWidget {
+  const GoogleLastStepForm({super.key});
+
+  static const _mockName = 'Hardik Sharma';
+  static const _mockEmail = 'hardik@gmail.com';
 
   @override
   Widget build(BuildContext context) {
@@ -28,22 +28,12 @@ class SignUpForm extends StatelessWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            AuthTextField(
-              label: 'Full Name',
-              hint: 'Enter your full name',
-              iconAsset: AuthFieldIcons.person,
-              errorText: state.fullNameError,
-              onChanged: (v) => bloc.add(SignUpFormEvent.firstNameChanged(v)),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: BackArrowButton(onTap: () => context.pop()),
             ),
             const SizedBox(height: AppSpacing.lg),
-            AuthTextField(
-              label: 'Email Address',
-              hint: 'Enter your registered email',
-              iconAsset: AuthFieldIcons.mail,
-              errorText: state.emailError,
-              keyboardType: TextInputType.emailAddress,
-              onChanged: (v) => bloc.add(SignUpFormEvent.emailOnChanged(v)),
-            ),
+            const GoogleAccountChip(name: _mockName, email: _mockEmail),
             const SizedBox(height: AppSpacing.lg),
             PhoneField(
               countryCode: state.countryCode,
@@ -55,19 +45,35 @@ class SignUpForm extends StatelessWidget {
             const SizedBox(height: AppSpacing.lg),
             const MemberHintCard(),
             const SizedBox(height: AppSpacing.lg),
-            SignUpPasswordFields(state: state, bloc: bloc),
-            const SizedBox(height: AppSpacing.lg),
+            Text.rich(
+              TextSpan(style: Theme.of(context).textTheme.bodySmall, children: [
+                const TextSpan(text: "We'll send a "),
+                TextSpan(
+                  text: '6-digit code',
+                  style: inter(
+                      size: 10,
+                      weight: 700,
+                      height: 1.6,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant),
+                ),
+                const TextSpan(
+                    text: ' to this number on WhatsApp number to confirm '
+                        "it's yours."),
+              ]),
+            ),
+            const SizedBox(height: AppSpacing.xl),
             AuthSubmitButton(
               label: 'Send Verification Code',
-              loading: state.state.isLoading,
+              loading: false,
               onPressed: () {
-                bloc.add(const SignUpFormEvent.registerUser(false));
+                bloc.add(SignUpFormEvent.emailOnChanged(_mockEmail));
+                bloc.add(const SignUpFormEvent.isFromSocial(true));
                 final verificationBloc = context.read<SignupVerificationBloc>();
                 verificationBloc.add(
                   SignupVerificationEvent.prefill(
                     phoneDisplay: '${state.countryCode} ${state.phonenumber}',
-                    email: state.email,
-                    isFromSocial: false,
+                    email: _mockEmail,
+                    isFromSocial: true,
                   ),
                 );
                 verificationBloc.add(const SignupVerificationEvent.sendPhoneCode());
@@ -75,18 +81,13 @@ class SignUpForm extends StatelessWidget {
               },
             ),
             const SizedBox(height: AppSpacing.lg),
+            const PrivacyFooterNote(),
+            const SizedBox(height: AppSpacing.md),
             const AuthDivider(),
-            const SizedBox(height: AppSpacing.lg),
+            const SizedBox(height: AppSpacing.md),
             GoogleAuthButton(
-              label: 'Sign up with Google',
-              loading: false,
-              onPressed: () => context.push(AppRoutes.GOOGLE_LAST_STEP_ROUTE_PATH),
-            ),
-            const SizedBox(height: AppSpacing.xl),
-            AuthSwitchPrompt(
-              message: 'Already have an account?',
-              actionLabel: 'Log in',
-              onTap: () => AuthTabScope.of(context).onSwitchTab(AuthTab.login),
+              label: 'Use a different Google account',
+              onPressed: () => context.pop(),
             ),
           ],
         );
