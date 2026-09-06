@@ -9,13 +9,11 @@ class AuthHeader extends StatelessWidget {
   const AuthHeader({
     super.key,
     required this.title,
-    required this.subtitle,
-    required this.emphasis,
+    required this.subtitleSpans,
   });
 
   final String title;
-  final String subtitle;
-  final String emphasis;
+  final List<TextSpan> subtitleSpans;
 
   @override
   Widget build(BuildContext context) {
@@ -79,7 +77,7 @@ class AuthHeader extends StatelessWidget {
                 style: tt.headlineLarge?.copyWith(color: Colors.white),
               ),
               const SizedBox(height: AppSpacing.xs),
-              AuthHeaderSubtitle(subtitle: subtitle, emphasis: emphasis),
+              AuthHeaderSubtitle(spans: subtitleSpans),
             ],
           ),
         ],

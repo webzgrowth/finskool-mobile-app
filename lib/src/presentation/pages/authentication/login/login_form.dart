@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:finskool/src/comman/routes.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
 import 'package:finskool/src/presentation/bloc/authentication/login_form/login_form_bloc.dart';
 import 'package:finskool/src/presentation/bloc/authentication/google_signin/google_signin_bloc.dart';
@@ -51,7 +53,8 @@ class LoginForm extends StatelessWidget {
             Align(
               alignment: Alignment.centerRight,
               child: TextButton(
-                onPressed: () {},
+                onPressed: () =>
+                    context.push(AppRoutes.RESET_PASSWORD_ROUTE_PATH),
                 child: const Text('Forgot Password ?'),
               ),
             ),

@@ -129,6 +129,33 @@ borderless inner field next to the country chip), you must null out
 `disabledBorder` individually — the global input theme defines those
 per-state, and they override a plain `border: InputBorder.none`.
 
+### Password reset flow
+
+Four **separate screens** (not an in-place tab switch, unlike Login/Sign up)
+sharing one bloc: `pages/authentication/reset_password/` →
+`verify_reset_code/` → `new_password/` → `password_reset_success/`, routed
+at `/reset-password`, `/reset-password/verify`, `/reset-password/new`,
+`/reset-password/success`. `PasswordResetBloc` (singleton, like the other
+auth blocs) carries `email`/`code`/`newPassword` across all four screens —
+each screen just reads the same bloc instance rather than passing data
+through route params. Navigation between steps uses a `BlocConsumer`'s
+`listenWhen: (p, c) => p.state != c.state && c.state == RequestState.loaded`
+to `context.push` on success, not a manual callback.
+
+The resend-code countdown runs on a `Timer.periodic` owned by the bloc
+(cancelled in `close()`) — the one bloc in this app that manages its own
+timer; a `tick()` event drives the countdown so the timer never touches
+`emit` outside an event handler.
+
+The success screen is deliberately **plain white**, not the gradient
+`AuthHeader` — check Figma per-screen rather than assuming every auth
+screen shares the same chrome.
+
+`AuthHeader`'s subtitle takes `subtitleSpans: List<TextSpan>` (built via
+`authSpan(text, {bool bold, int? weight})`), not a `subtitle`/`emphasis`
+string pair — several of these screens bold text mid-sentence, not just a
+trailing clause, so build whatever run pattern the copy actually needs.
+
 ### Responsive layout (iOS + Android, phone + tablet)
 
 This app ships on both platforms and a range of screen sizes, so:

@@ -46,4 +46,32 @@ class Validators {
     }
     return null;
   }
+
+  static String? otp(String value, {int length = 6}) {
+    if (value.length != length || !RegExp(r'^\d+$').hasMatch(value)) {
+      return 'Enter the $length-digit code.';
+    }
+    return null;
+  }
+
+  // Password-strength checklist, exposed individually so the new-password
+  // screen can show each criterion's live pass/fail state.
+  static bool hasMinLength(String value, [int min = 8]) => value.length >= min;
+
+  static bool hasNumberAndSymbol(String value) =>
+      RegExp(r'\d').hasMatch(value) &&
+      RegExp(r'[!@#$%^&*(),.?":{}|<>_\-+=]').hasMatch(value);
+
+  static bool hasUpperAndLower(String value) =>
+      RegExp(r'[A-Z]').hasMatch(value) && RegExp(r'[a-z]').hasMatch(value);
+
+  static String? strongPassword(String value) {
+    if (value.isEmpty) return 'Password is required.';
+    if (!hasMinLength(value) ||
+        !hasNumberAndSymbol(value) ||
+        !hasUpperAndLower(value)) {
+      return 'Password does not meet all requirements.';
+    }
+    return null;
+  }
 }

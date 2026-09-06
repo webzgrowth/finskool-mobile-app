@@ -4,6 +4,10 @@ import 'package:finskool/src/comman/routes.dart';
 import 'package:finskool/src/presentation/pages/splash/splash_screen.dart';
 import 'package:finskool/src/presentation/pages/authentication/auth_screen.dart';
 import 'package:finskool/src/presentation/pages/authentication/widgets/auth_tab_switch.dart';
+import 'package:finskool/src/presentation/pages/authentication/reset_password/reset_password_screen.dart';
+import 'package:finskool/src/presentation/pages/authentication/verify_reset_code/verify_reset_code_screen.dart';
+import 'package:finskool/src/presentation/pages/authentication/new_password/new_password_screen.dart';
+import 'package:finskool/src/presentation/pages/authentication/password_reset_success/password_reset_success_screen.dart';
 
 GoRouter routerinit = GoRouter(
   routes: <RouteBase>[
@@ -33,6 +37,38 @@ GoRouter routerinit = GoRouter(
       path: AppRoutes.SIGNUP_ROUTE_PATH,
       builder: (BuildContext context, GoRouterState state) {
         return const AuthScreen(initialTab: AuthTab.signUp);
+      },
+    ),
+
+    ///  =================================================================
+    ///  ******************** Password Reset Routes ************************
+    ///  =================================================================
+    GoRoute(
+      name: AppRoutes.RESET_PASSWORD_ROUTE_NAME,
+      path: AppRoutes.RESET_PASSWORD_ROUTE_PATH,
+      builder: (BuildContext context, GoRouterState state) {
+        return const ResetPasswordScreen();
+      },
+    ),
+    GoRoute(
+      name: AppRoutes.VERIFY_RESET_CODE_ROUTE_NAME,
+      path: AppRoutes.VERIFY_RESET_CODE_ROUTE_PATH,
+      builder: (BuildContext context, GoRouterState state) {
+        return const VerifyResetCodeScreen();
+      },
+    ),
+    GoRoute(
+      name: AppRoutes.NEW_PASSWORD_ROUTE_NAME,
+      path: AppRoutes.NEW_PASSWORD_ROUTE_PATH,
+      builder: (BuildContext context, GoRouterState state) {
+        return const NewPasswordScreen();
+      },
+    ),
+    GoRoute(
+      name: AppRoutes.PASSWORD_RESET_SUCCESS_ROUTE_NAME,
+      path: AppRoutes.PASSWORD_RESET_SUCCESS_ROUTE_PATH,
+      builder: (BuildContext context, GoRouterState state) {
+        return const PasswordResetSuccessScreen();
       },
     ),
   ],

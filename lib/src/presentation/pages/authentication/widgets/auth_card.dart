@@ -4,9 +4,11 @@ import 'package:finskool/src/utilities/theme/theme.dart';
 /// The white rounded sheet holding the tab switch and form, with an
 /// entrance fade + slide-up animation to satisfy the "good animation" ask.
 class AuthCard extends StatefulWidget {
-  const AuthCard({super.key, required this.tabs, required this.child});
+  const AuthCard({super.key, this.tabs, required this.child});
 
-  final Widget tabs;
+  /// The Login/Sign up segmented control. Screens without a tab switch
+  /// (e.g. the password-reset flow) omit it.
+  final Widget? tabs;
   final Widget child;
 
   @override
@@ -60,8 +62,10 @@ class _AuthCardState extends State<AuthCard>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              widget.tabs,
-              const SizedBox(height: AppSpacing.xl),
+              if (widget.tabs != null) ...[
+                widget.tabs!,
+                const SizedBox(height: AppSpacing.xl),
+              ],
               widget.child,
             ],
           ),
