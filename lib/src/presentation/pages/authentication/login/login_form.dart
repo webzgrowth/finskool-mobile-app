@@ -67,7 +67,14 @@ class LoginForm extends StatelessWidget {
             AuthSubmitButton(
               label: 'Log In',
               loading: state.state.isLoading,
-              onPressed: () => bloc.add(const LoginFormEvent.submit()),
+              // Validate (so errors still show), but don't gate navigation
+              // on it — there's no real backend yet, so every button
+              // should move forward for testing, same as the rest of the
+              // auth flow.
+              onPressed: () {
+                bloc.add(const LoginFormEvent.submit());
+                context.go(AppRoutes.DASHBOARD_ROUTE_PATH);
+              },
             ),
             const SizedBox(height: AppSpacing.lg),
             const AuthDivider(),

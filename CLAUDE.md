@@ -87,6 +87,24 @@ Conventions in use:
 Note the existing folder is spelled `sing_up_form` (typo). Leave it unless
 renaming is the actual task.
 
+### Bloc granularity — one bloc per responsibility
+
+Give each distinct responsibility its own singleton bloc rather than
+merging unrelated state onto one screen's bloc just because it's on one
+screen. E.g. the Feed tab uses three: `BottomNavBloc` (which tab is
+selected), `FeedBloc` (the post list + reaction state), `FeedFilterBloc`
+(search text + filter chips) — search/filter state and post data are
+different responsibilities even though they render on the same screen.
+Screens combine multiple blocs' states in the widget layer (nested
+`BlocBuilder`s); blocs don't talk to each other directly.
+
+**Not everything is a bloc.** Transient gesture/animation-only UI state —
+which icon a long-press reaction picker is currently hovering, a
+scroll-driven app-bar hide/show — has no app-state meaning and stays as
+local widget state (`ValueNotifier`, `AnimationController`, plain fields on
+a controller object), not bloc state. A bloc models business/app state;
+don't "fix" one of these into a bloc later just for consistency.
+
 ### Form validation
 
 Use `comman/validators.dart` (`Validators.email`, `.required`, `.password`,
@@ -230,6 +248,57 @@ This app ships on both platforms and a range of screen sizes, so:
 - Let system font scaling apply normally; don't set `textScaler` to a fixed
   value to "fix" a layout — fix the layout to tolerate larger text instead.
 
+## Feed / Dashboard
+
+`pages/dashboard/dashboard_shell_screen.dart` hosts the 4 bottom-nav tabs
+(Feed / Communities / Performance / Profile) behind an `IndexedStack`
+driven by `BottomNavBloc` — a flat widget switch, not a go_router
+`StatefulShellRoute` (the router elsewhere in this app is flat too;
+revisit only if deep-linking to a specific tab becomes a requirement).
+`IndexedStack` (not a plain conditional) is what keeps Feed's scroll
+position across tab switches. Only Feed is fully built; Communities,
+Performance, and Profile are intentional bare placeholders pending design.
+
+Three singleton blocs back the Feed tab (see "Bloc granularity" above for
+why they're separate): `BottomNavBloc` (tab selection), `bloc/feed/posts/
+FeedBloc` (post list + reaction state), `bloc/feed/filter/FeedFilterBloc`
+(search text + filter chips).
+
+**Mock data, real shape.** `FeedBloc` calls `data/datasource/
+FeedMockDatasource` directly for a hardcoded `List<FeedPostModel>` —
+`data/`+`domain/` are still otherwise-empty scaffolding (see Known gaps),
+so this intentionally skips a full repository/usecase chain. Swapping in a
+real `Dio`-backed repository later only touches this one file.
+
+**Post media** (`domain/model/post_media_model.dart`) is one of
+`image` / `youtubeEmbed` / `instagramEmbed`. Embeds render inline via
+`webview_flutter` (`widgets/embed_player.dart`) — true in-feed playback,
+not a tap-to-open-externally thumbnail. Native uploaded-video playback
+(`video_player`) is out of scope; the "01:11"-style badge on an `image`
+item is a decorative overlay, not a real video control.
+
+**Reaction icons are emoji glyphs** (👍❤️🔥👏✅😮, `domain/model/
+reaction_type.dart`), standing in for custom Figma icon art that isn't
+obtainable right now (Figma MCP disconnected). Swap `ReactionTypeX.emoji`
+for real assets if they become available — don't rebuild the picker/sheet
+around a different icon system, just the glyph source.
+
+The long-press reaction picker (`widgets/reaction_picker_overlay.dart`) is
+a plain controller class (`OverlayEntry` + `ValueNotifier<int?>`), not a
+bloc — see "Bloc granularity." `widgets/reactions_bottom_sheet.dart` and
+`widgets/feed_filter_sheet.dart` reuse the exact bottom-sheet chrome
+established in `authentication/widgets/country_picker_sheet.dart`
+(`showModalBottomSheet(isScrollControlled: true, backgroundColor:
+Colors.transparent)`, drag handle, `AppRadii.sheet`).
+
+The top search bar's hide-on-scroll-down/snap-back-on-scroll-up behavior
+is `SliverAppBar(floating: true, snap: true)` — Material's built-in
+floating-app-bar pattern — not a hand-rolled `AnimationController`.
+
+`AppRoutes.DASHBOARD_ROUTE_PATH` (`/dashboard`) was a dead constant before
+this — `AuthScreen`'s Google-listener and `SignupSuccessScreen`'s
+"Go to Home" were already calling `context.go` on it. It's now routed.
+
 ## Design system
 
 Lives in `lib/src/utilities/theme/`. Import the barrel:
@@ -301,8 +370,10 @@ Do not treat these as incidental bugs to fix while doing something else:
   stubs returning `false`; `LoginFormEvent.submit` and
   `SignUpFormEvent.registerUser` validate but don't call a backend yet — both
   are waiting on `domain/usecases` to be wired up.
-- Only `Splash`, `Login`, and `SignUp` are routed in `utilities/go_router.dart`,
-  though `comman/routes.dart` declares ~64 route constants.
+- Most of `comman/routes.dart`'s ~64 route constants are still unrouted in
+  `utilities/go_router.dart` — only the auth flows and `/dashboard` exist
+  so far. Check `go_router.dart` before assuming a declared constant (e.g.
+  `HOME_ROUTE_PATH`, `PROFILE_ROUTE_PATH`) actually has a `GoRoute`.
 - `comman/constant.dart`, `utilities/base_data_center.dart` and
   `extensions/sheet_open.dart` are entirely commented out.
 - `comman/toast.dart` and `comman/enum_to_string.dart` are empty files.

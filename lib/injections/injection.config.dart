@@ -22,6 +22,12 @@ import 'package:finskool/src/presentation/bloc/authentication/signup_verificatio
     as _i204;
 import 'package:finskool/src/presentation/bloc/authentication/sing_up_form/sign_up_form_bloc.dart'
     as _i251;
+import 'package:finskool/src/presentation/bloc/dashboard/bottom_nav/bottom_nav_bloc.dart'
+    as _i64;
+import 'package:finskool/src/presentation/bloc/feed/filter/feed_filter_bloc.dart'
+    as _i695;
+import 'package:finskool/src/presentation/bloc/feed/posts/feed_bloc.dart'
+    as _i2;
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:injectable/injectable.dart' as _i526;
 
@@ -42,6 +48,9 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i204.SignupVerificationBloc(),
     );
     gh.singleton<_i251.SignUpFormBloc>(() => _i251.SignUpFormBloc());
+    gh.singleton<_i64.BottomNavBloc>(() => _i64.BottomNavBloc());
+    gh.singleton<_i695.FeedFilterBloc>(() => _i695.FeedFilterBloc());
+    gh.singleton<_i2.FeedBloc>(() => _i2.FeedBloc());
     return this;
   }
 }

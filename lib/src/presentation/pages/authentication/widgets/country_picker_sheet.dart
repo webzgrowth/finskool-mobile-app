@@ -32,13 +32,16 @@ class _CountryPickerSheetState extends State<_CountryPickerSheet> {
             c.dialCode.contains(_query))
         .toList();
 
-    return SafeArea(
-      child: Container(
-        height: MediaQuery.sizeOf(context).height * 0.7,
-        decoration: BoxDecoration(
-          color: cs.surface,
-          borderRadius: AppRadii.sheet,
-        ),
+    return Container(
+      height: MediaQuery.sizeOf(context).height * 0.7,
+      decoration: BoxDecoration(
+        color: cs.surface,
+        borderRadius: AppRadii.sheet,
+      ),
+      // SafeArea goes around the content, not the whole sheet — wrapping
+      // the Container itself shrinks it away from the true bottom edge.
+      child: SafeArea(
+        top: false,
         child: Column(
           children: [
             const SizedBox(height: AppSpacing.sm),
