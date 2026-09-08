@@ -10,6 +10,17 @@ class AppPalette {
   static const Color secondary = Color(0xFF164544);
   static const Color feedBase = Color(0xFFE7F3F3);
 
+  // Auth header gradient — exact 3-stop values from the Figma node
+  // (linear-gradient(145deg, #174645 0%, #154443 19.5%, #108B8B 47.6%)).
+  static const Color headerGradientStart = Color(0xFF174645);
+  static const Color headerGradientMid = Color(0xFF154443);
+  static const Color headerGradientEnd = Color(0xFF108B8B);
+
+  // Card title color used on the password-reset flow's screens
+  // ("Reset password", "New password" etc.) — exact Figma value, distinct
+  // from the theme's `secondary` token.
+  static const Color cardTitle = Color(0xFF153D3A);
+
   // Teal ramp
   static const Color teal50 = Color(0xFFF4FAFA);
   static const Color teal100 = Color(0xFFE7F3F3);

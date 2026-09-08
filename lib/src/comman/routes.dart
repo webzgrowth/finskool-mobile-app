@@ -16,6 +16,34 @@ class AppRoutes {
   static const String SIGNUP_ROUTE_NAME = 'signup';
   static const String SIGNUP_ROUTE_PATH = '/signup';
 
+  // Password reset routes
+  static const String RESET_PASSWORD_ROUTE_NAME = 'reset-password';
+  static const String RESET_PASSWORD_ROUTE_PATH = '/reset-password';
+
+  static const String VERIFY_RESET_CODE_ROUTE_NAME = 'verify-reset-code';
+  static const String VERIFY_RESET_CODE_ROUTE_PATH = '/reset-password/verify';
+
+  static const String NEW_PASSWORD_ROUTE_NAME = 'new-password';
+  static const String NEW_PASSWORD_ROUTE_PATH = '/reset-password/new';
+
+  static const String PASSWORD_RESET_SUCCESS_ROUTE_NAME =
+      'password-reset-success';
+  static const String PASSWORD_RESET_SUCCESS_ROUTE_PATH =
+      '/reset-password/success';
+
+  // Signup verification routes
+  static const String VERIFY_PHONE_ROUTE_NAME = 'verify-phone';
+  static const String VERIFY_PHONE_ROUTE_PATH = '/signup/verify-phone';
+
+  static const String VERIFY_EMAIL_ROUTE_NAME = 'verify-email';
+  static const String VERIFY_EMAIL_ROUTE_PATH = '/signup/verify-email';
+
+  static const String GOOGLE_LAST_STEP_ROUTE_NAME = 'google-last-step';
+  static const String GOOGLE_LAST_STEP_ROUTE_PATH = '/signup/google-last-step';
+
+  static const String SIGNUP_SUCCESS_ROUTE_NAME = 'signup-success';
+  static const String SIGNUP_SUCCESS_ROUTE_PATH = '/signup/success';
+
   //current location route
   static const String CURRENT_LOCATION_ROUTE_NAME = 'current-location';
   static const String CURRENT_LOCATION_ROUTE_PATH = '/current-location';

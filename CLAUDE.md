@@ -87,6 +87,149 @@ Conventions in use:
 Note the existing folder is spelled `sing_up_form` (typo). Leave it unless
 renaming is the actual task.
 
+### Form validation
+
+Use `comman/validators.dart` (`Validators.email`, `.required`, `.password`,
+`.confirmPassword`, `.phone`) rather than inlining regex/length checks in a
+bloc. Convention: validate on submit (not on every keystroke), store the
+per-field error as a nullable `String?` on the state, and clear that field's
+error on its own `*Changed` event. See `sign_up_form_validation.dart` for the
+pattern of moving multi-field validation into an `extension on <State>` when
+inlining it would push the bloc file over the line-length rule.
+
+## Authentication screens
+
+`presentation/pages/authentication/` — `login/` and `signup/` are two states
+of one tab-switch screen (see `widgets/auth_tab_switch.dart`), matching the
+Figma design. Shared pieces live in `widgets/`: `AuthHeader` (gradient hero),
+`AuthCard` (animated entrance sheet), `AuthTextField`, `PhoneField`,
+`GoogleAuthButton`, `AuthDivider`, `MemberHintCard`, `AuthSwitchPrompt`.
+`login_form.dart` / `signup_form.dart` wire `LoginFormBloc` /
+`SignUpFormBloc` + `GoogleSigninBloc`. Splash now routes to `/login` after
+its delay (`AuthenticatorWatcherBloc` still doesn't resolve auth state — see
+Known gaps).
+
+Field-label icons (`AuthFieldIcons.person/mail/phone/lock`) are the exact
+SVGs exported from Figma, not Material `IconData` — `FieldLabel` renders
+them via `flutter_svg` with a `colorFilter` tint. When a screen needs a new
+field icon, export the exact asset from Figma (`get_design_context` on that
+node) rather than substituting a Material icon that merely looks similar.
+
+`PhoneField`'s country code is a real, working picker (`CountryCodeChip` +
+`showCountryPicker`), not a hardcoded "+91" — `comman/country_codes.dart`
+holds the `Country` list (dial code, flag, expected digit count), and
+`Validators.phone(value, expectedDigits: ...)` validates against whichever
+country is currently selected in `SignUpFormState.countryCode`. When adding
+a phone field elsewhere, reuse this pattern rather than hardcoding a
+country or a fixed digit length.
+
+When wrapping a `TextField` with your own border (see `PhoneField`'s
+borderless inner field next to the country chip), you must null out
+`enabledBorder`/`focusedBorder`/`errorBorder`/`focusedErrorBorder`/
+`disabledBorder` individually — the global input theme defines those
+per-state, and they override a plain `border: InputBorder.none`.
+
+### Password reset flow
+
+Four **separate screens** (not an in-place tab switch, unlike Login/Sign up)
+sharing one bloc: `pages/authentication/reset_password/` →
+`verify_reset_code/` → `new_password/` → `password_reset_success/`, routed
+at `/reset-password`, `/reset-password/verify`, `/reset-password/new`,
+`/reset-password/success`. `PasswordResetBloc` (singleton, like the other
+auth blocs) carries `email`/`code`/`newPassword` across all four screens —
+each screen just reads the same bloc instance rather than passing data
+through route params. Each submit button's `onPressed` dispatches the
+validating bloc event (so field errors still show) **and** unconditionally
+`context.push`es the next route in the same call, via a plain `BlocBuilder`
+— there's no backend yet, so navigation isn't gated on `RequestState.loaded`.
+Wire it the same way (gated `BlocConsumer`/`listenWhen`) once a real
+verify-code endpoint exists.
+
+The resend-code countdown runs on a `Timer.periodic` owned by the bloc
+(cancelled in `close()`) — the one bloc in this app that manages its own
+timer; a `tick()` event drives the countdown so the timer never touches
+`emit` outside an event handler.
+
+The success screen is deliberately **plain white**, not the gradient
+`AuthHeader` — check Figma per-screen rather than assuming every auth
+screen shares the same chrome.
+
+`AuthHeader`'s subtitle takes `subtitleSpans: List<TextSpan>` (built via
+`authSpan(text, {bool bold, int? weight})`), not a `subtitle`/`emphasis`
+string pair — several of these screens bold text mid-sentence, not just a
+trailing clause, so build whatever run pattern the copy actually needs.
+
+### Signup verification flow
+
+After "Send Verification Code" on the sign-up form: `verify_phone/` →
+`verify_email/` → `signup_success/`, routed at `/signup/verify-phone`,
+`/signup/verify-email`, `/signup/success`. **`verify_phone/` is one screen,
+not two** — per Figma, the WhatsApp number confirmation (inline icon + number
++ "Change" link, no bordered field, no separate label) and the 6-digit OTP
+entry live on the same screen, not a "confirm number" screen followed by a
+separate "enter code" screen. Don't split it back out.
+
+One singleton `SignupVerificationBloc` carries both channels' state
+(`phoneCode`/`emailCode`, independent `phoneResendSeconds`/
+`emailResendSeconds` each backed by their own `Timer.periodic`) — same
+pattern as `PasswordResetBloc`, just two of everything since there are two
+channels to verify. The signup form's submit button calls
+`SignupVerificationEvent.prefill(...)` **and** `sendPhoneCode()` (which
+starts the resend timer) right before pushing — the code is sent
+immediately on arrival since there's no separate "send" button on this
+screen — rather than the verification screens reading `SignUpFormBloc`
+directly, keeping the flow able to run standalone from the Google path too.
+
+**`verify_email/` has no Figma source** — Figma only designed the WhatsApp
+pair. It's built to reuse the exact chrome (`AuthHeader`, `AuthCard`,
+`OtpBoxes`, `ResendCodeRow`) already pixel-matched for the password-reset
+email-code screen, since a signup flow that verifies a phone but not the
+email it was created with isn't standard. If Figma adds this screen later,
+diff against it rather than assuming the current copy is final.
+
+`ResendCodeRow` and `ChangeLinkRow` (the "Wrong X? Change it" line) live in
+`widgets/` and are shared across the password-reset and signup-verification
+flows — don't fork per-flow copies; pass the question/label text in.
+
+**Google signup is intentionally static for now.** Tapping "Sign up with
+Google" on the sign-up form pushes `google_last_step/`
+(`/signup/google-last-step`), the "One last step" screen — a fixed mock
+Google account (`GoogleAccountChip`: avatar + name/email + verified
+checkmark, not tappable) followed by the **same** `PhoneField` +
+`MemberHintCard` used on the manual sign-up form, then "Send Verification
+Code". This pushes `verify_phone/` directly (no email OTP afterwards, since
+Google already verifies the email) — `SignUpFormBloc` drives the phone
+field here too (shared with the manual form), and
+`SignUpFormEvent.isFromSocial(true)` plus
+`SignupVerificationEvent.prefill(isFromSocial: true)` are what make
+`verify_phone_form.dart` skip to `signup_success/` instead of
+`verify_email/` on its "Verify & Continue" button. `GoogleSigninBloc`'s real
+flow is untouched and still backs the **Login** screen's Google button. Wire
+a real Google account picker and a real WhatsApp/email OTP backend here when
+ready — the branching logic is already in place, only the data source is
+mocked.
+
+### Responsive layout (iOS + Android, phone + tablet)
+
+This app ships on both platforms and a range of screen sizes, so:
+
+- **Never hardcode a status-bar or home-indicator inset.** iOS notch/Dynamic
+  Island heights, Android status bars, and gesture-nav bars all differ.
+  Read `MediaQuery.paddingOf(context).top` / `.bottom` and add it to padding
+  yourself when a gradient/background needs to extend behind the system UI
+  but the *content* must not sit under it (see `AuthHeader`, `AuthCard`) —
+  don't reach for `SafeArea` there, since it would also inset the background
+  and cut the gradient short.
+- **Cap content width on large screens.** Wrap screen content in
+  `Center(child: ConstrainedBox(constraints: BoxConstraints(maxWidth: ...)))`
+  (see `AuthScreen`) rather than letting it stretch edge-to-edge on tablets
+  or wide Android devices.
+- **Use `MediaQuery.sizeOf(context)` / `.orientationOf(context)`** (not the
+  deprecated `MediaQuery.of(context).size`) when a layout genuinely needs to
+  branch on available space — not as a default for every widget.
+- Let system font scaling apply normally; don't set `textScaler` to a fixed
+  value to "fix" a layout — fix the layout to tolerate larger text instead.
+
 ## Design system
 
 Lives in `lib/src/utilities/theme/`. Import the barrel:
@@ -148,21 +291,18 @@ as a text colour at `bodySmall`. Use `onSurface` (16:1) or `onSurfaceVariant`
 
 Do not treat these as incidental bugs to fix while doing something else:
 
-- **The app does not start.** `Firebase.initializeApp` is commented out in
-  `main.dart` and `firebase_options.dart` does not exist, yet
-  `AuthenticatorWatcherBloc` reads `FirebaseAuth.instance` in its constructor.
-  Because injectable registers blocs with `@singleton` (**eager**, not lazy),
-  `configureDependencies()` constructs that bloc immediately — so the throw
-  happens during startup and the app renders a blank white screen. Removing the
-  `BlocProvider` does not avoid it; the singleton is built at DI time.
-  Fix by initializing Firebase, or by switching these to `@lazySingleton` and
-  moving `FirebaseAuth.instance` out of the constructor body.
-- **Splash never advances** — `AuthenticatorWatcherEvent.authCheckRequest`
-  emits nothing, so the `BlocListener` in `splash_screen.dart` never fires.
+- **Firebase has been removed** (`firebase_auth`, `firebase_storage`, and all
+  `FirebaseAuth`/`FirebaseStorage` call sites) — the app has no backend yet.
+  `AuthenticatorWatcherBloc.authCheckRequest` still emits nothing (its body is
+  commented out from before the Firebase removal), so nothing currently
+  listens for an auth-state change; that's why `splash_screen.dart` routes to
+  `/login` directly on a timer instead of waiting on that bloc.
 - `GoogleSigninBloc._signUpNewUser` and `_checkIfUserAlreadyRegistered` are
-  stubs returning `false`; `SignUpFormEvent.registerUser` has an empty handler.
-- Only `SplashScreen` is routed in `utilities/go_router.dart`, though
-  `comman/routes.dart` declares ~64 route constants.
+  stubs returning `false`; `LoginFormEvent.submit` and
+  `SignUpFormEvent.registerUser` validate but don't call a backend yet — both
+  are waiting on `domain/usecases` to be wired up.
+- Only `Splash`, `Login`, and `SignUp` are routed in `utilities/go_router.dart`,
+  though `comman/routes.dart` declares ~64 route constants.
 - `comman/constant.dart`, `utilities/base_data_center.dart` and
   `extensions/sheet_open.dart` are entirely commented out.
 - `comman/toast.dart` and `comman/enum_to_string.dart` are empty files.

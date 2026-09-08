@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -14,7 +13,6 @@ class AuthenticatorWatcherBloc
     extends Bloc<AuthenticatorWatcherEvent, AuthenticatorWatcherState> {
   AuthenticatorWatcherBloc()
       : super(const AuthenticatorWatcherState.initial()) {
-    final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
     on<AuthenticatorWatcherEvent>((event, emit) async {
       await event.map(
         authCheckRequest: (_) async {
@@ -42,8 +40,7 @@ class AuthenticatorWatcherBloc
           // }
         },
         signOut: (_) async {
-          await _firebaseAuth.signOut();
-          GoogleSignIn.instance.signOut();
+          await GoogleSignIn.instance.signOut();
           emit(const AuthenticatorWatcherState.unauthenticated());
           emit(const AuthenticatorWatcherState.initial());
         },

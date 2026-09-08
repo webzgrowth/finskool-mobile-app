@@ -19,11 +19,19 @@ class AppGradients extends ThemeExtension<AppGradients> {
   final Color feedBase;
   final Color feedCard;
 
+  // Direction vector for the Figma node's 145deg CSS linear-gradient,
+  // converted to Flutter's Alignment-based begin/end (CSS 0deg = up,
+  // clockwise; Flutter's x = sin(theta), y = -cos(theta)).
   static const AppGradients light = AppGradients(
     brand: LinearGradient(
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-      colors: [AppPalette.secondary, AppPalette.primary],
+      begin: Alignment(-0.574, -0.819),
+      end: Alignment(0.574, 0.819),
+      colors: [
+        AppPalette.headerGradientStart,
+        AppPalette.headerGradientMid,
+        AppPalette.headerGradientEnd,
+      ],
+      stops: [0.0, 0.195, 0.476],
     ),
     feedBase: AppPalette.feedBase,
     feedCard: AppPalette.white,
@@ -31,9 +39,9 @@ class AppGradients extends ThemeExtension<AppGradients> {
 
   static const AppGradients dark = AppGradients(
     brand: LinearGradient(
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-      colors: [AppPalette.secondary, AppPalette.teal600],
+      begin: Alignment(-0.574, -0.819),
+      end: Alignment(0.574, 0.819),
+      colors: [AppPalette.headerGradientStart, AppPalette.teal600],
     ),
     feedBase: AppPalette.darkSurfaceContainer,
     feedCard: AppPalette.darkSurfaceHigh,

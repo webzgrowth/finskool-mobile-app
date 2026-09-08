@@ -5,33 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:finskool/src/utilities/secure_storage/path_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:device_info_plus/device_info_plus.dart';
 
 class CommonAssets {
   static String defaultImage = "assets/logo/logo.png";
-
-  //Generate FirebaseStorage URL
-  static Future<String?> getGCSUrl(String? icon) async {
-    if (icon == null || icon == "") icon = "assets/images/biya_circle_icon.svg";
-    try {
-      String url;
-      url = await FirebaseStorage.instance
-          .ref(icon)
-          // .ref("${icon}_40x40.jpeg")
-          .getDownloadURL();
-
-      PathStorage.savePath(icon, url);
-      return url;
-    } catch (e) {
-      debugPrint('Error occurred for $icon');
-      return null;
-    }
-  }
 
   static Widget getAssetsSvgImage(String imagePath,
       {double height = 40, double width = 40, Color? color}) {
@@ -77,57 +56,6 @@ class CommonAssets {
             },
           )
         : getAssetsImage(height: height, width: width);
-  }
-
-  static Widget getGCSNetworkImage(String imageUrl, String defaultImage2,
-      {double height = 40,
-      double width = 40,
-      double radius = 50,
-      BoxFit fit = BoxFit.cover}) {
-    try {
-      if (imageUrl.isEmpty) {
-        return getAssetsImage(height: height, width: width, fit: fit);
-      } else {
-        final data = PathStorage.readPathIfAvailable(imageUrl);
-
-        if (data.isNotEmpty) {
-          return getNetworkImage(
-            data.toString(),
-            height: height,
-            width: width,
-          );
-        } else {
-          return FutureBuilder(
-            future: getGCSUrl(imageUrl),
-            builder: (BuildContext context, AsyncSnapshot<String?> snapshot) {
-              if (snapshot.hasError) {
-                debugPrint(snapshot.error.toString());
-              }
-              if (snapshot.connectionState == ConnectionState.done) {
-                if (snapshot.data == null) {
-                  return getAssetsImage(
-                      height: height,
-                      width: width,
-                      imagePath: defaultImage,
-                      fit: fit);
-                }
-                return getNetworkImage(snapshot.data.toString(),
-                    height: height, width: width, fit: fit);
-              } else {
-                return getAssetsImage(
-                    height: height,
-                    width: width,
-                    imagePath: defaultImage,
-                    fit: fit);
-              }
-            },
-          );
-        }
-      }
-    } on Exception {
-      return getAssetsImage(
-          height: height, width: width, imagePath: defaultImage);
-    }
   }
 
   static void copyToClipboard(String text) {

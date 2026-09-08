@@ -14,6 +14,12 @@ import 'package:finskool/src/presentation/bloc/authentication/authenticator_watc
     as _i821;
 import 'package:finskool/src/presentation/bloc/authentication/google_signin/google_signin_bloc.dart'
     as _i747;
+import 'package:finskool/src/presentation/bloc/authentication/login_form/login_form_bloc.dart'
+    as _i598;
+import 'package:finskool/src/presentation/bloc/authentication/password_reset/password_reset_bloc.dart'
+    as _i294;
+import 'package:finskool/src/presentation/bloc/authentication/signup_verification/signup_verification_bloc.dart'
+    as _i204;
 import 'package:finskool/src/presentation/bloc/authentication/sing_up_form/sign_up_form_bloc.dart'
     as _i251;
 import 'package:get_it/get_it.dart' as _i174;
@@ -30,6 +36,11 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i821.AuthenticatorWatcherBloc(),
     );
     gh.singleton<_i747.GoogleSigninBloc>(() => _i747.GoogleSigninBloc());
+    gh.singleton<_i598.LoginFormBloc>(() => _i598.LoginFormBloc());
+    gh.singleton<_i294.PasswordResetBloc>(() => _i294.PasswordResetBloc());
+    gh.singleton<_i204.SignupVerificationBloc>(
+      () => _i204.SignupVerificationBloc(),
+    );
     gh.singleton<_i251.SignUpFormBloc>(() => _i251.SignUpFormBloc());
     return this;
   }

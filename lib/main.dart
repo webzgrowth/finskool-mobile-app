@@ -4,6 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:finskool/injections/injection.dart';
 import 'package:finskool/src/presentation/bloc/authentication/authenticator_watcher/authenticator_watcher_bloc.dart';
+import 'package:finskool/src/presentation/bloc/authentication/login_form/login_form_bloc.dart';
+import 'package:finskool/src/presentation/bloc/authentication/sing_up_form/sign_up_form_bloc.dart';
+import 'package:finskool/src/presentation/bloc/authentication/google_signin/google_signin_bloc.dart';
+import 'package:finskool/src/presentation/bloc/authentication/password_reset/password_reset_bloc.dart';
+import 'package:finskool/src/presentation/bloc/authentication/signup_verification/signup_verification_bloc.dart';
 import 'package:finskool/src/utilities/app_bloc_observer.dart';
 import 'package:finskool/src/utilities/go_router.dart';
 import 'package:finskool/src/utilities/logger.dart';
@@ -16,9 +21,6 @@ void main() async{
     () => runZonedGuarded(
       () async {
         WidgetsFlutterBinding.ensureInitialized();
-        // await Firebase.initializeApp(
-        //   options: DefaultFirebaseOptions.currentPlatform,
-        // );
 
         // Bloc.transformer = bloc_concurrency.sequential();
         Bloc.observer = const AppBlocObserver();
@@ -42,6 +44,11 @@ class MyApp extends StatelessWidget {
       providers: [
         // auth
         BlocProvider(create: (_) => locator<AuthenticatorWatcherBloc>()),
+        BlocProvider(create: (_) => locator<LoginFormBloc>()),
+        BlocProvider(create: (_) => locator<SignUpFormBloc>()),
+        BlocProvider(create: (_) => locator<GoogleSigninBloc>()),
+        BlocProvider(create: (_) => locator<PasswordResetBloc>()),
+        BlocProvider(create: (_) => locator<SignupVerificationBloc>()),
       ],
       child: MaterialApp.router(
         debugShowCheckedModeBanner: false,
