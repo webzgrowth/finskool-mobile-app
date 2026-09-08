@@ -63,6 +63,7 @@ class SignUpForm extends StatelessWidget {
               onPressed: () {
                 bloc.add(const SignUpFormEvent.registerUser(false));
                 final verificationBloc = context.read<SignupVerificationBloc>();
+                verificationBloc.add(const SignupVerificationEvent.initial());
                 verificationBloc.add(
                   SignupVerificationEvent.prefill(
                     phoneDisplay: '${state.countryCode} ${state.phonenumber}',

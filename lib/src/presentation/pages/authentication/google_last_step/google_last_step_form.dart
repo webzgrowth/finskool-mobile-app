@@ -69,6 +69,7 @@ class GoogleLastStepForm extends StatelessWidget {
                 bloc.add(SignUpFormEvent.emailOnChanged(_mockEmail));
                 bloc.add(const SignUpFormEvent.isFromSocial(true));
                 final verificationBloc = context.read<SignupVerificationBloc>();
+                verificationBloc.add(const SignupVerificationEvent.initial());
                 verificationBloc.add(
                   SignupVerificationEvent.prefill(
                     phoneDisplay: '${state.countryCode} ${state.phonenumber}',

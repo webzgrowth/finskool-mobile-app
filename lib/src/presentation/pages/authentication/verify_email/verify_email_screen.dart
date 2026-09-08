@@ -23,7 +23,7 @@ class VerifyEmailScreen extends StatelessWidget {
             child: Column(
               children: [
                 AuthHeader(
-                  title: 'Verify Your Email',
+                  title: 'Verify your email',
                   subtitleSpans: [
                     authSpan('Check your '),
                     authSpan('registered email', bold: true),

@@ -4,11 +4,13 @@ import 'package:go_router/go_router.dart';
 import 'package:finskool/src/comman/routes.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
 import 'package:finskool/src/presentation/bloc/authentication/signup_verification/signup_verification_bloc.dart';
+import '../widgets/auth_field_icons.dart';
 import '../widgets/otp_boxes.dart';
 import '../widgets/auth_submit_button.dart';
+import '../widgets/enter_code_label.dart';
 import '../widgets/privacy_footer_note.dart';
+import '../widgets/readonly_value_field.dart';
 import '../widgets/back_arrow_button.dart';
-import '../widgets/change_link_row.dart';
 import '../widgets/resend_code_row.dart';
 
 class VerifyEmailForm extends StatelessWidget {
@@ -41,6 +43,15 @@ class VerifyEmailForm extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: AppSpacing.xl),
+            ReadonlyValueField(
+              iconAsset: AuthFieldIcons.mail,
+              value: state.email,
+              actionLabel: 'Change',
+              onTap: () => context.go(AppRoutes.SIGNUP_ROUTE_PATH),
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            const EnterCodeLabel(),
+            const SizedBox(height: AppSpacing.sm),
             OtpBoxes(
               onChanged: (v) =>
                   bloc.add(SignupVerificationEvent.emailCodeChanged(v)),
@@ -67,12 +78,6 @@ class VerifyEmailForm extends StatelessWidget {
             ),
             const SizedBox(height: AppSpacing.lg),
             const PrivacyFooterNote(),
-            const SizedBox(height: AppSpacing.md),
-            ChangeLinkRow(
-              question: 'Wrong E-mail?',
-              actionLabel: 'Change it',
-              onTap: () => context.go(AppRoutes.SIGNUP_ROUTE_PATH),
-            ),
           ],
         );
       },

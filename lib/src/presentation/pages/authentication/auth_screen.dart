@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:finskool/src/comman/routes.dart';
-import 'package:finskool/src/presentation/bloc/authentication/google_signin/google_signin_bloc.dart';
+import 'package:finskool/src/presentation/bloc/authentication/login_form/login_form_bloc.dart';
+import 'package:finskool/src/presentation/bloc/authentication/sing_up_form/sign_up_form_bloc.dart';
 import 'widgets/auth_header_for_tab.dart';
 import 'widgets/auth_tab_switch.dart';
 import 'widgets/auth_card.dart';
+import 'widgets/google_signin_listener.dart';
 import 'login/login_form.dart';
 import 'signup/signup_form.dart';
 import 'auth_tab_scope.dart';
@@ -27,9 +29,27 @@ class AuthScreen extends StatefulWidget {
 class _AuthScreenState extends State<AuthScreen> {
   late AuthTab _tab = widget.initialTab;
 
+  @override
+  void initState() {
+    super.initState();
+    // Reset both forms on arrival so a previous failed attempt's errors
+    // and typed values (these blocs are singletons that outlive the
+    // screen) never resurface before the user has touched anything.
+    _resetTab(_tab);
+  }
+
+  void _resetTab(AuthTab tab) {
+    if (tab == AuthTab.login) {
+      context.read<LoginFormBloc>().add(const LoginFormEvent.initial());
+    } else {
+      context.read<SignUpFormBloc>().add(const SignUpFormEvent.initial());
+    }
+  }
+
   void _select(AuthTab tab) {
     if (tab == _tab) return;
     setState(() => _tab = tab);
+    _resetTab(tab);
     context.replace(
       tab == AuthTab.login
           ? AppRoutes.LOGIN_ROUTE_PATH
@@ -40,16 +60,7 @@ class _AuthScreenState extends State<AuthScreen> {
   @override
   Widget build(BuildContext context) {
     final isLogin = _tab == AuthTab.login;
-    return BlocListener<GoogleSigninBloc, GoogleSigninState>(
-      listenWhen: (p, c) => p.requestState != c.requestState,
-      listener: (context, state) {
-        if (state.requestState.isLoaded) {
-          context.go(AppRoutes.DASHBOARD_ROUTE_PATH);
-        } else if (state.requestState.isError) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text(state.message)));
-        }
-      },
+    return GoogleSigninListener(
       child: AuthTabScope(
         onSwitchTab: _select,
         child: Scaffold(

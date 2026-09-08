@@ -53,19 +53,33 @@ class SignupSuccessScreen extends StatelessWidget {
               ),
               const SizedBox(height: AppSpacing.xl),
               Text(
-                'Account created!',
+                "You're all set!",
                 style:
                     tt.headlineLarge?.copyWith(color: AppPalette.headerGradientEnd),
               ),
               const SizedBox(height: AppSpacing.sm),
-              Text(
-                "You're all set. Let's get started.",
-                style: tt.bodyLarge?.copyWith(color: cs.onSurfaceVariant),
+              Text.rich(
+                TextSpan(
+                  style: tt.bodyLarge?.copyWith(color: cs.onSurfaceVariant),
+                  children: [
+                    const TextSpan(
+                        text: 'Your account has been successfully verified. '),
+                    TextSpan(
+                      text: 'Welcome to Finskool21!',
+                      style: inter(
+                        size: 14,
+                        weight: 700,
+                        height: 1.5,
+                        color: AppPalette.headerGradientEnd,
+                      ),
+                    ),
+                  ],
+                ),
                 textAlign: TextAlign.center,
               ),
               const Spacer(flex: 4),
               AuthSubmitButton(
-                label: 'Continue',
+                label: 'Go to Home',
                 loading: false,
                 onPressed: () => context.go(AppRoutes.DASHBOARD_ROUTE_PATH),
               ),
