@@ -13,6 +13,7 @@ import '../widgets/auth_switch_prompt.dart';
 import '../widgets/auth_tab_switch.dart';
 import '../widgets/auth_field_icons.dart';
 import '../widgets/auth_submit_button.dart';
+import '../widgets/auth_form_listener.dart';
 import '../auth_tab_scope.dart';
 
 class LoginForm extends StatelessWidget {
@@ -21,7 +22,11 @@ class LoginForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bloc = context.read<LoginFormBloc>();
-    return BlocBuilder<LoginFormBloc, LoginFormState>(
+    return AuthFormListener<LoginFormBloc, LoginFormState>(
+      status: (s) => s.state,
+      message: (s) => s.message,
+      onSuccess: (context, _) => context.go(AppRoutes.DASHBOARD_ROUTE_PATH),
+      child: BlocBuilder<LoginFormBloc, LoginFormState>(
       builder: (context, state) {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -67,14 +72,7 @@ class LoginForm extends StatelessWidget {
             AuthSubmitButton(
               label: 'Log In',
               loading: state.state.isLoading,
-              // Validate (so errors still show), but don't gate navigation
-              // on it — there's no real backend yet, so every button
-              // should move forward for testing, same as the rest of the
-              // auth flow.
-              onPressed: () {
-                bloc.add(const LoginFormEvent.submit());
-                context.go(AppRoutes.DASHBOARD_ROUTE_PATH);
-              },
+              onPressed: () => bloc.add(const LoginFormEvent.submit()),
             ),
             const SizedBox(height: AppSpacing.lg),
             const AuthDivider(),
@@ -98,6 +96,7 @@ class LoginForm extends StatelessWidget {
           ],
         );
       },
+      ),
     );
   }
 }

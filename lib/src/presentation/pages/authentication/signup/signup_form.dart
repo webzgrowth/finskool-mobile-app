@@ -14,6 +14,7 @@ import '../widgets/auth_switch_prompt.dart';
 import '../widgets/auth_tab_switch.dart';
 import '../widgets/auth_field_icons.dart';
 import '../widgets/auth_submit_button.dart';
+import '../widgets/auth_form_listener.dart';
 import '../auth_tab_scope.dart';
 import 'signup_password_fields.dart';
 
@@ -23,7 +24,14 @@ class SignUpForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bloc = context.read<SignUpFormBloc>();
-    return BlocBuilder<SignUpFormBloc, SignUpFormState>(
+    // Registration is a real round-trip now, and the `userId` it returns is
+    // what the OTP screen needs — so hand off only once it has arrived,
+    // rather than dispatching and navigating in the same breath.
+    return AuthFormListener<SignUpFormBloc, SignUpFormState>(
+      status: (s) => s.state,
+      message: (s) => s.message,
+      onSuccess: _openVerification,
+      child: BlocBuilder<SignUpFormBloc, SignUpFormState>(
       builder: (context, state) {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -60,20 +68,8 @@ class SignUpForm extends StatelessWidget {
             AuthSubmitButton(
               label: 'Send Verification Code',
               loading: state.state.isLoading,
-              onPressed: () {
-                bloc.add(const SignUpFormEvent.registerUser(false));
-                final verificationBloc = context.read<SignupVerificationBloc>();
-                verificationBloc.add(const SignupVerificationEvent.initial());
-                verificationBloc.add(
-                  SignupVerificationEvent.prefill(
-                    phoneDisplay: '${state.countryCode} ${state.phonenumber}',
-                    email: state.email,
-                    isFromSocial: false,
-                  ),
-                );
-                verificationBloc.add(const SignupVerificationEvent.sendPhoneCode());
-                context.push(AppRoutes.VERIFY_PHONE_ROUTE_PATH);
-              },
+              onPressed: () =>
+                  bloc.add(const SignUpFormEvent.registerUser(false)),
             ),
             const SizedBox(height: AppSpacing.lg),
             const AuthDivider(),
@@ -92,6 +88,26 @@ class SignUpForm extends StatelessWidget {
           ],
         );
       },
+      ),
     );
+  }
+
+  /// Registration succeeded: the account exists (unverified) and the API has
+  /// already sent the OTP, so hand the returned `userId` to the verification
+  /// bloc and move on.
+  void _openVerification(BuildContext context, SignUpFormState state) {
+    final verificationBloc = context.read<SignupVerificationBloc>();
+    verificationBloc.add(const SignupVerificationEvent.initial());
+    verificationBloc.add(
+      SignupVerificationEvent.prefill(
+        phoneDisplay: '${state.countryCode} ${state.phonenumber}',
+        email: state.email,
+        isFromSocial: false,
+        userId: state.userId,
+      ),
+    );
+    // Starts the resend countdown only — `/register` already sent the code.
+    verificationBloc.add(const SignupVerificationEvent.sendPhoneCode());
+    context.push(AppRoutes.VERIFY_PHONE_ROUTE_PATH);
   }
 }

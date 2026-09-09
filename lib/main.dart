@@ -29,8 +29,12 @@ void main() async{
         Bloc.observer = const AppBlocObserver();
 
         // await ErrorStack.init();
-        configureDependencies();
+        // Prefs first: `gh.singleton` registrations are eager, so every bloc
+        // (and the usecase -> repository -> ApiClient chain behind it) is
+        // constructed inside configureDependencies(). Anything reading prefs
+        // during construction would hit an uninitialised SharedPreferences.
         await SharedPreferenceHelper().init();
+        configureDependencies();
         runApp(const MyApp());
       },
       logger.logZoneError,

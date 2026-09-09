@@ -807,7 +807,15 @@ String toString() {
 /// @nodoc
 mixin _$PasswordResetState {
 
- RequestState get state; String get message; String get email; String get code; int get resendSeconds; String get newPassword; String get confirmPassword; bool get obscureNewPassword; bool get obscureConfirmPassword; String? get emailError; String? get codeError; String? get newPasswordError; String? get confirmPasswordError;
+ RequestState get state; String get message; String get email; String get code; int get resendSeconds; String get newPassword; String get confirmPassword; bool get obscureNewPassword; bool get obscureConfirmPassword;/// Which step last completed, so each screen's listener only reacts to
+/// its own. See [PasswordResetStep].
+ PasswordResetStep get step; String? get emailError; String? get codeError; String? get newPasswordError; String? get confirmPasswordError;/// The single-use token from `forgot-password/verify-otp`, spent by
+/// `forgot-password/reset`. Consumed by that call **even when it fails**,
+/// so a failed reset must send the user back for a fresh code rather than
+/// retry with this value.
+ String? get cypher;/// The API's machine-readable failure code (`OTP_INVALID`,
+/// `RESET_TOKEN_INVALID`, …).
+ String? get errorCode;
 /// Create a copy of PasswordResetState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -819,20 +827,20 @@ $PasswordResetStateCopyWith<PasswordResetState> get copyWith => _$PasswordResetS
 @override
 bool operator ==(Object other) {
   final _this = this as PasswordResetState;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is PasswordResetState&&(identical(other.state, _this.state) || other.state == _this.state)&&(identical(other.message, _this.message) || other.message == _this.message)&&(identical(other.email, _this.email) || other.email == _this.email)&&(identical(other.code, _this.code) || other.code == _this.code)&&(identical(other.resendSeconds, _this.resendSeconds) || other.resendSeconds == _this.resendSeconds)&&(identical(other.newPassword, _this.newPassword) || other.newPassword == _this.newPassword)&&(identical(other.confirmPassword, _this.confirmPassword) || other.confirmPassword == _this.confirmPassword)&&(identical(other.obscureNewPassword, _this.obscureNewPassword) || other.obscureNewPassword == _this.obscureNewPassword)&&(identical(other.obscureConfirmPassword, _this.obscureConfirmPassword) || other.obscureConfirmPassword == _this.obscureConfirmPassword)&&(identical(other.emailError, _this.emailError) || other.emailError == _this.emailError)&&(identical(other.codeError, _this.codeError) || other.codeError == _this.codeError)&&(identical(other.newPasswordError, _this.newPasswordError) || other.newPasswordError == _this.newPasswordError)&&(identical(other.confirmPasswordError, _this.confirmPasswordError) || other.confirmPasswordError == _this.confirmPasswordError));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is PasswordResetState&&(identical(other.state, _this.state) || other.state == _this.state)&&(identical(other.message, _this.message) || other.message == _this.message)&&(identical(other.email, _this.email) || other.email == _this.email)&&(identical(other.code, _this.code) || other.code == _this.code)&&(identical(other.resendSeconds, _this.resendSeconds) || other.resendSeconds == _this.resendSeconds)&&(identical(other.newPassword, _this.newPassword) || other.newPassword == _this.newPassword)&&(identical(other.confirmPassword, _this.confirmPassword) || other.confirmPassword == _this.confirmPassword)&&(identical(other.obscureNewPassword, _this.obscureNewPassword) || other.obscureNewPassword == _this.obscureNewPassword)&&(identical(other.obscureConfirmPassword, _this.obscureConfirmPassword) || other.obscureConfirmPassword == _this.obscureConfirmPassword)&&(identical(other.step, _this.step) || other.step == _this.step)&&(identical(other.emailError, _this.emailError) || other.emailError == _this.emailError)&&(identical(other.codeError, _this.codeError) || other.codeError == _this.codeError)&&(identical(other.newPasswordError, _this.newPasswordError) || other.newPasswordError == _this.newPasswordError)&&(identical(other.confirmPasswordError, _this.confirmPasswordError) || other.confirmPasswordError == _this.confirmPasswordError)&&(identical(other.cypher, _this.cypher) || other.cypher == _this.cypher)&&(identical(other.errorCode, _this.errorCode) || other.errorCode == _this.errorCode));
 }
 
 
 @override
 int get hashCode {
   final _this = this as PasswordResetState;
-  return Object.hash(runtimeType,_this.state,_this.message,_this.email,_this.code,_this.resendSeconds,_this.newPassword,_this.confirmPassword,_this.obscureNewPassword,_this.obscureConfirmPassword,_this.emailError,_this.codeError,_this.newPasswordError,_this.confirmPasswordError);
+  return Object.hash(runtimeType,_this.state,_this.message,_this.email,_this.code,_this.resendSeconds,_this.newPassword,_this.confirmPassword,_this.obscureNewPassword,_this.obscureConfirmPassword,_this.step,_this.emailError,_this.codeError,_this.newPasswordError,_this.confirmPasswordError,_this.cypher,_this.errorCode);
 }
 
 @override
 String toString() {
   final _this = this as PasswordResetState;
-  return 'PasswordResetState(state: ${_this.state}, message: ${_this.message}, email: ${_this.email}, code: ${_this.code}, resendSeconds: ${_this.resendSeconds}, newPassword: ${_this.newPassword}, confirmPassword: ${_this.confirmPassword}, obscureNewPassword: ${_this.obscureNewPassword}, obscureConfirmPassword: ${_this.obscureConfirmPassword}, emailError: ${_this.emailError}, codeError: ${_this.codeError}, newPasswordError: ${_this.newPasswordError}, confirmPasswordError: ${_this.confirmPasswordError})';
+  return 'PasswordResetState(state: ${_this.state}, message: ${_this.message}, email: ${_this.email}, code: ${_this.code}, resendSeconds: ${_this.resendSeconds}, newPassword: ${_this.newPassword}, confirmPassword: ${_this.confirmPassword}, obscureNewPassword: ${_this.obscureNewPassword}, obscureConfirmPassword: ${_this.obscureConfirmPassword}, step: ${_this.step}, emailError: ${_this.emailError}, codeError: ${_this.codeError}, newPasswordError: ${_this.newPasswordError}, confirmPasswordError: ${_this.confirmPasswordError}, cypher: ${_this.cypher}, errorCode: ${_this.errorCode})';
 }
 
 
@@ -843,7 +851,7 @@ abstract mixin class $PasswordResetStateCopyWith<$Res>  {
   factory $PasswordResetStateCopyWith(PasswordResetState value, $Res Function(PasswordResetState) _then) = _$PasswordResetStateCopyWithImpl;
 @useResult
 $Res call({
- RequestState state, String message, String email, String code, int resendSeconds, String newPassword, String confirmPassword, bool obscureNewPassword, bool obscureConfirmPassword, String? emailError, String? codeError, String? newPasswordError, String? confirmPasswordError
+ RequestState state, String message, String email, String code, int resendSeconds, String newPassword, String confirmPassword, bool obscureNewPassword, bool obscureConfirmPassword, PasswordResetStep step, String? emailError, String? codeError, String? newPasswordError, String? confirmPasswordError, String? cypher, String? errorCode
 });
 
 
@@ -860,7 +868,7 @@ class _$PasswordResetStateCopyWithImpl<$Res>
 
 /// Create a copy of PasswordResetState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? state = null,Object? message = null,Object? email = null,Object? code = null,Object? resendSeconds = null,Object? newPassword = null,Object? confirmPassword = null,Object? obscureNewPassword = null,Object? obscureConfirmPassword = null,Object? emailError = freezed,Object? codeError = freezed,Object? newPasswordError = freezed,Object? confirmPasswordError = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? state = null,Object? message = null,Object? email = null,Object? code = null,Object? resendSeconds = null,Object? newPassword = null,Object? confirmPassword = null,Object? obscureNewPassword = null,Object? obscureConfirmPassword = null,Object? step = null,Object? emailError = freezed,Object? codeError = freezed,Object? newPasswordError = freezed,Object? confirmPasswordError = freezed,Object? cypher = freezed,Object? errorCode = freezed,}) {
   return _then(PasswordResetState(
 state: null == state ? _self.state : state // ignore: cast_nullable_to_non_nullable
 as RequestState,message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
@@ -871,10 +879,13 @@ as int,newPassword: null == newPassword ? _self.newPassword : newPassword // ign
 as String,confirmPassword: null == confirmPassword ? _self.confirmPassword : confirmPassword // ignore: cast_nullable_to_non_nullable
 as String,obscureNewPassword: null == obscureNewPassword ? _self.obscureNewPassword : obscureNewPassword // ignore: cast_nullable_to_non_nullable
 as bool,obscureConfirmPassword: null == obscureConfirmPassword ? _self.obscureConfirmPassword : obscureConfirmPassword // ignore: cast_nullable_to_non_nullable
-as bool,emailError: freezed == emailError ? _self.emailError : emailError // ignore: cast_nullable_to_non_nullable
+as bool,step: null == step ? _self.step : step // ignore: cast_nullable_to_non_nullable
+as PasswordResetStep,emailError: freezed == emailError ? _self.emailError : emailError // ignore: cast_nullable_to_non_nullable
 as String?,codeError: freezed == codeError ? _self.codeError : codeError // ignore: cast_nullable_to_non_nullable
 as String?,newPasswordError: freezed == newPasswordError ? _self.newPasswordError : newPasswordError // ignore: cast_nullable_to_non_nullable
 as String?,confirmPasswordError: freezed == confirmPasswordError ? _self.confirmPasswordError : confirmPasswordError // ignore: cast_nullable_to_non_nullable
+as String?,cypher: freezed == cypher ? _self.cypher : cypher // ignore: cast_nullable_to_non_nullable
+as String?,errorCode: freezed == errorCode ? _self.errorCode : errorCode // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }
@@ -957,10 +968,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( RequestState state,  String message,  String email,  String code,  int resendSeconds,  String newPassword,  String confirmPassword,  bool obscureNewPassword,  bool obscureConfirmPassword,  String? emailError,  String? codeError,  String? newPasswordError,  String? confirmPasswordError)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( RequestState state,  String message,  String email,  String code,  int resendSeconds,  String newPassword,  String confirmPassword,  bool obscureNewPassword,  bool obscureConfirmPassword,  PasswordResetStep step,  String? emailError,  String? codeError,  String? newPasswordError,  String? confirmPasswordError,  String? cypher,  String? errorCode)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _PasswordResetState() when $default != null:
-return $default(_that.state,_that.message,_that.email,_that.code,_that.resendSeconds,_that.newPassword,_that.confirmPassword,_that.obscureNewPassword,_that.obscureConfirmPassword,_that.emailError,_that.codeError,_that.newPasswordError,_that.confirmPasswordError);case _:
+return $default(_that.state,_that.message,_that.email,_that.code,_that.resendSeconds,_that.newPassword,_that.confirmPassword,_that.obscureNewPassword,_that.obscureConfirmPassword,_that.step,_that.emailError,_that.codeError,_that.newPasswordError,_that.confirmPasswordError,_that.cypher,_that.errorCode);case _:
   return orElse();
 
 }
@@ -978,10 +989,10 @@ return $default(_that.state,_that.message,_that.email,_that.code,_that.resendSec
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( RequestState state,  String message,  String email,  String code,  int resendSeconds,  String newPassword,  String confirmPassword,  bool obscureNewPassword,  bool obscureConfirmPassword,  String? emailError,  String? codeError,  String? newPasswordError,  String? confirmPasswordError)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( RequestState state,  String message,  String email,  String code,  int resendSeconds,  String newPassword,  String confirmPassword,  bool obscureNewPassword,  bool obscureConfirmPassword,  PasswordResetStep step,  String? emailError,  String? codeError,  String? newPasswordError,  String? confirmPasswordError,  String? cypher,  String? errorCode)  $default,) {final _that = this;
 switch (_that) {
 case _PasswordResetState():
-return $default(_that.state,_that.message,_that.email,_that.code,_that.resendSeconds,_that.newPassword,_that.confirmPassword,_that.obscureNewPassword,_that.obscureConfirmPassword,_that.emailError,_that.codeError,_that.newPasswordError,_that.confirmPasswordError);}
+return $default(_that.state,_that.message,_that.email,_that.code,_that.resendSeconds,_that.newPassword,_that.confirmPassword,_that.obscureNewPassword,_that.obscureConfirmPassword,_that.step,_that.emailError,_that.codeError,_that.newPasswordError,_that.confirmPasswordError,_that.cypher,_that.errorCode);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -995,10 +1006,10 @@ return $default(_that.state,_that.message,_that.email,_that.code,_that.resendSec
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( RequestState state,  String message,  String email,  String code,  int resendSeconds,  String newPassword,  String confirmPassword,  bool obscureNewPassword,  bool obscureConfirmPassword,  String? emailError,  String? codeError,  String? newPasswordError,  String? confirmPasswordError)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( RequestState state,  String message,  String email,  String code,  int resendSeconds,  String newPassword,  String confirmPassword,  bool obscureNewPassword,  bool obscureConfirmPassword,  PasswordResetStep step,  String? emailError,  String? codeError,  String? newPasswordError,  String? confirmPasswordError,  String? cypher,  String? errorCode)?  $default,) {final _that = this;
 switch (_that) {
 case _PasswordResetState() when $default != null:
-return $default(_that.state,_that.message,_that.email,_that.code,_that.resendSeconds,_that.newPassword,_that.confirmPassword,_that.obscureNewPassword,_that.obscureConfirmPassword,_that.emailError,_that.codeError,_that.newPasswordError,_that.confirmPasswordError);case _:
+return $default(_that.state,_that.message,_that.email,_that.code,_that.resendSeconds,_that.newPassword,_that.confirmPassword,_that.obscureNewPassword,_that.obscureConfirmPassword,_that.step,_that.emailError,_that.codeError,_that.newPasswordError,_that.confirmPasswordError,_that.cypher,_that.errorCode);case _:
   return null;
 
 }
@@ -1010,7 +1021,7 @@ return $default(_that.state,_that.message,_that.email,_that.code,_that.resendSec
 
 
 class _PasswordResetState implements PasswordResetState {
-  const _PasswordResetState({required this.state, required this.message, required this.email, required this.code, required this.resendSeconds, required this.newPassword, required this.confirmPassword, required this.obscureNewPassword, required this.obscureConfirmPassword, this.emailError, this.codeError, this.newPasswordError, this.confirmPasswordError});
+  const _PasswordResetState({required this.state, required this.message, required this.email, required this.code, required this.resendSeconds, required this.newPassword, required this.confirmPassword, required this.obscureNewPassword, required this.obscureConfirmPassword, required this.step, this.emailError, this.codeError, this.newPasswordError, this.confirmPasswordError, this.cypher, this.errorCode});
   
 
 @override final  RequestState state;
@@ -1022,10 +1033,21 @@ class _PasswordResetState implements PasswordResetState {
 @override final  String confirmPassword;
 @override final  bool obscureNewPassword;
 @override final  bool obscureConfirmPassword;
+/// Which step last completed, so each screen's listener only reacts to
+/// its own. See [PasswordResetStep].
+@override final  PasswordResetStep step;
 @override final  String? emailError;
 @override final  String? codeError;
 @override final  String? newPasswordError;
 @override final  String? confirmPasswordError;
+/// The single-use token from `forgot-password/verify-otp`, spent by
+/// `forgot-password/reset`. Consumed by that call **even when it fails**,
+/// so a failed reset must send the user back for a fresh code rather than
+/// retry with this value.
+@override final  String? cypher;
+/// The API's machine-readable failure code (`OTP_INVALID`,
+/// `RESET_TOKEN_INVALID`, …).
+@override final  String? errorCode;
 
 /// Create a copy of PasswordResetState
 /// with the given fields replaced by the non-null parameter values.
@@ -1037,18 +1059,18 @@ _$PasswordResetStateCopyWith<_PasswordResetState> get copyWith => __$PasswordRes
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _PasswordResetState&&(identical(other.state, state) || other.state == state)&&(identical(other.message, message) || other.message == message)&&(identical(other.email, email) || other.email == email)&&(identical(other.code, code) || other.code == code)&&(identical(other.resendSeconds, resendSeconds) || other.resendSeconds == resendSeconds)&&(identical(other.newPassword, newPassword) || other.newPassword == newPassword)&&(identical(other.confirmPassword, confirmPassword) || other.confirmPassword == confirmPassword)&&(identical(other.obscureNewPassword, obscureNewPassword) || other.obscureNewPassword == obscureNewPassword)&&(identical(other.obscureConfirmPassword, obscureConfirmPassword) || other.obscureConfirmPassword == obscureConfirmPassword)&&(identical(other.emailError, emailError) || other.emailError == emailError)&&(identical(other.codeError, codeError) || other.codeError == codeError)&&(identical(other.newPasswordError, newPasswordError) || other.newPasswordError == newPasswordError)&&(identical(other.confirmPasswordError, confirmPasswordError) || other.confirmPasswordError == confirmPasswordError));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _PasswordResetState&&(identical(other.state, state) || other.state == state)&&(identical(other.message, message) || other.message == message)&&(identical(other.email, email) || other.email == email)&&(identical(other.code, code) || other.code == code)&&(identical(other.resendSeconds, resendSeconds) || other.resendSeconds == resendSeconds)&&(identical(other.newPassword, newPassword) || other.newPassword == newPassword)&&(identical(other.confirmPassword, confirmPassword) || other.confirmPassword == confirmPassword)&&(identical(other.obscureNewPassword, obscureNewPassword) || other.obscureNewPassword == obscureNewPassword)&&(identical(other.obscureConfirmPassword, obscureConfirmPassword) || other.obscureConfirmPassword == obscureConfirmPassword)&&(identical(other.step, step) || other.step == step)&&(identical(other.emailError, emailError) || other.emailError == emailError)&&(identical(other.codeError, codeError) || other.codeError == codeError)&&(identical(other.newPasswordError, newPasswordError) || other.newPasswordError == newPasswordError)&&(identical(other.confirmPasswordError, confirmPasswordError) || other.confirmPasswordError == confirmPasswordError)&&(identical(other.cypher, cypher) || other.cypher == cypher)&&(identical(other.errorCode, errorCode) || other.errorCode == errorCode));
 }
 
 
 @override
 int get hashCode {
-    return Object.hash(runtimeType,state,message,email,code,resendSeconds,newPassword,confirmPassword,obscureNewPassword,obscureConfirmPassword,emailError,codeError,newPasswordError,confirmPasswordError);
+    return Object.hash(runtimeType,state,message,email,code,resendSeconds,newPassword,confirmPassword,obscureNewPassword,obscureConfirmPassword,step,emailError,codeError,newPasswordError,confirmPasswordError,cypher,errorCode);
 }
 
 @override
 String toString() {
-    return 'PasswordResetState(state: $state, message: $message, email: $email, code: $code, resendSeconds: $resendSeconds, newPassword: $newPassword, confirmPassword: $confirmPassword, obscureNewPassword: $obscureNewPassword, obscureConfirmPassword: $obscureConfirmPassword, emailError: $emailError, codeError: $codeError, newPasswordError: $newPasswordError, confirmPasswordError: $confirmPasswordError)';
+    return 'PasswordResetState(state: $state, message: $message, email: $email, code: $code, resendSeconds: $resendSeconds, newPassword: $newPassword, confirmPassword: $confirmPassword, obscureNewPassword: $obscureNewPassword, obscureConfirmPassword: $obscureConfirmPassword, step: $step, emailError: $emailError, codeError: $codeError, newPasswordError: $newPasswordError, confirmPasswordError: $confirmPasswordError, cypher: $cypher, errorCode: $errorCode)';
 }
 
 
@@ -1059,7 +1081,7 @@ abstract mixin class _$PasswordResetStateCopyWith<$Res> implements $PasswordRese
   factory _$PasswordResetStateCopyWith(_PasswordResetState value, $Res Function(_PasswordResetState) _then) = __$PasswordResetStateCopyWithImpl;
 @override @useResult
 $Res call({
- RequestState state, String message, String email, String code, int resendSeconds, String newPassword, String confirmPassword, bool obscureNewPassword, bool obscureConfirmPassword, String? emailError, String? codeError, String? newPasswordError, String? confirmPasswordError
+ RequestState state, String message, String email, String code, int resendSeconds, String newPassword, String confirmPassword, bool obscureNewPassword, bool obscureConfirmPassword, PasswordResetStep step, String? emailError, String? codeError, String? newPasswordError, String? confirmPasswordError, String? cypher, String? errorCode
 });
 
 
@@ -1076,7 +1098,7 @@ class __$PasswordResetStateCopyWithImpl<$Res>
 
 /// Create a copy of PasswordResetState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? state = null,Object? message = null,Object? email = null,Object? code = null,Object? resendSeconds = null,Object? newPassword = null,Object? confirmPassword = null,Object? obscureNewPassword = null,Object? obscureConfirmPassword = null,Object? emailError = freezed,Object? codeError = freezed,Object? newPasswordError = freezed,Object? confirmPasswordError = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? state = null,Object? message = null,Object? email = null,Object? code = null,Object? resendSeconds = null,Object? newPassword = null,Object? confirmPassword = null,Object? obscureNewPassword = null,Object? obscureConfirmPassword = null,Object? step = null,Object? emailError = freezed,Object? codeError = freezed,Object? newPasswordError = freezed,Object? confirmPasswordError = freezed,Object? cypher = freezed,Object? errorCode = freezed,}) {
   return _then(_PasswordResetState(
 state: null == state ? _self.state : state // ignore: cast_nullable_to_non_nullable
 as RequestState,message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
@@ -1087,10 +1109,13 @@ as int,newPassword: null == newPassword ? _self.newPassword : newPassword // ign
 as String,confirmPassword: null == confirmPassword ? _self.confirmPassword : confirmPassword // ignore: cast_nullable_to_non_nullable
 as String,obscureNewPassword: null == obscureNewPassword ? _self.obscureNewPassword : obscureNewPassword // ignore: cast_nullable_to_non_nullable
 as bool,obscureConfirmPassword: null == obscureConfirmPassword ? _self.obscureConfirmPassword : obscureConfirmPassword // ignore: cast_nullable_to_non_nullable
-as bool,emailError: freezed == emailError ? _self.emailError : emailError // ignore: cast_nullable_to_non_nullable
+as bool,step: null == step ? _self.step : step // ignore: cast_nullable_to_non_nullable
+as PasswordResetStep,emailError: freezed == emailError ? _self.emailError : emailError // ignore: cast_nullable_to_non_nullable
 as String?,codeError: freezed == codeError ? _self.codeError : codeError // ignore: cast_nullable_to_non_nullable
 as String?,newPasswordError: freezed == newPasswordError ? _self.newPasswordError : newPasswordError // ignore: cast_nullable_to_non_nullable
 as String?,confirmPasswordError: freezed == confirmPasswordError ? _self.confirmPasswordError : confirmPasswordError // ignore: cast_nullable_to_non_nullable
+as String?,cypher: freezed == cypher ? _self.cypher : cypher // ignore: cast_nullable_to_non_nullable
+as String?,errorCode: freezed == errorCode ? _self.errorCode : errorCode // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }

@@ -29,7 +29,7 @@ class FeedMockDatasource {
       avatarUrl: 'https://ui-avatars.com/api/?name=Ram+Kumar',
       reaction: ReactionType.love,
     ),
-    const ReactorModel(
+    const ReactorModel( 
       id: 'u3',
       name: 'Vinod Sharma',
       avatarUrl: 'https://ui-avatars.com/api/?name=Vinod+Sharma',

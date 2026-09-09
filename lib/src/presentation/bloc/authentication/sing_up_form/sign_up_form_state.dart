@@ -20,6 +20,14 @@ sealed class SignUpFormState with _$SignUpFormState {
     String? phoneError,
     String? passwordError,
     String? confirmPasswordError,
+
+    /// Handed back by `POST /register` and required by both `verify-otp` and
+    /// `resend-otp`. The verification screen reads it from here via
+    /// `SignupVerificationEvent.prefill`.
+    String? userId,
+
+    /// The API's machine-readable failure code, e.g. `ALREADY_REGISTERED`.
+    String? errorCode,
   }) = _SignUpFormState;
 
   factory SignUpFormState.initial() => const SignUpFormState(

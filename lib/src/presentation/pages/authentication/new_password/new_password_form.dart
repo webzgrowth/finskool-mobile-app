@@ -10,6 +10,7 @@ import '../widgets/auth_submit_button.dart';
 import '../widgets/reset_card_title.dart';
 import '../widgets/password_strength_bar.dart';
 import '../widgets/password_checklist.dart';
+import '../widgets/auth_form_listener.dart';
 
 class NewPasswordForm extends StatelessWidget {
   const NewPasswordForm({super.key});
@@ -18,7 +19,13 @@ class NewPasswordForm extends StatelessWidget {
   Widget build(BuildContext context) {
     final bloc = context.read<PasswordResetBloc>();
     final tt = Theme.of(context).textTheme;
-    return BlocBuilder<PasswordResetBloc, PasswordResetState>(
+    return AuthFormListener<PasswordResetBloc, PasswordResetState>(
+      status: (s) => s.state,
+      message: (s) => s.message,
+      isMine: (s) => s.step.isPasswordUpdated,
+      onSuccess: (context, _) =>
+          context.push(AppRoutes.PASSWORD_RESET_SUCCESS_ROUTE_PATH),
+      child: BlocBuilder<PasswordResetBloc, PasswordResetState>(
       builder: (context, state) {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -61,11 +68,9 @@ class NewPasswordForm extends StatelessWidget {
             const SizedBox(height: AppSpacing.xl),
             AuthSubmitButton(
               label: 'Update Password',
-              loading: false,
-              onPressed: () {
-                bloc.add(const PasswordResetEvent.updatePassword());
-                context.push(AppRoutes.PASSWORD_RESET_SUCCESS_ROUTE_PATH);
-              },
+              loading: state.state.isLoading,
+              onPressed: () =>
+                  bloc.add(const PasswordResetEvent.updatePassword()),
             ),
             const SizedBox(height: AppSpacing.md),
             Row(
@@ -89,6 +94,7 @@ class NewPasswordForm extends StatelessWidget {
           ],
         );
       },
+      ),
     );
   }
 }
