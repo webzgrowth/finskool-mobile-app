@@ -9,6 +9,9 @@ import 'package:finskool/src/presentation/bloc/authentication/sing_up_form/sign_
 import 'package:finskool/src/presentation/bloc/authentication/google_signin/google_signin_bloc.dart';
 import 'package:finskool/src/presentation/bloc/authentication/password_reset/password_reset_bloc.dart';
 import 'package:finskool/src/presentation/bloc/authentication/signup_verification/signup_verification_bloc.dart';
+import 'package:finskool/src/presentation/bloc/dashboard/bottom_nav/bottom_nav_bloc.dart';
+import 'package:finskool/src/presentation/bloc/feed/posts/feed_bloc.dart';
+import 'package:finskool/src/presentation/bloc/feed/filter/feed_filter_bloc.dart';
 import 'package:finskool/src/utilities/app_bloc_observer.dart';
 import 'package:finskool/src/utilities/go_router.dart';
 import 'package:finskool/src/utilities/logger.dart';
@@ -49,6 +52,10 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (_) => locator<GoogleSigninBloc>()),
         BlocProvider(create: (_) => locator<PasswordResetBloc>()),
         BlocProvider(create: (_) => locator<SignupVerificationBloc>()),
+        // dashboard / feed
+        BlocProvider(create: (_) => locator<BottomNavBloc>()),
+        BlocProvider(create: (_) => locator<FeedBloc>()),
+        BlocProvider(create: (_) => locator<FeedFilterBloc>()),
       ],
       child: MaterialApp.router(
         debugShowCheckedModeBanner: false,

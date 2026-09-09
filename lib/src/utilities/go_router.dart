@@ -12,6 +12,7 @@ import 'package:finskool/src/presentation/pages/authentication/verify_phone/veri
 import 'package:finskool/src/presentation/pages/authentication/verify_email/verify_email_screen.dart';
 import 'package:finskool/src/presentation/pages/authentication/google_last_step/google_last_step_screen.dart';
 import 'package:finskool/src/presentation/pages/authentication/signup_success/signup_success_screen.dart';
+import 'package:finskool/src/presentation/pages/dashboard/dashboard_shell_screen.dart';
 
 GoRouter routerinit = GoRouter(
   routes: <RouteBase>[
@@ -105,6 +106,17 @@ GoRouter routerinit = GoRouter(
       path: AppRoutes.SIGNUP_SUCCESS_ROUTE_PATH,
       builder: (BuildContext context, GoRouterState state) {
         return const SignupSuccessScreen();
+      },
+    ),
+
+    ///  =================================================================
+    ///  ********************** Dashboard Route ****************************
+    ///  =================================================================
+    GoRoute(
+      name: AppRoutes.DASHBOARD_ROUTE_NAME,
+      path: AppRoutes.DASHBOARD_ROUTE_PATH,
+      builder: (BuildContext context, GoRouterState state) {
+        return const DashboardShellScreen();
       },
     ),
   ],
