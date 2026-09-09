@@ -4,7 +4,10 @@ import 'package:go_router/go_router.dart';
 import 'package:finskool/src/comman/routes.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
 import 'package:finskool/src/presentation/bloc/authentication/signup_verification/signup_verification_bloc.dart';
+import 'package:finskool/src/presentation/bloc/authentication/sing_up_form/sign_up_form_bloc.dart';
+import 'package:finskool/src/presentation/bloc/authentication/login_form/login_form_bloc.dart';
 import '../widgets/auth_field_icons.dart';
+import '../widgets/auth_form_listener.dart';
 import '../widgets/auth_submit_button.dart';
 import '../widgets/back_arrow_button.dart';
 import '../widgets/enter_code_label.dart';
@@ -23,7 +26,11 @@ class VerifyPhoneForm extends StatelessWidget {
     final bloc = context.read<SignupVerificationBloc>();
     final tt = Theme.of(context).textTheme;
     final cs = Theme.of(context).colorScheme;
-    return BlocBuilder<SignupVerificationBloc, SignupVerificationState>(
+    return AuthFormListener<SignupVerificationBloc, SignupVerificationState>(
+      status: (s) => s.state,
+      message: (s) => s.message,
+      onSuccess: _onVerified,
+      child: BlocBuilder<SignupVerificationBloc, SignupVerificationState>(
       builder: (context, state) {
         final boldSpan =
             inter(size: 14, weight: 600, height: 1.3, color: cs.onSurface);
@@ -72,19 +79,35 @@ class VerifyPhoneForm extends StatelessWidget {
             const SizedBox(height: AppSpacing.xl),
             AuthSubmitButton(
               label: 'Verify & Continue',
-              loading: false,
-              onPressed: () {
-                bloc.add(const SignupVerificationEvent.verifyPhoneCode());
-                context.push(state.isFromSocial
-                    ? AppRoutes.SIGNUP_SUCCESS_ROUTE_PATH
-                    : AppRoutes.VERIFY_EMAIL_ROUTE_PATH);
-              },
+              loading: state.state.isLoading,
+              onPressed: () =>
+                  bloc.add(const SignupVerificationEvent.verifyPhoneCode()),
             ),
             const SizedBox(height: AppSpacing.lg),
             const PrivacyFooterNote(),
           ],
         );
       },
+      ),
     );
+  }
+
+  /// The number is verified. The API deliberately does **not** create a
+  /// session here, so log in silently with the credentials the sign-up form
+  /// still holds — otherwise `/dashboard` would load with no cookie.
+  ///
+  /// The Google path never registered (no social endpoint exists yet) and has
+  /// no password to replay, so it just moves on, as it did before.
+  void _onVerified(BuildContext context, SignupVerificationState state) {
+    if (state.isBackedByApi) {
+      final signUp = context.read<SignUpFormBloc>().state;
+      context.read<LoginFormBloc>().add(
+            LoginFormEvent.loginWith(
+              email: signUp.email,
+              password: signUp.password,
+            ),
+          );
+    }
+    context.push(AppRoutes.SIGNUP_SUCCESS_ROUTE_PATH);
   }
 }

@@ -1,6 +1,8 @@
 import 'package:bloc/bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:finskool/src/comman/enum.dart';
+import 'package:finskool/src/domain/model/auth/register_request_model.dart';
+import 'package:finskool/src/domain/usecases/auth/register_user.dart';
 import 'package:injectable/injectable.dart';
 import 'sign_up_form_validation.dart';
 
@@ -10,7 +12,7 @@ part 'sign_up_form_bloc.freezed.dart';
 
 @singleton
 class SignUpFormBloc extends Bloc<SignUpFormEvent, SignUpFormState> {
-  SignUpFormBloc() : super(SignUpFormState.initial()) {
+  SignUpFormBloc(this._registerUser) : super(SignUpFormState.initial()) {
     on<SignUpFormEvent>((event, emit) async {
       await event.map(
         initial: (_) {
@@ -23,7 +25,12 @@ class SignUpFormBloc extends Bloc<SignUpFormEvent, SignUpFormState> {
               state: RequestState.empty));
         },
         registerUser: (_Register value) async {
-          emit(state.validated());
+          // `validated()` returns the state with per-field errors filled in
+          // and `state` set to loading when they all pass.
+          final validated = state.validated();
+          emit(validated);
+          if (!validated.state.isLoading) return;
+          await _register(emit);
         },
         firstNameChanged: (_FirstNameChanged value) {
           emit(
@@ -99,4 +106,31 @@ class SignUpFormBloc extends Bloc<SignUpFormEvent, SignUpFormState> {
     });
   }
 
+  final RegisterUser _registerUser;
+
+  /// Creates the (still unverified) account. On success the API has already
+  /// sent the OTP, and the `userId` it returns is what the verification
+  /// screen needs to confirm or resend that code.
+  Future<void> _register(Emitter<SignUpFormState> emit) async {
+    final result = await _registerUser.execute(
+      RegisterRequestModel.fromForm(
+        firstName: state.firstName,
+        lastName: state.lastName,
+        countryCode: state.countryCode,
+        phonenumber: state.phonenumber,
+        email: state.email,
+        password: state.password,
+        confirmPassword: state.confirmPassword,
+      ),
+    );
+
+    emit(result.fold(
+      state.withFailure,
+      (registered) => state.copyWith(
+        state: RequestState.loaded,
+        message: '',
+        userId: registered.userId,
+      ),
+    ));
+  }
 }

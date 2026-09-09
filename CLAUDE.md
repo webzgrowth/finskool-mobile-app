@@ -115,6 +115,70 @@ error on its own `*Changed` event. See `sign_up_form_validation.dart` for the
 pattern of moving multi-field validation into an `extension on <State>` when
 inlining it would push the bloc file over the line-length rule.
 
+## Networking / API integration
+
+The contract lives in `docs/auth_api_doc.md`. **Auth is fully wired to the
+real backend**; everything else (the feed) is still mocked.
+
+**Mobile auth is cookie-based, not a Bearer token.** `POST /auth/mobile/login`
+returns no token — it sets an httpOnly `mobile_session_id` cookie, and that
+cookie *is* the credential. `data/api/session_interceptor.dart` is the entire
+session mechanism: it lifts the cookie off `Set-Cookie`, persists the opaque
+value via `SharedPreferenceHelper`, and replays it as a `Cookie` header on
+every later request. Consequences worth remembering:
+
+- **There is no refresh/rotation step.** Don't add one; the cookie is valid
+  (400-day `maxAge`) until logout or a login elsewhere.
+- **One active session per account** — a login on another device invalidates
+  this one, which arrives as `401 SESSION_INVALIDATED`. The interceptor drops
+  the dead cookie when it sees that, so the app self-corrects.
+- No `cookie_jar`/`path_provider` dependency was added on purpose: a
+  `PersistCookieJar` needs async init, which would flip the generated
+  `configureDependencies()` to `Future<void>`.
+
+`data/api/api.dart` is the **single registry of every endpoint**. New modules
+append their constants there rather than scattering path strings through
+datasources. Its `baseUrl` switches with `--dart-define=API_ENV=local`,
+defaulting to production.
+
+`data/api/api_client.dart` owns the one `Dio` and unwraps the envelope every
+endpoint shares (`{success, data, message, code, errors}`), returning `data`
+or throwing `ApiException`. It sets **`validateStatus: (s) => s < 500`** on
+purpose — without it, documented 4xx bodies become opaque `DioException`s and
+the `code` field (`OTP_INVALID`, `EMAIL_TAKEN`, `NOT_REGISTERED`) never
+reaches the UI. Don't "tidy" that away.
+
+The chain is datasource → repository → usecase, and the layer boundary is a
+rule: **everything below the repository throws; everything above gets an
+`Either<Failure, T>`.** Repositories are one-liners wrapping
+`handleErrors` (`comman/error_handler.dart`), which maps `ApiException` onto
+`ServerFailure`/`ValidationFailure` and runs `messageForCode` to turn the
+API's codes into copy that tells the user what to do. A `422` becomes a
+`ValidationFailure` carrying per-field messages, which each bloc drops onto
+its own `emailError`/`phoneError`/… slots instead of one generic snackbar.
+
+Blocs take usecases by constructor injection, so **any bloc change needs
+`dart run build_runner build`** — the generated registrations are no longer
+zero-arg. Related: `main()` must `await SharedPreferenceHelper().init()`
+**before** `configureDependencies()`, because `gh.singleton` is eager and
+builds the whole bloc → usecase → repository → `ApiClient` graph on the spot.
+
+**Navigation is gated on real responses.** The old "dispatch and navigate in
+the same call" pattern is gone; `pages/authentication/widgets/
+auth_form_listener.dart` wraps each form, navigating only on
+`RequestState.loaded` and showing the server's message on `isError`. Its
+`isMine` predicate exists because the four password-reset screens share one
+bloc *and* stay mounted on the stack — without it, finishing step 3 would
+re-fire step 1's listener.
+
+`test/auth_api_smoke_test.dart` hits the live API (tagged `network`; it needs
+`HttpOverrides.global = null`, since `flutter_test` blocks real requests).
+Exclude it with `flutter test --exclude-tags network`.
+
+**Google sign-in has no backend endpoint.** `GoogleSigninBloc` and
+`google_last_step/` are still mocked, and `verify_phone/` must keep working
+with a null `userId` for that path — see below.
+
 ## Authentication screens
 
 `presentation/pages/authentication/` — `login/` and `signup/` are two states
@@ -156,12 +220,20 @@ at `/reset-password`, `/reset-password/verify`, `/reset-password/new`,
 `/reset-password/success`. `PasswordResetBloc` (singleton, like the other
 auth blocs) carries `email`/`code`/`newPassword` across all four screens —
 each screen just reads the same bloc instance rather than passing data
-through route params. Each submit button's `onPressed` dispatches the
-validating bloc event (so field errors still show) **and** unconditionally
-`context.push`es the next route in the same call, via a plain `BlocBuilder`
-— there's no backend yet, so navigation isn't gated on `RequestState.loaded`.
-Wire it the same way (gated `BlocConsumer`/`listenWhen`) once a real
-verify-code endpoint exists.
+through route params.
+
+All three steps are wired to the real API and **navigation is gated** on the
+response (see "Networking / API integration"). The bloc carries one extra
+field for it: `cypher`, the single-use token `forgot-password/verify-otp`
+returns and `forgot-password/reset` spends. That token is consumed **even
+when the reset fails**, so a failure clears it and the user must fetch a
+fresh code — never retry the same cypher.
+
+`PasswordResetState.step` exists because all four screens share this bloc and
+all stay mounted, so each screen's listener sees every state change;
+`AuthFormListener`'s `isMine` filters on it. Also note `forgot-password`
+answers 200 whether or not the email exists (deliberate anti-enumeration), so
+don't word that screen's success as confirmation an email was sent.
 
 The resend-code countdown runs on a `Timer.periodic` owned by the bloc
 (cancelled in `close()`) — the one bloc in this app that manages its own
@@ -180,8 +252,37 @@ trailing clause, so build whatever run pattern the copy actually needs.
 ### Signup verification flow
 
 After "Send Verification Code" on the sign-up form: `verify_phone/` →
-`verify_email/` → `signup_success/`, routed at `/signup/verify-phone`,
-`/signup/verify-email`, `/signup/success`. **`verify_phone/` is one screen,
+`signup_success/`, routed at `/signup/verify-phone` and `/signup/success`.
+
+**`verify_email/` is intentionally unrouted.** The backend has exactly one
+signup OTP step (`POST /auth/mobile/verify-otp`, delivered by email as an
+explicit stand-in for WhatsApp), so a second verification screen has nothing
+to call. Its files and route constants stay on disk for when a genuine second
+channel exists — don't delete them, and don't re-add the `GoRoute` without a
+matching endpoint. `SignupVerificationBloc` still carries the email-channel
+events for the same reason; they're local-validation only.
+
+`SignUpFormBloc` holds the `userId` returned by `/register`, and
+`signup_form.dart` hands it to `SignupVerificationEvent.prefill` **after** the
+call succeeds — registration is a real round-trip now, so the form waits
+rather than navigating in the same breath. `sendPhoneCode` no longer sends
+anything (`/register` already did); it only starts the resend countdown. A
+`429 OTP_COOLDOWN` on resend surfaces the server's "N seconds remain" message
+and deliberately leaves the countdown alone.
+
+Verifying the OTP does **not** create a session — the API says so explicitly.
+`verify_phone_form.dart` therefore dispatches
+`LoginFormEvent.loginWith(email, password)` (reading both from
+`SignUpFormBloc`) on success, so `/dashboard` lands with a live cookie. That
+combines two blocs **in the widget layer**, matching the rest of the app; the
+blocs never talk to each other.
+
+**The Google path has no `userId`** — it never registers, since no social
+endpoint exists. `SignupVerificationState.isBackedByApi` is the guard:
+false means validate locally and move on, exactly as before. Keep that branch
+alive or `google_last_step/` → `verify_phone/` crashes.
+
+**`verify_phone/` is one screen,
 not two** — per Figma, the WhatsApp number confirmation (inline icon + number
 + "Change" link, no bordered field, no separate label) and the 6-digit OTP
 entry live on the same screen, not a "confirm number" screen followed by a
@@ -291,6 +392,12 @@ established in `authentication/widgets/country_picker_sheet.dart`
 (`showModalBottomSheet(isScrollControlled: true, backgroundColor:
 Colors.transparent)`, drag handle, `AppRadii.sheet`).
 
+`DashboardShellScreen` re-dispatches `AuthenticatorWatcherEvent
+.authCheckRequest()` in `initState`. Logging in only updates `LoginFormBloc`,
+so without that the watcher would still report `unauthenticated` and the
+Profile tab would show nobody; doing it at the shell covers every route in —
+login, signup, and the Google path — in one place.
+
 The top search bar's hide-on-scroll-down/snap-back-on-scroll-up behavior
 is `SliverAppBar(floating: true, snap: true)` — Material's built-in
 floating-app-bar pattern — not a hand-rolled `AnimationController`.
@@ -361,19 +468,27 @@ as a text colour at `bodySmall`. Use `onSurface` (16:1) or `onSurfaceVariant`
 Do not treat these as incidental bugs to fix while doing something else:
 
 - **Firebase has been removed** (`firebase_auth`, `firebase_storage`, and all
-  `FirebaseAuth`/`FirebaseStorage` call sites) — the app has no backend yet.
-  `AuthenticatorWatcherBloc.authCheckRequest` still emits nothing (its body is
-  commented out from before the Firebase removal), so nothing currently
-  listens for an auth-state change; that's why `splash_screen.dart` routes to
-  `/login` directly on a timer instead of waiting on that bloc.
+  `FirebaseAuth`/`FirebaseStorage` call sites). Auth now runs against the real
+  Finskool backend instead — see "Networking / API integration".
 - `GoogleSigninBloc._signUpNewUser` and `_checkIfUserAlreadyRegistered` are
-  stubs returning `false`; `LoginFormEvent.submit` and
-  `SignUpFormEvent.registerUser` validate but don't call a backend yet — both
-  are waiting on `domain/usecases` to be wired up.
+  still stubs returning `false`, and `google_last_step/` is still a hardcoded
+  mock account. **This is blocked on the backend, not on us** — the API has
+  no social-auth endpoint at all. Leave both mocked until one exists.
+- The **Profile tab is a stub with a real logout**, not a designed screen. It
+  shows the cached `UserModel` and a Log Out button that dispatches
+  `AuthenticatorWatcherEvent.signOut`. It exists because session restore
+  means the app otherwise has no way back to the login screen short of a
+  reinstall. Replace the layout when a design lands — keep the logout.
+- `SelectCommunity` is only ever called automatically, when login returns
+  exactly one community. A user in **two or more** communities never gets to
+  choose (the backend falls back to "all my communities merged"); that picker
+  UI doesn't exist yet.
 - Most of `comman/routes.dart`'s ~64 route constants are still unrouted in
   `utilities/go_router.dart` — only the auth flows and `/dashboard` exist
   so far. Check `go_router.dart` before assuming a declared constant (e.g.
   `HOME_ROUTE_PATH`, `PROFILE_ROUTE_PATH`) actually has a `GoRoute`.
+  `VERIFY_EMAIL_ROUTE_*` is unrouted **deliberately** — see "Signup
+  verification flow" — not by omission.
 - `comman/constant.dart`, `utilities/base_data_center.dart` and
   `extensions/sheet_open.dart` are entirely commented out.
 - `comman/toast.dart` and `comman/enum_to_string.dart` are empty files.

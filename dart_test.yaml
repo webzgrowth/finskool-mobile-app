@@ -1,0 +1,5 @@
+tags:
+  # Suites that talk to the real backend rather than a fake. Excluded from a
+  # plain `flutter test` run:  flutter test --exclude-tags network
+  network:
+    description: Hits the live Finskool API over the network.

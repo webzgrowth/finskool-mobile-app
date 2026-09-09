@@ -56,7 +56,7 @@ extension LoginFormEventPatterns on LoginFormEvent {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _Initial value)?  initial,TResult Function( _EmailChanged value)?  emailChanged,TResult Function( _PasswordChanged value)?  passwordChanged,TResult Function( _TogglePasswordVisibility value)?  togglePasswordVisibility,TResult Function( _Submit value)?  submit,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _Initial value)?  initial,TResult Function( _EmailChanged value)?  emailChanged,TResult Function( _PasswordChanged value)?  passwordChanged,TResult Function( _TogglePasswordVisibility value)?  togglePasswordVisibility,TResult Function( _Submit value)?  submit,TResult Function( _LoginWith value)?  loginWith,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case _Initial() when initial != null:
@@ -64,7 +64,8 @@ return initial(_that);case _EmailChanged() when emailChanged != null:
 return emailChanged(_that);case _PasswordChanged() when passwordChanged != null:
 return passwordChanged(_that);case _TogglePasswordVisibility() when togglePasswordVisibility != null:
 return togglePasswordVisibility(_that);case _Submit() when submit != null:
-return submit(_that);case _:
+return submit(_that);case _LoginWith() when loginWith != null:
+return loginWith(_that);case _:
   return orElse();
 
 }
@@ -82,7 +83,7 @@ return submit(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _Initial value)  initial,required TResult Function( _EmailChanged value)  emailChanged,required TResult Function( _PasswordChanged value)  passwordChanged,required TResult Function( _TogglePasswordVisibility value)  togglePasswordVisibility,required TResult Function( _Submit value)  submit,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _Initial value)  initial,required TResult Function( _EmailChanged value)  emailChanged,required TResult Function( _PasswordChanged value)  passwordChanged,required TResult Function( _TogglePasswordVisibility value)  togglePasswordVisibility,required TResult Function( _Submit value)  submit,required TResult Function( _LoginWith value)  loginWith,}){
 final _that = this;
 switch (_that) {
 case _Initial():
@@ -90,7 +91,8 @@ return initial(_that);case _EmailChanged():
 return emailChanged(_that);case _PasswordChanged():
 return passwordChanged(_that);case _TogglePasswordVisibility():
 return togglePasswordVisibility(_that);case _Submit():
-return submit(_that);case _:
+return submit(_that);case _LoginWith():
+return loginWith(_that);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -107,7 +109,7 @@ return submit(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _Initial value)?  initial,TResult? Function( _EmailChanged value)?  emailChanged,TResult? Function( _PasswordChanged value)?  passwordChanged,TResult? Function( _TogglePasswordVisibility value)?  togglePasswordVisibility,TResult? Function( _Submit value)?  submit,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _Initial value)?  initial,TResult? Function( _EmailChanged value)?  emailChanged,TResult? Function( _PasswordChanged value)?  passwordChanged,TResult? Function( _TogglePasswordVisibility value)?  togglePasswordVisibility,TResult? Function( _Submit value)?  submit,TResult? Function( _LoginWith value)?  loginWith,}){
 final _that = this;
 switch (_that) {
 case _Initial() when initial != null:
@@ -115,7 +117,8 @@ return initial(_that);case _EmailChanged() when emailChanged != null:
 return emailChanged(_that);case _PasswordChanged() when passwordChanged != null:
 return passwordChanged(_that);case _TogglePasswordVisibility() when togglePasswordVisibility != null:
 return togglePasswordVisibility(_that);case _Submit() when submit != null:
-return submit(_that);case _:
+return submit(_that);case _LoginWith() when loginWith != null:
+return loginWith(_that);case _:
   return null;
 
 }
@@ -132,14 +135,15 @@ return submit(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function( String email)?  emailChanged,TResult Function( String password)?  passwordChanged,TResult Function()?  togglePasswordVisibility,TResult Function()?  submit,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function( String email)?  emailChanged,TResult Function( String password)?  passwordChanged,TResult Function()?  togglePasswordVisibility,TResult Function()?  submit,TResult Function( String email,  String password)?  loginWith,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Initial() when initial != null:
 return initial();case _EmailChanged() when emailChanged != null:
 return emailChanged(_that.email);case _PasswordChanged() when passwordChanged != null:
 return passwordChanged(_that.password);case _TogglePasswordVisibility() when togglePasswordVisibility != null:
 return togglePasswordVisibility();case _Submit() when submit != null:
-return submit();case _:
+return submit();case _LoginWith() when loginWith != null:
+return loginWith(_that.email,_that.password);case _:
   return orElse();
 
 }
@@ -157,14 +161,15 @@ return submit();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function( String email)  emailChanged,required TResult Function( String password)  passwordChanged,required TResult Function()  togglePasswordVisibility,required TResult Function()  submit,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function( String email)  emailChanged,required TResult Function( String password)  passwordChanged,required TResult Function()  togglePasswordVisibility,required TResult Function()  submit,required TResult Function( String email,  String password)  loginWith,}) {final _that = this;
 switch (_that) {
 case _Initial():
 return initial();case _EmailChanged():
 return emailChanged(_that.email);case _PasswordChanged():
 return passwordChanged(_that.password);case _TogglePasswordVisibility():
 return togglePasswordVisibility();case _Submit():
-return submit();case _:
+return submit();case _LoginWith():
+return loginWith(_that.email,_that.password);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -181,14 +186,15 @@ return submit();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function( String email)?  emailChanged,TResult? Function( String password)?  passwordChanged,TResult? Function()?  togglePasswordVisibility,TResult? Function()?  submit,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function( String email)?  emailChanged,TResult? Function( String password)?  passwordChanged,TResult? Function()?  togglePasswordVisibility,TResult? Function()?  submit,TResult? Function( String email,  String password)?  loginWith,}) {final _that = this;
 switch (_that) {
 case _Initial() when initial != null:
 return initial();case _EmailChanged() when emailChanged != null:
 return emailChanged(_that.email);case _PasswordChanged() when passwordChanged != null:
 return passwordChanged(_that.password);case _TogglePasswordVisibility() when togglePasswordVisibility != null:
 return togglePasswordVisibility();case _Submit() when submit != null:
-return submit();case _:
+return submit();case _LoginWith() when loginWith != null:
+return loginWith(_that.email,_that.password);case _:
   return null;
 
 }
@@ -429,9 +435,81 @@ String toString() {
 
 
 /// @nodoc
+
+
+class _LoginWith implements LoginFormEvent {
+  const _LoginWith({required this.email, required this.password});
+  
+
+ final  String email;
+ final  String password;
+
+/// Create a copy of LoginFormEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$LoginWithCopyWith<_LoginWith> get copyWith => __$LoginWithCopyWithImpl<_LoginWith>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _LoginWith&&(identical(other.email, email) || other.email == email)&&(identical(other.password, password) || other.password == password));
+}
+
+
+@override
+int get hashCode {
+    return Object.hash(runtimeType,email,password);
+}
+
+@override
+String toString() {
+    return 'LoginFormEvent.loginWith(email: $email, password: $password)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$LoginWithCopyWith<$Res> implements $LoginFormEventCopyWith<$Res> {
+  factory _$LoginWithCopyWith(_LoginWith value, $Res Function(_LoginWith) _then) = __$LoginWithCopyWithImpl;
+@useResult
+$Res call({
+ String email, String password
+});
+
+
+
+
+}
+/// @nodoc
+class __$LoginWithCopyWithImpl<$Res>
+    implements _$LoginWithCopyWith<$Res> {
+  __$LoginWithCopyWithImpl(this._self, this._then);
+
+  final _LoginWith _self;
+  final $Res Function(_LoginWith) _then;
+
+/// Create a copy of LoginFormEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? email = null,Object? password = null,}) {
+  return _then(_LoginWith(
+email: null == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
+as String,password: null == password ? _self.password : password // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
+}
+
+/// @nodoc
 mixin _$LoginFormState {
 
- RequestState get state; String get message; String get email; String get password; bool get obscurePassword; String? get emailError; String? get passwordError;
+ RequestState get state; String get message; String get email; String get password; bool get obscurePassword; String? get emailError; String? get passwordError;/// The API's machine-readable failure code, so the UI can route on
+/// `NOT_REGISTERED` / `PHONE_NOT_VERIFIED` rather than parse [message].
+ String? get errorCode;
 /// Create a copy of LoginFormState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -443,20 +521,20 @@ $LoginFormStateCopyWith<LoginFormState> get copyWith => _$LoginFormStateCopyWith
 @override
 bool operator ==(Object other) {
   final _this = this as LoginFormState;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is LoginFormState&&(identical(other.state, _this.state) || other.state == _this.state)&&(identical(other.message, _this.message) || other.message == _this.message)&&(identical(other.email, _this.email) || other.email == _this.email)&&(identical(other.password, _this.password) || other.password == _this.password)&&(identical(other.obscurePassword, _this.obscurePassword) || other.obscurePassword == _this.obscurePassword)&&(identical(other.emailError, _this.emailError) || other.emailError == _this.emailError)&&(identical(other.passwordError, _this.passwordError) || other.passwordError == _this.passwordError));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is LoginFormState&&(identical(other.state, _this.state) || other.state == _this.state)&&(identical(other.message, _this.message) || other.message == _this.message)&&(identical(other.email, _this.email) || other.email == _this.email)&&(identical(other.password, _this.password) || other.password == _this.password)&&(identical(other.obscurePassword, _this.obscurePassword) || other.obscurePassword == _this.obscurePassword)&&(identical(other.emailError, _this.emailError) || other.emailError == _this.emailError)&&(identical(other.passwordError, _this.passwordError) || other.passwordError == _this.passwordError)&&(identical(other.errorCode, _this.errorCode) || other.errorCode == _this.errorCode));
 }
 
 
 @override
 int get hashCode {
   final _this = this as LoginFormState;
-  return Object.hash(runtimeType,_this.state,_this.message,_this.email,_this.password,_this.obscurePassword,_this.emailError,_this.passwordError);
+  return Object.hash(runtimeType,_this.state,_this.message,_this.email,_this.password,_this.obscurePassword,_this.emailError,_this.passwordError,_this.errorCode);
 }
 
 @override
 String toString() {
   final _this = this as LoginFormState;
-  return 'LoginFormState(state: ${_this.state}, message: ${_this.message}, email: ${_this.email}, password: ${_this.password}, obscurePassword: ${_this.obscurePassword}, emailError: ${_this.emailError}, passwordError: ${_this.passwordError})';
+  return 'LoginFormState(state: ${_this.state}, message: ${_this.message}, email: ${_this.email}, password: ${_this.password}, obscurePassword: ${_this.obscurePassword}, emailError: ${_this.emailError}, passwordError: ${_this.passwordError}, errorCode: ${_this.errorCode})';
 }
 
 
@@ -467,7 +545,7 @@ abstract mixin class $LoginFormStateCopyWith<$Res>  {
   factory $LoginFormStateCopyWith(LoginFormState value, $Res Function(LoginFormState) _then) = _$LoginFormStateCopyWithImpl;
 @useResult
 $Res call({
- RequestState state, String message, String email, String password, bool obscurePassword, String? emailError, String? passwordError
+ RequestState state, String message, String email, String password, bool obscurePassword, String? emailError, String? passwordError, String? errorCode
 });
 
 
@@ -484,7 +562,7 @@ class _$LoginFormStateCopyWithImpl<$Res>
 
 /// Create a copy of LoginFormState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? state = null,Object? message = null,Object? email = null,Object? password = null,Object? obscurePassword = null,Object? emailError = freezed,Object? passwordError = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? state = null,Object? message = null,Object? email = null,Object? password = null,Object? obscurePassword = null,Object? emailError = freezed,Object? passwordError = freezed,Object? errorCode = freezed,}) {
   return _then(LoginFormState(
 state: null == state ? _self.state : state // ignore: cast_nullable_to_non_nullable
 as RequestState,message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
@@ -493,6 +571,7 @@ as String,password: null == password ? _self.password : password // ignore: cast
 as String,obscurePassword: null == obscurePassword ? _self.obscurePassword : obscurePassword // ignore: cast_nullable_to_non_nullable
 as bool,emailError: freezed == emailError ? _self.emailError : emailError // ignore: cast_nullable_to_non_nullable
 as String?,passwordError: freezed == passwordError ? _self.passwordError : passwordError // ignore: cast_nullable_to_non_nullable
+as String?,errorCode: freezed == errorCode ? _self.errorCode : errorCode // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }
@@ -575,10 +654,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( RequestState state,  String message,  String email,  String password,  bool obscurePassword,  String? emailError,  String? passwordError)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( RequestState state,  String message,  String email,  String password,  bool obscurePassword,  String? emailError,  String? passwordError,  String? errorCode)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _LoginFormState() when $default != null:
-return $default(_that.state,_that.message,_that.email,_that.password,_that.obscurePassword,_that.emailError,_that.passwordError);case _:
+return $default(_that.state,_that.message,_that.email,_that.password,_that.obscurePassword,_that.emailError,_that.passwordError,_that.errorCode);case _:
   return orElse();
 
 }
@@ -596,10 +675,10 @@ return $default(_that.state,_that.message,_that.email,_that.password,_that.obscu
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( RequestState state,  String message,  String email,  String password,  bool obscurePassword,  String? emailError,  String? passwordError)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( RequestState state,  String message,  String email,  String password,  bool obscurePassword,  String? emailError,  String? passwordError,  String? errorCode)  $default,) {final _that = this;
 switch (_that) {
 case _LoginFormState():
-return $default(_that.state,_that.message,_that.email,_that.password,_that.obscurePassword,_that.emailError,_that.passwordError);}
+return $default(_that.state,_that.message,_that.email,_that.password,_that.obscurePassword,_that.emailError,_that.passwordError,_that.errorCode);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -613,10 +692,10 @@ return $default(_that.state,_that.message,_that.email,_that.password,_that.obscu
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( RequestState state,  String message,  String email,  String password,  bool obscurePassword,  String? emailError,  String? passwordError)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( RequestState state,  String message,  String email,  String password,  bool obscurePassword,  String? emailError,  String? passwordError,  String? errorCode)?  $default,) {final _that = this;
 switch (_that) {
 case _LoginFormState() when $default != null:
-return $default(_that.state,_that.message,_that.email,_that.password,_that.obscurePassword,_that.emailError,_that.passwordError);case _:
+return $default(_that.state,_that.message,_that.email,_that.password,_that.obscurePassword,_that.emailError,_that.passwordError,_that.errorCode);case _:
   return null;
 
 }
@@ -628,7 +707,7 @@ return $default(_that.state,_that.message,_that.email,_that.password,_that.obscu
 
 
 class _LoginFormState implements LoginFormState {
-  const _LoginFormState({required this.state, required this.message, required this.email, required this.password, required this.obscurePassword, this.emailError, this.passwordError});
+  const _LoginFormState({required this.state, required this.message, required this.email, required this.password, required this.obscurePassword, this.emailError, this.passwordError, this.errorCode});
   
 
 @override final  RequestState state;
@@ -638,6 +717,9 @@ class _LoginFormState implements LoginFormState {
 @override final  bool obscurePassword;
 @override final  String? emailError;
 @override final  String? passwordError;
+/// The API's machine-readable failure code, so the UI can route on
+/// `NOT_REGISTERED` / `PHONE_NOT_VERIFIED` rather than parse [message].
+@override final  String? errorCode;
 
 /// Create a copy of LoginFormState
 /// with the given fields replaced by the non-null parameter values.
@@ -649,18 +731,18 @@ _$LoginFormStateCopyWith<_LoginFormState> get copyWith => __$LoginFormStateCopyW
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _LoginFormState&&(identical(other.state, state) || other.state == state)&&(identical(other.message, message) || other.message == message)&&(identical(other.email, email) || other.email == email)&&(identical(other.password, password) || other.password == password)&&(identical(other.obscurePassword, obscurePassword) || other.obscurePassword == obscurePassword)&&(identical(other.emailError, emailError) || other.emailError == emailError)&&(identical(other.passwordError, passwordError) || other.passwordError == passwordError));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _LoginFormState&&(identical(other.state, state) || other.state == state)&&(identical(other.message, message) || other.message == message)&&(identical(other.email, email) || other.email == email)&&(identical(other.password, password) || other.password == password)&&(identical(other.obscurePassword, obscurePassword) || other.obscurePassword == obscurePassword)&&(identical(other.emailError, emailError) || other.emailError == emailError)&&(identical(other.passwordError, passwordError) || other.passwordError == passwordError)&&(identical(other.errorCode, errorCode) || other.errorCode == errorCode));
 }
 
 
 @override
 int get hashCode {
-    return Object.hash(runtimeType,state,message,email,password,obscurePassword,emailError,passwordError);
+    return Object.hash(runtimeType,state,message,email,password,obscurePassword,emailError,passwordError,errorCode);
 }
 
 @override
 String toString() {
-    return 'LoginFormState(state: $state, message: $message, email: $email, password: $password, obscurePassword: $obscurePassword, emailError: $emailError, passwordError: $passwordError)';
+    return 'LoginFormState(state: $state, message: $message, email: $email, password: $password, obscurePassword: $obscurePassword, emailError: $emailError, passwordError: $passwordError, errorCode: $errorCode)';
 }
 
 
@@ -671,7 +753,7 @@ abstract mixin class _$LoginFormStateCopyWith<$Res> implements $LoginFormStateCo
   factory _$LoginFormStateCopyWith(_LoginFormState value, $Res Function(_LoginFormState) _then) = __$LoginFormStateCopyWithImpl;
 @override @useResult
 $Res call({
- RequestState state, String message, String email, String password, bool obscurePassword, String? emailError, String? passwordError
+ RequestState state, String message, String email, String password, bool obscurePassword, String? emailError, String? passwordError, String? errorCode
 });
 
 
@@ -688,7 +770,7 @@ class __$LoginFormStateCopyWithImpl<$Res>
 
 /// Create a copy of LoginFormState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? state = null,Object? message = null,Object? email = null,Object? password = null,Object? obscurePassword = null,Object? emailError = freezed,Object? passwordError = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? state = null,Object? message = null,Object? email = null,Object? password = null,Object? obscurePassword = null,Object? emailError = freezed,Object? passwordError = freezed,Object? errorCode = freezed,}) {
   return _then(_LoginFormState(
 state: null == state ? _self.state : state // ignore: cast_nullable_to_non_nullable
 as RequestState,message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
@@ -697,6 +779,7 @@ as String,password: null == password ? _self.password : password // ignore: cast
 as String,obscurePassword: null == obscurePassword ? _self.obscurePassword : obscurePassword // ignore: cast_nullable_to_non_nullable
 as bool,emailError: freezed == emailError ? _self.emailError : emailError // ignore: cast_nullable_to_non_nullable
 as String?,passwordError: freezed == passwordError ? _self.passwordError : passwordError // ignore: cast_nullable_to_non_nullable
+as String?,errorCode: freezed == errorCode ? _self.errorCode : errorCode // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }

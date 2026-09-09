@@ -1,4 +1,5 @@
 import 'package:finskool/src/comman/enum.dart';
+import 'package:finskool/src/comman/failure.dart';
 import 'package:finskool/src/comman/validators.dart';
 import 'package:finskool/src/comman/country_codes.dart';
 import 'sign_up_form_bloc.dart';
@@ -29,6 +30,33 @@ extension SignUpFormValidation on SignUpFormState {
       passwordError: passwordErr,
       confirmPasswordError: confirmErr,
       state: hasError ? RequestState.error : RequestState.loading,
+    );
+  }
+
+  /// Folds a failed `POST /register` back onto the form.
+  ///
+  /// A 422 names the offending fields, so those go under the matching inputs
+  /// rather than collapsing into one snackbar — `fullName` and `phone` are
+  /// the API's names for this form's Full Name and Phone fields. Everything
+  /// else (`ALREADY_REGISTERED`, `EMAIL_TAKEN`, a network error) has no field
+  /// to attach to and surfaces as [message].
+  SignUpFormState withFailure(Failure failure) {
+    if (failure is ValidationFailure) {
+      return copyWith(
+        state: RequestState.error,
+        message: failure.message,
+        errorCode: failure.code,
+        fullNameError: failure.forField('fullName'),
+        emailError: failure.forField('email'),
+        phoneError: failure.forField('phone'),
+        passwordError: failure.forField('password'),
+        confirmPasswordError: failure.forField('confirmPassword'),
+      );
+    }
+    return copyWith(
+      state: RequestState.error,
+      message: failure.message,
+      errorCode: failure.code,
     );
   }
 }

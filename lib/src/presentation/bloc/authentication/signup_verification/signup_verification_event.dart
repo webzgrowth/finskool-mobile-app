@@ -7,6 +7,7 @@ class SignupVerificationEvent with _$SignupVerificationEvent {
     required String phoneDisplay,
     required String email,
     required bool isFromSocial,
+    String? userId,
   }) = _Prefill;
   const factory SignupVerificationEvent.sendPhoneCode() = _SendPhoneCode;
   const factory SignupVerificationEvent.phoneCodeChanged(String code) =

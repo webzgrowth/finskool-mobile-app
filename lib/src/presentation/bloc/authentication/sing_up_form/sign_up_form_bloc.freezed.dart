@@ -949,7 +949,11 @@ as bool,
 /// @nodoc
 mixin _$SignUpFormState {
 
- RequestState get state; String get message; String get firstName; String get lastName; String get countryCode; String get phonenumber; String get email; String get password; String get confirmPassword; bool get obscurePassword; bool get obscureConfirmPassword; bool get isFromSocial; String? get fullNameError; String? get emailError; String? get phoneError; String? get passwordError; String? get confirmPasswordError;
+ RequestState get state; String get message; String get firstName; String get lastName; String get countryCode; String get phonenumber; String get email; String get password; String get confirmPassword; bool get obscurePassword; bool get obscureConfirmPassword; bool get isFromSocial; String? get fullNameError; String? get emailError; String? get phoneError; String? get passwordError; String? get confirmPasswordError;/// Handed back by `POST /register` and required by both `verify-otp` and
+/// `resend-otp`. The verification screen reads it from here via
+/// `SignupVerificationEvent.prefill`.
+ String? get userId;/// The API's machine-readable failure code, e.g. `ALREADY_REGISTERED`.
+ String? get errorCode;
 /// Create a copy of SignUpFormState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -961,20 +965,20 @@ $SignUpFormStateCopyWith<SignUpFormState> get copyWith => _$SignUpFormStateCopyW
 @override
 bool operator ==(Object other) {
   final _this = this as SignUpFormState;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is SignUpFormState&&(identical(other.state, _this.state) || other.state == _this.state)&&(identical(other.message, _this.message) || other.message == _this.message)&&(identical(other.firstName, _this.firstName) || other.firstName == _this.firstName)&&(identical(other.lastName, _this.lastName) || other.lastName == _this.lastName)&&(identical(other.countryCode, _this.countryCode) || other.countryCode == _this.countryCode)&&(identical(other.phonenumber, _this.phonenumber) || other.phonenumber == _this.phonenumber)&&(identical(other.email, _this.email) || other.email == _this.email)&&(identical(other.password, _this.password) || other.password == _this.password)&&(identical(other.confirmPassword, _this.confirmPassword) || other.confirmPassword == _this.confirmPassword)&&(identical(other.obscurePassword, _this.obscurePassword) || other.obscurePassword == _this.obscurePassword)&&(identical(other.obscureConfirmPassword, _this.obscureConfirmPassword) || other.obscureConfirmPassword == _this.obscureConfirmPassword)&&(identical(other.isFromSocial, _this.isFromSocial) || other.isFromSocial == _this.isFromSocial)&&(identical(other.fullNameError, _this.fullNameError) || other.fullNameError == _this.fullNameError)&&(identical(other.emailError, _this.emailError) || other.emailError == _this.emailError)&&(identical(other.phoneError, _this.phoneError) || other.phoneError == _this.phoneError)&&(identical(other.passwordError, _this.passwordError) || other.passwordError == _this.passwordError)&&(identical(other.confirmPasswordError, _this.confirmPasswordError) || other.confirmPasswordError == _this.confirmPasswordError));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SignUpFormState&&(identical(other.state, _this.state) || other.state == _this.state)&&(identical(other.message, _this.message) || other.message == _this.message)&&(identical(other.firstName, _this.firstName) || other.firstName == _this.firstName)&&(identical(other.lastName, _this.lastName) || other.lastName == _this.lastName)&&(identical(other.countryCode, _this.countryCode) || other.countryCode == _this.countryCode)&&(identical(other.phonenumber, _this.phonenumber) || other.phonenumber == _this.phonenumber)&&(identical(other.email, _this.email) || other.email == _this.email)&&(identical(other.password, _this.password) || other.password == _this.password)&&(identical(other.confirmPassword, _this.confirmPassword) || other.confirmPassword == _this.confirmPassword)&&(identical(other.obscurePassword, _this.obscurePassword) || other.obscurePassword == _this.obscurePassword)&&(identical(other.obscureConfirmPassword, _this.obscureConfirmPassword) || other.obscureConfirmPassword == _this.obscureConfirmPassword)&&(identical(other.isFromSocial, _this.isFromSocial) || other.isFromSocial == _this.isFromSocial)&&(identical(other.fullNameError, _this.fullNameError) || other.fullNameError == _this.fullNameError)&&(identical(other.emailError, _this.emailError) || other.emailError == _this.emailError)&&(identical(other.phoneError, _this.phoneError) || other.phoneError == _this.phoneError)&&(identical(other.passwordError, _this.passwordError) || other.passwordError == _this.passwordError)&&(identical(other.confirmPasswordError, _this.confirmPasswordError) || other.confirmPasswordError == _this.confirmPasswordError)&&(identical(other.userId, _this.userId) || other.userId == _this.userId)&&(identical(other.errorCode, _this.errorCode) || other.errorCode == _this.errorCode));
 }
 
 
 @override
 int get hashCode {
   final _this = this as SignUpFormState;
-  return Object.hash(runtimeType,_this.state,_this.message,_this.firstName,_this.lastName,_this.countryCode,_this.phonenumber,_this.email,_this.password,_this.confirmPassword,_this.obscurePassword,_this.obscureConfirmPassword,_this.isFromSocial,_this.fullNameError,_this.emailError,_this.phoneError,_this.passwordError,_this.confirmPasswordError);
+  return Object.hashAll([runtimeType,_this.state,_this.message,_this.firstName,_this.lastName,_this.countryCode,_this.phonenumber,_this.email,_this.password,_this.confirmPassword,_this.obscurePassword,_this.obscureConfirmPassword,_this.isFromSocial,_this.fullNameError,_this.emailError,_this.phoneError,_this.passwordError,_this.confirmPasswordError,_this.userId,_this.errorCode]);
 }
 
 @override
 String toString() {
   final _this = this as SignUpFormState;
-  return 'SignUpFormState(state: ${_this.state}, message: ${_this.message}, firstName: ${_this.firstName}, lastName: ${_this.lastName}, countryCode: ${_this.countryCode}, phonenumber: ${_this.phonenumber}, email: ${_this.email}, password: ${_this.password}, confirmPassword: ${_this.confirmPassword}, obscurePassword: ${_this.obscurePassword}, obscureConfirmPassword: ${_this.obscureConfirmPassword}, isFromSocial: ${_this.isFromSocial}, fullNameError: ${_this.fullNameError}, emailError: ${_this.emailError}, phoneError: ${_this.phoneError}, passwordError: ${_this.passwordError}, confirmPasswordError: ${_this.confirmPasswordError})';
+  return 'SignUpFormState(state: ${_this.state}, message: ${_this.message}, firstName: ${_this.firstName}, lastName: ${_this.lastName}, countryCode: ${_this.countryCode}, phonenumber: ${_this.phonenumber}, email: ${_this.email}, password: ${_this.password}, confirmPassword: ${_this.confirmPassword}, obscurePassword: ${_this.obscurePassword}, obscureConfirmPassword: ${_this.obscureConfirmPassword}, isFromSocial: ${_this.isFromSocial}, fullNameError: ${_this.fullNameError}, emailError: ${_this.emailError}, phoneError: ${_this.phoneError}, passwordError: ${_this.passwordError}, confirmPasswordError: ${_this.confirmPasswordError}, userId: ${_this.userId}, errorCode: ${_this.errorCode})';
 }
 
 
@@ -985,7 +989,7 @@ abstract mixin class $SignUpFormStateCopyWith<$Res>  {
   factory $SignUpFormStateCopyWith(SignUpFormState value, $Res Function(SignUpFormState) _then) = _$SignUpFormStateCopyWithImpl;
 @useResult
 $Res call({
- RequestState state, String message, String firstName, String lastName, String countryCode, String phonenumber, String email, String password, String confirmPassword, bool obscurePassword, bool obscureConfirmPassword, bool isFromSocial, String? fullNameError, String? emailError, String? phoneError, String? passwordError, String? confirmPasswordError
+ RequestState state, String message, String firstName, String lastName, String countryCode, String phonenumber, String email, String password, String confirmPassword, bool obscurePassword, bool obscureConfirmPassword, bool isFromSocial, String? fullNameError, String? emailError, String? phoneError, String? passwordError, String? confirmPasswordError, String? userId, String? errorCode
 });
 
 
@@ -1002,7 +1006,7 @@ class _$SignUpFormStateCopyWithImpl<$Res>
 
 /// Create a copy of SignUpFormState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? state = null,Object? message = null,Object? firstName = null,Object? lastName = null,Object? countryCode = null,Object? phonenumber = null,Object? email = null,Object? password = null,Object? confirmPassword = null,Object? obscurePassword = null,Object? obscureConfirmPassword = null,Object? isFromSocial = null,Object? fullNameError = freezed,Object? emailError = freezed,Object? phoneError = freezed,Object? passwordError = freezed,Object? confirmPasswordError = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? state = null,Object? message = null,Object? firstName = null,Object? lastName = null,Object? countryCode = null,Object? phonenumber = null,Object? email = null,Object? password = null,Object? confirmPassword = null,Object? obscurePassword = null,Object? obscureConfirmPassword = null,Object? isFromSocial = null,Object? fullNameError = freezed,Object? emailError = freezed,Object? phoneError = freezed,Object? passwordError = freezed,Object? confirmPasswordError = freezed,Object? userId = freezed,Object? errorCode = freezed,}) {
   return _then(SignUpFormState(
 state: null == state ? _self.state : state // ignore: cast_nullable_to_non_nullable
 as RequestState,message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
@@ -1021,6 +1025,8 @@ as String?,emailError: freezed == emailError ? _self.emailError : emailError // 
 as String?,phoneError: freezed == phoneError ? _self.phoneError : phoneError // ignore: cast_nullable_to_non_nullable
 as String?,passwordError: freezed == passwordError ? _self.passwordError : passwordError // ignore: cast_nullable_to_non_nullable
 as String?,confirmPasswordError: freezed == confirmPasswordError ? _self.confirmPasswordError : confirmPasswordError // ignore: cast_nullable_to_non_nullable
+as String?,userId: freezed == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
+as String?,errorCode: freezed == errorCode ? _self.errorCode : errorCode // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }
@@ -1103,10 +1109,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( RequestState state,  String message,  String firstName,  String lastName,  String countryCode,  String phonenumber,  String email,  String password,  String confirmPassword,  bool obscurePassword,  bool obscureConfirmPassword,  bool isFromSocial,  String? fullNameError,  String? emailError,  String? phoneError,  String? passwordError,  String? confirmPasswordError)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( RequestState state,  String message,  String firstName,  String lastName,  String countryCode,  String phonenumber,  String email,  String password,  String confirmPassword,  bool obscurePassword,  bool obscureConfirmPassword,  bool isFromSocial,  String? fullNameError,  String? emailError,  String? phoneError,  String? passwordError,  String? confirmPasswordError,  String? userId,  String? errorCode)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _SignUpFormState() when $default != null:
-return $default(_that.state,_that.message,_that.firstName,_that.lastName,_that.countryCode,_that.phonenumber,_that.email,_that.password,_that.confirmPassword,_that.obscurePassword,_that.obscureConfirmPassword,_that.isFromSocial,_that.fullNameError,_that.emailError,_that.phoneError,_that.passwordError,_that.confirmPasswordError);case _:
+return $default(_that.state,_that.message,_that.firstName,_that.lastName,_that.countryCode,_that.phonenumber,_that.email,_that.password,_that.confirmPassword,_that.obscurePassword,_that.obscureConfirmPassword,_that.isFromSocial,_that.fullNameError,_that.emailError,_that.phoneError,_that.passwordError,_that.confirmPasswordError,_that.userId,_that.errorCode);case _:
   return orElse();
 
 }
@@ -1124,10 +1130,10 @@ return $default(_that.state,_that.message,_that.firstName,_that.lastName,_that.c
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( RequestState state,  String message,  String firstName,  String lastName,  String countryCode,  String phonenumber,  String email,  String password,  String confirmPassword,  bool obscurePassword,  bool obscureConfirmPassword,  bool isFromSocial,  String? fullNameError,  String? emailError,  String? phoneError,  String? passwordError,  String? confirmPasswordError)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( RequestState state,  String message,  String firstName,  String lastName,  String countryCode,  String phonenumber,  String email,  String password,  String confirmPassword,  bool obscurePassword,  bool obscureConfirmPassword,  bool isFromSocial,  String? fullNameError,  String? emailError,  String? phoneError,  String? passwordError,  String? confirmPasswordError,  String? userId,  String? errorCode)  $default,) {final _that = this;
 switch (_that) {
 case _SignUpFormState():
-return $default(_that.state,_that.message,_that.firstName,_that.lastName,_that.countryCode,_that.phonenumber,_that.email,_that.password,_that.confirmPassword,_that.obscurePassword,_that.obscureConfirmPassword,_that.isFromSocial,_that.fullNameError,_that.emailError,_that.phoneError,_that.passwordError,_that.confirmPasswordError);}
+return $default(_that.state,_that.message,_that.firstName,_that.lastName,_that.countryCode,_that.phonenumber,_that.email,_that.password,_that.confirmPassword,_that.obscurePassword,_that.obscureConfirmPassword,_that.isFromSocial,_that.fullNameError,_that.emailError,_that.phoneError,_that.passwordError,_that.confirmPasswordError,_that.userId,_that.errorCode);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -1141,10 +1147,10 @@ return $default(_that.state,_that.message,_that.firstName,_that.lastName,_that.c
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( RequestState state,  String message,  String firstName,  String lastName,  String countryCode,  String phonenumber,  String email,  String password,  String confirmPassword,  bool obscurePassword,  bool obscureConfirmPassword,  bool isFromSocial,  String? fullNameError,  String? emailError,  String? phoneError,  String? passwordError,  String? confirmPasswordError)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( RequestState state,  String message,  String firstName,  String lastName,  String countryCode,  String phonenumber,  String email,  String password,  String confirmPassword,  bool obscurePassword,  bool obscureConfirmPassword,  bool isFromSocial,  String? fullNameError,  String? emailError,  String? phoneError,  String? passwordError,  String? confirmPasswordError,  String? userId,  String? errorCode)?  $default,) {final _that = this;
 switch (_that) {
 case _SignUpFormState() when $default != null:
-return $default(_that.state,_that.message,_that.firstName,_that.lastName,_that.countryCode,_that.phonenumber,_that.email,_that.password,_that.confirmPassword,_that.obscurePassword,_that.obscureConfirmPassword,_that.isFromSocial,_that.fullNameError,_that.emailError,_that.phoneError,_that.passwordError,_that.confirmPasswordError);case _:
+return $default(_that.state,_that.message,_that.firstName,_that.lastName,_that.countryCode,_that.phonenumber,_that.email,_that.password,_that.confirmPassword,_that.obscurePassword,_that.obscureConfirmPassword,_that.isFromSocial,_that.fullNameError,_that.emailError,_that.phoneError,_that.passwordError,_that.confirmPasswordError,_that.userId,_that.errorCode);case _:
   return null;
 
 }
@@ -1156,7 +1162,7 @@ return $default(_that.state,_that.message,_that.firstName,_that.lastName,_that.c
 
 
 class _SignUpFormState implements SignUpFormState {
-  const _SignUpFormState({required this.state, required this.message, required this.firstName, required this.lastName, required this.countryCode, required this.phonenumber, required this.email, required this.password, required this.confirmPassword, required this.obscurePassword, required this.obscureConfirmPassword, required this.isFromSocial, this.fullNameError, this.emailError, this.phoneError, this.passwordError, this.confirmPasswordError});
+  const _SignUpFormState({required this.state, required this.message, required this.firstName, required this.lastName, required this.countryCode, required this.phonenumber, required this.email, required this.password, required this.confirmPassword, required this.obscurePassword, required this.obscureConfirmPassword, required this.isFromSocial, this.fullNameError, this.emailError, this.phoneError, this.passwordError, this.confirmPasswordError, this.userId, this.errorCode});
   
 
 @override final  RequestState state;
@@ -1176,6 +1182,12 @@ class _SignUpFormState implements SignUpFormState {
 @override final  String? phoneError;
 @override final  String? passwordError;
 @override final  String? confirmPasswordError;
+/// Handed back by `POST /register` and required by both `verify-otp` and
+/// `resend-otp`. The verification screen reads it from here via
+/// `SignupVerificationEvent.prefill`.
+@override final  String? userId;
+/// The API's machine-readable failure code, e.g. `ALREADY_REGISTERED`.
+@override final  String? errorCode;
 
 /// Create a copy of SignUpFormState
 /// with the given fields replaced by the non-null parameter values.
@@ -1187,18 +1199,18 @@ _$SignUpFormStateCopyWith<_SignUpFormState> get copyWith => __$SignUpFormStateCo
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _SignUpFormState&&(identical(other.state, state) || other.state == state)&&(identical(other.message, message) || other.message == message)&&(identical(other.firstName, firstName) || other.firstName == firstName)&&(identical(other.lastName, lastName) || other.lastName == lastName)&&(identical(other.countryCode, countryCode) || other.countryCode == countryCode)&&(identical(other.phonenumber, phonenumber) || other.phonenumber == phonenumber)&&(identical(other.email, email) || other.email == email)&&(identical(other.password, password) || other.password == password)&&(identical(other.confirmPassword, confirmPassword) || other.confirmPassword == confirmPassword)&&(identical(other.obscurePassword, obscurePassword) || other.obscurePassword == obscurePassword)&&(identical(other.obscureConfirmPassword, obscureConfirmPassword) || other.obscureConfirmPassword == obscureConfirmPassword)&&(identical(other.isFromSocial, isFromSocial) || other.isFromSocial == isFromSocial)&&(identical(other.fullNameError, fullNameError) || other.fullNameError == fullNameError)&&(identical(other.emailError, emailError) || other.emailError == emailError)&&(identical(other.phoneError, phoneError) || other.phoneError == phoneError)&&(identical(other.passwordError, passwordError) || other.passwordError == passwordError)&&(identical(other.confirmPasswordError, confirmPasswordError) || other.confirmPasswordError == confirmPasswordError));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _SignUpFormState&&(identical(other.state, state) || other.state == state)&&(identical(other.message, message) || other.message == message)&&(identical(other.firstName, firstName) || other.firstName == firstName)&&(identical(other.lastName, lastName) || other.lastName == lastName)&&(identical(other.countryCode, countryCode) || other.countryCode == countryCode)&&(identical(other.phonenumber, phonenumber) || other.phonenumber == phonenumber)&&(identical(other.email, email) || other.email == email)&&(identical(other.password, password) || other.password == password)&&(identical(other.confirmPassword, confirmPassword) || other.confirmPassword == confirmPassword)&&(identical(other.obscurePassword, obscurePassword) || other.obscurePassword == obscurePassword)&&(identical(other.obscureConfirmPassword, obscureConfirmPassword) || other.obscureConfirmPassword == obscureConfirmPassword)&&(identical(other.isFromSocial, isFromSocial) || other.isFromSocial == isFromSocial)&&(identical(other.fullNameError, fullNameError) || other.fullNameError == fullNameError)&&(identical(other.emailError, emailError) || other.emailError == emailError)&&(identical(other.phoneError, phoneError) || other.phoneError == phoneError)&&(identical(other.passwordError, passwordError) || other.passwordError == passwordError)&&(identical(other.confirmPasswordError, confirmPasswordError) || other.confirmPasswordError == confirmPasswordError)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.errorCode, errorCode) || other.errorCode == errorCode));
 }
 
 
 @override
 int get hashCode {
-    return Object.hash(runtimeType,state,message,firstName,lastName,countryCode,phonenumber,email,password,confirmPassword,obscurePassword,obscureConfirmPassword,isFromSocial,fullNameError,emailError,phoneError,passwordError,confirmPasswordError);
+    return Object.hashAll([runtimeType,state,message,firstName,lastName,countryCode,phonenumber,email,password,confirmPassword,obscurePassword,obscureConfirmPassword,isFromSocial,fullNameError,emailError,phoneError,passwordError,confirmPasswordError,userId,errorCode]);
 }
 
 @override
 String toString() {
-    return 'SignUpFormState(state: $state, message: $message, firstName: $firstName, lastName: $lastName, countryCode: $countryCode, phonenumber: $phonenumber, email: $email, password: $password, confirmPassword: $confirmPassword, obscurePassword: $obscurePassword, obscureConfirmPassword: $obscureConfirmPassword, isFromSocial: $isFromSocial, fullNameError: $fullNameError, emailError: $emailError, phoneError: $phoneError, passwordError: $passwordError, confirmPasswordError: $confirmPasswordError)';
+    return 'SignUpFormState(state: $state, message: $message, firstName: $firstName, lastName: $lastName, countryCode: $countryCode, phonenumber: $phonenumber, email: $email, password: $password, confirmPassword: $confirmPassword, obscurePassword: $obscurePassword, obscureConfirmPassword: $obscureConfirmPassword, isFromSocial: $isFromSocial, fullNameError: $fullNameError, emailError: $emailError, phoneError: $phoneError, passwordError: $passwordError, confirmPasswordError: $confirmPasswordError, userId: $userId, errorCode: $errorCode)';
 }
 
 
@@ -1209,7 +1221,7 @@ abstract mixin class _$SignUpFormStateCopyWith<$Res> implements $SignUpFormState
   factory _$SignUpFormStateCopyWith(_SignUpFormState value, $Res Function(_SignUpFormState) _then) = __$SignUpFormStateCopyWithImpl;
 @override @useResult
 $Res call({
- RequestState state, String message, String firstName, String lastName, String countryCode, String phonenumber, String email, String password, String confirmPassword, bool obscurePassword, bool obscureConfirmPassword, bool isFromSocial, String? fullNameError, String? emailError, String? phoneError, String? passwordError, String? confirmPasswordError
+ RequestState state, String message, String firstName, String lastName, String countryCode, String phonenumber, String email, String password, String confirmPassword, bool obscurePassword, bool obscureConfirmPassword, bool isFromSocial, String? fullNameError, String? emailError, String? phoneError, String? passwordError, String? confirmPasswordError, String? userId, String? errorCode
 });
 
 
@@ -1226,7 +1238,7 @@ class __$SignUpFormStateCopyWithImpl<$Res>
 
 /// Create a copy of SignUpFormState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? state = null,Object? message = null,Object? firstName = null,Object? lastName = null,Object? countryCode = null,Object? phonenumber = null,Object? email = null,Object? password = null,Object? confirmPassword = null,Object? obscurePassword = null,Object? obscureConfirmPassword = null,Object? isFromSocial = null,Object? fullNameError = freezed,Object? emailError = freezed,Object? phoneError = freezed,Object? passwordError = freezed,Object? confirmPasswordError = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? state = null,Object? message = null,Object? firstName = null,Object? lastName = null,Object? countryCode = null,Object? phonenumber = null,Object? email = null,Object? password = null,Object? confirmPassword = null,Object? obscurePassword = null,Object? obscureConfirmPassword = null,Object? isFromSocial = null,Object? fullNameError = freezed,Object? emailError = freezed,Object? phoneError = freezed,Object? passwordError = freezed,Object? confirmPasswordError = freezed,Object? userId = freezed,Object? errorCode = freezed,}) {
   return _then(_SignUpFormState(
 state: null == state ? _self.state : state // ignore: cast_nullable_to_non_nullable
 as RequestState,message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
@@ -1245,6 +1257,8 @@ as String?,emailError: freezed == emailError ? _self.emailError : emailError // 
 as String?,phoneError: freezed == phoneError ? _self.phoneError : phoneError // ignore: cast_nullable_to_non_nullable
 as String?,passwordError: freezed == passwordError ? _self.passwordError : passwordError // ignore: cast_nullable_to_non_nullable
 as String?,confirmPasswordError: freezed == confirmPasswordError ? _self.confirmPasswordError : confirmPasswordError // ignore: cast_nullable_to_non_nullable
+as String?,userId: freezed == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
+as String?,errorCode: freezed == errorCode ? _self.errorCode : errorCode // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }

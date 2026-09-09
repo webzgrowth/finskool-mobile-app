@@ -10,6 +10,10 @@ sealed class LoginFormState with _$LoginFormState {
     required bool obscurePassword,
     String? emailError,
     String? passwordError,
+
+    /// The API's machine-readable failure code, so the UI can route on
+    /// `NOT_REGISTERED` / `PHONE_NOT_VERIFIED` rather than parse [message].
+    String? errorCode,
   }) = _LoginFormState;
 
   factory LoginFormState.initial() => const LoginFormState(

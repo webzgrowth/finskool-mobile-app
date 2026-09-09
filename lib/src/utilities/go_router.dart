@@ -9,7 +9,6 @@ import 'package:finskool/src/presentation/pages/authentication/verify_reset_code
 import 'package:finskool/src/presentation/pages/authentication/new_password/new_password_screen.dart';
 import 'package:finskool/src/presentation/pages/authentication/password_reset_success/password_reset_success_screen.dart';
 import 'package:finskool/src/presentation/pages/authentication/verify_phone/verify_phone_screen.dart';
-import 'package:finskool/src/presentation/pages/authentication/verify_email/verify_email_screen.dart';
 import 'package:finskool/src/presentation/pages/authentication/google_last_step/google_last_step_screen.dart';
 import 'package:finskool/src/presentation/pages/authentication/signup_success/signup_success_screen.dart';
 import 'package:finskool/src/presentation/pages/dashboard/dashboard_shell_screen.dart';
@@ -87,13 +86,11 @@ GoRouter routerinit = GoRouter(
         return const VerifyPhoneScreen();
       },
     ),
-    GoRoute(
-      name: AppRoutes.VERIFY_EMAIL_ROUTE_NAME,
-      path: AppRoutes.VERIFY_EMAIL_ROUTE_PATH,
-      builder: (BuildContext context, GoRouterState state) {
-        return const VerifyEmailScreen();
-      },
-    ),
+    // `verify_email/` is deliberately NOT routed. The backend has a single
+    // signup OTP step (`/auth/mobile/verify-otp`, delivered by email as a
+    // stand-in for WhatsApp), so `verify_phone/` is the only verification
+    // screen in the flow. The screen's files and route constants stay put
+    // for when a genuine second channel exists — see CLAUDE.md.
     GoRoute(
       name: AppRoutes.GOOGLE_LAST_STEP_ROUTE_NAME,
       path: AppRoutes.GOOGLE_LAST_STEP_ROUTE_PATH,

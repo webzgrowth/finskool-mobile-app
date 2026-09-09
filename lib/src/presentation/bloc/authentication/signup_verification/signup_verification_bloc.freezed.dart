@@ -150,11 +150,11 @@ return emailTick(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function( String phoneDisplay,  String email,  bool isFromSocial)?  prefill,TResult Function()?  sendPhoneCode,TResult Function( String code)?  phoneCodeChanged,TResult Function()?  verifyPhoneCode,TResult Function()?  resendPhoneCode,TResult Function()?  phoneTick,TResult Function( String code)?  emailCodeChanged,TResult Function()?  verifyEmailCode,TResult Function()?  resendEmailCode,TResult Function()?  emailTick,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function( String phoneDisplay,  String email,  bool isFromSocial,  String? userId)?  prefill,TResult Function()?  sendPhoneCode,TResult Function( String code)?  phoneCodeChanged,TResult Function()?  verifyPhoneCode,TResult Function()?  resendPhoneCode,TResult Function()?  phoneTick,TResult Function( String code)?  emailCodeChanged,TResult Function()?  verifyEmailCode,TResult Function()?  resendEmailCode,TResult Function()?  emailTick,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Initial() when initial != null:
 return initial();case _Prefill() when prefill != null:
-return prefill(_that.phoneDisplay,_that.email,_that.isFromSocial);case _SendPhoneCode() when sendPhoneCode != null:
+return prefill(_that.phoneDisplay,_that.email,_that.isFromSocial,_that.userId);case _SendPhoneCode() when sendPhoneCode != null:
 return sendPhoneCode();case _PhoneCodeChanged() when phoneCodeChanged != null:
 return phoneCodeChanged(_that.code);case _VerifyPhoneCode() when verifyPhoneCode != null:
 return verifyPhoneCode();case _ResendPhoneCode() when resendPhoneCode != null:
@@ -181,11 +181,11 @@ return emailTick();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function( String phoneDisplay,  String email,  bool isFromSocial)  prefill,required TResult Function()  sendPhoneCode,required TResult Function( String code)  phoneCodeChanged,required TResult Function()  verifyPhoneCode,required TResult Function()  resendPhoneCode,required TResult Function()  phoneTick,required TResult Function( String code)  emailCodeChanged,required TResult Function()  verifyEmailCode,required TResult Function()  resendEmailCode,required TResult Function()  emailTick,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function( String phoneDisplay,  String email,  bool isFromSocial,  String? userId)  prefill,required TResult Function()  sendPhoneCode,required TResult Function( String code)  phoneCodeChanged,required TResult Function()  verifyPhoneCode,required TResult Function()  resendPhoneCode,required TResult Function()  phoneTick,required TResult Function( String code)  emailCodeChanged,required TResult Function()  verifyEmailCode,required TResult Function()  resendEmailCode,required TResult Function()  emailTick,}) {final _that = this;
 switch (_that) {
 case _Initial():
 return initial();case _Prefill():
-return prefill(_that.phoneDisplay,_that.email,_that.isFromSocial);case _SendPhoneCode():
+return prefill(_that.phoneDisplay,_that.email,_that.isFromSocial,_that.userId);case _SendPhoneCode():
 return sendPhoneCode();case _PhoneCodeChanged():
 return phoneCodeChanged(_that.code);case _VerifyPhoneCode():
 return verifyPhoneCode();case _ResendPhoneCode():
@@ -211,11 +211,11 @@ return emailTick();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function( String phoneDisplay,  String email,  bool isFromSocial)?  prefill,TResult? Function()?  sendPhoneCode,TResult? Function( String code)?  phoneCodeChanged,TResult? Function()?  verifyPhoneCode,TResult? Function()?  resendPhoneCode,TResult? Function()?  phoneTick,TResult? Function( String code)?  emailCodeChanged,TResult? Function()?  verifyEmailCode,TResult? Function()?  resendEmailCode,TResult? Function()?  emailTick,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function( String phoneDisplay,  String email,  bool isFromSocial,  String? userId)?  prefill,TResult? Function()?  sendPhoneCode,TResult? Function( String code)?  phoneCodeChanged,TResult? Function()?  verifyPhoneCode,TResult? Function()?  resendPhoneCode,TResult? Function()?  phoneTick,TResult? Function( String code)?  emailCodeChanged,TResult? Function()?  verifyEmailCode,TResult? Function()?  resendEmailCode,TResult? Function()?  emailTick,}) {final _that = this;
 switch (_that) {
 case _Initial() when initial != null:
 return initial();case _Prefill() when prefill != null:
-return prefill(_that.phoneDisplay,_that.email,_that.isFromSocial);case _SendPhoneCode() when sendPhoneCode != null:
+return prefill(_that.phoneDisplay,_that.email,_that.isFromSocial,_that.userId);case _SendPhoneCode() when sendPhoneCode != null:
 return sendPhoneCode();case _PhoneCodeChanged() when phoneCodeChanged != null:
 return phoneCodeChanged(_that.code);case _VerifyPhoneCode() when verifyPhoneCode != null:
 return verifyPhoneCode();case _ResendPhoneCode() when resendPhoneCode != null:
@@ -268,12 +268,13 @@ String toString() {
 
 
 class _Prefill implements SignupVerificationEvent {
-  const _Prefill({required this.phoneDisplay, required this.email, required this.isFromSocial});
+  const _Prefill({required this.phoneDisplay, required this.email, required this.isFromSocial, this.userId});
   
 
  final  String phoneDisplay;
  final  String email;
  final  bool isFromSocial;
+ final  String? userId;
 
 /// Create a copy of SignupVerificationEvent
 /// with the given fields replaced by the non-null parameter values.
@@ -285,18 +286,18 @@ _$PrefillCopyWith<_Prefill> get copyWith => __$PrefillCopyWithImpl<_Prefill>(thi
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Prefill&&(identical(other.phoneDisplay, phoneDisplay) || other.phoneDisplay == phoneDisplay)&&(identical(other.email, email) || other.email == email)&&(identical(other.isFromSocial, isFromSocial) || other.isFromSocial == isFromSocial));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Prefill&&(identical(other.phoneDisplay, phoneDisplay) || other.phoneDisplay == phoneDisplay)&&(identical(other.email, email) || other.email == email)&&(identical(other.isFromSocial, isFromSocial) || other.isFromSocial == isFromSocial)&&(identical(other.userId, userId) || other.userId == userId));
 }
 
 
 @override
 int get hashCode {
-    return Object.hash(runtimeType,phoneDisplay,email,isFromSocial);
+    return Object.hash(runtimeType,phoneDisplay,email,isFromSocial,userId);
 }
 
 @override
 String toString() {
-    return 'SignupVerificationEvent.prefill(phoneDisplay: $phoneDisplay, email: $email, isFromSocial: $isFromSocial)';
+    return 'SignupVerificationEvent.prefill(phoneDisplay: $phoneDisplay, email: $email, isFromSocial: $isFromSocial, userId: $userId)';
 }
 
 
@@ -307,7 +308,7 @@ abstract mixin class _$PrefillCopyWith<$Res> implements $SignupVerificationEvent
   factory _$PrefillCopyWith(_Prefill value, $Res Function(_Prefill) _then) = __$PrefillCopyWithImpl;
 @useResult
 $Res call({
- String phoneDisplay, String email, bool isFromSocial
+ String phoneDisplay, String email, bool isFromSocial, String? userId
 });
 
 
@@ -324,12 +325,13 @@ class __$PrefillCopyWithImpl<$Res>
 
 /// Create a copy of SignupVerificationEvent
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? phoneDisplay = null,Object? email = null,Object? isFromSocial = null,}) {
+@pragma('vm:prefer-inline') $Res call({Object? phoneDisplay = null,Object? email = null,Object? isFromSocial = null,Object? userId = freezed,}) {
   return _then(_Prefill(
 phoneDisplay: null == phoneDisplay ? _self.phoneDisplay : phoneDisplay // ignore: cast_nullable_to_non_nullable
 as String,email: null == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
 as String,isFromSocial: null == isFromSocial ? _self.isFromSocial : isFromSocial // ignore: cast_nullable_to_non_nullable
-as bool,
+as bool,userId: freezed == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 
@@ -699,7 +701,15 @@ String toString() {
 /// @nodoc
 mixin _$SignupVerificationState {
 
- RequestState get state; String get phoneDisplay; String get email; bool get isFromSocial; String get phoneCode; int get phoneResendSeconds; String get emailCode; int get emailResendSeconds; String? get phoneCodeError; String? get emailCodeError;
+ RequestState get state; String get message; String get phoneDisplay; String get email; bool get isFromSocial; String get phoneCode; int get phoneResendSeconds; String get emailCode; int get emailResendSeconds; String? get phoneCodeError; String? get emailCodeError;/// Handed over from `POST /register` via [SignupVerificationEvent.prefill]
+/// — the handle `verify-otp` and `resend-otp` are keyed on.
+///
+/// Null on the Google path, which never registers against the backend
+/// (there is no social-auth endpoint yet). That path stays mocked, so a
+/// null here means "validate locally and move on" rather than an error.
+ String? get userId;/// The API's machine-readable failure code (`OTP_INVALID`, `OTP_LOCKED`,
+/// `OTP_COOLDOWN`, …).
+ String? get errorCode;
 /// Create a copy of SignupVerificationState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -711,20 +721,20 @@ $SignupVerificationStateCopyWith<SignupVerificationState> get copyWith => _$Sign
 @override
 bool operator ==(Object other) {
   final _this = this as SignupVerificationState;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is SignupVerificationState&&(identical(other.state, _this.state) || other.state == _this.state)&&(identical(other.phoneDisplay, _this.phoneDisplay) || other.phoneDisplay == _this.phoneDisplay)&&(identical(other.email, _this.email) || other.email == _this.email)&&(identical(other.isFromSocial, _this.isFromSocial) || other.isFromSocial == _this.isFromSocial)&&(identical(other.phoneCode, _this.phoneCode) || other.phoneCode == _this.phoneCode)&&(identical(other.phoneResendSeconds, _this.phoneResendSeconds) || other.phoneResendSeconds == _this.phoneResendSeconds)&&(identical(other.emailCode, _this.emailCode) || other.emailCode == _this.emailCode)&&(identical(other.emailResendSeconds, _this.emailResendSeconds) || other.emailResendSeconds == _this.emailResendSeconds)&&(identical(other.phoneCodeError, _this.phoneCodeError) || other.phoneCodeError == _this.phoneCodeError)&&(identical(other.emailCodeError, _this.emailCodeError) || other.emailCodeError == _this.emailCodeError));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SignupVerificationState&&(identical(other.state, _this.state) || other.state == _this.state)&&(identical(other.message, _this.message) || other.message == _this.message)&&(identical(other.phoneDisplay, _this.phoneDisplay) || other.phoneDisplay == _this.phoneDisplay)&&(identical(other.email, _this.email) || other.email == _this.email)&&(identical(other.isFromSocial, _this.isFromSocial) || other.isFromSocial == _this.isFromSocial)&&(identical(other.phoneCode, _this.phoneCode) || other.phoneCode == _this.phoneCode)&&(identical(other.phoneResendSeconds, _this.phoneResendSeconds) || other.phoneResendSeconds == _this.phoneResendSeconds)&&(identical(other.emailCode, _this.emailCode) || other.emailCode == _this.emailCode)&&(identical(other.emailResendSeconds, _this.emailResendSeconds) || other.emailResendSeconds == _this.emailResendSeconds)&&(identical(other.phoneCodeError, _this.phoneCodeError) || other.phoneCodeError == _this.phoneCodeError)&&(identical(other.emailCodeError, _this.emailCodeError) || other.emailCodeError == _this.emailCodeError)&&(identical(other.userId, _this.userId) || other.userId == _this.userId)&&(identical(other.errorCode, _this.errorCode) || other.errorCode == _this.errorCode));
 }
 
 
 @override
 int get hashCode {
   final _this = this as SignupVerificationState;
-  return Object.hash(runtimeType,_this.state,_this.phoneDisplay,_this.email,_this.isFromSocial,_this.phoneCode,_this.phoneResendSeconds,_this.emailCode,_this.emailResendSeconds,_this.phoneCodeError,_this.emailCodeError);
+  return Object.hash(runtimeType,_this.state,_this.message,_this.phoneDisplay,_this.email,_this.isFromSocial,_this.phoneCode,_this.phoneResendSeconds,_this.emailCode,_this.emailResendSeconds,_this.phoneCodeError,_this.emailCodeError,_this.userId,_this.errorCode);
 }
 
 @override
 String toString() {
   final _this = this as SignupVerificationState;
-  return 'SignupVerificationState(state: ${_this.state}, phoneDisplay: ${_this.phoneDisplay}, email: ${_this.email}, isFromSocial: ${_this.isFromSocial}, phoneCode: ${_this.phoneCode}, phoneResendSeconds: ${_this.phoneResendSeconds}, emailCode: ${_this.emailCode}, emailResendSeconds: ${_this.emailResendSeconds}, phoneCodeError: ${_this.phoneCodeError}, emailCodeError: ${_this.emailCodeError})';
+  return 'SignupVerificationState(state: ${_this.state}, message: ${_this.message}, phoneDisplay: ${_this.phoneDisplay}, email: ${_this.email}, isFromSocial: ${_this.isFromSocial}, phoneCode: ${_this.phoneCode}, phoneResendSeconds: ${_this.phoneResendSeconds}, emailCode: ${_this.emailCode}, emailResendSeconds: ${_this.emailResendSeconds}, phoneCodeError: ${_this.phoneCodeError}, emailCodeError: ${_this.emailCodeError}, userId: ${_this.userId}, errorCode: ${_this.errorCode})';
 }
 
 
@@ -735,7 +745,7 @@ abstract mixin class $SignupVerificationStateCopyWith<$Res>  {
   factory $SignupVerificationStateCopyWith(SignupVerificationState value, $Res Function(SignupVerificationState) _then) = _$SignupVerificationStateCopyWithImpl;
 @useResult
 $Res call({
- RequestState state, String phoneDisplay, String email, bool isFromSocial, String phoneCode, int phoneResendSeconds, String emailCode, int emailResendSeconds, String? phoneCodeError, String? emailCodeError
+ RequestState state, String message, String phoneDisplay, String email, bool isFromSocial, String phoneCode, int phoneResendSeconds, String emailCode, int emailResendSeconds, String? phoneCodeError, String? emailCodeError, String? userId, String? errorCode
 });
 
 
@@ -752,10 +762,11 @@ class _$SignupVerificationStateCopyWithImpl<$Res>
 
 /// Create a copy of SignupVerificationState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? state = null,Object? phoneDisplay = null,Object? email = null,Object? isFromSocial = null,Object? phoneCode = null,Object? phoneResendSeconds = null,Object? emailCode = null,Object? emailResendSeconds = null,Object? phoneCodeError = freezed,Object? emailCodeError = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? state = null,Object? message = null,Object? phoneDisplay = null,Object? email = null,Object? isFromSocial = null,Object? phoneCode = null,Object? phoneResendSeconds = null,Object? emailCode = null,Object? emailResendSeconds = null,Object? phoneCodeError = freezed,Object? emailCodeError = freezed,Object? userId = freezed,Object? errorCode = freezed,}) {
   return _then(SignupVerificationState(
 state: null == state ? _self.state : state // ignore: cast_nullable_to_non_nullable
-as RequestState,phoneDisplay: null == phoneDisplay ? _self.phoneDisplay : phoneDisplay // ignore: cast_nullable_to_non_nullable
+as RequestState,message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
+as String,phoneDisplay: null == phoneDisplay ? _self.phoneDisplay : phoneDisplay // ignore: cast_nullable_to_non_nullable
 as String,email: null == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
 as String,isFromSocial: null == isFromSocial ? _self.isFromSocial : isFromSocial // ignore: cast_nullable_to_non_nullable
 as bool,phoneCode: null == phoneCode ? _self.phoneCode : phoneCode // ignore: cast_nullable_to_non_nullable
@@ -764,6 +775,8 @@ as int,emailCode: null == emailCode ? _self.emailCode : emailCode // ignore: cas
 as String,emailResendSeconds: null == emailResendSeconds ? _self.emailResendSeconds : emailResendSeconds // ignore: cast_nullable_to_non_nullable
 as int,phoneCodeError: freezed == phoneCodeError ? _self.phoneCodeError : phoneCodeError // ignore: cast_nullable_to_non_nullable
 as String?,emailCodeError: freezed == emailCodeError ? _self.emailCodeError : emailCodeError // ignore: cast_nullable_to_non_nullable
+as String?,userId: freezed == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
+as String?,errorCode: freezed == errorCode ? _self.errorCode : errorCode // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }
@@ -846,10 +859,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( RequestState state,  String phoneDisplay,  String email,  bool isFromSocial,  String phoneCode,  int phoneResendSeconds,  String emailCode,  int emailResendSeconds,  String? phoneCodeError,  String? emailCodeError)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( RequestState state,  String message,  String phoneDisplay,  String email,  bool isFromSocial,  String phoneCode,  int phoneResendSeconds,  String emailCode,  int emailResendSeconds,  String? phoneCodeError,  String? emailCodeError,  String? userId,  String? errorCode)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _SignupVerificationState() when $default != null:
-return $default(_that.state,_that.phoneDisplay,_that.email,_that.isFromSocial,_that.phoneCode,_that.phoneResendSeconds,_that.emailCode,_that.emailResendSeconds,_that.phoneCodeError,_that.emailCodeError);case _:
+return $default(_that.state,_that.message,_that.phoneDisplay,_that.email,_that.isFromSocial,_that.phoneCode,_that.phoneResendSeconds,_that.emailCode,_that.emailResendSeconds,_that.phoneCodeError,_that.emailCodeError,_that.userId,_that.errorCode);case _:
   return orElse();
 
 }
@@ -867,10 +880,10 @@ return $default(_that.state,_that.phoneDisplay,_that.email,_that.isFromSocial,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( RequestState state,  String phoneDisplay,  String email,  bool isFromSocial,  String phoneCode,  int phoneResendSeconds,  String emailCode,  int emailResendSeconds,  String? phoneCodeError,  String? emailCodeError)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( RequestState state,  String message,  String phoneDisplay,  String email,  bool isFromSocial,  String phoneCode,  int phoneResendSeconds,  String emailCode,  int emailResendSeconds,  String? phoneCodeError,  String? emailCodeError,  String? userId,  String? errorCode)  $default,) {final _that = this;
 switch (_that) {
 case _SignupVerificationState():
-return $default(_that.state,_that.phoneDisplay,_that.email,_that.isFromSocial,_that.phoneCode,_that.phoneResendSeconds,_that.emailCode,_that.emailResendSeconds,_that.phoneCodeError,_that.emailCodeError);}
+return $default(_that.state,_that.message,_that.phoneDisplay,_that.email,_that.isFromSocial,_that.phoneCode,_that.phoneResendSeconds,_that.emailCode,_that.emailResendSeconds,_that.phoneCodeError,_that.emailCodeError,_that.userId,_that.errorCode);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -884,10 +897,10 @@ return $default(_that.state,_that.phoneDisplay,_that.email,_that.isFromSocial,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( RequestState state,  String phoneDisplay,  String email,  bool isFromSocial,  String phoneCode,  int phoneResendSeconds,  String emailCode,  int emailResendSeconds,  String? phoneCodeError,  String? emailCodeError)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( RequestState state,  String message,  String phoneDisplay,  String email,  bool isFromSocial,  String phoneCode,  int phoneResendSeconds,  String emailCode,  int emailResendSeconds,  String? phoneCodeError,  String? emailCodeError,  String? userId,  String? errorCode)?  $default,) {final _that = this;
 switch (_that) {
 case _SignupVerificationState() when $default != null:
-return $default(_that.state,_that.phoneDisplay,_that.email,_that.isFromSocial,_that.phoneCode,_that.phoneResendSeconds,_that.emailCode,_that.emailResendSeconds,_that.phoneCodeError,_that.emailCodeError);case _:
+return $default(_that.state,_that.message,_that.phoneDisplay,_that.email,_that.isFromSocial,_that.phoneCode,_that.phoneResendSeconds,_that.emailCode,_that.emailResendSeconds,_that.phoneCodeError,_that.emailCodeError,_that.userId,_that.errorCode);case _:
   return null;
 
 }
@@ -898,11 +911,12 @@ return $default(_that.state,_that.phoneDisplay,_that.email,_that.isFromSocial,_t
 /// @nodoc
 
 
-class _SignupVerificationState implements SignupVerificationState {
-  const _SignupVerificationState({required this.state, required this.phoneDisplay, required this.email, required this.isFromSocial, required this.phoneCode, required this.phoneResendSeconds, required this.emailCode, required this.emailResendSeconds, this.phoneCodeError, this.emailCodeError});
+class _SignupVerificationState extends SignupVerificationState {
+  const _SignupVerificationState({required this.state, required this.message, required this.phoneDisplay, required this.email, required this.isFromSocial, required this.phoneCode, required this.phoneResendSeconds, required this.emailCode, required this.emailResendSeconds, this.phoneCodeError, this.emailCodeError, this.userId, this.errorCode}): super._();
   
 
 @override final  RequestState state;
+@override final  String message;
 @override final  String phoneDisplay;
 @override final  String email;
 @override final  bool isFromSocial;
@@ -912,6 +926,16 @@ class _SignupVerificationState implements SignupVerificationState {
 @override final  int emailResendSeconds;
 @override final  String? phoneCodeError;
 @override final  String? emailCodeError;
+/// Handed over from `POST /register` via [SignupVerificationEvent.prefill]
+/// — the handle `verify-otp` and `resend-otp` are keyed on.
+///
+/// Null on the Google path, which never registers against the backend
+/// (there is no social-auth endpoint yet). That path stays mocked, so a
+/// null here means "validate locally and move on" rather than an error.
+@override final  String? userId;
+/// The API's machine-readable failure code (`OTP_INVALID`, `OTP_LOCKED`,
+/// `OTP_COOLDOWN`, …).
+@override final  String? errorCode;
 
 /// Create a copy of SignupVerificationState
 /// with the given fields replaced by the non-null parameter values.
@@ -923,18 +947,18 @@ _$SignupVerificationStateCopyWith<_SignupVerificationState> get copyWith => __$S
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _SignupVerificationState&&(identical(other.state, state) || other.state == state)&&(identical(other.phoneDisplay, phoneDisplay) || other.phoneDisplay == phoneDisplay)&&(identical(other.email, email) || other.email == email)&&(identical(other.isFromSocial, isFromSocial) || other.isFromSocial == isFromSocial)&&(identical(other.phoneCode, phoneCode) || other.phoneCode == phoneCode)&&(identical(other.phoneResendSeconds, phoneResendSeconds) || other.phoneResendSeconds == phoneResendSeconds)&&(identical(other.emailCode, emailCode) || other.emailCode == emailCode)&&(identical(other.emailResendSeconds, emailResendSeconds) || other.emailResendSeconds == emailResendSeconds)&&(identical(other.phoneCodeError, phoneCodeError) || other.phoneCodeError == phoneCodeError)&&(identical(other.emailCodeError, emailCodeError) || other.emailCodeError == emailCodeError));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _SignupVerificationState&&(identical(other.state, state) || other.state == state)&&(identical(other.message, message) || other.message == message)&&(identical(other.phoneDisplay, phoneDisplay) || other.phoneDisplay == phoneDisplay)&&(identical(other.email, email) || other.email == email)&&(identical(other.isFromSocial, isFromSocial) || other.isFromSocial == isFromSocial)&&(identical(other.phoneCode, phoneCode) || other.phoneCode == phoneCode)&&(identical(other.phoneResendSeconds, phoneResendSeconds) || other.phoneResendSeconds == phoneResendSeconds)&&(identical(other.emailCode, emailCode) || other.emailCode == emailCode)&&(identical(other.emailResendSeconds, emailResendSeconds) || other.emailResendSeconds == emailResendSeconds)&&(identical(other.phoneCodeError, phoneCodeError) || other.phoneCodeError == phoneCodeError)&&(identical(other.emailCodeError, emailCodeError) || other.emailCodeError == emailCodeError)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.errorCode, errorCode) || other.errorCode == errorCode));
 }
 
 
 @override
 int get hashCode {
-    return Object.hash(runtimeType,state,phoneDisplay,email,isFromSocial,phoneCode,phoneResendSeconds,emailCode,emailResendSeconds,phoneCodeError,emailCodeError);
+    return Object.hash(runtimeType,state,message,phoneDisplay,email,isFromSocial,phoneCode,phoneResendSeconds,emailCode,emailResendSeconds,phoneCodeError,emailCodeError,userId,errorCode);
 }
 
 @override
 String toString() {
-    return 'SignupVerificationState(state: $state, phoneDisplay: $phoneDisplay, email: $email, isFromSocial: $isFromSocial, phoneCode: $phoneCode, phoneResendSeconds: $phoneResendSeconds, emailCode: $emailCode, emailResendSeconds: $emailResendSeconds, phoneCodeError: $phoneCodeError, emailCodeError: $emailCodeError)';
+    return 'SignupVerificationState(state: $state, message: $message, phoneDisplay: $phoneDisplay, email: $email, isFromSocial: $isFromSocial, phoneCode: $phoneCode, phoneResendSeconds: $phoneResendSeconds, emailCode: $emailCode, emailResendSeconds: $emailResendSeconds, phoneCodeError: $phoneCodeError, emailCodeError: $emailCodeError, userId: $userId, errorCode: $errorCode)';
 }
 
 
@@ -945,7 +969,7 @@ abstract mixin class _$SignupVerificationStateCopyWith<$Res> implements $SignupV
   factory _$SignupVerificationStateCopyWith(_SignupVerificationState value, $Res Function(_SignupVerificationState) _then) = __$SignupVerificationStateCopyWithImpl;
 @override @useResult
 $Res call({
- RequestState state, String phoneDisplay, String email, bool isFromSocial, String phoneCode, int phoneResendSeconds, String emailCode, int emailResendSeconds, String? phoneCodeError, String? emailCodeError
+ RequestState state, String message, String phoneDisplay, String email, bool isFromSocial, String phoneCode, int phoneResendSeconds, String emailCode, int emailResendSeconds, String? phoneCodeError, String? emailCodeError, String? userId, String? errorCode
 });
 
 
@@ -962,10 +986,11 @@ class __$SignupVerificationStateCopyWithImpl<$Res>
 
 /// Create a copy of SignupVerificationState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? state = null,Object? phoneDisplay = null,Object? email = null,Object? isFromSocial = null,Object? phoneCode = null,Object? phoneResendSeconds = null,Object? emailCode = null,Object? emailResendSeconds = null,Object? phoneCodeError = freezed,Object? emailCodeError = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? state = null,Object? message = null,Object? phoneDisplay = null,Object? email = null,Object? isFromSocial = null,Object? phoneCode = null,Object? phoneResendSeconds = null,Object? emailCode = null,Object? emailResendSeconds = null,Object? phoneCodeError = freezed,Object? emailCodeError = freezed,Object? userId = freezed,Object? errorCode = freezed,}) {
   return _then(_SignupVerificationState(
 state: null == state ? _self.state : state // ignore: cast_nullable_to_non_nullable
-as RequestState,phoneDisplay: null == phoneDisplay ? _self.phoneDisplay : phoneDisplay // ignore: cast_nullable_to_non_nullable
+as RequestState,message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
+as String,phoneDisplay: null == phoneDisplay ? _self.phoneDisplay : phoneDisplay // ignore: cast_nullable_to_non_nullable
 as String,email: null == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
 as String,isFromSocial: null == isFromSocial ? _self.isFromSocial : isFromSocial // ignore: cast_nullable_to_non_nullable
 as bool,phoneCode: null == phoneCode ? _self.phoneCode : phoneCode // ignore: cast_nullable_to_non_nullable
@@ -974,6 +999,8 @@ as int,emailCode: null == emailCode ? _self.emailCode : emailCode // ignore: cas
 as String,emailResendSeconds: null == emailResendSeconds ? _self.emailResendSeconds : emailResendSeconds // ignore: cast_nullable_to_non_nullable
 as int,phoneCodeError: freezed == phoneCodeError ? _self.phoneCodeError : phoneCodeError // ignore: cast_nullable_to_non_nullable
 as String?,emailCodeError: freezed == emailCodeError ? _self.emailCodeError : emailCodeError // ignore: cast_nullable_to_non_nullable
+as String?,userId: freezed == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
+as String?,errorCode: freezed == errorCode ? _self.errorCode : errorCode // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }
