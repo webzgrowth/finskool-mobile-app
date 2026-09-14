@@ -1,4 +1,4 @@
-import 'package:finskool/src/domain/model/auth/community_model.dart';
+import 'package:finskool/src/domain/model/community/community_model.dart';
 import 'package:finskool/src/domain/model/auth/user_model.dart';
 
 /// `POST /auth/mobile/login`'s `data` payload.

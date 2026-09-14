@@ -17,9 +17,13 @@ import 'package:finskool/src/data/datasource/password_reset_remote_datasource.da
     as _i44;
 import 'package:finskool/src/data/repository/auth_repository_impl.dart'
     as _i141;
+import 'package:finskool/src/data/repository/communities_repository_impl.dart'
+    as _i494;
 import 'package:finskool/src/data/repository/password_reset_repository_impl.dart'
     as _i880;
 import 'package:finskool/src/domain/repository/auth_repository.dart' as _i505;
+import 'package:finskool/src/domain/repository/communities_repository.dart'
+    as _i122;
 import 'package:finskool/src/domain/repository/password_reset_repository.dart'
     as _i901;
 import 'package:finskool/src/domain/usecases/auth/get_auth_status.dart'
@@ -31,6 +35,16 @@ import 'package:finskool/src/domain/usecases/auth/resend_otp.dart' as _i775;
 import 'package:finskool/src/domain/usecases/auth/select_community.dart'
     as _i284;
 import 'package:finskool/src/domain/usecases/auth/verify_otp.dart' as _i583;
+import 'package:finskool/src/domain/usecases/community/get_communities.dart'
+    as _i229;
+import 'package:finskool/src/domain/usecases/community/get_compliance_status.dart'
+    as _i599;
+import 'package:finskool/src/domain/usecases/community/request_pricing.dart'
+    as _i999;
+import 'package:finskool/src/domain/usecases/community/submit_compliance.dart'
+    as _i510;
+import 'package:finskool/src/domain/usecases/community/unlock_community.dart'
+    as _i944;
 import 'package:finskool/src/domain/usecases/password_reset/reset_password.dart'
     as _i360;
 import 'package:finskool/src/domain/usecases/password_reset/send_reset_code.dart'
@@ -49,6 +63,14 @@ import 'package:finskool/src/presentation/bloc/authentication/signup_verificatio
     as _i204;
 import 'package:finskool/src/presentation/bloc/authentication/sing_up_form/sign_up_form_bloc.dart'
     as _i251;
+import 'package:finskool/src/presentation/bloc/communities/compliance/compliance_bloc.dart'
+    as _i967;
+import 'package:finskool/src/presentation/bloc/communities/filter/community_filter_bloc.dart'
+    as _i0;
+import 'package:finskool/src/presentation/bloc/communities/list/communities_bloc.dart'
+    as _i541;
+import 'package:finskool/src/presentation/bloc/communities/purchase/community_purchase_bloc.dart'
+    as _i506;
 import 'package:finskool/src/presentation/bloc/dashboard/bottom_nav/bottom_nav_bloc.dart'
     as _i64;
 import 'package:finskool/src/presentation/bloc/feed/filter/feed_filter_bloc.dart'
@@ -66,19 +88,45 @@ extension GetItInjectableX on _i174.GetIt {
   }) {
     final gh = _i526.GetItHelper(this, environment, environmentFilter);
     gh.singleton<_i747.GoogleSigninBloc>(() => _i747.GoogleSigninBloc());
+    gh.singleton<_i0.CommunityFilterBloc>(() => _i0.CommunityFilterBloc());
     gh.singleton<_i64.BottomNavBloc>(() => _i64.BottomNavBloc());
     gh.singleton<_i695.FeedFilterBloc>(() => _i695.FeedFilterBloc());
     gh.singleton<_i2.FeedBloc>(() => _i2.FeedBloc());
     gh.lazySingleton<_i373.ApiClient>(() => _i373.ApiClient());
+    gh.lazySingleton<_i122.CommunitiesRepository>(
+      () => _i494.CommunitiesRepositoryImpl(),
+    );
     gh.lazySingleton<_i10.AuthRemoteDatasource>(
       () => _i10.AuthRemoteDatasource(gh<_i373.ApiClient>()),
     );
     gh.lazySingleton<_i44.PasswordResetRemoteDatasource>(
       () => _i44.PasswordResetRemoteDatasource(gh<_i373.ApiClient>()),
     );
+    gh.lazySingleton<_i229.GetCommunities>(
+      () => _i229.GetCommunities(gh<_i122.CommunitiesRepository>()),
+    );
+    gh.lazySingleton<_i599.GetComplianceStatus>(
+      () => _i599.GetComplianceStatus(gh<_i122.CommunitiesRepository>()),
+    );
+    gh.lazySingleton<_i999.RequestPricing>(
+      () => _i999.RequestPricing(gh<_i122.CommunitiesRepository>()),
+    );
+    gh.lazySingleton<_i510.SubmitCompliance>(
+      () => _i510.SubmitCompliance(gh<_i122.CommunitiesRepository>()),
+    );
+    gh.lazySingleton<_i944.UnlockCommunity>(
+      () => _i944.UnlockCommunity(gh<_i122.CommunitiesRepository>()),
+    );
     gh.lazySingleton<_i901.PasswordResetRepository>(
       () => _i880.PasswordResetRepositoryImpl(
         gh<_i44.PasswordResetRemoteDatasource>(),
+      ),
+    );
+    gh.singleton<_i541.CommunitiesBloc>(
+      () => _i541.CommunitiesBloc(
+        gh<_i229.GetCommunities>(),
+        gh<_i944.UnlockCommunity>(),
+        gh<_i999.RequestPricing>(),
       ),
     );
     gh.lazySingleton<_i360.ResetPassword>(
@@ -90,8 +138,14 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i528.VerifyResetCode>(
       () => _i528.VerifyResetCode(gh<_i901.PasswordResetRepository>()),
     );
+    gh.singleton<_i506.CommunityPurchaseBloc>(
+      () => _i506.CommunityPurchaseBloc(gh<_i599.GetComplianceStatus>()),
+    );
     gh.lazySingleton<_i505.AuthRepository>(
       () => _i141.AuthRepositoryImpl(gh<_i10.AuthRemoteDatasource>()),
+    );
+    gh.singleton<_i967.ComplianceBloc>(
+      () => _i967.ComplianceBloc(gh<_i510.SubmitCompliance>()),
     );
     gh.singleton<_i294.PasswordResetBloc>(
       () => _i294.PasswordResetBloc(

@@ -16,4 +16,16 @@ class StorageKeys {
 
   /// The community whose feed/recommendations we're scoped to.
   static const String selectedCommunityId = 'selected_community_id';
+
+  /// Set once the user has submitted their SEBI compliance details (DOB +
+  /// PAN). The step is required before the *first* paid community only, so
+  /// this gates it for every purchase afterwards.
+  ///
+  /// Local because the backend has no compliance endpoint yet; move it onto
+  /// `UserModel` when it does, so it survives a reinstall.
+  static const String complianceCompleted = 'compliance_completed';
+
+  /// Ids of communities unlocked in-app, as a JSON list. Mock-only: the
+  /// real subscription list arrives with the login payload.
+  static const String unlockedCommunityIds = 'unlocked_community_ids';
 }

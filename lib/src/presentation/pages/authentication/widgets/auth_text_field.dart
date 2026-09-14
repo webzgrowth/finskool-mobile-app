@@ -16,6 +16,7 @@ class AuthTextField extends StatelessWidget {
     this.onSuffixTap,
     this.errorText,
     this.keyboardType,
+    this.textCapitalization = TextCapitalization.none,
   });
 
   final String label;
@@ -27,6 +28,11 @@ class AuthTextField extends StatelessWidget {
   final VoidCallback? onSuffixTap;
   final String? errorText;
   final TextInputType? keyboardType;
+
+  /// Used by the compliance screen's PAN field, which Figma specifies in
+  /// capitals ("Enter your PAN exactly as printed on the card, in
+  /// capitals.").
+  final TextCapitalization textCapitalization;
 
   @override
   Widget build(BuildContext context) {
@@ -41,6 +47,7 @@ class AuthTextField extends StatelessWidget {
           onChanged: onChanged,
           obscureText: obscureText,
           keyboardType: keyboardType,
+          textCapitalization: textCapitalization,
           style: tt.bodyLarge,
           decoration: InputDecoration(
             hintText: hint,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:finskool/src/presentation/bloc/communities/list/communities_bloc.dart';
 import 'package:finskool/src/presentation/bloc/dashboard/bottom_nav/bottom_nav_bloc.dart';
 import 'nav_bar_item.dart';
 
@@ -17,6 +18,13 @@ class AppBottomNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    // The Communities badge is the sum of every community's unread
+    // announcements — the only badge backed by real data. Figma also shows
+    // one on Feed; that needs an unread-post count the feed doesn't track
+    // yet, so it's deliberately absent rather than faked.
+    final announcements = context
+        .select<CommunitiesBloc, int>((b) => b.state.totalNewAnnouncements);
+
     return BlocBuilder<BottomNavBloc, BottomNavState>(
       builder: (context, state) {
         return Container(
@@ -34,6 +42,7 @@ class AppBottomNavBar extends StatelessWidget {
                 child: NavBarItem(
                   icon: item.icon,
                   label: item.label,
+                  badgeCount: i == 1 ? announcements : null,
                   selected: state.selectedIndex == i,
                   onTap: () => context
                       .read<BottomNavBloc>()

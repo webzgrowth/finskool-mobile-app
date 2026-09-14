@@ -10,4 +10,9 @@ class AuthFieldIcons {
   static const String lock = 'assets/icons/lock.svg';
   static const String lockSmall = 'assets/icons/lock_small.svg';
   static const String arrowRight = 'assets/icons/arrow_right.svg';
+
+  /// Compliance screen (`893:16303`) — exported the same way.
+  static const String dateNote = 'assets/icons/date_note.svg';
+  static const String card = 'assets/icons/card.svg';
+  static const String shieldUser = 'assets/icons/shield_user.svg';
 }

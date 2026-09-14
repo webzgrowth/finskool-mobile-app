@@ -56,6 +56,27 @@ class AppPalette {
   static const Color postBody = Color(0xFF2D2D2D);
   static const Color postMeta = Color(0xFF7D7D91);
 
+  ///  =================================================================
+  ///  *********************** Communities *****************************
+  ///  =================================================================
+  /// Measured from Figma's community card (`750:1116`). The card's title,
+  /// tag text and CTA fill are all `#108B8B`, which the palette already
+  /// carries as [badgeTeal] / [headerGradientEnd]; the avatar ring reuses
+  /// [reactionRing] (`#153D3A`). Only these four are new.
+
+  /// The bell's unread dot, from the exported icon (`750:1626`).
+  static const Color notificationDot = Color(0xFFE50000);
+
+  /// The category line above a community title ("Long Term Investment").
+  static const Color communityCategory = Color(0xFF1A1A1A);
+
+  /// "N New Announcements" tag — green text on the same green at 10%.
+  static const Color announcementGreen = Color(0xFF37C000);
+
+  /// Tag-chip fill is this teal at 6%; the hairline border is the grey.
+  static const Color communityChipTint = Color(0xFF269595);
+  static const Color communityChipBorder = Color(0xFFF5F6F9);
+
   /// The long-press reaction picker's pill: a light grey plate with a
   /// hairline border, not the white card surface.
   static const Color pickerSurface = Color(0xFFF2F2F2);

@@ -12,6 +12,9 @@ import 'package:finskool/src/presentation/pages/authentication/verify_phone/veri
 import 'package:finskool/src/presentation/pages/authentication/google_last_step/google_last_step_screen.dart';
 import 'package:finskool/src/presentation/pages/authentication/signup_success/signup_success_screen.dart';
 import 'package:finskool/src/presentation/pages/dashboard/dashboard_shell_screen.dart';
+import 'package:finskool/src/presentation/pages/communities/detail/community_detail_screen.dart';
+import 'package:finskool/src/presentation/pages/communities/payment_success/payment_success_screen.dart';
+import 'package:finskool/src/presentation/pages/communities/compliance/compliance_screen.dart';
 
 GoRouter routerinit = GoRouter(
   routes: <RouteBase>[
@@ -103,6 +106,36 @@ GoRouter routerinit = GoRouter(
       path: AppRoutes.SIGNUP_SUCCESS_ROUTE_PATH,
       builder: (BuildContext context, GoRouterState state) {
         return const SignupSuccessScreen();
+      },
+    ),
+
+    ///  =================================================================
+    ///  ********************* Community Routes ***************************
+    ///  =================================================================
+    // Ordered before `/community/:id` so the literal paths win — go_router
+    // matches in declaration order, and `payment-success` would otherwise
+    // be captured as an `:id`.
+    GoRoute(
+      name: AppRoutes.COMMUNITY_PAYMENT_SUCCESS_ROUTE_NAME,
+      path: AppRoutes.COMMUNITY_PAYMENT_SUCCESS_ROUTE_PATH,
+      builder: (BuildContext context, GoRouterState state) {
+        return const PaymentSuccessScreen();
+      },
+    ),
+    GoRoute(
+      name: AppRoutes.COMMUNITY_COMPLIANCE_ROUTE_NAME,
+      path: AppRoutes.COMMUNITY_COMPLIANCE_ROUTE_PATH,
+      builder: (BuildContext context, GoRouterState state) {
+        return const ComplianceScreen();
+      },
+    ),
+    GoRoute(
+      name: AppRoutes.COMMUNITY_DETAIL_ROUTE_NAME,
+      path: AppRoutes.COMMUNITY_DETAIL_ROUTE_PATH,
+      builder: (BuildContext context, GoRouterState state) {
+        return CommunityDetailScreen(
+          communityName: state.extra as String? ?? 'Community',
+        );
       },
     ),
 
