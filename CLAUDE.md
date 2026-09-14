@@ -378,11 +378,129 @@ not a tap-to-open-externally thumbnail. Native uploaded-video playback
 (`video_player`) is out of scope; the "01:11"-style badge on an `image`
 item is a decorative overlay, not a real video control.
 
-**Reaction icons are emoji glyphs** (👍❤️🔥👏✅😮, `domain/model/
-reaction_type.dart`), standing in for custom Figma icon art that isn't
-obtainable right now (Figma MCP disconnected). Swap `ReactionTypeX.emoji`
-for real assets if they become available — don't rebuild the picker/sheet
-around a different icon system, just the glyph source.
+**Reaction icons: emoji are the design, not a placeholder.** Figma's
+long-press picker is a frame literally named `Picker` (`605:17127`) holding
+six *text* nodes with 👍❤️🔥👏✅😮 — the designer used emoji characters
+too, so `ReactionTypeX.emoji` is correct and there is no picker art to
+export. Do not "upgrade" it to an icon set.
+
+Its geometry is pinned to Figma in `ReactionPickerOverlay`: a 235x39 pill
+(`#F2F2F2` plate, 0.38px `#D7D7D7` hairline), six 27.87px items on a 36px
+pitch, 15px glyphs, 13.9/5.7 padding. `pillWidth` **must** include the
+border width — Flutter draws a `Border` inside the box, and omitting it
+made the row 0.76px wider than its content box and tripped a RenderFlex
+overflow.
+
+Two reactions do have exported art, and they differ in kind
+(`pages/feed/widgets/reaction_icons.dart`):
+`reaction_like_fill.svg` is a monochrome UI glyph — the **Like control**,
+the only tintable asset; `reaction_like.svg` / `reaction_heart.png` are
+full-colour illustrations for the badge stack. `ReactionGlyph` picks art
+when it exists and falls back to the emoji.
+
+**Emoji text needs `inherit: false`.** The app theme sets a custom
+`fontFamily`, and U+2764 (❤) defaults to *text* presentation — under a
+custom family it resolves to a monochrome heart instead of falling through
+to colour emoji. Every reaction emoji is rendered with `inherit: false` so
+the heart stays red; the other five happen to work either way.
+
+**The Like control has no text label** — there is no `Like` text node
+anywhere in the file.
+
+**There are two feed variants in Figma — use `605:15302`, the colourful
+one.** `605:16036` renders every reaction badge in flat dark teal
+(`#153D3A`, kept as `AppPalette.reactionRing`); `605:15302` gives each
+reaction its own colour, and that's the shipped design.
+
+**The badge stack shows reaction *types*, not people.** Five 20.65px discs
+on a 13px pitch, each holding ~12px of art, then the total. Who reacted is
+the Reactions sheet's job; `FeedPostModel.rankedReactions` drives the stack.
+
+Per-reaction disc colours live on `AppGradients` and are resolved by
+`ReactionIcons.badgeColor`. Figma specifies only three of our six —
+thumbs-up on blue `#388FE7`, heart on red `#F15759`, clap on green
+`#6DAE53`. Its other two discs belong to reactions we don't have (bulb on
+amber `#FFDA56`, laughing on teal `#108B8B`), so **those colours are
+reassigned** to `wow` and `verified`, and `fire` takes the orange `#F95428`
+from Figma's own laughing-emoji artwork. Confirm with the designer before
+treating those three as final.
+
+The `bulb` (insight) reaction in the badge mockup isn't offered by the
+picker, and the picker's 🔥✅😮 never appear as badges. The picker is
+authoritative — the bulb is leftover art and `ReactionType` deliberately
+has no `insight` value.
+
+### Reactions bottom sheet
+
+Measured from Figma's sheet in `605:16036`. It is **not** a Material chip
+row: every tab label is teal `#108B8B` regardless of state, and the *only*
+selected indicator is a 1px underline sitting on the tab row's `#D9D9D9`
+rule. Zero-count reactions still get a tab.
+
+| Part | Figma |
+|---|---|
+| sheet | white, `[10, 10, 0, 0]` corners, 486/852 of the screen |
+| drag handle | 82x5, `#141414`, radius 10, 8px from the top |
+| title | Inter 600 · 18 · `#000000`, inset 13 |
+| tab label / count | Inter 400 · 12 · `#108B8B` |
+| tab badge | 16px disc, 9.3px art |
+| tab rule / underline | 1px `#D9D9D9`, selected segment `#108B8B` |
+| reactor row | 35px avatar, 15px gap, name Inter 500 · 12 · `#000000` |
+| row badge | 19.5px disc, 12.6px art, **beside the name** (not trailing) |
+| row rule | 1px `#E7E7E7`, inset 45 to the text column |
+
+The tab underline must be a **bottom border on the padded tab**, not a
+sibling box: a `Container(height: 1)` with no child collapses to zero width
+inside a `Column`, so it renders as nothing. A transparent border on the
+unselected tabs keeps heights equal so selecting causes no layout shift.
+
+### Centring glyphs in reaction discs
+
+**Emoji ink sits high in its line box**, so layout-centring alone leaves it
+visibly lifted inside a round badge. `ReactionGlyph._emojiInkRise` corrects
+it. That constant was *measured*, not guessed: render all six badges at a
+60pt disc, then compare each glyph's ink centroid to the disc centre. The
+two **symmetric** glyphs — ✅ and 😮, whose centroid must equal their
+optical centre — both sat 3.58pt high (9.94% of the 36pt art box); applying
+the correction moved both to +0.01pt.
+
+Don't "fix" 🔥 and 👏 to zero: their artwork is genuinely bottom-heavy, so a
+non-zero centroid offset is correct and is present in Figma too. Likewise
+the thumbs-up SVG sits slightly low in its own viewBox — Figma's render
+does the same, so leave it. The constant is derived from Apple Color Emoji;
+**re-measure on Android** (Noto Color Emoji) before trusting it there.
+
+### Post card typography
+
+Measured from `605:15302` and held in the **`FeedTypography`** theme
+extension (`context.feedType`), *not* the global `TextTheme`:
+
+| Element | Figma |
+|---|---|
+| author name | Manrope 700 · 14 · 20.25px · `#143F3D` |
+| title | Manrope 700 · 14 · 16.70px · `#000000` |
+| timestamp | Inter 400 · 11 · 13.31px · `#B4B2A9` |
+| body | Inter 400 · 10 · 13.36px · `#2D2D2D` |
+| hashtag | Poppins 400 · 10 · 15.06px · `#7D7D91` |
+| reaction count | Nunito 400 · 13 · 17.88px · `#000000` |
+| duration badge | Inter 500 · 8.5 · 11.40px · `#FFFFFF` |
+
+It has to be a separate extension: the card's author name and title are
+**Manrope 700**, but the theme's `titleMedium`/`titleLarge` are Inter by
+design because the auth screens are pixel-matched to them — repurposing
+those would silently reskin every auth screen.
+
+**Two Figma families aren't bundled**: hashtags are Poppins and the
+reaction count is Nunito, and the app ships only Manrope + Inter. Both are
+approximated with Inter at Figma's exact size/weight/line-height/colour.
+Add the real families to `pubspec.yaml` if that gap matters.
+
+**The Like control deliberately diverges from Figma.** `Group 1739329635`
+puts the 16x16 `#7D7D91` thumbs-up on a 24px `#E4E4E4` disc; the disc was
+dropped by choice because the bare glyph reads cleaner on the white card.
+The 24px box remains as the tap target, and `AppPalette.likeButtonSurface`
+still records the measured colour if it's ever restored. Don't "correct"
+this back to Figma without asking.
 
 The long-press reaction picker (`widgets/reaction_picker_overlay.dart`) is
 a plain controller class (`OverlayEntry` + `ValueNotifier<int?>`), not a

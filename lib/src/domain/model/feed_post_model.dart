@@ -29,6 +29,18 @@ class FeedPostModel {
   final List<ReactorModel> reactors;
   final ReactionType? currentUserReaction;
 
+  /// Distinct reaction types on this post, most-used first — what the
+  /// card's badge stack renders. Ties keep [ReactionType] declaration order
+  /// so the stack doesn't reshuffle between rebuilds.
+  List<ReactionType> get rankedReactions {
+    final present = reactionCounts.entries.where((e) => e.value > 0).toList()
+      ..sort((a, b) {
+        final byCount = b.value.compareTo(a.value);
+        return byCount != 0 ? byCount : a.key.index.compareTo(b.key.index);
+      });
+    return present.map((e) => e.key).toList();
+  }
+
   int get totalReactions =>
       reactionCounts.values.fold(0, (sum, count) => sum + count);
 

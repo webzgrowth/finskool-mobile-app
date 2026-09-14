@@ -5,6 +5,7 @@ export 'app_theme.dart';
 export 'color_schemes/dark_scheme.dart';
 export 'color_schemes/light_scheme.dart';
 export 'extensions/app_gradients.dart';
+export 'extensions/feed_typography.dart';
 export 'text/app_text_theme.dart';
 export 'text/text_style_factory.dart';
 export 'tokens/app_palette.dart';

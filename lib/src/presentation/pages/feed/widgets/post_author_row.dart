@@ -27,7 +27,6 @@ class PostAuthorRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tt = Theme.of(context).textTheme;
     final cs = Theme.of(context).colorScheme;
     return Row(
       children: [
@@ -47,9 +46,9 @@ class PostAuthorRow extends StatelessWidget {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(name, style: tt.titleMedium?.copyWith(color: cs.secondary)),
+            Text(name, style: context.feedType.authorName),
             Text(_timeLabel,
-                style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
+                style: context.feedType.timestamp),
           ],
         ),
       ],

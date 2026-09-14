@@ -10,14 +10,13 @@ class HashtagChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 4),
       decoration: BoxDecoration(
         color: cs.surfaceContainer,
         borderRadius: AppRadii.small,
       ),
-      child: Text(text, style: tt.labelSmall?.copyWith(color: cs.secondary)),
+      child: Text(text, style: context.feedType.hashtag),
     );
   }
 }

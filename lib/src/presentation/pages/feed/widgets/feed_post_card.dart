@@ -14,7 +14,6 @@ class FeedPostCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
     return Container(
       margin: const EdgeInsets.only(
           left: AppSpacing.lg, right: AppSpacing.lg, bottom: AppSpacing.lg),
@@ -40,9 +39,9 @@ class FeedPostCard extends StatelessWidget {
             postedAt: post.postedAt,
           ),
           const SizedBox(height: AppSpacing.md),
-          Text(post.title, style: tt.titleLarge),
+          Text(post.title, style: context.feedType.title),
           const SizedBox(height: AppSpacing.xs),
-          Text(post.body, style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant)),
+          Text(post.body, style: context.feedType.body),
           const SizedBox(height: AppSpacing.md),
           PostMediaCarousel(media: post.media),
           const SizedBox(height: AppSpacing.md),

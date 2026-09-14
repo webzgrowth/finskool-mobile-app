@@ -113,7 +113,8 @@ class _MediaItem extends StatelessWidget {
               ),
               child: Text(
                 item.durationLabel!,
-                style: const TextStyle(color: Colors.white, fontSize: 11),
+                // Figma: Inter 500 · 8.5 · #FFFFFF
+                style: context.feedType.durationBadge,
               ),
             ),
           ),
