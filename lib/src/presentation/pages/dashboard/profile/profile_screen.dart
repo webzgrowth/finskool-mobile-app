@@ -3,14 +3,29 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:finskool/src/comman/routes.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
+import 'package:finskool/src/domain/model/community/community_access.dart';
+import 'package:finskool/src/domain/model/community/community_model.dart';
 import 'package:finskool/src/presentation/bloc/authentication/authenticator_watcher/authenticator_watcher_bloc.dart';
-import 'widgets/profile_identity_card.dart';
+import 'package:finskool/src/presentation/bloc/communities/compliance/compliance_bloc.dart';
+import 'package:finskool/src/presentation/bloc/communities/list/communities_bloc.dart';
+import 'package:finskool/src/presentation/bloc/communities/purchase/community_purchase_bloc.dart';
 import 'widgets/logout_button.dart';
+import 'widgets/profile_hero_banner.dart';
+import 'widgets/profile_icons.dart';
+import 'widgets/profile_identity_info.dart';
+import 'widgets/profile_menu_row.dart';
+import 'widgets/profile_section_card.dart';
+import 'widgets/subscription_row.dart';
 
-/// No design provided yet. This is deliberately minimal — enough to show who
-/// is signed in (which doubles as proof that login and session restore
-/// worked) and to sign out again, since without a logout the app can't be
-/// returned to the login screen once a session is stored.
+/// The Profile tab — Figma `893:15731`: an avatar header, then five
+/// sectioned cards of menu rows (My Subscription, Account, Support,
+/// Finskool21, Settings).
+///
+/// Composes two blocs in the widget layer, no new bloc for the screen
+/// itself: [AuthenticatorWatcherBloc] for identity (also owns the
+/// Notifications toggle — see CLAUDE.md "Profile" on why that isn't a
+/// separate bloc) and [CommunitiesBloc] filtered to subscribed entries for
+/// "My Subscription", same composition `CommunitiesScreen` already uses.
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
@@ -23,32 +38,231 @@ class ProfileScreen extends StatelessWidget {
           unauthenticated: (_) => context.go(AppRoutes.LOGIN_ROUTE_PATH),
         );
       },
-      builder: (context, state) {
-        final user = state.mapOrNull(authenticated: (s) => s.user);
+      builder: (context, authState) {
+        final user = authState.mapOrNull(authenticated: (s) => s.user);
+        final cs = Theme.of(context).colorScheme;
+
         return Scaffold(
-          appBar: AppBar(title: const Text('Profile')),
+          // Plain white, not the teal-tinted `surfaceContainer` the Feed/
+          // Communities tabs use — the reference screenshot's body is flat
+          // white behind the grey section cards.
+          backgroundColor: cs.surface,
+          // `top: false` — the hero banner bleeds its background behind the
+          // status bar itself (see `ProfileHeroBanner`), same as
+          // `SearchTopBar` on Feed/Communities; a full `SafeArea` would
+          // inset the content down and leave a gap above the image instead.
           body: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(AppSpacing.lg),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  ProfileIdentityCard(user: user),
-                  const Spacer(),
-                  LogoutButton(
-                    loading: state.maybeMap(
-                        authenticating: (_) => true, orElse: () => false),
-                    onPressed: () => context
-                        .read<AuthenticatorWatcherBloc>()
-                        .add(const AuthenticatorWatcherEvent.signOut()),
+            top: false,
+            child: CustomScrollView(
+              // Same floating/snap `SliverAppBar` skeleton
+              // `CommunitiesScreen` uses for `SearchTopBar` — the hero
+              // banner hides on scroll-down and snaps back on scroll-up
+              // instead of scrolling away permanently like a plain list
+              // item. `ProfileIdentityInfo` (name/email/phone/pill) is
+              // deliberately NOT inside the sliver app bar: its height
+              // varies (a wrapped name, an absent pill), and a sliver app
+              // bar needs a fixed extent known ahead of layout — only
+              // `ProfileHeroBanner`'s fixed-height image+avatar qualifies.
+              slivers: [
+                SliverAppBar(
+                  floating: true,
+                  snap: true,
+                  toolbarHeight: ProfileHeroBanner.height(context),
+                  automaticallyImplyLeading: false,
+                  backgroundColor: Colors.transparent,
+                  elevation: 0,
+                  // `primary: false` — `ProfileHeroBanner` already adds the
+                  // status-bar inset itself; leaving `primary` at its
+                  // default `true` makes `SliverAppBar` add it a second
+                  // time, stranding a topInset-tall gap below the banner.
+                  primary: false,
+                  flexibleSpace: ProfileHeroBanner(user: user),
+                ),
+                SliverToBoxAdapter(child: ProfileIdentityInfo(user: user)),
+                SliverToBoxAdapter(
+                  child: BlocBuilder<CommunitiesBloc, CommunitiesState>(
+                    builder: (context, communitiesState) {
+                      final subscribed = communitiesState.communities
+                          .where((c) => c.access == CommunityAccess.subscribed)
+                          .toList();
+                      if (subscribed.isEmpty) return const SizedBox.shrink();
+                      return ProfileSectionCard(
+                        title: 'My Subscription',
+                        rows: [
+                          for (final community in subscribed)
+                            SubscriptionRow(
+                              community: community,
+                              onTap: () => context.push(
+                                '/community/${community.id}',
+                                extra: community.name,
+                              ),
+                              onRenew: () => _renew(context, community),
+                            ),
+                        ],
+                      );
+                    },
                   ),
-                  const SizedBox(height: AppSpacing.lg),
-                ],
-              ),
+                ),
+                SliverToBoxAdapter(
+                  child: ProfileSectionCard(
+                    title: 'Account',
+                    rows: [
+                      ProfileMenuRow(
+                        icon: const Icon(ProfileIcons.user),
+                        title: 'Edit Profile',
+                        subtitle: 'Name, email and phone',
+                        onTap: () =>
+                            context.push(AppRoutes.EDIT_PROFILE_ROUTE_PATH),
+                      ),
+                      ProfileMenuRow(
+                        icon: const Icon(ProfileIcons.gift),
+                        title: 'Welcome kits',
+                        subtitle: 'Videos, guides and insights',
+                        onTap: () =>
+                            context.push(AppRoutes.WELCOME_KITS_ROUTE_PATH),
+                      ),
+                    ],
+                  ),
+                ),
+                SliverToBoxAdapter(
+                  child: ProfileSectionCard(
+                    title: 'Support',
+                    rows: [
+                      ProfileMenuRow(
+                        icon: const Icon(ProfileIcons.tickets),
+                        title: 'My tickets',
+                        subtitle: 'Track your queries',
+                        // Decorative mock count, same treatment as the
+                        // Feed's "01:11" duration badge — not a ticketing
+                        // domain model for one badge number.
+                        trailing: const _CountBadge(count: 4),
+                        onTap: () =>
+                            context.push(AppRoutes.SUPPORT_TICKETS_ROUTE_PATH),
+                      ),
+                      ProfileMenuRow(
+                        icon: const Icon(ProfileIcons.support),
+                        title: 'Help & support',
+                        subtitle: 'FAQs and contact',
+                        onTap: () =>
+                            context.push(AppRoutes.HELP_SUPPORT_ROUTE_PATH),
+                      ),
+                      ProfileMenuRow(
+                        icon: const Icon(ProfileIcons.star),
+                        title: 'Give feedback',
+                        subtitle: 'Tell us what to improve',
+                        onTap: () =>
+                            context.push(AppRoutes.GIVE_FEEDBACK_ROUTE_PATH),
+                      ),
+                    ],
+                  ),
+                ),
+                SliverToBoxAdapter(
+                  child: ProfileSectionCard(
+                    title: 'Finskool21',
+                    rows: [
+                      ProfileMenuRow(
+                        icon: const Icon(ProfileIcons.rupee),
+                        title: 'About & SEBI info',
+                        subtitle: 'Registration, awards, disclaimer',
+                        onTap: () =>
+                            context.push(AppRoutes.ABOUT_SEBI_ROUTE_PATH),
+                      ),
+                      ProfileMenuRow(
+                        icon: const Icon(ProfileIcons.share),
+                        title: 'Share the app',
+                        subtitle: 'Invite friends to Finskool21',
+                        onTap: () =>
+                            context.push(AppRoutes.SHARE_APP_ROUTE_PATH),
+                      ),
+                    ],
+                  ),
+                ),
+                SliverToBoxAdapter(
+                  child: ProfileSectionCard(
+                    title: 'Settings',
+                    rows: [
+                      ProfileMenuRow(
+                        icon: const Icon(ProfileIcons.notifications),
+                        title: 'Notifications',
+                        trailing: Switch(
+                          value: user?.postNotificationsEnabled ?? true,
+                          // Overrides the app-wide (teal) switch theme
+                          // deliberately — the reference screenshot's
+                          // toggle is green here, not the brand teal every
+                          // other switch in the app uses.
+                          activeThumbColor: cs.onPrimary,
+                          activeTrackColor: AppPalette.announcementGreen,
+                          onChanged: (value) => context
+                              .read<AuthenticatorWatcherBloc>()
+                              .add(AuthenticatorWatcherEvent
+                                  .notificationsToggled(value)),
+                        ),
+                      ),
+                      ProfileMenuRow(
+                        icon: const Icon(ProfileIcons.document),
+                        title: 'Terms & privacy policy',
+                        onTap: () =>
+                            context.push(AppRoutes.TERMS_PRIVACY_ROUTE_PATH),
+                      ),
+                    ],
+                  ),
+                ),
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(AppSpacing.lg,
+                        AppSpacing.sm, AppSpacing.lg, AppSpacing.xl),
+                    // Figma has no visible logout row in this mockup, so it
+                    // stays a clearly separate destructive action below the
+                    // sections rather than folded into one of them.
+                    child: LogoutButton(
+                      loading: authState.maybeMap(
+                          authenticating: (_) => true, orElse: () => false),
+                      onPressed: () => context
+                          .read<AuthenticatorWatcherBloc>()
+                          .add(const AuthenticatorWatcherEvent.signOut()),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         );
       },
+    );
+  }
+
+  /// Re-buys the community's current headline plan — the simplest faithful
+  /// reading of "Renew" given there's no dedicated renewal flow designed:
+  /// it's the same mocked purchase → compliance-skip → payment-success path
+  /// a fresh purchase takes, just starting from an already-subscribed
+  /// community instead of a locked one.
+  void _renew(BuildContext context, CommunityModel community) {
+    final plan = community.headlinePlan;
+    if (plan == null) return;
+    context.read<CommunityPurchaseBloc>().add(
+          CommunityPurchaseEvent.started(community: community, plan: plan),
+        );
+    context.read<ComplianceBloc>().add(const ComplianceEvent.initial());
+    context.push(AppRoutes.COMMUNITY_PAYMENT_SUCCESS_ROUTE_PATH);
+  }
+}
+
+class _CountBadge extends StatelessWidget {
+  const _CountBadge({required this.count});
+
+  final int count;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 20,
+      width: 20,
+      alignment: Alignment.center,
+      decoration: const BoxDecoration(
+        color: AppPalette.notificationDot,
+        shape: BoxShape.circle,
+      ),
+      child: Text('$count', style: context.profileType.badge),
     );
   }
 }

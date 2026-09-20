@@ -35,4 +35,9 @@ abstract class AuthRepository {
   /// The last logged-in user, restored from cache. Null when signed out or
   /// when the cached blob can't be parsed.
   UserModel? get cachedUser;
+
+  /// Flips the cached user's notification preference and re-persists it —
+  /// the Profile screen's Notifications toggle. No backend endpoint exists
+  /// for this yet, so it's local-only, same as the compliance flag.
+  Future<Either<Failure, UserModel>> setPostNotificationsEnabled(bool enabled);
 }

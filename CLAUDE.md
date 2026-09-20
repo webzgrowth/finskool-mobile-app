@@ -642,6 +642,110 @@ is a routed placeholder — Figma has no design for it) and the
 subscription-details screen (`974:47132`: Plan details, Auto-renew,
 Download Invoice), which sits under its own canvas section.
 
+## Profile
+
+The Profile tab (`pages/dashboard/profile/`) is built from Figma's mockup
+(`893:15731`, found in a cached page dump so it cost no fresh Figma quota):
+an avatar header, then five titled sections (My Subscription, Account,
+Support, Finskool21, Settings) of a single reused row shape.
+
+**Every row is the same widget** — `ProfileMenuRow` (18×18 icon box, title +
+subtitle, a trailing slot). What differs per row is only the trailing
+widget: a chevron (default, most rows), a `Switch` (Notifications), a
+"Renew" pill (an expiring subscription), or a count badge (My tickets).
+`ProfileSectionCard` wraps a section's rows in the title + white-card +
+divider chrome, mirroring the Reactions-sheet divider convention already
+used elsewhere.
+
+**No new bloc for the screen.** It composes two existing blocs in the
+widget layer, same pattern `CommunitiesScreen` already uses:
+`AuthenticatorWatcherBloc` for identity, and `CommunitiesBloc` filtered to
+`access == subscribed` for the My Subscription rows.
+
+**The Notifications toggle lives on `AuthenticatorWatcherBloc`, not a new
+bloc.** It's session/identity state (`UserModel.postNotificationsEnabled`),
+so it's `AuthenticatorWatcherEvent.notificationsToggled(bool)`, handled by
+flipping the field on the cached user via a new `AuthRepository
+.setPostNotificationsEnabled` and re-emitting `authenticated(user: updated)`.
+Local-only — no backend endpoint exists for it yet, same category as the
+compliance flag.
+
+**Subscription expiry is mocked on `CommunityModel`.** `subscribedUntil:
+DateTime?` drives two derived getters — `subscriptionStatusLabel` ("Active
+till 31 Dec 2026" / "Expires in N days") and `needsRenewal` (< 14 days,
+which is also what swaps the row's chevron for a Renew pill). Figma's own
+Profile mockup shows **three** communities subscribed (Intraday, Investor,
+Finskool21 Academy) — `CommunitiesMockDatasource` matches that exactly
+rather than inventing a different mock, so Investor and the Academy are
+subscribed there too, not just locked-with-plans.
+
+**"Renew" reuses the purchase flow.** There's no dedicated renewal screen
+designed, so tapping Renew starts the same mocked purchase →
+compliance-skip → payment-success path a fresh purchase takes, just from an
+already-subscribed community. If a real renewal flow gets designed later,
+that's the call site to change.
+
+**Seven menu rows have no destination designed** (Edit Profile, About &
+SEBI info, Welcome kits, My tickets, Help & support, Give feedback, Terms &
+privacy policy) — routed to one shared `ProfilePlaceholderScreen`
+parameterized by title, rather than seven near-duplicate files. Same
+"no design provided" approach as `CommunityDetailScreen`, just factored for
+reuse since there are several here instead of one. "Share the app" is in
+this set too: **`share_plus` isn't a dependency**, so real sharing is out
+of scope until it's added.
+
+`EDIT_PROFILE_ROUTE_PATH` was fixed from `"edit-profile"` to `"/edit-profile"`
+while wiring it — it was the one route constant missing its leading slash,
+and this is the first time anything actually routes it.
+
+### Bottom nav — real avatar, not a fourth icon
+
+`NavBarItem` takes either `icon: IconData` or `customIcon: Widget`
+(mutually substitutable, `customIcon` wins). The Profile tab passes
+`UserAvatar(user: ..., radius: 16)` — Figma's nav bar has **no glyph** for
+that tab at all, just a filled circle, i.e. a real photo. Selection is
+therefore a *ring* on that tab (a border) rather than the filled-disc
+treatment the icon tabs get, since a solid circle behind a photo would hide
+most of it.
+
+**Feed and Communities nav icons are still Material stand-ins**
+(`grid_view_rounded`, `groups_rounded`) — Figma's exports (`element-3`,
+`Frame 2121453450`) were blocked by a Figma rate limit that didn't clear
+even after 15 minutes of paced retries (see "Figma access" below); swap
+them in `AppBottomNavBar._icons` once available. **Performance deliberately
+does not use Figma's own node for that tab** — it's literally the
+search-bar glyph reused, a placeholder-in-the-file, not a real icon;
+`trending_up_rounded` stands in instead and should stay until a real
+Performance icon is designed, not get "corrected" back to the search glyph.
+
+### `UserAvatar` — shared, not duplicated
+
+`comman/widgets/user_avatar.dart` (network image with an initials
+fallback) is used by the Profile header, the bottom nav's Profile tab, and
+is the natural place to add any future avatar-editing UI — don't re-inline
+this logic a third time.
+
+### Figma access, as of this feature
+
+The MCP server disconnected mid-session and the REST token in use expired
+(403). A fresh token was supplied and confirmed working with one call, but
+the very next batched request 429'd, and **stayed 429 for 15 straight
+minutes of retries at 30s+ spacing** — tighter pacing (15-20s) was tried
+first and failed faster. Take "the token works" as meaning only that
+specific call succeeded, not that the session is usable; budget for this
+when a future task needs Figma mid-implementation.
+
+This screen's structure (positions, copy, section/row hierarchy) came from
+a cached page dump; **colors then came from a user-supplied reference
+screenshot** (not Figma directly) once the token stayed blocked —
+`profile_typography.dart` and the palette tokens under "Profile" are
+screenshot-derived, flagged as such, and worth re-verifying against Figma
+once it's reachable. **Icons are still Material stand-ins** — the
+screenshot showed *that* icons exist (dark-teal circular discs, white
+glyphs) and confirmed their color/shape, but not the actual glyphs
+themselves; `profile_icons.dart` records the exact source node id for
+each so exporting and swapping is mechanical.
+
 ## Design system
 
 Lives in `lib/src/utilities/theme/`. Import the barrel:
@@ -713,11 +817,11 @@ Do not treat these as incidental bugs to fix while doing something else:
 - `CommunityDetailScreen` (behind "Enter Community") is a routed
   placeholder — Figma has no design for the inside of a community, and the
   post model has no community field yet. The route works; the body doesn't.
-- The **Profile tab is a stub with a real logout**, not a designed screen. It
-  shows the cached `UserModel` and a Log Out button that dispatches
-  `AuthenticatorWatcherEvent.signOut`. It exists because session restore
-  means the app otherwise has no way back to the login screen short of a
-  reinstall. Replace the layout when a design lands — keep the logout.
+- The **Profile tab still has Material-icon stand-ins** — see "## Profile".
+  Layout/structure/copy came from a cached Figma dump and colors from a
+  user-supplied reference screenshot, so both are trustworthy; only the
+  actual icon glyphs (`profile_icons.dart`, and the bottom nav's
+  Feed/Communities icons) are still placeholders, pending a Figma export.
 - `SelectCommunity` is only ever called automatically, when login returns
   exactly one community. A user in **two or more** communities never gets to
   choose (the backend falls back to "all my communities merged"); that picker

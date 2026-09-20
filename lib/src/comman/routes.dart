@@ -73,7 +73,35 @@ class AppRoutes {
   // Profile routes
 
   static const String EDIT_PROFILE_ROUTE_NAME = "edit-profile";
-  static const String EDIT_PROFILE_ROUTE_PATH = "edit-profile";
+  // Fixed to be absolute — was "edit-profile" (no leading slash), unlike
+  // every other path here, and was never actually routed until now.
+  static const String EDIT_PROFILE_ROUTE_PATH = "/edit-profile";
+
+  // Placeholder destinations for the Profile menu rows Figma draws but
+  // doesn't design past the row itself — see `ProfilePlaceholderScreen`.
+  static const String ABOUT_SEBI_ROUTE_NAME = "about-sebi";
+  static const String ABOUT_SEBI_ROUTE_PATH = "/profile/about-sebi";
+
+  static const String WELCOME_KITS_ROUTE_NAME = "welcome-kits";
+  static const String WELCOME_KITS_ROUTE_PATH = "/profile/welcome-kits";
+
+  static const String SUPPORT_TICKETS_ROUTE_NAME = "support-tickets";
+  static const String SUPPORT_TICKETS_ROUTE_PATH = "/profile/support-tickets";
+
+  static const String HELP_SUPPORT_ROUTE_NAME = "help-support";
+  static const String HELP_SUPPORT_ROUTE_PATH = "/profile/help-support";
+
+  static const String GIVE_FEEDBACK_ROUTE_NAME = "give-feedback";
+  static const String GIVE_FEEDBACK_ROUTE_PATH = "/profile/give-feedback";
+
+  static const String SHARE_APP_ROUTE_NAME = "share-app";
+  static const String SHARE_APP_ROUTE_PATH = "/profile/share-app";
+
+  // One combined route: Figma shows "Terms & privacy policy" as a single
+  // row, so this doesn't reuse the separate (unrouted) TERM_OF_USE /
+  // PRIVACY constants below — those are left alone per Known Gaps.
+  static const String TERMS_PRIVACY_ROUTE_NAME = "terms-privacy";
+  static const String TERMS_PRIVACY_ROUTE_PATH = "/profile/terms-privacy";
 
   static const String SHIPPING_ROUTE_NAME = "MyShipping";
   static const String SHIPPING_ROUTE_PATH = "/shipping";

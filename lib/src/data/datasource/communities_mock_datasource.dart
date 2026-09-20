@@ -23,6 +23,13 @@ class CommunitiesMockDatasource {
   static const _coverAcademy =
       'https://images.unsplash.com/photo-1543286386-713bdd548da4?w=800';
 
+  /// Two fixed subscription end-dates for the Profile tab's "My
+  /// Subscription" section — one comfortably active, one inside the
+  /// 14-day renewal window, so both `CommunityModel.subscriptionStatusLabel`
+  /// phrasings ("Active till…" / "Expires in…") are exercised.
+  static final _farExpiry = DateTime(2026, 12, 31);
+  static final _nearExpiry = DateTime.now().add(const Duration(days: 7));
+
   /// Shared across the trading communities in the mockup.
   /// `**…**` marks the emphasised run, matching the bold words in Figma.
   static const _tradingBenefits = [
@@ -34,7 +41,7 @@ class CommunitiesMockDatasource {
   ];
 
   static List<CommunityModel> getCommunities() => [
-        const CommunityModel(
+        CommunityModel(
           id: 'intraday',
           name: 'Intraday Community',
           slug: 'intraday-community',
@@ -48,8 +55,9 @@ class CommunitiesMockDatasource {
           newAnnouncements: 10,
           access: CommunityAccess.subscribed,
           benefits: _tradingBenefits,
+          subscribedUntil: _farExpiry,
         ),
-        const CommunityModel(
+        CommunityModel(
           id: 'investor',
           name: 'Investor Community',
           slug: 'investor-community',
@@ -60,7 +68,10 @@ class CommunitiesMockDatasource {
           tags: ['Market Insights', 'Portfolio', 'Short Term'],
           coverImageUrl: _coverAlt,
           memberCount: 540,
-          access: CommunityAccess.locked,
+          // Figma's own Profile mockup (893:15731) shows this one
+          // subscribed and close to expiry — "Expires in 7 days" + Renew —
+          // so it's mocked subscribed here too, not locked.
+          access: CommunityAccess.subscribed,
           plans: [
             CommunityPlanModel(
               id: 'investor-3m',
@@ -79,6 +90,7 @@ class CommunitiesMockDatasource {
             ),
           ],
           benefits: _tradingBenefits,
+          subscribedUntil: _nearExpiry,
         ),
         const CommunityModel(
           id: 'swing-alpha',
@@ -151,7 +163,7 @@ class CommunitiesMockDatasource {
             'Private WhatsApp community access',
           ],
         ),
-        const CommunityModel(
+        CommunityModel(
           id: 'finskool-academy',
           name: 'Finskool21 Academy',
           slug: 'finskool21-academy',
@@ -163,7 +175,12 @@ class CommunitiesMockDatasource {
           coverImageUrl: _coverAcademy,
           memberCount: 2100,
           newAnnouncements: 2,
-          access: CommunityAccess.locked,
+          // Figma's Profile mockup shows this one subscribed too
+          // ("Active till 31 Dec 2026"), alongside the catalog's locked
+          // tier pricing for a user who hasn't bought it yet — the same
+          // community can appear either way depending on the user, so the
+          // mock picks the subscribed variant to match the Profile screen.
+          access: CommunityAccess.subscribed,
           planStyle: CommunityPlanStyle.tier,
           plans: [
             CommunityPlanModel(
@@ -181,6 +198,7 @@ class CommunitiesMockDatasource {
             'Certificate on completion',
             'Private WhatsApp community access',
           ],
+          subscribedUntil: _farExpiry,
         ),
       ];
 }

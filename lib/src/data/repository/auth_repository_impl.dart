@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:dartz/dartz.dart';
 import 'package:injectable/injectable.dart';
 import 'package:finskool/src/comman/error_handler.dart';
+import 'package:finskool/src/comman/exception.dart';
 import 'package:finskool/src/comman/failure.dart';
 import 'package:finskool/src/comman/storage_keys.dart';
 import 'package:finskool/src/data/datasource/auth_remote_datasource.dart';
@@ -100,6 +101,20 @@ class AuthRepositoryImpl implements AuthRepository {
 
   Future<void> _cacheUser(UserModel user) => SharedPreferenceHelper()
       .storedata(StorageKeys.cachedUser, jsonEncode(user.toJson()));
+
+  @override
+  Future<Either<Failure, UserModel>> setPostNotificationsEnabled(
+          bool enabled) =>
+      handleErrors(() async {
+        final current = cachedUser;
+        if (current == null) {
+          throw CacheException('No signed-in user to update.');
+        }
+        final updated =
+            current.copyWith(postNotificationsEnabled: enabled);
+        await _cacheUser(updated);
+        return updated;
+      });
 
   /// One community means it's already selected, per the API doc. More than
   /// one needs a user choice, which has no UI yet — until then the backend

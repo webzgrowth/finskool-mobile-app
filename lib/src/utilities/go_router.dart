@@ -15,6 +15,7 @@ import 'package:finskool/src/presentation/pages/dashboard/dashboard_shell_screen
 import 'package:finskool/src/presentation/pages/communities/detail/community_detail_screen.dart';
 import 'package:finskool/src/presentation/pages/communities/payment_success/payment_success_screen.dart';
 import 'package:finskool/src/presentation/pages/communities/compliance/compliance_screen.dart';
+import 'package:finskool/src/presentation/pages/dashboard/profile/widgets/profile_placeholder_screen.dart';
 
 GoRouter routerinit = GoRouter(
   routes: <RouteBase>[
@@ -136,6 +137,70 @@ GoRouter routerinit = GoRouter(
         return CommunityDetailScreen(
           communityName: state.extra as String? ?? 'Community',
         );
+      },
+    ),
+
+    ///  =================================================================
+    ///  ********************** Profile Routes ******************************
+    ///  =================================================================
+    // Every one of these is a `ProfilePlaceholderScreen` — Figma draws the
+    // menu row but not what's behind it. See CLAUDE.md "Profile".
+    GoRoute(
+      name: AppRoutes.EDIT_PROFILE_ROUTE_NAME,
+      path: AppRoutes.EDIT_PROFILE_ROUTE_PATH,
+      builder: (BuildContext context, GoRouterState state) {
+        return const ProfilePlaceholderScreen(title: 'Edit Profile');
+      },
+    ),
+    GoRoute(
+      name: AppRoutes.ABOUT_SEBI_ROUTE_NAME,
+      path: AppRoutes.ABOUT_SEBI_ROUTE_PATH,
+      builder: (BuildContext context, GoRouterState state) {
+        return const ProfilePlaceholderScreen(title: 'About & SEBI info');
+      },
+    ),
+    GoRoute(
+      name: AppRoutes.WELCOME_KITS_ROUTE_NAME,
+      path: AppRoutes.WELCOME_KITS_ROUTE_PATH,
+      builder: (BuildContext context, GoRouterState state) {
+        return const ProfilePlaceholderScreen(title: 'Welcome kits');
+      },
+    ),
+    GoRoute(
+      name: AppRoutes.SUPPORT_TICKETS_ROUTE_NAME,
+      path: AppRoutes.SUPPORT_TICKETS_ROUTE_PATH,
+      builder: (BuildContext context, GoRouterState state) {
+        return const ProfilePlaceholderScreen(title: 'My tickets');
+      },
+    ),
+    GoRoute(
+      name: AppRoutes.HELP_SUPPORT_ROUTE_NAME,
+      path: AppRoutes.HELP_SUPPORT_ROUTE_PATH,
+      builder: (BuildContext context, GoRouterState state) {
+        return const ProfilePlaceholderScreen(title: 'Help & support');
+      },
+    ),
+    GoRoute(
+      name: AppRoutes.GIVE_FEEDBACK_ROUTE_NAME,
+      path: AppRoutes.GIVE_FEEDBACK_ROUTE_PATH,
+      builder: (BuildContext context, GoRouterState state) {
+        return const ProfilePlaceholderScreen(title: 'Give feedback');
+      },
+    ),
+    GoRoute(
+      name: AppRoutes.SHARE_APP_ROUTE_NAME,
+      path: AppRoutes.SHARE_APP_ROUTE_PATH,
+      builder: (BuildContext context, GoRouterState state) {
+        // Real sharing needs the `share_plus` package, not a dependency
+        // yet — this stays a placeholder until that's added.
+        return const ProfilePlaceholderScreen(title: 'Share the app');
+      },
+    ),
+    GoRoute(
+      name: AppRoutes.TERMS_PRIVACY_ROUTE_NAME,
+      path: AppRoutes.TERMS_PRIVACY_ROUTE_PATH,
+      builder: (BuildContext context, GoRouterState state) {
+        return const ProfilePlaceholderScreen(title: 'Terms & privacy policy');
       },
     ),
 

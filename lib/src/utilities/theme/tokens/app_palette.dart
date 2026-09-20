@@ -82,6 +82,15 @@ class AppPalette {
   static const Color pickerSurface = Color(0xFFF2F2F2);
   static const Color pickerBorder = Color(0xFFD7D7D7);
 
+  ///  =================================================================
+  ///  ************************* Profile *******************************
+  ///  =================================================================
+  /// Read from the user's reference screenshot (not yet Figma-verified —
+  /// see CLAUDE.md "Profile"). Neutral grey, deliberately not one of the
+  /// existing teal-tinted `surfaceContainer*` slots — those don't match
+  /// what this screen actually shows.
+  static const Color profileCardFill = Color(0xFFF5F5F7);
+
   // Teal ramp
   static const Color teal50 = Color(0xFFF4FAFA);
   static const Color teal100 = Color(0xFFE7F3F3);

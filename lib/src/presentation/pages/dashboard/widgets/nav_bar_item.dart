@@ -6,14 +6,23 @@ import 'package:finskool/src/utilities/theme/theme.dart';
 class NavBarItem extends StatelessWidget {
   const NavBarItem({
     super.key,
-    required this.icon,
+    this.icon,
+    this.customIcon,
     required this.label,
     required this.selected,
     required this.onTap,
     this.badgeCount,
-  });
+  }) : assert(icon != null || customIcon != null,
+            'NavBarItem needs either icon or customIcon');
 
-  final IconData icon;
+  /// Falls back to this when [customIcon] is absent.
+  final IconData? icon;
+
+  /// Overrides [icon] entirely — the Profile tab's real avatar photo isn't
+  /// a glyph at all (Figma's nav bar has no icon for it, just a filled
+  /// circle), so it needs to render a `UserAvatar` instead of an `Icon`.
+  final Widget? customIcon;
+
   final String label;
   final bool selected;
   final VoidCallback onTap;
@@ -42,12 +51,22 @@ class NavBarItem extends StatelessWidget {
                   height: 36,
                   width: 36,
                   decoration: BoxDecoration(
-                    color: selected ? cs.primary : Colors.transparent,
+                    // A photo avatar (Profile) gets a selected *ring*
+                    // instead of a filled disc — a solid teal circle
+                    // behind a photo would hide most of it. Icon tabs
+                    // keep the existing filled-disc treatment.
+                    color: customIcon == null && selected
+                        ? cs.primary
+                        : Colors.transparent,
                     shape: BoxShape.circle,
+                    border: customIcon != null && selected
+                        ? Border.all(color: cs.primary, width: 2)
+                        : null,
                   ),
                   alignment: Alignment.center,
-                  child: Icon(icon,
-                      color: selected ? cs.onPrimary : color, size: 22),
+                  child: customIcon ??
+                      Icon(icon,
+                          color: selected ? cs.onPrimary : color, size: 22),
                 ),
                 if (badgeCount != null && badgeCount! > 0)
                   Positioned(

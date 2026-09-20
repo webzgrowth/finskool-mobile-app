@@ -56,12 +56,13 @@ extension AuthenticatorWatcherEventPatterns on AuthenticatorWatcherEvent {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _AuthCheckRequest value)?  authCheckRequest,TResult Function( _SignOut value)?  signOut,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _AuthCheckRequest value)?  authCheckRequest,TResult Function( _SignOut value)?  signOut,TResult Function( _NotificationsToggled value)?  notificationsToggled,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case _AuthCheckRequest() when authCheckRequest != null:
 return authCheckRequest(_that);case _SignOut() when signOut != null:
-return signOut(_that);case _:
+return signOut(_that);case _NotificationsToggled() when notificationsToggled != null:
+return notificationsToggled(_that);case _:
   return orElse();
 
 }
@@ -79,12 +80,13 @@ return signOut(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _AuthCheckRequest value)  authCheckRequest,required TResult Function( _SignOut value)  signOut,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _AuthCheckRequest value)  authCheckRequest,required TResult Function( _SignOut value)  signOut,required TResult Function( _NotificationsToggled value)  notificationsToggled,}){
 final _that = this;
 switch (_that) {
 case _AuthCheckRequest():
 return authCheckRequest(_that);case _SignOut():
-return signOut(_that);case _:
+return signOut(_that);case _NotificationsToggled():
+return notificationsToggled(_that);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -101,12 +103,13 @@ return signOut(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _AuthCheckRequest value)?  authCheckRequest,TResult? Function( _SignOut value)?  signOut,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _AuthCheckRequest value)?  authCheckRequest,TResult? Function( _SignOut value)?  signOut,TResult? Function( _NotificationsToggled value)?  notificationsToggled,}){
 final _that = this;
 switch (_that) {
 case _AuthCheckRequest() when authCheckRequest != null:
 return authCheckRequest(_that);case _SignOut() when signOut != null:
-return signOut(_that);case _:
+return signOut(_that);case _NotificationsToggled() when notificationsToggled != null:
+return notificationsToggled(_that);case _:
   return null;
 
 }
@@ -123,11 +126,12 @@ return signOut(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  authCheckRequest,TResult Function()?  signOut,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  authCheckRequest,TResult Function()?  signOut,TResult Function( bool enabled)?  notificationsToggled,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _AuthCheckRequest() when authCheckRequest != null:
 return authCheckRequest();case _SignOut() when signOut != null:
-return signOut();case _:
+return signOut();case _NotificationsToggled() when notificationsToggled != null:
+return notificationsToggled(_that.enabled);case _:
   return orElse();
 
 }
@@ -145,11 +149,12 @@ return signOut();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  authCheckRequest,required TResult Function()  signOut,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  authCheckRequest,required TResult Function()  signOut,required TResult Function( bool enabled)  notificationsToggled,}) {final _that = this;
 switch (_that) {
 case _AuthCheckRequest():
 return authCheckRequest();case _SignOut():
-return signOut();case _:
+return signOut();case _NotificationsToggled():
+return notificationsToggled(_that.enabled);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -166,11 +171,12 @@ return signOut();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  authCheckRequest,TResult? Function()?  signOut,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  authCheckRequest,TResult? Function()?  signOut,TResult? Function( bool enabled)?  notificationsToggled,}) {final _that = this;
 switch (_that) {
 case _AuthCheckRequest() when authCheckRequest != null:
 return authCheckRequest();case _SignOut() when signOut != null:
-return signOut();case _:
+return signOut();case _NotificationsToggled() when notificationsToggled != null:
+return notificationsToggled(_that.enabled);case _:
   return null;
 
 }
@@ -241,6 +247,74 @@ String toString() {
 
 
 
+
+/// @nodoc
+
+
+class _NotificationsToggled implements AuthenticatorWatcherEvent {
+  const _NotificationsToggled(this.enabled);
+  
+
+ final  bool enabled;
+
+/// Create a copy of AuthenticatorWatcherEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$NotificationsToggledCopyWith<_NotificationsToggled> get copyWith => __$NotificationsToggledCopyWithImpl<_NotificationsToggled>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _NotificationsToggled&&(identical(other.enabled, enabled) || other.enabled == enabled));
+}
+
+
+@override
+int get hashCode {
+    return Object.hash(runtimeType,enabled);
+}
+
+@override
+String toString() {
+    return 'AuthenticatorWatcherEvent.notificationsToggled(enabled: $enabled)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$NotificationsToggledCopyWith<$Res> implements $AuthenticatorWatcherEventCopyWith<$Res> {
+  factory _$NotificationsToggledCopyWith(_NotificationsToggled value, $Res Function(_NotificationsToggled) _then) = __$NotificationsToggledCopyWithImpl;
+@useResult
+$Res call({
+ bool enabled
+});
+
+
+
+
+}
+/// @nodoc
+class __$NotificationsToggledCopyWithImpl<$Res>
+    implements _$NotificationsToggledCopyWith<$Res> {
+  __$NotificationsToggledCopyWithImpl(this._self, this._then);
+
+  final _NotificationsToggled _self;
+  final $Res Function(_NotificationsToggled) _then;
+
+/// Create a copy of AuthenticatorWatcherEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? enabled = null,}) {
+  return _then(_NotificationsToggled(
+null == enabled ? _self.enabled : enabled // ignore: cast_nullable_to_non_nullable
+as bool,
+  ));
+}
+
+
+}
 
 /// @nodoc
 mixin _$AuthenticatorWatcherState {

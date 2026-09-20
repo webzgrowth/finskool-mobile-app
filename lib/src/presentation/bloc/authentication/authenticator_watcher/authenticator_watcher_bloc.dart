@@ -4,6 +4,8 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:finskool/src/domain/model/auth/user_model.dart';
 import 'package:finskool/src/domain/usecases/auth/get_auth_status.dart';
 import 'package:finskool/src/domain/usecases/auth/logout_user.dart';
+import 'package:finskool/src/domain/usecases/auth/set_post_notifications_enabled.dart';
+import 'package:finskool/src/utilities/logger.dart';
 
 import 'package:injectable/injectable.dart';
 part 'authenticator_watcher_event.dart';
@@ -22,8 +24,11 @@ part 'authenticator_watcher_bloc.freezed.dart';
 @singleton
 class AuthenticatorWatcherBloc
     extends Bloc<AuthenticatorWatcherEvent, AuthenticatorWatcherState> {
-  AuthenticatorWatcherBloc(this._authStatus, this._logoutUser)
-      : super(const AuthenticatorWatcherState.initial()) {
+  AuthenticatorWatcherBloc(
+    this._authStatus,
+    this._logoutUser,
+    this._setPostNotificationsEnabled,
+  ) : super(const AuthenticatorWatcherState.initial()) {
     on<AuthenticatorWatcherEvent>((event, emit) async {
       await event.map(
         authCheckRequest: (_) async {
@@ -42,10 +47,25 @@ class AuthenticatorWatcherBloc
           await GoogleSignIn.instance.signOut();
           emit(const AuthenticatorWatcherState.unauthenticated());
         },
+        notificationsToggled: (value) async {
+          final result =
+              await _setPostNotificationsEnabled.execute(value.enabled);
+          result.fold(
+            // A failed toggle shouldn't disturb whatever's on screen —
+            // there's no signed-in user to update, which shouldn't happen
+            // from a screen that's only reachable while authenticated.
+            (failure) =>
+                logger.warning('Could not update notification pref: '
+                    '${failure.message}'),
+            (updated) =>
+                emit(AuthenticatorWatcherState.authenticated(user: updated)),
+          );
+        },
       );
     });
   }
 
   final GetAuthStatus _authStatus;
   final LogoutUser _logoutUser;
+  final SetPostNotificationsEnabled _setPostNotificationsEnabled;
 }
