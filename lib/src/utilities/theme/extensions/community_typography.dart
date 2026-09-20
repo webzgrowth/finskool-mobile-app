@@ -70,8 +70,10 @@ class CommunityTypography extends ThemeExtension<CommunityTypography> {
     // Inter 600 · 10 · 12.642px · white
     memberCount:
         inter(size: 10, weight: 600, height: 1.264, color: AppPalette.white),
+    // Teal, not near-black: the headline price is the same #108B8B as the
+    // community title.
     price:
-        manrope(size: 18, weight: 700, height: 1.264, color: AppPalette.postTitle),
+        manrope(size: 18, weight: 700, height: 1.264, color: AppPalette.badgeTeal),
     pricePeriod:
         inter(size: 12, weight: 400, height: 1.364, color: AppPalette.postMeta),
     planLabel:

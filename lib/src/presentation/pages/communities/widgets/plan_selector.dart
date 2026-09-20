@@ -112,7 +112,9 @@ class _PlanRow extends StatelessWidget {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                 decoration: BoxDecoration(
-                  color: AppPalette.postMeta,
+                  // The flag picks up the row's state: teal on the selected
+                  // plan, slate on the others.
+                  color: selected ? accent : AppPalette.postMeta,
                   borderRadius: BorderRadius.circular(AppRadii.pill),
                 ),
                 child: Text(plan.saveLabel!,

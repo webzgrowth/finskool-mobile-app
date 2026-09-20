@@ -51,17 +51,23 @@ class NavBarItem extends StatelessWidget {
                 ),
                 if (badgeCount != null && badgeCount! > 0)
                   Positioned(
-                    top: -2,
-                    right: -6,
+                    top: -4,
+                    right: -10,
                     child: Container(
-                      height: 15,
-                      constraints: const BoxConstraints(minWidth: 19),
-                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      height: 16,
+                      constraints: const BoxConstraints(minWidth: 22),
+                      padding: const EdgeInsets.symmetric(horizontal: 5),
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
-                        color: cs.error,
-                        borderRadius: BorderRadius.circular(AppRadii.pill),
-                        border: Border.all(color: cs.surface, width: 1.5),
+                        // Not `error` red: Figma's nav badges are neutral —
+                        // slate on an unselected tab, near-black on the
+                        // selected one. (Read from the design screenshot;
+                        // re-measure the exact hexes when Figma is
+                        // reachable again.)
+                        color: selected
+                            ? AppPalette.reactionRing
+                            : AppPalette.postMeta,
+                        borderRadius: BorderRadius.circular(AppRadii.xs),
                       ),
                       child: Text(
                         badgeCount! > 99 ? '99+' : '$badgeCount',
