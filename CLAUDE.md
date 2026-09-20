@@ -357,8 +357,9 @@ driven by `BottomNavBloc` — a flat widget switch, not a go_router
 `StatefulShellRoute` (the router elsewhere in this app is flat too;
 revisit only if deep-linking to a specific tab becomes a requirement).
 `IndexedStack` (not a plain conditional) is what keeps Feed's scroll
-position across tab switches. Only Feed is fully built; Communities,
-Performance, and Profile are intentional bare placeholders pending design.
+position across tab switches. Feed and Communities are fully built;
+Performance is an intentional bare placeholder pending design, and Profile
+is a stub with a real logout (see Known gaps).
 
 Three singleton blocs back the Feed tab (see "Bloc granularity" above for
 why they're separate): `BottomNavBloc` (tab selection), `bloc/feed/posts/
@@ -524,6 +525,123 @@ floating-app-bar pattern — not a hand-rolled `AnimationController`.
 this — `AuthScreen`'s Google-listener and `SignupSuccessScreen`'s
 "Go to Home" were already calling `context.go` on it. It's now routed.
 
+## Communities
+
+The Communities tab (`pages/communities/`) is a catalog of communities the
+user can enter, buy, or ask the price of. Built from Figma's `750:1111`
+(list), `893:16761` (payment success) and `893:16303` (compliance). It lives
+at `pages/communities/`, **not** under `pages/dashboard/` — `FeedScreen` set
+that precedent; the shell just imports the tab screen.
+
+**Mock data, real shape.** `docs/auth_api_doc.md` documents **no community
+endpoints** beyond `/auth/mobile/select-community`, so
+`CommunitiesRepositoryImpl` reads `data/datasource/
+communities_mock_datasource.dart`. The datasource → repository → usecase
+chain is real, so swapping in a remote datasource touches one file. When it
+lands, note `ApiClient` only returns `Map<String, dynamic>?` — a list
+endpoint needs a `data: { items: [...] }` envelope or a new `getList`.
+
+**One `CommunityModel`, two shapes.** Login returns a *subset* of its fields
+(the subscribed communities); the catalog knows more (category, pricing,
+benefits, announcement counts). Catalog-only fields are optional so the
+login payload still parses. It was moved out of `domain/model/auth/` into
+`domain/model/community/` to say so.
+
+**The CTA is derived, never stored** — `CommunityModel.ctaLabel` maps
+access + plan style onto "Enter Community" / "Unlock Subscription" /
+"Request Pricing" / "Enroll Now", so all four variants change in one place.
+
+**Which plan headlines a card is editorial, not computed.** Figma features
+Swing Alpha's *6-month* plan — neither the cheapest nor the dearest — so
+`CommunityPlanModel.featured` marks it and drives both the headline price
+and the default selection. Don't "simplify" this to a min/max over price.
+
+### Communities blocs
+
+Four, one per responsibility (see "Bloc granularity"):
+`CommunitiesBloc` (the catalog + access), `CommunityFilterBloc` (search
+text, mirroring `FeedFilterBloc`), `CommunityPurchaseBloc` (what's being
+bought, carried across payment-success → compliance) and `ComplianceBloc`
+(the DOB/PAN form).
+
+**Deliberately NOT blocs:** the "What You Get" expand/collapse and the
+per-card plan selection. Both are transient UI local to one card — the
+chosen plan reaches `CommunityPurchaseBloc` only when the CTA is tapped.
+
+Blocs don't call each other: on compliance success the **widget** reads
+`CommunityPurchaseBloc` and dispatches `CommunitiesEvent.unlockCommunity`,
+the same widget-layer composition `verify_phone_form.dart` uses.
+
+### Purchase flow
+
+Unlock → payment success → compliance → unlocked. **There is no payment
+gateway**: `CommunityPurchaseBloc` fabricates the transaction so the
+post-payment screens can be built and tested; wire a real gateway in ahead
+of `PaymentSuccessScreen`.
+
+Compliance (SEBI DOB + PAN) is required **once**, before the first paid
+community. The flag lives in `StorageKeys.complianceCompleted` because the
+backend has no endpoint for it; `PaymentSuccessScreen` reads
+`CommunityPurchaseBloc.needsCompliance` and skips straight to the unlock on
+later purchases. Only the flag is persisted — **never the PAN**. Move it
+onto `UserModel` when the backend can supply it.
+
+`ComplianceScreen` is drawn on the **auth chrome** (`AuthHeader` +
+`AuthCard`) because that's what Figma does — reusing it keeps the screen
+matched for free.
+
+### Community card details worth keeping
+
+- **Subscribed cards drop the "What You Get" dropdown.** Once joined the
+  benefits are moot, so the panel renders only when
+  `!access.isSubscribed`.
+- Every icon is the exported Figma asset, not a Material lookalike:
+  `what_you_get.png` (the panel's 17x16 mark), `check_circle_glyph.svg`
+  (the 9px tick, white-stroked to sit on an 11px teal disc — see
+  `BenefitCheck`), `lock_small_icon.svg` (prefixes the locked CTA) and
+  `bell.svg`.
+- **The bell export had a red dot and a literal "3" baked in.** Both were
+  stripped from the SVG so `SearchTopBar` can draw a live count; if you
+  re-export it from `750:1626`, strip them again.
+- **Plans are radio rows, not chips**: a radio dot, the period or tier,
+  then the price pinned to the right edge (`Expanded` on the label, not
+  `Flexible`). Selected takes a teal border over a pale teal fill with
+  teal text; the "Save ₹ 1k" flag is a slate pill notched onto the
+  top-right corner.
+- **Benefit lines carry `**bold**` runs too**, same mechanism as the card
+  description.
+- **The member-count pill is frosted glass** — a `BackdropFilter` behind a
+  white-at-18% fill. Its Figma fill is only white-at-10%, which reads as
+  nearly invisible without the blur, so the blur is load-bearing rather
+  than decorative.
+
+### Conventions this feature introduced
+
+- **`comman/widgets/search_top_bar.dart`** — the gradient search bar,
+  extracted from `FeedTopBar` (which is now a thin wrapper binding it to
+  `FeedFilterBloc`). Both tabs use identical chrome in Figma. Its pinned
+  `fontSize`/`height: 1.0`/`strutStyle` trio is the hint-centring fix
+  documented under "Feed / Dashboard" — don't unpick it.
+- **`comman/rich_text_spans.dart`** — `boldSpans()` renders `**bold**` runs,
+  per the designer's "important words in the description will be bold"
+  (`921:21875`). Mock copy carries the markers.
+- **Subscribed communities pin to the top** (`911:20521`) via
+  `CommunitiesState.pinnedFirst`.
+- **`NavBarItem.badgeCount`** drives the bottom-nav bubble. Only the
+  Communities badge is real (sum of unread announcements); Figma also shows
+  one on Feed, which is absent rather than faked because the feed has no
+  unread count yet.
+
+**`Container(alignment:)` expands to fill.** It wraps the child in a bare
+`Align`, so chips and pills built that way stretched full-width inside a
+`Wrap`/`Row`. Use `Center(widthFactor: 1)` for anything that should hug its
+label — this bit the tag chips, the announcement tag and the plan buttons.
+
+**Not built, knowingly:** the inside of a community (`CommunityDetailScreen`
+is a routed placeholder — Figma has no design for it) and the
+subscription-details screen (`974:47132`: Plan details, Auto-renew,
+Download Invoice), which sits under its own canvas section.
+
 ## Design system
 
 Lives in `lib/src/utilities/theme/`. Import the barrel:
@@ -592,6 +710,9 @@ Do not treat these as incidental bugs to fix while doing something else:
   still stubs returning `false`, and `google_last_step/` is still a hardcoded
   mock account. **This is blocked on the backend, not on us** — the API has
   no social-auth endpoint at all. Leave both mocked until one exists.
+- `CommunityDetailScreen` (behind "Enter Community") is a routed
+  placeholder — Figma has no design for the inside of a community, and the
+  post model has no community field yet. The route works; the body doesn't.
 - The **Profile tab is a stub with a real logout**, not a designed screen. It
   shows the cached `UserModel` and a Log Out button that dispatches
   `AuthenticatorWatcherEvent.signOut`. It exists because session restore

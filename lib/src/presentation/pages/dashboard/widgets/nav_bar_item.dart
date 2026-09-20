@@ -10,12 +10,17 @@ class NavBarItem extends StatelessWidget {
     required this.label,
     required this.selected,
     required this.onTap,
+    this.badgeCount,
   });
 
   final IconData icon;
   final String label;
   final bool selected;
   final VoidCallback onTap;
+
+  /// Unread count bubble on the icon — the Figma nav shows "100" on Feed
+  /// and "50" on Communities (`750:1638`, `750:1654`). Null or 0 hides it.
+  final int? badgeCount;
 
   @override
   Widget build(BuildContext context) {
@@ -29,16 +34,52 @@ class NavBarItem extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              height: 36,
-              width: 36,
-              decoration: BoxDecoration(
-                color: selected ? cs.primary : Colors.transparent,
-                shape: BoxShape.circle,
-              ),
-              alignment: Alignment.center,
-              child: Icon(icon, color: selected ? cs.onPrimary : color, size: 22),
+            Stack(
+              clipBehavior: Clip.none,
+              children: [
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  height: 36,
+                  width: 36,
+                  decoration: BoxDecoration(
+                    color: selected ? cs.primary : Colors.transparent,
+                    shape: BoxShape.circle,
+                  ),
+                  alignment: Alignment.center,
+                  child: Icon(icon,
+                      color: selected ? cs.onPrimary : color, size: 22),
+                ),
+                if (badgeCount != null && badgeCount! > 0)
+                  Positioned(
+                    top: -4,
+                    right: -10,
+                    child: Container(
+                      height: 16,
+                      constraints: const BoxConstraints(minWidth: 22),
+                      padding: const EdgeInsets.symmetric(horizontal: 5),
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        // Not `error` red: Figma's nav badges are neutral —
+                        // slate on an unselected tab, near-black on the
+                        // selected one. (Read from the design screenshot;
+                        // re-measure the exact hexes when Figma is
+                        // reachable again.)
+                        color: selected
+                            ? AppPalette.reactionRing
+                            : AppPalette.postMeta,
+                        borderRadius: BorderRadius.circular(AppRadii.xs),
+                      ),
+                      child: Text(
+                        badgeCount! > 99 ? '99+' : '$badgeCount',
+                        style: tt.labelSmall?.copyWith(
+                          color: cs.onError,
+                          fontSize: 9,
+                          height: 1.0,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
             ),
             const SizedBox(height: 2),
             Text(label, style: tt.labelSmall?.copyWith(color: color)),

@@ -9,6 +9,7 @@ import 'components/navigation_theme.dart';
 import 'components/selection_themes.dart';
 import 'components/surface_themes.dart';
 import 'extensions/app_gradients.dart';
+import 'extensions/community_typography.dart';
 import 'extensions/feed_typography.dart';
 import 'text/app_text_theme.dart';
 import 'tokens/app_typography.dart';
@@ -37,6 +38,7 @@ class AppTheme {
       extensions: [
         AppGradients.of(cs.brightness),
         FeedTypography.of(cs.brightness),
+        CommunityTypography.of(cs.brightness),
       ],
       appBarTheme: buildAppBarTheme(cs, tt),
       iconTheme: buildIconTheme(cs),

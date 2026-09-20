@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:finskool/src/presentation/bloc/authentication/authenticator_watcher/authenticator_watcher_bloc.dart';
 import 'package:finskool/src/presentation/bloc/dashboard/bottom_nav/bottom_nav_bloc.dart';
 import 'package:finskool/src/presentation/pages/feed/feed_screen.dart';
-import 'communities/communities_screen.dart';
+import 'package:finskool/src/presentation/pages/communities/communities_screen.dart';
 import 'performance/performance_screen.dart';
 import 'profile/profile_screen.dart';
 import 'widgets/app_bottom_nav_bar.dart';

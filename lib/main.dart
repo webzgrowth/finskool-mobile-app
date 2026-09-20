@@ -12,6 +12,10 @@ import 'package:finskool/src/presentation/bloc/authentication/signup_verificatio
 import 'package:finskool/src/presentation/bloc/dashboard/bottom_nav/bottom_nav_bloc.dart';
 import 'package:finskool/src/presentation/bloc/feed/posts/feed_bloc.dart';
 import 'package:finskool/src/presentation/bloc/feed/filter/feed_filter_bloc.dart';
+import 'package:finskool/src/presentation/bloc/communities/list/communities_bloc.dart';
+import 'package:finskool/src/presentation/bloc/communities/filter/community_filter_bloc.dart';
+import 'package:finskool/src/presentation/bloc/communities/purchase/community_purchase_bloc.dart';
+import 'package:finskool/src/presentation/bloc/communities/compliance/compliance_bloc.dart';
 import 'package:finskool/src/utilities/app_bloc_observer.dart';
 import 'package:finskool/src/utilities/go_router.dart';
 import 'package:finskool/src/utilities/logger.dart';
@@ -60,6 +64,11 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (_) => locator<BottomNavBloc>()),
         BlocProvider(create: (_) => locator<FeedBloc>()),
         BlocProvider(create: (_) => locator<FeedFilterBloc>()),
+        // communities
+        BlocProvider(create: (_) => locator<CommunitiesBloc>()),
+        BlocProvider(create: (_) => locator<CommunityFilterBloc>()),
+        BlocProvider(create: (_) => locator<CommunityPurchaseBloc>()),
+        BlocProvider(create: (_) => locator<ComplianceBloc>()),
       ],
       child: MaterialApp.router(
         debugShowCheckedModeBanner: false,
