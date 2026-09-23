@@ -18,7 +18,6 @@ class ProfileIdentityInfo extends StatelessWidget {
 
     return Column(
       children: [
-        const SizedBox(height: AppSpacing.md),
         Text(user?.name ?? 'Signed in', style: type.name),
         if (user != null) ...[
           const SizedBox(height: 4),

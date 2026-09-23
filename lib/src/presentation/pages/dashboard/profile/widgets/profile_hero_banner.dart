@@ -7,18 +7,24 @@ import 'profile_icons.dart';
 
 /// The teal grid-star hero — background image, avatar, camera badge.
 ///
-/// A fixed-height widget on purpose: it's the `SliverAppBar.flexibleSpace`
-/// in `ProfileScreen`'s `CustomScrollView`, the same floating/snap
-/// `SliverAppBar` technique `SearchTopBar` uses on Feed/Communities (see
-/// `communities_screen.dart`) — a sliver app bar needs its content's height
-/// known ahead of layout, so [height] is exposed for the screen to pass as
-/// `toolbarHeight`. Name/email/phone/member-since live in
-/// `ProfileIdentityInfo` instead, as ordinary scrolling content below it —
-/// their height varies (wrapped names, an absent pill), which a sliver app
-/// bar can't accommodate.
+/// A separate widget from the name/email/phone/member-since block
+/// (`ProfileIdentityInfo`) purely for file-size reasons (CLAUDE.md's
+/// ~100-line rule) — both are plain, normally-scrolling `ListView`
+/// children in `ProfileScreen`, not a sliver app bar (an earlier pass
+/// tried that for a floating/snap effect like `SearchTopBar`'s, but that
+/// made the banner hide-then-pop-back mid-scroll, which is wrong for a
+/// tall identity header — see CLAUDE.md "Profile").
 ///
-/// The background reuses `assets/images/feed_top_bar_bg.png` — the same
-/// asset `SearchTopBar` uses for the Feed/Communities top bar.
+/// The background is `assets/images/auth_header_bg.png` — confirmed
+/// against a Figma screenshot of this exact screen. An earlier pass used
+/// `feed_top_bar_bg.png` (Feed/Communities' `SearchTopBar` asset) on the
+/// assumption Profile should match that chrome, but that image is short
+/// and bright/saturated throughout (built for a 92px-tall search bar);
+/// stretched to this banner's ~230dp height it reads far more vivid teal
+/// than the design. `auth_header_bg.png` is a *tall* image and only its
+/// top slice is ever visible here (`BoxFit.cover` + `alignment.topCenter`
+/// crop to the container's height) — that slice is the dark, muted
+/// forest-green with the same dot/grid texture the Figma reference shows.
 ///
 /// The avatar bridges the hero and the white body below it, same technique
 /// as `CommunityCover`'s badge: a `Stack` sized to the hero's own height
@@ -30,15 +36,15 @@ class ProfileHeroBanner extends StatelessWidget {
   final UserModel? user;
 
   static const double avatarRadius = 53.5;
-  static const double heroHeight = 120;
+  static const double heroHeight = 150;
 
   static double height(BuildContext context) =>
-      MediaQuery.paddingOf(context).top + heroHeight + avatarRadius;
+      heroHeight + avatarRadius;
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final topInset = MediaQuery.paddingOf(context).top;
+    final topInset =0;
 
     // Same treatment as `SearchTopBar`: the image bleeds behind the status
     // bar (no `SafeArea` here — see `ProfileScreen`), so the status-bar
@@ -59,7 +65,7 @@ class ProfileHeroBanner extends StatelessWidget {
                 borderRadius:
                     BorderRadius.vertical(bottom: Radius.circular(AppRadii.lg)),
                 image: DecorationImage(
-                  image: AssetImage('assets/images/feed_top_bar_bg.png'),
+                  image: AssetImage('assets/images/auth_header_bg.png'),
                   fit: BoxFit.cover,
                   alignment: Alignment.topCenter,
                 ),
