@@ -496,12 +496,12 @@ reaction count is Nunito, and the app ships only Manrope + Inter. Both are
 approximated with Inter at Figma's exact size/weight/line-height/colour.
 Add the real families to `pubspec.yaml` if that gap matters.
 
-**The Like control deliberately diverges from Figma.** `Group 1739329635`
-puts the 16x16 `#7D7D91` thumbs-up on a 24px `#E4E4E4` disc; the disc was
-dropped by choice because the bare glyph reads cleaner on the white card.
-The 24px box remains as the tap target, and `AppPalette.likeButtonSurface`
-still records the measured colour if it's ever restored. Don't "correct"
-this back to Figma without asking.
+**The Like control matches Figma's `Group 1739329635`**: the 16x16
+`#7D7D91` thumbs-up sits on a 24px `#E4E4E4` disc (`AppPalette
+.likeButtonSurface`). An earlier pass dropped that disc for a bare-glyph
+look; the user asked for it back with a reference screenshot, so
+`post_reaction_bar.dart` now renders the disc via a `Container(shape:
+BoxShape.circle)` around the existing 24px tap target.
 
 The long-press reaction picker (`widgets/reaction_picker_overlay.dart`) is
 a plain controller class (`OverlayEntry` + `ValueNotifier<int?>`), not a

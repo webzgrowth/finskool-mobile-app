@@ -42,9 +42,8 @@ class AppPalette {
   static const Color tabDivider = Color(0xFFD9D9D9);
   static const Color rowDivider = Color(0xFFE7E7E7);
 
-  /// Figma puts the Like glyph on a 24px `#E4E4E4` disc. Kept as a record
-  /// of the measured value, but **not currently applied** — the bare icon
-  /// was preferred. Restore it in `post_reaction_bar.dart` to go back.
+  /// The 24px disc behind the Like glyph, per Figma's `Group 1739329635`.
+  /// Applied in `post_reaction_bar.dart`.
   static const Color likeButtonSurface = Color(0xFFE4E4E4);
 
   /// Feed post card text colours, measured from Figma. Deliberately not the
