@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
 
-/// One cell of the Plan/Transaction grid: a small teal disc sitting to the
-/// **left** of a bold label, with the value beneath the label (indented
+/// One cell of a details grid: a small [AppPalette.primary] disc sitting to
+/// the **left** of a bold label, with the value beneath the label (indented
 /// past the disc, not under it).
-class SubscriptionDetailItem extends StatelessWidget {
-  const SubscriptionDetailItem({
+///
+/// Note this inverts the usual emphasis — the label is the bold near-black
+/// one and the value beneath it is the quiet grey.
+class DetailCell extends StatelessWidget {
+  const DetailCell({
     super.key,
     required this.icon,
     required this.label,
@@ -44,14 +47,36 @@ class SubscriptionDetailItem extends StatelessWidget {
             children: [
               Text(label, style: type.label),
               const SizedBox(height: 3),
-              if (trailing != null)
-                trailing!
-              else
-                Text(value!, style: type.value),
+              trailing ?? Text(value!, style: type.value),
             ],
           ),
         ),
       ],
     );
   }
+}
+
+/// The 1px rule between two cells in a details grid. Full-height, so it
+/// needs an `IntrinsicHeight` above the `Row` that holds it.
+class GridVRule extends StatelessWidget {
+  const GridVRule({super.key});
+
+  @override
+  Widget build(BuildContext context) => Container(
+        width: 1,
+        margin: const EdgeInsets.symmetric(horizontal: 6),
+        color: AppPalette.subscriptionDivider,
+      );
+}
+
+/// The 1px rule between two rows of a details grid.
+class GridHRule extends StatelessWidget {
+  const GridHRule({super.key});
+
+  @override
+  Widget build(BuildContext context) => Container(
+        height: 1,
+        margin: const EdgeInsets.symmetric(vertical: 10),
+        color: AppPalette.subscriptionDivider,
+      );
 }

@@ -16,6 +16,7 @@ import 'package:finskool/src/presentation/pages/communities/detail/community_det
 import 'package:finskool/src/presentation/pages/communities/payment_success/payment_success_screen.dart';
 import 'package:finskool/src/presentation/pages/communities/compliance/compliance_screen.dart';
 import 'package:finskool/src/presentation/pages/dashboard/profile/widgets/profile_placeholder_screen.dart';
+import 'package:finskool/src/presentation/pages/dashboard/profile/edit_profile/edit_profile_screen.dart';
 import 'package:finskool/src/presentation/pages/communities/subscription_detail/subscription_detail_screen.dart';
 import 'package:finskool/src/domain/model/community/community_model.dart';
 
@@ -160,7 +161,7 @@ GoRouter routerinit = GoRouter(
       name: AppRoutes.EDIT_PROFILE_ROUTE_NAME,
       path: AppRoutes.EDIT_PROFILE_ROUTE_PATH,
       builder: (BuildContext context, GoRouterState state) {
-        return const ProfilePlaceholderScreen(title: 'Edit Profile');
+        return const EditProfileScreen();
       },
     ),
     GoRoute(

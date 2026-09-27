@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:finskool/src/domain/model/community/community_model.dart';
 import 'package:finskool/src/domain/model/community/subscription_info.dart';
+import 'package:finskool/src/comman/widgets/detail_cell.dart';
+import 'package:finskool/src/comman/widgets/teal_section_card.dart';
 
 import 'auto_renew_toggle.dart';
-import 'subscription_detail_item.dart';
-import 'subscription_grid_rules.dart';
-import 'subscription_section.dart';
 
 /// Plan Details — plan, amount, start date over a rule, then validity and
 /// the auto-renew toggle. Auto-renew takes a double-width cell (Figma has
@@ -24,7 +23,7 @@ class SubscriptionPlanSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final validTill = community.subscribedUntil;
-    return SubscriptionSection(
+    return TealSectionCard(
       title: 'Plan Details',
       child: Column(
         children: [
@@ -33,7 +32,7 @@ class SubscriptionPlanSection extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Expanded(
-                  child: SubscriptionDetailItem(
+                  child: DetailCell(
                     icon: Icons.description_outlined,
                     label: 'Plan',
                     value: info.plan.label,
@@ -41,7 +40,7 @@ class SubscriptionPlanSection extends StatelessWidget {
                 ),
                 const GridVRule(),
                 Expanded(
-                  child: SubscriptionDetailItem(
+                  child: DetailCell(
                     icon: Icons.attach_money,
                     label: 'Amount Paid',
                     value: info.plan.priceLabel,
@@ -49,7 +48,7 @@ class SubscriptionPlanSection extends StatelessWidget {
                 ),
                 const GridVRule(),
                 Expanded(
-                  child: SubscriptionDetailItem(
+                  child: DetailCell(
                     icon: Icons.calendar_today_outlined,
                     label: 'Started on',
                     value: DateFormat('d MMM yyyy').format(info.startedOn),
@@ -66,7 +65,7 @@ class SubscriptionPlanSection extends StatelessWidget {
                 Expanded(
                   child: validTill == null
                       ? const SizedBox.shrink()
-                      : SubscriptionDetailItem(
+                      : DetailCell(
                           icon: Icons.verified_outlined,
                           label: 'Valid till',
                           value: DateFormat('d MMM yyyy').format(validTill),
@@ -75,7 +74,7 @@ class SubscriptionPlanSection extends StatelessWidget {
                 const GridVRule(),
                 Expanded(
                   flex: 2,
-                  child: SubscriptionDetailItem(
+                  child: DetailCell(
                     icon: Icons.autorenew,
                     label: 'Auto-renew',
                     trailing: AutoRenewToggle(initial: info.autoRenew),

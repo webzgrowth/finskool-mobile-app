@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:finskool/src/domain/model/community/subscription_info.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
+import 'package:finskool/src/comman/widgets/detail_cell.dart';
+import 'package:finskool/src/comman/widgets/teal_section_card.dart';
 
-import 'subscription_detail_item.dart';
-import 'subscription_grid_rules.dart';
-import 'subscription_section.dart';
 
 /// Transaction Details — the receipt, then Download Invoice.
 ///
@@ -19,7 +18,7 @@ class SubscriptionTransactionSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final type = context.subscriptionType;
-    return SubscriptionSection(
+    return TealSectionCard(
       title: 'Transaction Details',
       child: Column(
         children: [
@@ -28,7 +27,7 @@ class SubscriptionTransactionSection extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Expanded(
-                  child: SubscriptionDetailItem(
+                  child: DetailCell(
                     icon: Icons.content_copy_outlined,
                     label: 'ID',
                     value: info.transactionId,
@@ -36,7 +35,7 @@ class SubscriptionTransactionSection extends StatelessWidget {
                 ),
                 const GridVRule(),
                 Expanded(
-                  child: SubscriptionDetailItem(
+                  child: DetailCell(
                     icon: Icons.calendar_today_outlined,
                     label: 'Paid on',
                     value: DateFormat('d MMM yyyy,\nh:mm a').format(info.paidOn),
@@ -44,7 +43,7 @@ class SubscriptionTransactionSection extends StatelessWidget {
                 ),
                 const GridVRule(),
                 Expanded(
-                  child: SubscriptionDetailItem(
+                  child: DetailCell(
                     icon: Icons.credit_card_outlined,
                     label: 'Payment method',
                     value: info.paymentMethod,

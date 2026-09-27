@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:finskool/src/comman/rich_text_spans.dart';
 import 'package:finskool/src/presentation/pages/communities/widgets/benefit_check.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
-
-import 'subscription_section.dart';
+import 'package:finskool/src/comman/widgets/teal_section_card.dart';
 
 /// "What You get" section on the Subscription Detail screen.
 /// Reuses the existing [BenefitCheck] and [boldSpans] from the
@@ -21,7 +20,7 @@ class SubscriptionBenefitsSection extends StatelessWidget {
     if (benefits.isEmpty) return const SizedBox.shrink();
 
     final type = context.communityType;
-    return SubscriptionSection(
+    return TealSectionCard(
       title: 'What You get',
       child: Column(
         children: [

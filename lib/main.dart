@@ -16,6 +16,7 @@ import 'package:finskool/src/presentation/bloc/communities/list/communities_bloc
 import 'package:finskool/src/presentation/bloc/communities/filter/community_filter_bloc.dart';
 import 'package:finskool/src/presentation/bloc/communities/purchase/community_purchase_bloc.dart';
 import 'package:finskool/src/presentation/bloc/communities/compliance/compliance_bloc.dart';
+import 'package:finskool/src/presentation/bloc/profile/edit_profile/edit_profile_bloc.dart';
 import 'package:finskool/src/utilities/app_bloc_observer.dart';
 import 'package:finskool/src/utilities/go_router.dart';
 import 'package:finskool/src/utilities/logger.dart';
@@ -69,6 +70,7 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (_) => locator<CommunityFilterBloc>()),
         BlocProvider(create: (_) => locator<CommunityPurchaseBloc>()),
         BlocProvider(create: (_) => locator<ComplianceBloc>()),
+        BlocProvider(create: (_) => locator<EditProfileBloc>()),
       ],
       child: MaterialApp.router(
         debugShowCheckedModeBanner: false,

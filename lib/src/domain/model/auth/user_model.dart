@@ -55,14 +55,22 @@ class UserModel {
         'memberSince': memberSince?.toIso8601String(),
       };
 
-  /// Only field the app currently writes back to is
-  /// [postNotificationsEnabled] (the Profile screen's toggle) — see
-  /// `AuthenticatorWatcherBloc.notificationsToggled`.
-  UserModel copyWith({bool? postNotificationsEnabled}) => UserModel(
+  /// The app writes back [postNotificationsEnabled] (the Profile screen's
+  /// toggle) and the [name]/[email]/[phone] trio (the Edit Profile form).
+  /// Both are local-only — the API has no profile-update endpoint — so
+  /// these only ever reach the prefs cache. See
+  /// `AuthRepository.updateProfile`.
+  UserModel copyWith({
+    bool? postNotificationsEnabled,
+    String? name,
+    String? email,
+    String? phone,
+  }) =>
+      UserModel(
         id: id,
-        name: name,
-        phone: phone,
-        email: email,
+        name: name ?? this.name,
+        phone: phone ?? this.phone,
+        email: email ?? this.email,
         role: role,
         isSuperAdmin: isSuperAdmin,
         postNotificationsEnabled:

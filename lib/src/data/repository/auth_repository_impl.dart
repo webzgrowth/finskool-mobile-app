@@ -116,6 +116,23 @@ class AuthRepositoryImpl implements AuthRepository {
         return updated;
       });
 
+  @override
+  Future<Either<Failure, UserModel>> updateProfile({
+    required String name,
+    required String email,
+    required String phone,
+  }) =>
+      handleErrors(() async {
+        final current = cachedUser;
+        if (current == null) {
+          throw CacheException('No signed-in user to update.');
+        }
+        final updated =
+            current.copyWith(name: name, email: email, phone: phone);
+        await _cacheUser(updated);
+        return updated;
+      });
+
   /// One community means it's already selected, per the API doc. More than
   /// one needs a user choice, which has no UI yet — until then the backend
   /// falls back to "all my communities merged", which is a fine default.

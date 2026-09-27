@@ -655,7 +655,11 @@ plain class holding plan, transaction and auto-renew data — optional on
 
 **Chrome is the auth pattern, not a Material `AppBar`** — the teal grid
 (`auth_header_bg.png`) bleeds behind the status bar and a white sheet with
-rounded top corners carries the content, back arrow inside the sheet.
+rounded top corners carries the content, back arrow inside the sheet. It's
+`comman/widgets/teal_sheet_scaffold.dart` (`TealSheetScaffold` +
+`SheetBackArrow`), shared with Edit Profile; the section card
+(`TealSectionCard`) and the grid cells (`DetailCell`, `GridVRule`,
+`GridHRule`) live in `comman/widgets/` for the same reason.
 
 `SubscriptionDetailTypography` (`context.subscriptionType`) holds the
 screen's text styles, following the same `ThemeExtension` pattern as
@@ -732,9 +736,53 @@ compliance-skip → payment-success path a fresh purchase takes, just from an
 already-subscribed community. If a real renewal flow gets designed later,
 that's the call site to change.
 
-**Seven menu rows have no destination designed** (Edit Profile, About &
+### Edit Profile
+
+`pages/dashboard/profile/edit_profile/`, routed at `/edit-profile` — Figma
+`Frame 2121453561`. Wears the shared `TealSheetScaffold` chrome: centred
+avatar + camera badge, a "Personal Details" `TealSectionCard` holding the
+auth screens' own `AuthTextField`/`PhoneField`, then a read-only "Verified
+with SEBI" pair built from `DetailCell`.
+
+`EditProfileBloc` (`bloc/profile/edit_profile/`, `@singleton` like every
+other form bloc) validates **on submit** via `Validators`, keeps per-field
+`String?` errors cleared by their own `*Changed` event, and saves through
+the `UpdateProfile` usecase. **Saving is local-only** —
+`docs/auth_api_doc.md` has no profile-update endpoint, so
+`AuthRepository.updateProfile` just rewrites the cached `UserModel`, the
+same category as the notifications toggle. On success the *widget* fires
+`AuthenticatorWatcherEvent.authCheckRequest()` so the Profile header
+re-reads that cache; the blocs never call each other.
+
+**`prefill` must not be read back synchronously.** `bloc.add()` only
+queues, so the screen fills its `TextEditingController`s from a
+`BlocListener` gated on `!isEditing` — that catches the prefill and a
+successful save without fighting the cursor mid-type. The bloc's `_seed`
+splits the cached `+918866996655` into a `Country` and a bare national
+number, since the chip renders the dial code separately.
+
+The header **pencil toggles `isEditing`** and becomes a check that
+submits; fields are read-only until then. Figma only draws the read-only
+state, so that affordance is inferred — a form whose only control is a
+pencil would otherwise have no way to commit. `AuthTextField` and
+`PhoneField` gained optional `controller`/`enabled` params for this; both
+default to the old uncontrolled, always-enabled behaviour so the auth
+screens are untouched.
+
+**The SEBI date of birth and PAN cannot currently be displayed.**
+`submitCompliance` persists only `StorageKeys.complianceCompleted` and
+**discards its `ComplianceDetailsModel` argument entirely** — nothing
+writes the DOB either, and `ComplianceDetailsModel` has no `fromJson`. So
+`SebiDetailsSection` takes both as nullable and renders an em-dash. Filling
+them in needs a decision first: persist the DOB plus a masked PAN locally,
+or wait for a backend compliance endpoint and put them on `UserModel` (what
+the `complianceCompleted` comment anticipates). Don't quietly start storing
+the full PAN.
+
+**Six menu rows have no destination designed** (About &
 SEBI info, Welcome kits, My tickets, Help & support, Give feedback, Terms &
-privacy policy) — routed to one shared `ProfilePlaceholderScreen`
+privacy policy — Edit Profile is now built, see above) — routed to one
+shared `ProfilePlaceholderScreen`
 parameterized by title, rather than seven near-duplicate files. Same
 "no design provided" approach as `CommunityDetailScreen`, just factored for
 reuse since there are several here instead of one. "Share the app" is in
