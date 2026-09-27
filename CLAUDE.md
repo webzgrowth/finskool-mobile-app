@@ -746,6 +746,27 @@ glyphs) and confirmed their color/shape, but not the actual glyphs
 themselves; `profile_icons.dart` records the exact source node id for
 each so exporting and swapping is mechanical.
 
+## Success animation
+
+`comman/widgets/success_animation.dart` (`SuccessAnimation`) is the one
+"success" illustration for the whole app — password reset, signup, and
+community purchase all use it, via the `lottie` package rendering
+`assets/json/Success.json`. The file is self-contained: it already draws
+its own opaque white backdrop plus a teal ring and an animated checkmark
+stroke, so `SuccessAnimation` replaces a screen's ring/circle wrapper
+entirely rather than sitting inside one. That only looks seamless because
+every call site's `Scaffold.backgroundColor` is `colorScheme.surface`
+(white) — check that before reusing it somewhere with a different
+background, or the Lottie's white square will show a hard edge.
+
+This replaced two things: a static `assets/images/password_success.png`
+(shared, oddly, by both the password-reset and signup success screens —
+now unused, left on disk) on the two auth screens, and a hand-rolled
+`TweenAnimationBuilder` scale-in (`SuccessBadge`, now deleted) on the
+community-purchase success screen, whose own comment said it existed only
+to approximate a "subtle animation" Figma called for without a real
+animation asset. `Success.json` is that asset, so the workaround is gone.
+
 ## Design system
 
 Lives in `lib/src/utilities/theme/`. Import the barrel:
