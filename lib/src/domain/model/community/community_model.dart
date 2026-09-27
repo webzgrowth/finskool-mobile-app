@@ -1,5 +1,6 @@
 import 'package:finskool/src/domain/model/community/community_access.dart';
 import 'package:finskool/src/domain/model/community/community_plan_model.dart';
+import 'package:finskool/src/domain/model/community/subscription_info.dart';
 
 /// A community, in both the shapes the app sees it.
 ///
@@ -29,6 +30,7 @@ class CommunityModel {
     this.plans = const [],
     this.benefits = const [],
     this.subscribedUntil,
+    this.subscriptionInfo,
   });
 
   final String id;
@@ -60,6 +62,10 @@ class CommunityModel {
   /// tab's "My Subscription" row. No backend field for this yet, so
   /// `CommunitiesMockDatasource` sets it directly on subscribed entries.
   final DateTime? subscribedUntil;
+
+  /// Plan, transaction and auto-renew details for the Subscription Detail
+  /// screen. Only set on subscribed communities with known purchase data.
+  final SubscriptionInfo? subscriptionInfo;
 
   /// Renewal is nudged inside this window — Figma's mockup shows "Expires
   /// in 7 days" with a Renew pill on the community that's close, and a
@@ -111,6 +117,7 @@ class CommunityModel {
     CommunityAccess? access,
     int? newAnnouncements,
     DateTime? subscribedUntil,
+    SubscriptionInfo? subscriptionInfo,
   }) =>
       CommunityModel(
         id: id,
@@ -128,6 +135,7 @@ class CommunityModel {
         plans: plans,
         benefits: benefits,
         subscribedUntil: subscribedUntil ?? this.subscribedUntil,
+        subscriptionInfo: subscriptionInfo ?? this.subscriptionInfo,
       );
 
   factory CommunityModel.fromJson(Map<String, dynamic> json) => CommunityModel(
@@ -161,6 +169,10 @@ class CommunityModel {
         subscribedUntil: json['subscribedUntil'] == null
             ? null
             : DateTime.parse(json['subscribedUntil'] as String),
+        subscriptionInfo: json['subscriptionInfo'] == null
+            ? null
+            : SubscriptionInfo.fromJson(
+                json['subscriptionInfo'] as Map<String, dynamic>),
       );
 
   Map<String, dynamic> toJson() => {
@@ -179,5 +191,6 @@ class CommunityModel {
         'plans': plans.map((p) => p.toJson()).toList(),
         'benefits': benefits,
         'subscribedUntil': subscribedUntil?.toIso8601String(),
+        'subscriptionInfo': subscriptionInfo?.toJson(),
       };
 }

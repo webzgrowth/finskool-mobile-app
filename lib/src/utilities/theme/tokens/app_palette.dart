@@ -90,6 +90,22 @@ class AppPalette {
   /// what this screen actually shows.
   static const Color profileCardFill = Color(0xFFF5F5F7);
 
+  ///  =================================================================
+  ///  ******************* Subscription Detail *************************
+  ///  =================================================================
+  /// Every filled surface on this screen — section headers, detail icon
+  /// discs, the card scrim, the Download Invoice button — is [primary].
+  /// An earlier pass invented a darker teal for them; keep them on the
+  /// brand colour.
+  ///
+  /// Section body fill: near-white, a shade off the white sheet behind it.
+  static const Color subscriptionBody = Color(0xFFF8FAFA);
+  static const Color subscriptionBorder = Color(0xFFE6EDED);
+  static const Color subscriptionDivider = Color(0xFFE3EAEA);
+
+  /// The grey value under each bold detail label.
+  static const Color subscriptionValue = Color(0xFF5C5C5C);
+
   // Teal ramp
   static const Color teal50 = Color(0xFFF4FAFA);
   static const Color teal100 = Color(0xFFE7F3F3);

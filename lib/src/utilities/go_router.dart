@@ -16,6 +16,8 @@ import 'package:finskool/src/presentation/pages/communities/detail/community_det
 import 'package:finskool/src/presentation/pages/communities/payment_success/payment_success_screen.dart';
 import 'package:finskool/src/presentation/pages/communities/compliance/compliance_screen.dart';
 import 'package:finskool/src/presentation/pages/dashboard/profile/widgets/profile_placeholder_screen.dart';
+import 'package:finskool/src/presentation/pages/communities/subscription_detail/subscription_detail_screen.dart';
+import 'package:finskool/src/domain/model/community/community_model.dart';
 
 GoRouter routerinit = GoRouter(
   routes: <RouteBase>[
@@ -116,6 +118,15 @@ GoRouter routerinit = GoRouter(
     // Ordered before `/community/:id` so the literal paths win — go_router
     // matches in declaration order, and `payment-success` would otherwise
     // be captured as an `:id`.
+    GoRoute(
+      name: AppRoutes.SUBSCRIPTION_DETAIL_ROUTE_NAME,
+      path: AppRoutes.SUBSCRIPTION_DETAIL_ROUTE_PATH,
+      builder: (BuildContext context, GoRouterState state) {
+        return SubscriptionDetailScreen(
+          community: state.extra! as CommunityModel,
+        );
+      },
+    ),
     GoRoute(
       name: AppRoutes.COMMUNITY_PAYMENT_SUCCESS_ROUTE_NAME,
       path: AppRoutes.COMMUNITY_PAYMENT_SUCCESS_ROUTE_PATH,

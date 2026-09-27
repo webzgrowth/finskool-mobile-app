@@ -1,6 +1,7 @@
 import 'package:finskool/src/domain/model/community/community_access.dart';
 import 'package:finskool/src/domain/model/community/community_model.dart';
 import 'package:finskool/src/domain/model/community/community_plan_model.dart';
+import 'package:finskool/src/domain/model/community/subscription_info.dart';
 
 /// Hardcoded community catalog standing in for a backend that doesn't
 /// exist yet — `docs/auth_api_doc.md` documents no community endpoints at
@@ -54,8 +55,29 @@ class CommunitiesMockDatasource {
           memberCount: 1240,
           newAnnouncements: 10,
           access: CommunityAccess.subscribed,
+          plans: const [
+            CommunityPlanModel(
+              id: 'intraday-3m',
+              label: '3 months',
+              price: 6999,
+              months: 3,
+            ),
+          ],
           benefits: _tradingBenefits,
           subscribedUntil: _farExpiry,
+          subscriptionInfo: SubscriptionInfo(
+            plan: const CommunityPlanModel(
+              id: 'intraday-3m',
+              label: '3 months',
+              price: 6999,
+              months: 3,
+            ),
+            startedOn: DateTime(2026, 1, 1),
+            transactionId: 'PAY-2026-0041872',
+            paidOn: DateTime(2026, 1, 1, 11, 42),
+            paymentMethod: 'UPI · PayU',
+            autoRenew: true,
+          ),
         ),
         CommunityModel(
           id: 'investor',
@@ -91,6 +113,19 @@ class CommunitiesMockDatasource {
           ],
           benefits: _tradingBenefits,
           subscribedUntil: _nearExpiry,
+          subscriptionInfo: SubscriptionInfo(
+            plan: const CommunityPlanModel(
+              id: 'investor-6m',
+              label: '6 months',
+              price: 7000,
+              months: 6,
+              featured: true,
+            ),
+            startedOn: DateTime(2025, 7, 1),
+            transactionId: 'PAY-2025-0038941',
+            paidOn: DateTime(2025, 7, 1, 9, 15),
+            paymentMethod: 'UPI · Razorpay',
+          ),
         ),
         const CommunityModel(
           id: 'swing-alpha',
@@ -199,6 +234,18 @@ class CommunitiesMockDatasource {
             'Private WhatsApp community access',
           ],
           subscribedUntil: _farExpiry,
+          subscriptionInfo: SubscriptionInfo(
+            plan: const CommunityPlanModel(
+              id: 'academy-intermediate',
+              label: 'Intermediate',
+              price: 15000,
+            ),
+            startedOn: DateTime(2026, 3, 15),
+            transactionId: 'PAY-2026-0045210',
+            paidOn: DateTime(2026, 3, 15, 14, 30),
+            paymentMethod: 'Card · HDFC',
+            autoRenew: true,
+          ),
         ),
       ];
 }

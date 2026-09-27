@@ -51,7 +51,7 @@ class ProfileMenuRow extends StatelessWidget {
               width: _iconBox,
               alignment: Alignment.center,
               decoration: const BoxDecoration(
-                color: AppPalette.secondary,
+                color: AppPalette.primary,
                 shape: BoxShape.circle,
               ),
               child: IconTheme(

@@ -89,8 +89,8 @@ class ProfileScreen extends StatelessWidget {
                           SubscriptionRow(
                             community: community,
                             onTap: () => context.push(
-                              '/community/${community.id}',
-                              extra: community.name,
+                              AppRoutes.SUBSCRIPTION_DETAIL_ROUTE_PATH,
+                              extra: community,
                             ),
                             onRenew: () => _renew(context, community),
                           ),

@@ -638,9 +638,56 @@ matched for free.
 label — this bit the tag chips, the announcement tag and the plan buttons.
 
 **Not built, knowingly:** the inside of a community (`CommunityDetailScreen`
-is a routed placeholder — Figma has no design for it) and the
-subscription-details screen (`974:47132`: Plan details, Auto-renew,
-Download Invoice), which sits under its own canvas section.
+is a routed placeholder — Figma has no design for it).
+
+### Subscription Detail screen
+
+`pages/communities/subscription_detail/` — reached from the Profile tab's
+"My Subscription" rows, routed at `/subscription-detail`. Receives the full
+`CommunityModel` via `state.extra`. Shows four sections: a community card
+header (cover image + name + "Active" pill), Plan Details (plan, amount,
+dates, auto-renew toggle), Transaction Details (ID, paid date, method,
+Download Invoice), and What You Get (reuses `BenefitCheck` + `boldSpans`).
+
+`SubscriptionInfo` (`domain/model/community/subscription_info.dart`) is a
+plain class holding plan, transaction and auto-renew data — optional on
+`CommunityModel`. Mock data lives in `CommunitiesMockDatasource`.
+
+**Chrome is the auth pattern, not a Material `AppBar`** — the teal grid
+(`auth_header_bg.png`) bleeds behind the status bar and a white sheet with
+rounded top corners carries the content, back arrow inside the sheet.
+
+`SubscriptionDetailTypography` (`context.subscriptionType`) holds the
+screen's text styles, following the same `ThemeExtension` pattern as
+`CommunityTypography`. Note the detail cells **invert** the usual
+emphasis: the label is bold near-black and the value beneath it is the
+quiet grey. `label` is capped at 12 — at 13 "Amount Paid" wraps to two
+lines, and Figma keeps it on one.
+
+A detail cell is `[teal disc] label / value`, with the disc **inline to
+the left** and the value indented under the label, not under the disc.
+Cells are separated by full-height 1px rules (`GridVRule`, which needs the
+`IntrinsicHeight` above the `Row`), rows by `GridHRule`. Auto-renew takes
+a double-width cell — Figma has no third item on that row and no rule to
+its right.
+
+`AutoRenewToggle` is a green "On" pill with the knob on the left, not a
+Material `Switch`, and is local state: there's no backend field for
+auto-renew yet, same category as the compliance flag.
+
+**Every filled surface is `AppPalette.primary`** — section headers, the
+detail icon discs, the card scrim, the Download Invoice button. An earlier
+pass invented a darker `subscriptionHeader` teal for them; it was removed
+rather than left as a near-duplicate of the brand colour, same correction
+as the Profile menu rows' icon discs.
+
+The card scrim over the cover art is **horizontal**, not bottom-up: the copy sits
+on the left, so a vertical fade would wash out the name while leaving the
+right side unreadable. The "Active" pill is green-on-white, not the
+white-on-green the community cards use.
+
+"Download Invoice" is a no-op placeholder — no invoice generation exists.
+"Need help with this plan?" navigates to the Help & support placeholder.
 
 ## Profile
 

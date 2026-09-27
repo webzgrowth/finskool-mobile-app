@@ -90,7 +90,7 @@ class ProfileHeroBanner extends StatelessWidget {
                         width: 25,
                         alignment: Alignment.center,
                         decoration: BoxDecoration(
-                          color: AppPalette.secondary,
+                          color: AppPalette.primary,
                           shape: BoxShape.circle,
                           border: Border.all(color: cs.surface, width: 2),
                         ),

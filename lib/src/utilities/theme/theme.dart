@@ -8,6 +8,7 @@ export 'extensions/app_gradients.dart';
 export 'extensions/community_typography.dart';
 export 'extensions/feed_typography.dart';
 export 'extensions/profile_typography.dart';
+export 'extensions/subscription_detail_typography.dart';
 export 'text/app_text_theme.dart';
 export 'text/text_style_factory.dart';
 export 'tokens/app_palette.dart';

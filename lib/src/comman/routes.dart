@@ -62,6 +62,9 @@ class AppRoutes {
   static const String COMMUNITY_DETAIL_ROUTE_NAME = "community-detail";
   static const String COMMUNITY_DETAIL_ROUTE_PATH = "/community/:id";
 
+  static const String SUBSCRIPTION_DETAIL_ROUTE_NAME = "subscription-detail";
+  static const String SUBSCRIPTION_DETAIL_ROUTE_PATH = "/subscription-detail";
+
   static const String COMMUNITY_PAYMENT_SUCCESS_ROUTE_NAME =
       "community-payment-success";
   static const String COMMUNITY_PAYMENT_SUCCESS_ROUTE_PATH =
