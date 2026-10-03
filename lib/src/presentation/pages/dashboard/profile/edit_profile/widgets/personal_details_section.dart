@@ -11,10 +11,9 @@ import 'package:finskool/src/utilities/theme/theme.dart';
 /// "Personal Details" — the editable trio, reusing the auth screens' own
 /// labelled fields so the glyphs and input chrome match the rest of the app.
 ///
-/// The header's pencil toggles [EditProfileState.isEditing]; it becomes a
-/// check that submits. Figma only draws the read-only state, so the
-/// editing affordance is inferred — the pencil is the only control it
-/// shows, and a form with no way to commit would be a dead end.
+/// The header's pencil toggles [EditProfileState.isEditing]. It stays a
+/// pencil in both states — committing is the job of the Save/Discard pair
+/// that appears below the card while editing, not of this icon.
 class PersonalDetailsSection extends StatelessWidget {
   const PersonalDetailsSection({
     super.key,
@@ -37,11 +36,7 @@ class PersonalDetailsSection extends StatelessWidget {
     return TealSectionCard(
       title: 'Personal Details',
       trailing: _HeaderAction(
-        editing: editing,
-        loading: state.state.isLoading,
-        onTap: () => bloc.add(editing
-            ? const EditProfileEvent.submit()
-            : const EditProfileEvent.editToggled()),
+        onTap: () => bloc.add(const EditProfileEvent.editToggled()),
       ),
       child: Column(
         children: [
@@ -88,41 +83,23 @@ class PersonalDetailsSection extends StatelessWidget {
 }
 
 class _HeaderAction extends StatelessWidget {
-  const _HeaderAction({
-    required this.editing,
-    required this.loading,
-    required this.onTap,
-  });
+  const _HeaderAction({required this.onTap});
 
-  final bool editing;
-  final bool loading;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     return GestureDetector(
-      onTap: loading ? null : onTap,
+      onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: Container(
         height: 26,
         width: 26,
         alignment: Alignment.center,
         decoration: BoxDecoration(color: cs.surface, shape: BoxShape.circle),
-        child: loading
-            ? SizedBox(
-                height: 13,
-                width: 13,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: AppPalette.primary,
-                ),
-              )
-            : Icon(
-                editing ? Icons.check : Icons.edit_outlined,
-                size: 14,
-                color: AppPalette.primary,
-              ),
+        child: const Icon(Icons.edit_outlined,
+            size: 14, color: AppPalette.primary),
       ),
     );
   }

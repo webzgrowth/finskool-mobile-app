@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:injectable/injectable.dart';
 import 'package:finskool/src/comman/exception.dart';
 import 'package:finskool/src/data/api/api.dart';
@@ -38,7 +39,10 @@ class AuthRemoteDatasource {
   /// On success the `mobile_session_id` cookie arrives in the response
   /// headers and `SessionInterceptor` persists it — nothing to read here.
   Future<AuthSessionModel> login(LoginRequestModel request) async {
+    debugPrint('=======login request: ${request.toJson()}'); // TODO: remove this debug print
     final data = await _client.post(Api.login, body: request.toJson());
+
+    debugPrint('=======login response: $data'); // TODO: remove this debug print
     return AuthSessionModel.fromJson(_require(data, Api.login));
   }
 

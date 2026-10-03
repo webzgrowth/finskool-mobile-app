@@ -106,6 +106,18 @@ class AppPalette {
   /// The grey value under each bold detail label.
   static const Color subscriptionValue = Color(0xFF5C5C5C);
 
+  ///  =================================================================
+  ///  ********************** Edit Profile *****************************
+  ///  =================================================================
+  /// The "Changing your phone number" notice — one amber for both the
+  /// icon disc and the copy, on a cream surface.
+  static const Color noticeAmber = Color(0xFFA87C21);
+  static const Color noticeAmberSurface = Color(0xFFFBF3E4);
+
+  /// "Discard Changes" — a brighter red than [error], which is the dark
+  /// Material scheme colour used for field-level validation text.
+  static const Color destructive = Color(0xFFE04B4B);
+
   // Teal ramp
   static const Color teal50 = Color(0xFFF4FAFA);
   static const Color teal100 = Color(0xFFE7F3F3);

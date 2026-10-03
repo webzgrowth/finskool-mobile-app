@@ -15,6 +15,10 @@ sealed class EditProfileState with _$EditProfileState {
 
     /// Fields are read-only until the header's pencil turns this on.
     required bool isEditing,
+
+    /// The prefill source, kept so "Discard Changes" can re-seed from it
+    /// and [isDirty] has something to compare against.
+    UserModel? user,
     String? nameError,
     String? emailError,
     String? phoneError,

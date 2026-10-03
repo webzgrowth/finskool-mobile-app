@@ -56,7 +56,7 @@ extension EditProfileEventPatterns on EditProfileEvent {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _Prefill value)?  prefill,TResult Function( _EditToggled value)?  editToggled,TResult Function( _NameChanged value)?  nameChanged,TResult Function( _EmailChanged value)?  emailChanged,TResult Function( _PhoneChanged value)?  phoneChanged,TResult Function( _CountryChanged value)?  countryChanged,TResult Function( _Submit value)?  submit,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _Prefill value)?  prefill,TResult Function( _EditToggled value)?  editToggled,TResult Function( _NameChanged value)?  nameChanged,TResult Function( _EmailChanged value)?  emailChanged,TResult Function( _PhoneChanged value)?  phoneChanged,TResult Function( _CountryChanged value)?  countryChanged,TResult Function( _DiscardChanges value)?  discardChanges,TResult Function( _Submit value)?  submit,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case _Prefill() when prefill != null:
@@ -65,7 +65,8 @@ return editToggled(_that);case _NameChanged() when nameChanged != null:
 return nameChanged(_that);case _EmailChanged() when emailChanged != null:
 return emailChanged(_that);case _PhoneChanged() when phoneChanged != null:
 return phoneChanged(_that);case _CountryChanged() when countryChanged != null:
-return countryChanged(_that);case _Submit() when submit != null:
+return countryChanged(_that);case _DiscardChanges() when discardChanges != null:
+return discardChanges(_that);case _Submit() when submit != null:
 return submit(_that);case _:
   return orElse();
 
@@ -84,7 +85,7 @@ return submit(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _Prefill value)  prefill,required TResult Function( _EditToggled value)  editToggled,required TResult Function( _NameChanged value)  nameChanged,required TResult Function( _EmailChanged value)  emailChanged,required TResult Function( _PhoneChanged value)  phoneChanged,required TResult Function( _CountryChanged value)  countryChanged,required TResult Function( _Submit value)  submit,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _Prefill value)  prefill,required TResult Function( _EditToggled value)  editToggled,required TResult Function( _NameChanged value)  nameChanged,required TResult Function( _EmailChanged value)  emailChanged,required TResult Function( _PhoneChanged value)  phoneChanged,required TResult Function( _CountryChanged value)  countryChanged,required TResult Function( _DiscardChanges value)  discardChanges,required TResult Function( _Submit value)  submit,}){
 final _that = this;
 switch (_that) {
 case _Prefill():
@@ -93,7 +94,8 @@ return editToggled(_that);case _NameChanged():
 return nameChanged(_that);case _EmailChanged():
 return emailChanged(_that);case _PhoneChanged():
 return phoneChanged(_that);case _CountryChanged():
-return countryChanged(_that);case _Submit():
+return countryChanged(_that);case _DiscardChanges():
+return discardChanges(_that);case _Submit():
 return submit(_that);case _:
   throw StateError('Unexpected subclass');
 
@@ -111,7 +113,7 @@ return submit(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _Prefill value)?  prefill,TResult? Function( _EditToggled value)?  editToggled,TResult? Function( _NameChanged value)?  nameChanged,TResult? Function( _EmailChanged value)?  emailChanged,TResult? Function( _PhoneChanged value)?  phoneChanged,TResult? Function( _CountryChanged value)?  countryChanged,TResult? Function( _Submit value)?  submit,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _Prefill value)?  prefill,TResult? Function( _EditToggled value)?  editToggled,TResult? Function( _NameChanged value)?  nameChanged,TResult? Function( _EmailChanged value)?  emailChanged,TResult? Function( _PhoneChanged value)?  phoneChanged,TResult? Function( _CountryChanged value)?  countryChanged,TResult? Function( _DiscardChanges value)?  discardChanges,TResult? Function( _Submit value)?  submit,}){
 final _that = this;
 switch (_that) {
 case _Prefill() when prefill != null:
@@ -120,7 +122,8 @@ return editToggled(_that);case _NameChanged() when nameChanged != null:
 return nameChanged(_that);case _EmailChanged() when emailChanged != null:
 return emailChanged(_that);case _PhoneChanged() when phoneChanged != null:
 return phoneChanged(_that);case _CountryChanged() when countryChanged != null:
-return countryChanged(_that);case _Submit() when submit != null:
+return countryChanged(_that);case _DiscardChanges() when discardChanges != null:
+return discardChanges(_that);case _Submit() when submit != null:
 return submit(_that);case _:
   return null;
 
@@ -138,7 +141,7 @@ return submit(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( UserModel? user)?  prefill,TResult Function()?  editToggled,TResult Function( String name)?  nameChanged,TResult Function( String email)?  emailChanged,TResult Function( String phone)?  phoneChanged,TResult Function( Country country)?  countryChanged,TResult Function()?  submit,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( UserModel? user)?  prefill,TResult Function()?  editToggled,TResult Function( String name)?  nameChanged,TResult Function( String email)?  emailChanged,TResult Function( String phone)?  phoneChanged,TResult Function( Country country)?  countryChanged,TResult Function()?  discardChanges,TResult Function()?  submit,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Prefill() when prefill != null:
 return prefill(_that.user);case _EditToggled() when editToggled != null:
@@ -146,7 +149,8 @@ return editToggled();case _NameChanged() when nameChanged != null:
 return nameChanged(_that.name);case _EmailChanged() when emailChanged != null:
 return emailChanged(_that.email);case _PhoneChanged() when phoneChanged != null:
 return phoneChanged(_that.phone);case _CountryChanged() when countryChanged != null:
-return countryChanged(_that.country);case _Submit() when submit != null:
+return countryChanged(_that.country);case _DiscardChanges() when discardChanges != null:
+return discardChanges();case _Submit() when submit != null:
 return submit();case _:
   return orElse();
 
@@ -165,7 +169,7 @@ return submit();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( UserModel? user)  prefill,required TResult Function()  editToggled,required TResult Function( String name)  nameChanged,required TResult Function( String email)  emailChanged,required TResult Function( String phone)  phoneChanged,required TResult Function( Country country)  countryChanged,required TResult Function()  submit,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( UserModel? user)  prefill,required TResult Function()  editToggled,required TResult Function( String name)  nameChanged,required TResult Function( String email)  emailChanged,required TResult Function( String phone)  phoneChanged,required TResult Function( Country country)  countryChanged,required TResult Function()  discardChanges,required TResult Function()  submit,}) {final _that = this;
 switch (_that) {
 case _Prefill():
 return prefill(_that.user);case _EditToggled():
@@ -173,7 +177,8 @@ return editToggled();case _NameChanged():
 return nameChanged(_that.name);case _EmailChanged():
 return emailChanged(_that.email);case _PhoneChanged():
 return phoneChanged(_that.phone);case _CountryChanged():
-return countryChanged(_that.country);case _Submit():
+return countryChanged(_that.country);case _DiscardChanges():
+return discardChanges();case _Submit():
 return submit();case _:
   throw StateError('Unexpected subclass');
 
@@ -191,7 +196,7 @@ return submit();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( UserModel? user)?  prefill,TResult? Function()?  editToggled,TResult? Function( String name)?  nameChanged,TResult? Function( String email)?  emailChanged,TResult? Function( String phone)?  phoneChanged,TResult? Function( Country country)?  countryChanged,TResult? Function()?  submit,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( UserModel? user)?  prefill,TResult? Function()?  editToggled,TResult? Function( String name)?  nameChanged,TResult? Function( String email)?  emailChanged,TResult? Function( String phone)?  phoneChanged,TResult? Function( Country country)?  countryChanged,TResult? Function()?  discardChanges,TResult? Function()?  submit,}) {final _that = this;
 switch (_that) {
 case _Prefill() when prefill != null:
 return prefill(_that.user);case _EditToggled() when editToggled != null:
@@ -199,7 +204,8 @@ return editToggled();case _NameChanged() when nameChanged != null:
 return nameChanged(_that.name);case _EmailChanged() when emailChanged != null:
 return emailChanged(_that.email);case _PhoneChanged() when phoneChanged != null:
 return phoneChanged(_that.phone);case _CountryChanged() when countryChanged != null:
-return countryChanged(_that.country);case _Submit() when submit != null:
+return countryChanged(_that.country);case _DiscardChanges() when discardChanges != null:
+return discardChanges();case _Submit() when submit != null:
 return submit();case _:
   return null;
 
@@ -583,6 +589,38 @@ as Country,
 /// @nodoc
 
 
+class _DiscardChanges implements EditProfileEvent {
+  const _DiscardChanges();
+  
+
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _DiscardChanges);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+    return 'EditProfileEvent.discardChanges()';
+}
+
+
+}
+
+
+
+
+/// @nodoc
+
+
 class _Submit implements EditProfileEvent {
   const _Submit();
   
@@ -618,7 +656,9 @@ mixin _$EditProfileState {
  RequestState get state; String get message; String get name; String get email; String get phone;/// Drives the dial-code chip and, via [Country.digits], what
 /// `Validators.phone` treats as a valid length.
  Country get country;/// Fields are read-only until the header's pencil turns this on.
- bool get isEditing; String? get nameError; String? get emailError; String? get phoneError;
+ bool get isEditing;/// The prefill source, kept so "Discard Changes" can re-seed from it
+/// and [isDirty] has something to compare against.
+ UserModel? get user; String? get nameError; String? get emailError; String? get phoneError;
 /// Create a copy of EditProfileState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -630,20 +670,20 @@ $EditProfileStateCopyWith<EditProfileState> get copyWith => _$EditProfileStateCo
 @override
 bool operator ==(Object other) {
   final _this = this as EditProfileState;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is EditProfileState&&(identical(other.state, _this.state) || other.state == _this.state)&&(identical(other.message, _this.message) || other.message == _this.message)&&(identical(other.name, _this.name) || other.name == _this.name)&&(identical(other.email, _this.email) || other.email == _this.email)&&(identical(other.phone, _this.phone) || other.phone == _this.phone)&&(identical(other.country, _this.country) || other.country == _this.country)&&(identical(other.isEditing, _this.isEditing) || other.isEditing == _this.isEditing)&&(identical(other.nameError, _this.nameError) || other.nameError == _this.nameError)&&(identical(other.emailError, _this.emailError) || other.emailError == _this.emailError)&&(identical(other.phoneError, _this.phoneError) || other.phoneError == _this.phoneError));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is EditProfileState&&(identical(other.state, _this.state) || other.state == _this.state)&&(identical(other.message, _this.message) || other.message == _this.message)&&(identical(other.name, _this.name) || other.name == _this.name)&&(identical(other.email, _this.email) || other.email == _this.email)&&(identical(other.phone, _this.phone) || other.phone == _this.phone)&&(identical(other.country, _this.country) || other.country == _this.country)&&(identical(other.isEditing, _this.isEditing) || other.isEditing == _this.isEditing)&&(identical(other.user, _this.user) || other.user == _this.user)&&(identical(other.nameError, _this.nameError) || other.nameError == _this.nameError)&&(identical(other.emailError, _this.emailError) || other.emailError == _this.emailError)&&(identical(other.phoneError, _this.phoneError) || other.phoneError == _this.phoneError));
 }
 
 
 @override
 int get hashCode {
   final _this = this as EditProfileState;
-  return Object.hash(runtimeType,_this.state,_this.message,_this.name,_this.email,_this.phone,_this.country,_this.isEditing,_this.nameError,_this.emailError,_this.phoneError);
+  return Object.hash(runtimeType,_this.state,_this.message,_this.name,_this.email,_this.phone,_this.country,_this.isEditing,_this.user,_this.nameError,_this.emailError,_this.phoneError);
 }
 
 @override
 String toString() {
   final _this = this as EditProfileState;
-  return 'EditProfileState(state: ${_this.state}, message: ${_this.message}, name: ${_this.name}, email: ${_this.email}, phone: ${_this.phone}, country: ${_this.country}, isEditing: ${_this.isEditing}, nameError: ${_this.nameError}, emailError: ${_this.emailError}, phoneError: ${_this.phoneError})';
+  return 'EditProfileState(state: ${_this.state}, message: ${_this.message}, name: ${_this.name}, email: ${_this.email}, phone: ${_this.phone}, country: ${_this.country}, isEditing: ${_this.isEditing}, user: ${_this.user}, nameError: ${_this.nameError}, emailError: ${_this.emailError}, phoneError: ${_this.phoneError})';
 }
 
 
@@ -654,7 +694,7 @@ abstract mixin class $EditProfileStateCopyWith<$Res>  {
   factory $EditProfileStateCopyWith(EditProfileState value, $Res Function(EditProfileState) _then) = _$EditProfileStateCopyWithImpl;
 @useResult
 $Res call({
- RequestState state, String message, String name, String email, String phone, Country country, bool isEditing, String? nameError, String? emailError, String? phoneError
+ RequestState state, String message, String name, String email, String phone, Country country, bool isEditing, UserModel? user, String? nameError, String? emailError, String? phoneError
 });
 
 
@@ -671,7 +711,7 @@ class _$EditProfileStateCopyWithImpl<$Res>
 
 /// Create a copy of EditProfileState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? state = null,Object? message = null,Object? name = null,Object? email = null,Object? phone = null,Object? country = null,Object? isEditing = null,Object? nameError = freezed,Object? emailError = freezed,Object? phoneError = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? state = null,Object? message = null,Object? name = null,Object? email = null,Object? phone = null,Object? country = null,Object? isEditing = null,Object? user = freezed,Object? nameError = freezed,Object? emailError = freezed,Object? phoneError = freezed,}) {
   return _then(EditProfileState(
 state: null == state ? _self.state : state // ignore: cast_nullable_to_non_nullable
 as RequestState,message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
@@ -680,7 +720,8 @@ as String,email: null == email ? _self.email : email // ignore: cast_nullable_to
 as String,phone: null == phone ? _self.phone : phone // ignore: cast_nullable_to_non_nullable
 as String,country: null == country ? _self.country : country // ignore: cast_nullable_to_non_nullable
 as Country,isEditing: null == isEditing ? _self.isEditing : isEditing // ignore: cast_nullable_to_non_nullable
-as bool,nameError: freezed == nameError ? _self.nameError : nameError // ignore: cast_nullable_to_non_nullable
+as bool,user: freezed == user ? _self.user : user // ignore: cast_nullable_to_non_nullable
+as UserModel?,nameError: freezed == nameError ? _self.nameError : nameError // ignore: cast_nullable_to_non_nullable
 as String?,emailError: freezed == emailError ? _self.emailError : emailError // ignore: cast_nullable_to_non_nullable
 as String?,phoneError: freezed == phoneError ? _self.phoneError : phoneError // ignore: cast_nullable_to_non_nullable
 as String?,
@@ -765,10 +806,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( RequestState state,  String message,  String name,  String email,  String phone,  Country country,  bool isEditing,  String? nameError,  String? emailError,  String? phoneError)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( RequestState state,  String message,  String name,  String email,  String phone,  Country country,  bool isEditing,  UserModel? user,  String? nameError,  String? emailError,  String? phoneError)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _EditProfileState() when $default != null:
-return $default(_that.state,_that.message,_that.name,_that.email,_that.phone,_that.country,_that.isEditing,_that.nameError,_that.emailError,_that.phoneError);case _:
+return $default(_that.state,_that.message,_that.name,_that.email,_that.phone,_that.country,_that.isEditing,_that.user,_that.nameError,_that.emailError,_that.phoneError);case _:
   return orElse();
 
 }
@@ -786,10 +827,10 @@ return $default(_that.state,_that.message,_that.name,_that.email,_that.phone,_th
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( RequestState state,  String message,  String name,  String email,  String phone,  Country country,  bool isEditing,  String? nameError,  String? emailError,  String? phoneError)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( RequestState state,  String message,  String name,  String email,  String phone,  Country country,  bool isEditing,  UserModel? user,  String? nameError,  String? emailError,  String? phoneError)  $default,) {final _that = this;
 switch (_that) {
 case _EditProfileState():
-return $default(_that.state,_that.message,_that.name,_that.email,_that.phone,_that.country,_that.isEditing,_that.nameError,_that.emailError,_that.phoneError);}
+return $default(_that.state,_that.message,_that.name,_that.email,_that.phone,_that.country,_that.isEditing,_that.user,_that.nameError,_that.emailError,_that.phoneError);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -803,10 +844,10 @@ return $default(_that.state,_that.message,_that.name,_that.email,_that.phone,_th
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( RequestState state,  String message,  String name,  String email,  String phone,  Country country,  bool isEditing,  String? nameError,  String? emailError,  String? phoneError)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( RequestState state,  String message,  String name,  String email,  String phone,  Country country,  bool isEditing,  UserModel? user,  String? nameError,  String? emailError,  String? phoneError)?  $default,) {final _that = this;
 switch (_that) {
 case _EditProfileState() when $default != null:
-return $default(_that.state,_that.message,_that.name,_that.email,_that.phone,_that.country,_that.isEditing,_that.nameError,_that.emailError,_that.phoneError);case _:
+return $default(_that.state,_that.message,_that.name,_that.email,_that.phone,_that.country,_that.isEditing,_that.user,_that.nameError,_that.emailError,_that.phoneError);case _:
   return null;
 
 }
@@ -818,7 +859,7 @@ return $default(_that.state,_that.message,_that.name,_that.email,_that.phone,_th
 
 
 class _EditProfileState extends EditProfileState {
-  const _EditProfileState({required this.state, required this.message, required this.name, required this.email, required this.phone, required this.country, required this.isEditing, this.nameError, this.emailError, this.phoneError}): super._();
+  const _EditProfileState({required this.state, required this.message, required this.name, required this.email, required this.phone, required this.country, required this.isEditing, this.user, this.nameError, this.emailError, this.phoneError}): super._();
   
 
 @override final  RequestState state;
@@ -831,6 +872,9 @@ class _EditProfileState extends EditProfileState {
 @override final  Country country;
 /// Fields are read-only until the header's pencil turns this on.
 @override final  bool isEditing;
+/// The prefill source, kept so "Discard Changes" can re-seed from it
+/// and [isDirty] has something to compare against.
+@override final  UserModel? user;
 @override final  String? nameError;
 @override final  String? emailError;
 @override final  String? phoneError;
@@ -845,18 +889,18 @@ _$EditProfileStateCopyWith<_EditProfileState> get copyWith => __$EditProfileStat
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _EditProfileState&&(identical(other.state, state) || other.state == state)&&(identical(other.message, message) || other.message == message)&&(identical(other.name, name) || other.name == name)&&(identical(other.email, email) || other.email == email)&&(identical(other.phone, phone) || other.phone == phone)&&(identical(other.country, country) || other.country == country)&&(identical(other.isEditing, isEditing) || other.isEditing == isEditing)&&(identical(other.nameError, nameError) || other.nameError == nameError)&&(identical(other.emailError, emailError) || other.emailError == emailError)&&(identical(other.phoneError, phoneError) || other.phoneError == phoneError));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _EditProfileState&&(identical(other.state, state) || other.state == state)&&(identical(other.message, message) || other.message == message)&&(identical(other.name, name) || other.name == name)&&(identical(other.email, email) || other.email == email)&&(identical(other.phone, phone) || other.phone == phone)&&(identical(other.country, country) || other.country == country)&&(identical(other.isEditing, isEditing) || other.isEditing == isEditing)&&(identical(other.user, user) || other.user == user)&&(identical(other.nameError, nameError) || other.nameError == nameError)&&(identical(other.emailError, emailError) || other.emailError == emailError)&&(identical(other.phoneError, phoneError) || other.phoneError == phoneError));
 }
 
 
 @override
 int get hashCode {
-    return Object.hash(runtimeType,state,message,name,email,phone,country,isEditing,nameError,emailError,phoneError);
+    return Object.hash(runtimeType,state,message,name,email,phone,country,isEditing,user,nameError,emailError,phoneError);
 }
 
 @override
 String toString() {
-    return 'EditProfileState(state: $state, message: $message, name: $name, email: $email, phone: $phone, country: $country, isEditing: $isEditing, nameError: $nameError, emailError: $emailError, phoneError: $phoneError)';
+    return 'EditProfileState(state: $state, message: $message, name: $name, email: $email, phone: $phone, country: $country, isEditing: $isEditing, user: $user, nameError: $nameError, emailError: $emailError, phoneError: $phoneError)';
 }
 
 
@@ -867,7 +911,7 @@ abstract mixin class _$EditProfileStateCopyWith<$Res> implements $EditProfileSta
   factory _$EditProfileStateCopyWith(_EditProfileState value, $Res Function(_EditProfileState) _then) = __$EditProfileStateCopyWithImpl;
 @override @useResult
 $Res call({
- RequestState state, String message, String name, String email, String phone, Country country, bool isEditing, String? nameError, String? emailError, String? phoneError
+ RequestState state, String message, String name, String email, String phone, Country country, bool isEditing, UserModel? user, String? nameError, String? emailError, String? phoneError
 });
 
 
@@ -884,7 +928,7 @@ class __$EditProfileStateCopyWithImpl<$Res>
 
 /// Create a copy of EditProfileState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? state = null,Object? message = null,Object? name = null,Object? email = null,Object? phone = null,Object? country = null,Object? isEditing = null,Object? nameError = freezed,Object? emailError = freezed,Object? phoneError = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? state = null,Object? message = null,Object? name = null,Object? email = null,Object? phone = null,Object? country = null,Object? isEditing = null,Object? user = freezed,Object? nameError = freezed,Object? emailError = freezed,Object? phoneError = freezed,}) {
   return _then(_EditProfileState(
 state: null == state ? _self.state : state // ignore: cast_nullable_to_non_nullable
 as RequestState,message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
@@ -893,7 +937,8 @@ as String,email: null == email ? _self.email : email // ignore: cast_nullable_to
 as String,phone: null == phone ? _self.phone : phone // ignore: cast_nullable_to_non_nullable
 as String,country: null == country ? _self.country : country // ignore: cast_nullable_to_non_nullable
 as Country,isEditing: null == isEditing ? _self.isEditing : isEditing // ignore: cast_nullable_to_non_nullable
-as bool,nameError: freezed == nameError ? _self.nameError : nameError // ignore: cast_nullable_to_non_nullable
+as bool,user: freezed == user ? _self.user : user // ignore: cast_nullable_to_non_nullable
+as UserModel?,nameError: freezed == nameError ? _self.nameError : nameError // ignore: cast_nullable_to_non_nullable
 as String?,emailError: freezed == emailError ? _self.emailError : emailError // ignore: cast_nullable_to_non_nullable
 as String?,phoneError: freezed == phoneError ? _self.phoneError : phoneError // ignore: cast_nullable_to_non_nullable
 as String?,

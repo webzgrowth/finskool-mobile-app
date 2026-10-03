@@ -27,6 +27,8 @@ class ProfileTypography extends ThemeExtension<ProfileTypography> {
     required this.badge,
     required this.statusActive,
     required this.statusExpiring,
+    required this.noticeTitle,
+    required this.noticeBody,
   });
 
   final TextStyle name;
@@ -46,6 +48,10 @@ class ProfileTypography extends ThemeExtension<ProfileTypography> {
   /// reads as needing attention rather than merely informational.
   final TextStyle statusExpiring;
 
+  /// The amber "Changing your phone number" notice on Edit Profile.
+  final TextStyle noticeTitle;
+  final TextStyle noticeBody;
+
   static final ProfileTypography light = ProfileTypography(
     name: manrope(size: 20, weight: 700, height: 1.3, color: AppPalette.badgeTeal),
     contact:
@@ -63,6 +69,10 @@ class ProfileTypography extends ThemeExtension<ProfileTypography> {
         inter(size: 11, weight: 400, height: 1.3, color: AppPalette.postMeta),
     statusExpiring: inter(
         size: 11, weight: 500, height: 1.3, color: AppPalette.notificationDot),
+    noticeTitle: inter(
+        size: 13, weight: 700, height: 1.35, color: AppPalette.noticeAmber),
+    noticeBody: inter(
+        size: 12.5, weight: 400, height: 1.45, color: AppPalette.noticeAmber),
   );
 
   static final ProfileTypography dark = ProfileTypography(
@@ -82,6 +92,10 @@ class ProfileTypography extends ThemeExtension<ProfileTypography> {
         size: 11, weight: 400, height: 1.3, color: AppPalette.darkOnSurfaceMuted),
     statusExpiring: inter(
         size: 11, weight: 500, height: 1.3, color: AppPalette.notificationDot),
+    noticeTitle: inter(
+        size: 13, weight: 700, height: 1.35, color: AppPalette.noticeAmber),
+    noticeBody: inter(
+        size: 12.5, weight: 400, height: 1.45, color: AppPalette.noticeAmber),
   );
 
   static ProfileTypography of(Brightness brightness) =>
@@ -98,6 +112,8 @@ class ProfileTypography extends ThemeExtension<ProfileTypography> {
     TextStyle? badge,
     TextStyle? statusActive,
     TextStyle? statusExpiring,
+    TextStyle? noticeTitle,
+    TextStyle? noticeBody,
   }) =>
       ProfileTypography(
         name: name ?? this.name,
@@ -109,6 +125,8 @@ class ProfileTypography extends ThemeExtension<ProfileTypography> {
         badge: badge ?? this.badge,
         statusActive: statusActive ?? this.statusActive,
         statusExpiring: statusExpiring ?? this.statusExpiring,
+        noticeTitle: noticeTitle ?? this.noticeTitle,
+        noticeBody: noticeBody ?? this.noticeBody,
       );
 
   @override
@@ -116,6 +134,8 @@ class ProfileTypography extends ThemeExtension<ProfileTypography> {
     if (other is! ProfileTypography) return this;
     return ProfileTypography(
       name: TextStyle.lerp(name, other.name, t)!,
+      noticeTitle: TextStyle.lerp(noticeTitle, other.noticeTitle, t)!,
+      noticeBody: TextStyle.lerp(noticeBody, other.noticeBody, t)!,
       contact: TextStyle.lerp(contact, other.contact, t)!,
       memberSince: TextStyle.lerp(memberSince, other.memberSince, t)!,
       sectionTitle: TextStyle.lerp(sectionTitle, other.sectionTitle, t)!,

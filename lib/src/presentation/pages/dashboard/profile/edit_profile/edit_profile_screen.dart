@@ -8,7 +8,9 @@ import 'package:finskool/src/presentation/bloc/profile/edit_profile/edit_profile
 import 'package:finskool/src/presentation/pages/authentication/widgets/auth_form_listener.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
 
+import 'widgets/edit_profile_actions.dart';
 import 'widgets/edit_profile_avatar.dart';
+import 'widgets/phone_change_notice.dart';
 import 'widgets/personal_details_section.dart';
 import 'widgets/sebi_details_section.dart';
 
@@ -96,7 +98,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   phoneController: _phone,
                 ),
                 const SizedBox(height: AppSpacing.lg),
+                if (state.isEditing) ...[
+                  EditProfileActions(state: state),
+                  const SizedBox(height: AppSpacing.lg),
+                ],
                 const SebiDetailsSection(),
+                if (state.isEditing) ...[
+                  const SizedBox(height: AppSpacing.lg),
+                  const PhoneChangeNotice(),
+                ],
               ],
             );
           },

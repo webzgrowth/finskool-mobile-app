@@ -17,5 +17,9 @@ class EditProfileEvent with _$EditProfileEvent {
   const factory EditProfileEvent.countryChanged(Country country) =
       _CountryChanged;
 
+  /// "Discard Changes" — re-seeds from the prefill source and leaves edit
+  /// mode, so the form returns to exactly what's cached.
+  const factory EditProfileEvent.discardChanges() = _DiscardChanges;
+
   const factory EditProfileEvent.submit() = _Submit;
 }

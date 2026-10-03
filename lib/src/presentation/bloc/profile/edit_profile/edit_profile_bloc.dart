@@ -38,6 +38,7 @@ class EditProfileBloc extends Bloc<EditProfileEvent, EditProfileState> {
             emit(state.copyWith(phone: value.phone, phoneError: null)),
         countryChanged: (value) async =>
             emit(state.copyWith(country: value.country, phoneError: null)),
+        discardChanges: (_) async => emit(_seed(state.user)),
         submit: (_) async => _submit(emit),
       );
     });
@@ -53,6 +54,7 @@ class EditProfileBloc extends Bloc<EditProfileEvent, EditProfileState> {
       orElse: () => initial.country,
     );
     return initial.copyWith(
+      user: user,
       name: user.name,
       email: user.email,
       // The cached phone carries its dial code; the field shows only the
@@ -95,10 +97,13 @@ class EditProfileBloc extends Bloc<EditProfileEvent, EditProfileState> {
         state: RequestState.error,
         message: failure.message,
       )),
-      (_) => emit(state.copyWith(
+      // Re-anchor on the saved user, or `isDirty` would keep comparing
+      // against the pre-save values and report unsaved changes forever.
+      (updated) => emit(state.copyWith(
         state: RequestState.loaded,
         message: 'Profile updated.',
         isEditing: false,
+        user: updated,
       )),
     );
   }

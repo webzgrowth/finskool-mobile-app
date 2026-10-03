@@ -761,13 +761,26 @@ successful save without fighting the cursor mid-type. The bloc's `_seed`
 splits the cached `+918866996655` into a `Country` and a bare national
 number, since the chip renders the dial code separately.
 
-The header **pencil toggles `isEditing`** and becomes a check that
-submits; fields are read-only until then. Figma only draws the read-only
-state, so that affordance is inferred — a form whose only control is a
-pencil would otherwise have no way to commit. `AuthTextField` and
-`PhoneField` gained optional `controller`/`enabled` params for this; both
-default to the old uncontrolled, always-enabled behaviour so the auth
-screens are untouched.
+The header **pencil toggles `isEditing`** and stays a pencil in both
+states; fields are read-only until it's on. Committing is the job of the
+Save / Discard pair (`EditProfileActions`) that appears *between* the
+Personal Details and SEBI cards while editing, plus the amber
+`PhoneChangeNotice` below SEBI. `AuthTextField` and `PhoneField` gained
+optional `controller`/`enabled` params for this; both default to the old
+uncontrolled, always-enabled behaviour so the auth screens are untouched.
+
+**"Save Changes" is deliberately not gated on "something changed."** Figma
+shows it solid teal the moment edit mode opens, and a save with no edits is
+a harmless rewrite of the same cached values. An `isDirty` getter was
+written and then removed rather than left unused. "Discard Changes"
+re-seeds from `EditProfileState.user` (the retained prefill source) and
+leaves edit mode; `_submit` re-anchors that field on the saved user, or
+a later discard would revert to pre-save values.
+
+`PhoneChangeNotice` shows whenever editing, not only once the number is
+dirty — it explains what *would* happen, which is only useful beforehand,
+and Figma shows it with the number untouched. Nothing implements that
+re-verification flow yet; the copy is a promise the app doesn't keep.
 
 **The SEBI date of birth and PAN cannot currently be displayed.**
 `submitCompliance` persists only `StorageKeys.complianceCompleted` and
