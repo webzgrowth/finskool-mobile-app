@@ -35,4 +35,19 @@ abstract class AuthRepository {
   /// The last logged-in user, restored from cache. Null when signed out or
   /// when the cached blob can't be parsed.
   UserModel? get cachedUser;
+
+  /// Flips the cached user's notification preference and re-persists it —
+  /// the Profile screen's Notifications toggle. No backend endpoint exists
+  /// for this yet, so it's local-only, same as the compliance flag.
+  Future<Either<Failure, UserModel>> setPostNotificationsEnabled(bool enabled);
+
+  /// Writes the Edit Profile form back onto the cached [UserModel]. Also
+  /// local-only: `docs/auth_api_doc.md` documents no profile-update
+  /// endpoint, so this never leaves the device — same category as the
+  /// notification preference above and the compliance flag.
+  Future<Either<Failure, UserModel>> updateProfile({
+    required String name,
+    required String email,
+    required String phone,
+  });
 }

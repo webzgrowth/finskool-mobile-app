@@ -34,6 +34,9 @@ import 'package:finskool/src/domain/usecases/auth/register_user.dart' as _i119;
 import 'package:finskool/src/domain/usecases/auth/resend_otp.dart' as _i775;
 import 'package:finskool/src/domain/usecases/auth/select_community.dart'
     as _i284;
+import 'package:finskool/src/domain/usecases/auth/set_post_notifications_enabled.dart'
+    as _i605;
+import 'package:finskool/src/domain/usecases/auth/update_profile.dart' as _i690;
 import 'package:finskool/src/domain/usecases/auth/verify_otp.dart' as _i583;
 import 'package:finskool/src/domain/usecases/community/get_communities.dart'
     as _i229;
@@ -77,6 +80,8 @@ import 'package:finskool/src/presentation/bloc/feed/filter/feed_filter_bloc.dart
     as _i695;
 import 'package:finskool/src/presentation/bloc/feed/posts/feed_bloc.dart'
     as _i2;
+import 'package:finskool/src/presentation/bloc/profile/edit_profile/edit_profile_bloc.dart'
+    as _i1036;
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:injectable/injectable.dart' as _i526;
 
@@ -172,11 +177,27 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i284.SelectCommunity>(
       () => _i284.SelectCommunity(gh<_i505.AuthRepository>()),
     );
+    gh.lazySingleton<_i605.SetPostNotificationsEnabled>(
+      () => _i605.SetPostNotificationsEnabled(gh<_i505.AuthRepository>()),
+    );
+    gh.lazySingleton<_i690.UpdateProfile>(
+      () => _i690.UpdateProfile(gh<_i505.AuthRepository>()),
+    );
     gh.lazySingleton<_i583.VerifyOtp>(
       () => _i583.VerifyOtp(gh<_i505.AuthRepository>()),
     );
+    gh.singleton<_i821.AuthenticatorWatcherBloc>(
+      () => _i821.AuthenticatorWatcherBloc(
+        gh<_i741.GetAuthStatus>(),
+        gh<_i320.LogoutUser>(),
+        gh<_i605.SetPostNotificationsEnabled>(),
+      ),
+    );
     gh.singleton<_i251.SignUpFormBloc>(
       () => _i251.SignUpFormBloc(gh<_i119.RegisterUser>()),
+    );
+    gh.singleton<_i1036.EditProfileBloc>(
+      () => _i1036.EditProfileBloc(gh<_i690.UpdateProfile>()),
     );
     gh.singleton<_i204.SignupVerificationBloc>(
       () => _i204.SignupVerificationBloc(
@@ -186,12 +207,6 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.singleton<_i598.LoginFormBloc>(
       () => _i598.LoginFormBloc(gh<_i379.LoginUser>()),
-    );
-    gh.singleton<_i821.AuthenticatorWatcherBloc>(
-      () => _i821.AuthenticatorWatcherBloc(
-        gh<_i741.GetAuthStatus>(),
-        gh<_i320.LogoutUser>(),
-      ),
     );
     return this;
   }

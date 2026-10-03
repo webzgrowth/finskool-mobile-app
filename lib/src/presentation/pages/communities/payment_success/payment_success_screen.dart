@@ -3,10 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:finskool/src/comman/routes.dart';
+import 'package:finskool/src/comman/widgets/success_animation.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
 import 'package:finskool/src/presentation/bloc/communities/list/communities_bloc.dart';
 import 'package:finskool/src/presentation/bloc/communities/purchase/community_purchase_bloc.dart';
-import 'widgets/success_badge.dart';
 
 /// Shown straight after a (currently mocked) payment — Figma `893:16761`.
 ///
@@ -53,7 +53,7 @@ class PaymentSuccessScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const Spacer(flex: 2),
-              const SuccessBadge(),
+              const SuccessAnimation(size: 160),
               const SizedBox(height: AppSpacing.xl),
               Text(state.plan!.priceLabel,
                   style: type.price.copyWith(fontSize: 28)),

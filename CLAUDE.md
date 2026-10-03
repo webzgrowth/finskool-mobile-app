@@ -496,12 +496,12 @@ reaction count is Nunito, and the app ships only Manrope + Inter. Both are
 approximated with Inter at Figma's exact size/weight/line-height/colour.
 Add the real families to `pubspec.yaml` if that gap matters.
 
-**The Like control deliberately diverges from Figma.** `Group 1739329635`
-puts the 16x16 `#7D7D91` thumbs-up on a 24px `#E4E4E4` disc; the disc was
-dropped by choice because the bare glyph reads cleaner on the white card.
-The 24px box remains as the tap target, and `AppPalette.likeButtonSurface`
-still records the measured colour if it's ever restored. Don't "correct"
-this back to Figma without asking.
+**The Like control matches Figma's `Group 1739329635`**: the 16x16
+`#7D7D91` thumbs-up sits on a 24px `#E4E4E4` disc (`AppPalette
+.likeButtonSurface`). An earlier pass dropped that disc for a bare-glyph
+look; the user asked for it back with a reference screenshot, so
+`post_reaction_bar.dart` now renders the disc via a `Container(shape:
+BoxShape.circle)` around the existing 24px tap target.
 
 The long-press reaction picker (`widgets/reaction_picker_overlay.dart`) is
 a plain controller class (`OverlayEntry` + `ValueNotifier<int?>`), not a
@@ -638,9 +638,242 @@ matched for free.
 label — this bit the tag chips, the announcement tag and the plan buttons.
 
 **Not built, knowingly:** the inside of a community (`CommunityDetailScreen`
-is a routed placeholder — Figma has no design for it) and the
-subscription-details screen (`974:47132`: Plan details, Auto-renew,
-Download Invoice), which sits under its own canvas section.
+is a routed placeholder — Figma has no design for it).
+
+### Subscription Detail screen
+
+`pages/communities/subscription_detail/` — reached from the Profile tab's
+"My Subscription" rows, routed at `/subscription-detail`. Receives the full
+`CommunityModel` via `state.extra`. Shows four sections: a community card
+header (cover image + name + "Active" pill), Plan Details (plan, amount,
+dates, auto-renew toggle), Transaction Details (ID, paid date, method,
+Download Invoice), and What You Get (reuses `BenefitCheck` + `boldSpans`).
+
+`SubscriptionInfo` (`domain/model/community/subscription_info.dart`) is a
+plain class holding plan, transaction and auto-renew data — optional on
+`CommunityModel`. Mock data lives in `CommunitiesMockDatasource`.
+
+**Chrome is the auth pattern, not a Material `AppBar`** — the teal grid
+(`auth_header_bg.png`) bleeds behind the status bar and a white sheet with
+rounded top corners carries the content, back arrow inside the sheet. It's
+`comman/widgets/teal_sheet_scaffold.dart` (`TealSheetScaffold` +
+`SheetBackArrow`), shared with Edit Profile; the section card
+(`TealSectionCard`) and the grid cells (`DetailCell`, `GridVRule`,
+`GridHRule`) live in `comman/widgets/` for the same reason.
+
+`SubscriptionDetailTypography` (`context.subscriptionType`) holds the
+screen's text styles, following the same `ThemeExtension` pattern as
+`CommunityTypography`. Note the detail cells **invert** the usual
+emphasis: the label is bold near-black and the value beneath it is the
+quiet grey. `label` is capped at 12 — at 13 "Amount Paid" wraps to two
+lines, and Figma keeps it on one.
+
+A detail cell is `[teal disc] label / value`, with the disc **inline to
+the left** and the value indented under the label, not under the disc.
+Cells are separated by full-height 1px rules (`GridVRule`, which needs the
+`IntrinsicHeight` above the `Row`), rows by `GridHRule`. Auto-renew takes
+a double-width cell — Figma has no third item on that row and no rule to
+its right.
+
+`AutoRenewToggle` is a green "On" pill with the knob on the left, not a
+Material `Switch`, and is local state: there's no backend field for
+auto-renew yet, same category as the compliance flag.
+
+**Every filled surface is `AppPalette.primary`** — section headers, the
+detail icon discs, the card scrim, the Download Invoice button. An earlier
+pass invented a darker `subscriptionHeader` teal for them; it was removed
+rather than left as a near-duplicate of the brand colour, same correction
+as the Profile menu rows' icon discs.
+
+The card scrim over the cover art is **horizontal**, not bottom-up: the copy sits
+on the left, so a vertical fade would wash out the name while leaving the
+right side unreadable. The "Active" pill is green-on-white, not the
+white-on-green the community cards use.
+
+"Download Invoice" is a no-op placeholder — no invoice generation exists.
+"Need help with this plan?" navigates to the Help & support placeholder.
+
+## Profile
+
+The Profile tab (`pages/dashboard/profile/`) is built from Figma's mockup
+(`893:15731`, found in a cached page dump so it cost no fresh Figma quota):
+an avatar header, then five titled sections (My Subscription, Account,
+Support, Finskool21, Settings) of a single reused row shape.
+
+**Every row is the same widget** — `ProfileMenuRow` (18×18 icon box, title +
+subtitle, a trailing slot). What differs per row is only the trailing
+widget: a chevron (default, most rows), a `Switch` (Notifications), a
+"Renew" pill (an expiring subscription), or a count badge (My tickets).
+`ProfileSectionCard` wraps a section's rows in the title + white-card +
+divider chrome, mirroring the Reactions-sheet divider convention already
+used elsewhere.
+
+**No new bloc for the screen.** It composes two existing blocs in the
+widget layer, same pattern `CommunitiesScreen` already uses:
+`AuthenticatorWatcherBloc` for identity, and `CommunitiesBloc` filtered to
+`access == subscribed` for the My Subscription rows.
+
+**The Notifications toggle lives on `AuthenticatorWatcherBloc`, not a new
+bloc.** It's session/identity state (`UserModel.postNotificationsEnabled`),
+so it's `AuthenticatorWatcherEvent.notificationsToggled(bool)`, handled by
+flipping the field on the cached user via a new `AuthRepository
+.setPostNotificationsEnabled` and re-emitting `authenticated(user: updated)`.
+Local-only — no backend endpoint exists for it yet, same category as the
+compliance flag.
+
+**Subscription expiry is mocked on `CommunityModel`.** `subscribedUntil:
+DateTime?` drives two derived getters — `subscriptionStatusLabel` ("Active
+till 31 Dec 2026" / "Expires in N days") and `needsRenewal` (< 14 days,
+which is also what swaps the row's chevron for a Renew pill). Figma's own
+Profile mockup shows **three** communities subscribed (Intraday, Investor,
+Finskool21 Academy) — `CommunitiesMockDatasource` matches that exactly
+rather than inventing a different mock, so Investor and the Academy are
+subscribed there too, not just locked-with-plans.
+
+**"Renew" reuses the purchase flow.** There's no dedicated renewal screen
+designed, so tapping Renew starts the same mocked purchase →
+compliance-skip → payment-success path a fresh purchase takes, just from an
+already-subscribed community. If a real renewal flow gets designed later,
+that's the call site to change.
+
+### Edit Profile
+
+`pages/dashboard/profile/edit_profile/`, routed at `/edit-profile` — Figma
+`Frame 2121453561`. Wears the shared `TealSheetScaffold` chrome: centred
+avatar + camera badge, a "Personal Details" `TealSectionCard` holding the
+auth screens' own `AuthTextField`/`PhoneField`, then a read-only "Verified
+with SEBI" pair built from `DetailCell`.
+
+`EditProfileBloc` (`bloc/profile/edit_profile/`, `@singleton` like every
+other form bloc) validates **on submit** via `Validators`, keeps per-field
+`String?` errors cleared by their own `*Changed` event, and saves through
+the `UpdateProfile` usecase. **Saving is local-only** —
+`docs/auth_api_doc.md` has no profile-update endpoint, so
+`AuthRepository.updateProfile` just rewrites the cached `UserModel`, the
+same category as the notifications toggle. On success the *widget* fires
+`AuthenticatorWatcherEvent.authCheckRequest()` so the Profile header
+re-reads that cache; the blocs never call each other.
+
+**`prefill` must not be read back synchronously.** `bloc.add()` only
+queues, so the screen fills its `TextEditingController`s from a
+`BlocListener` gated on `!isEditing` — that catches the prefill and a
+successful save without fighting the cursor mid-type. The bloc's `_seed`
+splits the cached `+918866996655` into a `Country` and a bare national
+number, since the chip renders the dial code separately.
+
+The header **pencil toggles `isEditing`** and stays a pencil in both
+states; fields are read-only until it's on. Committing is the job of the
+Save / Discard pair (`EditProfileActions`) that appears *between* the
+Personal Details and SEBI cards while editing, plus the amber
+`PhoneChangeNotice` below SEBI. `AuthTextField` and `PhoneField` gained
+optional `controller`/`enabled` params for this; both default to the old
+uncontrolled, always-enabled behaviour so the auth screens are untouched.
+
+**"Save Changes" is deliberately not gated on "something changed."** Figma
+shows it solid teal the moment edit mode opens, and a save with no edits is
+a harmless rewrite of the same cached values. An `isDirty` getter was
+written and then removed rather than left unused. "Discard Changes"
+re-seeds from `EditProfileState.user` (the retained prefill source) and
+leaves edit mode; `_submit` re-anchors that field on the saved user, or
+a later discard would revert to pre-save values.
+
+`PhoneChangeNotice` shows whenever editing, not only once the number is
+dirty — it explains what *would* happen, which is only useful beforehand,
+and Figma shows it with the number untouched. Nothing implements that
+re-verification flow yet; the copy is a promise the app doesn't keep.
+
+**The SEBI date of birth and PAN cannot currently be displayed.**
+`submitCompliance` persists only `StorageKeys.complianceCompleted` and
+**discards its `ComplianceDetailsModel` argument entirely** — nothing
+writes the DOB either, and `ComplianceDetailsModel` has no `fromJson`. So
+`SebiDetailsSection` takes both as nullable and renders an em-dash. Filling
+them in needs a decision first: persist the DOB plus a masked PAN locally,
+or wait for a backend compliance endpoint and put them on `UserModel` (what
+the `complianceCompleted` comment anticipates). Don't quietly start storing
+the full PAN.
+
+**Six menu rows have no destination designed** (About &
+SEBI info, Welcome kits, My tickets, Help & support, Give feedback, Terms &
+privacy policy — Edit Profile is now built, see above) — routed to one
+shared `ProfilePlaceholderScreen`
+parameterized by title, rather than seven near-duplicate files. Same
+"no design provided" approach as `CommunityDetailScreen`, just factored for
+reuse since there are several here instead of one. "Share the app" is in
+this set too: **`share_plus` isn't a dependency**, so real sharing is out
+of scope until it's added.
+
+`EDIT_PROFILE_ROUTE_PATH` was fixed from `"edit-profile"` to `"/edit-profile"`
+while wiring it — it was the one route constant missing its leading slash,
+and this is the first time anything actually routes it.
+
+### Bottom nav — real avatar, not a fourth icon
+
+`NavBarItem` takes either `icon: IconData` or `customIcon: Widget`
+(mutually substitutable, `customIcon` wins). The Profile tab passes
+`UserAvatar(user: ..., radius: 16)` — Figma's nav bar has **no glyph** for
+that tab at all, just a filled circle, i.e. a real photo. Selection is
+therefore a *ring* on that tab (a border) rather than the filled-disc
+treatment the icon tabs get, since a solid circle behind a photo would hide
+most of it.
+
+**Feed and Communities nav icons are still Material stand-ins**
+(`grid_view_rounded`, `groups_rounded`) — Figma's exports (`element-3`,
+`Frame 2121453450`) were blocked by a Figma rate limit that didn't clear
+even after 15 minutes of paced retries (see "Figma access" below); swap
+them in `AppBottomNavBar._icons` once available. **Performance deliberately
+does not use Figma's own node for that tab** — it's literally the
+search-bar glyph reused, a placeholder-in-the-file, not a real icon;
+`trending_up_rounded` stands in instead and should stay until a real
+Performance icon is designed, not get "corrected" back to the search glyph.
+
+### `UserAvatar` — shared, not duplicated
+
+`comman/widgets/user_avatar.dart` (network image with an initials
+fallback) is used by the Profile header, the bottom nav's Profile tab, and
+is the natural place to add any future avatar-editing UI — don't re-inline
+this logic a third time.
+
+### Figma access, as of this feature
+
+The MCP server disconnected mid-session and the REST token in use expired
+(403). A fresh token was supplied and confirmed working with one call, but
+the very next batched request 429'd, and **stayed 429 for 15 straight
+minutes of retries at 30s+ spacing** — tighter pacing (15-20s) was tried
+first and failed faster. Take "the token works" as meaning only that
+specific call succeeded, not that the session is usable; budget for this
+when a future task needs Figma mid-implementation.
+
+This screen's structure (positions, copy, section/row hierarchy) came from
+a cached page dump; **colors then came from a user-supplied reference
+screenshot** (not Figma directly) once the token stayed blocked —
+`profile_typography.dart` and the palette tokens under "Profile" are
+screenshot-derived, flagged as such, and worth re-verifying against Figma
+once it's reachable. **Icons are still Material stand-ins** — the
+screenshot showed *that* icons exist (dark-teal circular discs, white
+glyphs) and confirmed their color/shape, but not the actual glyphs
+themselves; `profile_icons.dart` records the exact source node id for
+each so exporting and swapping is mechanical.
+
+## Success animation
+
+`comman/widgets/success_animation.dart` (`SuccessAnimation`) is the one
+"success" illustration for the whole app — password reset, signup, and
+community purchase all use it, via the `lottie` package rendering
+`assets/json/Success.json`. The file is self-contained: it already draws
+its own opaque white backdrop plus a teal ring and an animated checkmark
+stroke, so `SuccessAnimation` replaces a screen's ring/circle wrapper
+entirely rather than sitting inside one. That only looks seamless because
+every call site's `Scaffold.backgroundColor` is `colorScheme.surface`
+(white) — check that before reusing it somewhere with a different
+background, or the Lottie's white square will show a hard edge.
+
+This replaced two things: a static `assets/images/password_success.png`
+(shared, oddly, by both the password-reset and signup success screens —
+now unused, left on disk) on the two auth screens, and a hand-rolled
+`TweenAnimationBuilder` scale-in (`SuccessBadge`, now deleted) on the
+community-purchase success screen, whose own comment said it existed only
+to approximate a "subtle animation" Figma called for without a real
+animation asset. `Success.json` is that asset, so the workaround is gone.
 
 ## Design system
 
@@ -713,11 +946,11 @@ Do not treat these as incidental bugs to fix while doing something else:
 - `CommunityDetailScreen` (behind "Enter Community") is a routed
   placeholder — Figma has no design for the inside of a community, and the
   post model has no community field yet. The route works; the body doesn't.
-- The **Profile tab is a stub with a real logout**, not a designed screen. It
-  shows the cached `UserModel` and a Log Out button that dispatches
-  `AuthenticatorWatcherEvent.signOut`. It exists because session restore
-  means the app otherwise has no way back to the login screen short of a
-  reinstall. Replace the layout when a design lands — keep the logout.
+- The **Profile tab still has Material-icon stand-ins** — see "## Profile".
+  Layout/structure/copy came from a cached Figma dump and colors from a
+  user-supplied reference screenshot, so both are trustworthy; only the
+  actual icon glyphs (`profile_icons.dart`, and the bottom nav's
+  Feed/Communities icons) are still placeholders, pending a Figma export.
 - `SelectCommunity` is only ever called automatically, when login returns
   exactly one community. A user in **two or more** communities never gets to
   choose (the backend falls back to "all my communities merged"); that picker

@@ -11,6 +11,7 @@ class UserModel {
     required this.isSuperAdmin,
     required this.postNotificationsEnabled,
     this.avatarUrl,
+    this.memberSince,
   });
 
   final String id;
@@ -22,6 +23,11 @@ class UserModel {
   final bool postNotificationsEnabled;
   final String? avatarUrl;
 
+  /// Backs the Profile header's "Member since…" pill. Not part of the
+  /// login payload today — optional, so its absence just hides the pill
+  /// rather than inventing a date.
+  final DateTime? memberSince;
+
   factory UserModel.fromJson(Map<String, dynamic> json) => UserModel(
         id: json['id'] as String,
         name: json['name'] as String,
@@ -32,6 +38,9 @@ class UserModel {
         postNotificationsEnabled:
             json['postNotificationsEnabled'] as bool? ?? true,
         avatarUrl: json['avatarUrl'] as String?,
+        memberSince: json['memberSince'] == null
+            ? null
+            : DateTime.parse(json['memberSince'] as String),
       );
 
   Map<String, dynamic> toJson() => {
@@ -43,5 +52,30 @@ class UserModel {
         'isSuperAdmin': isSuperAdmin,
         'postNotificationsEnabled': postNotificationsEnabled,
         'avatarUrl': avatarUrl,
+        'memberSince': memberSince?.toIso8601String(),
       };
+
+  /// The app writes back [postNotificationsEnabled] (the Profile screen's
+  /// toggle) and the [name]/[email]/[phone] trio (the Edit Profile form).
+  /// Both are local-only — the API has no profile-update endpoint — so
+  /// these only ever reach the prefs cache. See
+  /// `AuthRepository.updateProfile`.
+  UserModel copyWith({
+    bool? postNotificationsEnabled,
+    String? name,
+    String? email,
+    String? phone,
+  }) =>
+      UserModel(
+        id: id,
+        name: name ?? this.name,
+        phone: phone ?? this.phone,
+        email: email ?? this.email,
+        role: role,
+        isSuperAdmin: isSuperAdmin,
+        postNotificationsEnabled:
+            postNotificationsEnabled ?? this.postNotificationsEnabled,
+        avatarUrl: avatarUrl,
+        memberSince: memberSince,
+      );
 }

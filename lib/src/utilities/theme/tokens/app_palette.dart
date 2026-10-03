@@ -42,9 +42,8 @@ class AppPalette {
   static const Color tabDivider = Color(0xFFD9D9D9);
   static const Color rowDivider = Color(0xFFE7E7E7);
 
-  /// Figma puts the Like glyph on a 24px `#E4E4E4` disc. Kept as a record
-  /// of the measured value, but **not currently applied** — the bare icon
-  /// was preferred. Restore it in `post_reaction_bar.dart` to go back.
+  /// The 24px disc behind the Like glyph, per Figma's `Group 1739329635`.
+  /// Applied in `post_reaction_bar.dart`.
   static const Color likeButtonSurface = Color(0xFFE4E4E4);
 
   /// Feed post card text colours, measured from Figma. Deliberately not the
@@ -81,6 +80,43 @@ class AppPalette {
   /// hairline border, not the white card surface.
   static const Color pickerSurface = Color(0xFFF2F2F2);
   static const Color pickerBorder = Color(0xFFD7D7D7);
+
+  ///  =================================================================
+  ///  ************************* Profile *******************************
+  ///  =================================================================
+  /// Read from the user's reference screenshot (not yet Figma-verified —
+  /// see CLAUDE.md "Profile"). Neutral grey, deliberately not one of the
+  /// existing teal-tinted `surfaceContainer*` slots — those don't match
+  /// what this screen actually shows.
+  static const Color profileCardFill = Color(0xFFF5F5F7);
+
+  ///  =================================================================
+  ///  ******************* Subscription Detail *************************
+  ///  =================================================================
+  /// Every filled surface on this screen — section headers, detail icon
+  /// discs, the card scrim, the Download Invoice button — is [primary].
+  /// An earlier pass invented a darker teal for them; keep them on the
+  /// brand colour.
+  ///
+  /// Section body fill: near-white, a shade off the white sheet behind it.
+  static const Color subscriptionBody = Color(0xFFF8FAFA);
+  static const Color subscriptionBorder = Color(0xFFE6EDED);
+  static const Color subscriptionDivider = Color(0xFFE3EAEA);
+
+  /// The grey value under each bold detail label.
+  static const Color subscriptionValue = Color(0xFF5C5C5C);
+
+  ///  =================================================================
+  ///  ********************** Edit Profile *****************************
+  ///  =================================================================
+  /// The "Changing your phone number" notice — one amber for both the
+  /// icon disc and the copy, on a cream surface.
+  static const Color noticeAmber = Color(0xFFA87C21);
+  static const Color noticeAmberSurface = Color(0xFFFBF3E4);
+
+  /// "Discard Changes" — a brighter red than [error], which is the dark
+  /// Material scheme colour used for field-level validation text.
+  static const Color destructive = Color(0xFFE04B4B);
 
   // Teal ramp
   static const Color teal50 = Color(0xFFF4FAFA);

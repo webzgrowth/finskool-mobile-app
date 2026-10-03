@@ -17,6 +17,8 @@ class AuthTextField extends StatelessWidget {
     this.errorText,
     this.keyboardType,
     this.textCapitalization = TextCapitalization.none,
+    this.controller,
+    this.enabled = true,
   });
 
   final String label;
@@ -28,6 +30,14 @@ class AuthTextField extends StatelessWidget {
   final VoidCallback? onSuffixTap;
   final String? errorText;
   final TextInputType? keyboardType;
+
+  /// The auth forms start empty and are uncontrolled; Edit Profile seeds
+  /// its fields from the cached user, so it passes a controller.
+  final TextEditingController? controller;
+
+  /// False renders the field read-only — Edit Profile's fields until its
+  /// header pencil is tapped.
+  final bool enabled;
 
   /// Used by the compliance screen's PAN field, which Figma specifies in
   /// capitals ("Enter your PAN exactly as printed on the card, in
@@ -44,6 +54,8 @@ class AuthTextField extends StatelessWidget {
         FieldLabel(iconAsset: iconAsset, label: label),
         const SizedBox(height: AppSpacing.sm),
         TextField(
+          controller: controller,
+          enabled: enabled,
           onChanged: onChanged,
           obscureText: obscureText,
           keyboardType: keyboardType,

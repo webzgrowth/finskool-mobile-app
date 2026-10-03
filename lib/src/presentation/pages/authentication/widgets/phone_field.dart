@@ -17,6 +17,8 @@ class PhoneField extends StatelessWidget {
     required this.onChanged,
     required this.onCountryChanged,
     this.errorText,
+    this.controller,
+    this.enabled = true,
   });
 
   static const double _fieldHeight = 44;
@@ -25,6 +27,14 @@ class PhoneField extends StatelessWidget {
   final ValueChanged<String> onChanged;
   final ValueChanged<String> onCountryChanged;
   final String? errorText;
+
+  /// Signup starts empty and is uncontrolled; Edit Profile seeds the
+  /// national number from the cached user, so it passes a controller.
+  final TextEditingController? controller;
+
+  /// False renders the number read-only and the dial-code chip inert —
+  /// Edit Profile's fields until its header pencil is tapped.
+  final bool enabled;
 
   @override
   Widget build(BuildContext context) {
@@ -48,12 +58,17 @@ class PhoneField extends StatelessWidget {
                 borderRadius: AppRadii.medium,
                 child: Row(
                   children: [
-                    CountryCodeChip(
-                      country: country,
-                      onCountryChanged: onCountryChanged,
+                    IgnorePointer(
+                      ignoring: !enabled,
+                      child: CountryCodeChip(
+                        country: country,
+                        onCountryChanged: onCountryChanged,
+                      ),
                     ),
                     Expanded(
                       child: TextField(
+                        controller: controller,
+                        enabled: enabled,
                         onChanged: onChanged,
                         keyboardType: TextInputType.phone,
                         style: tt.bodyLarge,

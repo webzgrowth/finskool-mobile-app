@@ -1,5 +1,6 @@
 import 'package:finskool/src/domain/model/community/community_access.dart';
 import 'package:finskool/src/domain/model/community/community_plan_model.dart';
+import 'package:finskool/src/domain/model/community/subscription_info.dart';
 
 /// A community, in both the shapes the app sees it.
 ///
@@ -28,6 +29,8 @@ class CommunityModel {
     this.planStyle = CommunityPlanStyle.duration,
     this.plans = const [],
     this.benefits = const [],
+    this.subscribedUntil,
+    this.subscriptionInfo,
   });
 
   final String id;
@@ -55,6 +58,40 @@ class CommunityModel {
   /// The "What You Get" checklist, hidden behind the card's dropdown.
   final List<String> benefits;
 
+  /// Only meaningful when [access] is `subscribed` — drives the Profile
+  /// tab's "My Subscription" row. No backend field for this yet, so
+  /// `CommunitiesMockDatasource` sets it directly on subscribed entries.
+  final DateTime? subscribedUntil;
+
+  /// Plan, transaction and auto-renew details for the Subscription Detail
+  /// screen. Only set on subscribed communities with known purchase data.
+  final SubscriptionInfo? subscriptionInfo;
+
+  /// Renewal is nudged inside this window — Figma's mockup shows "Expires
+  /// in 7 days" with a Renew pill on the community that's close, and a
+  /// plain "Active till…" on the one that isn't.
+  static const _renewalWindow = Duration(days: 14);
+
+  bool get needsRenewal =>
+      subscribedUntil != null &&
+      subscribedUntil!.difference(DateTime.now()) <= _renewalWindow;
+
+  /// "Active till 31 Dec 2026" or "Expires in 7 days", matching Figma's two
+  /// phrasings. Null when there's no subscription date to show.
+  String? get subscriptionStatusLabel {
+    final until = subscribedUntil;
+    if (until == null) return null;
+    if (needsRenewal) {
+      final days = until.difference(DateTime.now()).inDays;
+      return 'Expires in ${days <= 0 ? 1 : days} day${days == 1 ? '' : 's'}';
+    }
+    const months = [
+      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+    ];
+    return 'Active till ${until.day} ${months[until.month - 1]} ${until.year}';
+  }
+
   /// The card's call-to-action, derived rather than stored so all four
   /// variants stay in one place.
   String get ctaLabel => switch (access) {
@@ -79,6 +116,8 @@ class CommunityModel {
   CommunityModel copyWith({
     CommunityAccess? access,
     int? newAnnouncements,
+    DateTime? subscribedUntil,
+    SubscriptionInfo? subscriptionInfo,
   }) =>
       CommunityModel(
         id: id,
@@ -95,6 +134,8 @@ class CommunityModel {
         planStyle: planStyle,
         plans: plans,
         benefits: benefits,
+        subscribedUntil: subscribedUntil ?? this.subscribedUntil,
+        subscriptionInfo: subscriptionInfo ?? this.subscriptionInfo,
       );
 
   factory CommunityModel.fromJson(Map<String, dynamic> json) => CommunityModel(
@@ -125,6 +166,13 @@ class CommunityModel {
         benefits: json['benefits'] == null
             ? const []
             : List<String>.from(json['benefits'] as List),
+        subscribedUntil: json['subscribedUntil'] == null
+            ? null
+            : DateTime.parse(json['subscribedUntil'] as String),
+        subscriptionInfo: json['subscriptionInfo'] == null
+            ? null
+            : SubscriptionInfo.fromJson(
+                json['subscriptionInfo'] as Map<String, dynamic>),
       );
 
   Map<String, dynamic> toJson() => {
@@ -142,5 +190,7 @@ class CommunityModel {
         'planStyle': planStyle.name,
         'plans': plans.map((p) => p.toJson()).toList(),
         'benefits': benefits,
+        'subscribedUntil': subscribedUntil?.toIso8601String(),
+        'subscriptionInfo': subscriptionInfo?.toJson(),
       };
 }

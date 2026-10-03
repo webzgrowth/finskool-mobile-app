@@ -65,15 +65,19 @@ class _PostReactionBarState extends State<PostReactionBar> {
             if (selected != null) _react(selected);
           },
           // Figma's Like control (`Group 1739329635`) puts the glyph on a
-          // 24px `#E4E4E4` disc, but that background is **deliberately
-          // dropped** — the bare icon reads cleaner on the white card. The
-          // 24px box is kept as the tap target. Still no text label: there
-          // is no "Like" text node anywhere in the file. Once a different
+          // 24px `#E4E4E4` disc — restored per the user's reference
+          // screenshot (an earlier pass had dropped it for a bare-icon
+          // look; that's now reverted). Still no text label: there is no
+          // "Like" text node anywhere in the file. Once a different
           // reaction is picked we show that instead, which Figma doesn't
           // specify but the picker implies.
-          child: SizedBox(
+          child: Container(
             height: 24,
             width: 24,
+            decoration: const BoxDecoration(
+              color: AppPalette.likeButtonSurface,
+              shape: BoxShape.circle,
+            ),
             child: Center(
               child: current == null || current == ReactionType.like
                   ? SizedBox(
