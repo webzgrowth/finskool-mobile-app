@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:finskool/src/comman/initials.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
 import 'package:finskool/src/domain/model/reactor_model.dart';
 import 'reaction_glyph.dart';
@@ -37,8 +38,14 @@ class ReactorListTile extends StatelessWidget {
             children: [
               CircleAvatar(
                 radius: _avatar / 2,
-                backgroundImage:
-                    CachedNetworkImageProvider(reactor.avatarUrl),
+                // Nullable in the API — initials rather than a doomed
+                // request when a reactor has no photo.
+                backgroundImage: reactor.avatarUrl == null
+                    ? null
+                    : CachedNetworkImageProvider(reactor.avatarUrl!),
+                child: reactor.avatarUrl == null
+                    ? Text(initialsFor(reactor.name), style: type.reactorName)
+                    : null,
               ),
               const SizedBox(width: _gap),
               // The badge tracks the end of the name, so the name must not

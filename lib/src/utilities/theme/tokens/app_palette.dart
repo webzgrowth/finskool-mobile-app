@@ -27,8 +27,9 @@ class AppPalette {
   static const Color reactionRing = Color(0xFF153D3A);
 
   /// Per-reaction badge rings, from Figma's colourful feed variant
-  /// (`605:15302`). Blue/red/green map 1:1 onto like/love/clap; the amber,
-  /// teal and orange are reassigned — see `reaction_icons.dart`.
+  /// (`605:15302`). Blue and red map 1:1 onto like/love and teal onto haha
+  /// (Figma's laughing disc); amber, green and orange are reassigned to wow,
+  /// sad and angry — see `reaction_icons.dart`.
   static const Color badgeBlue = Color(0xFF388FE7);
   static const Color badgeRed = Color(0xFFF15759);
   static const Color badgeAmber = Color(0xFFFFDA56);
@@ -142,6 +143,32 @@ class AppPalette {
   static const Color darkSurfaceHigh = Color(0xFF232C2C);
   static const Color darkOnSurface = Color(0xFFE1EDED);
   static const Color darkOnSurfaceMuted = Color(0xFFB4C6C6);
+
+  // ── Welcome Kit (Subscription Detail) ──────────────────────────────
+  // Screenshot-derived, like the rest of this screen — Figma was not
+  // reachable when these were sampled. Re-verify against the file.
+
+  /// The pale mint plate behind the recommended-capital figure.
+  static const Color capitalHighlight = Color(0xFFEAF5F2);
+  static const Color capitalAmount = Color(0xFF1E9299);
+
+  /// Stat tiles sit on white inside the card's off-white body, so they
+  /// need their own hairline to read as tiles.
+  static const Color statTileBorder = Color(0xFFE2E8E8);
+
+  /// The three notice banners, each a tinted plate + a matching hairline
+  /// and a title in the stronger shade.
+  static const Color noticeInfoSurface = Color(0xFFEFF6FF);
+  static const Color noticeInfoBorder = Color(0xFFBFD9F5);
+  static const Color noticeInfoInk = Color(0xFF2B6CB0);
+
+  static const Color noticeWarnSurface = Color(0xFFFFF8E6);
+  static const Color noticeWarnBorder = Color(0xFFF0D79B);
+  static const Color noticeWarnInk = Color(0xFF9A6B00);
+
+  static const Color noticeDangerSurface = Color(0xFFFEF0EF);
+  static const Color noticeDangerBorder = Color(0xFFF3C0BC);
+  static const Color noticeDangerInk = Color(0xFFD4342A);
 
   // Status
   static const Color error = Color(0xFFB3261E);

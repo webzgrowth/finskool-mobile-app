@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show SystemUiOverlayStyle;
 import 'package:flutter_svg/flutter_svg.dart';
@@ -15,6 +17,9 @@ class SearchTopBar extends StatelessWidget {
     required this.onQueryChanged,
     this.onFilterTap,
     this.notificationCount,
+    this.onBack,
+    this.title,
+    this.showNotifications = true,
   });
 
   final String hintText;
@@ -24,6 +29,40 @@ class SearchTopBar extends StatelessWidget {
   /// Shown as a red count bubble on the bell. Null or 0 renders the plain
   /// dot instead.
   final int? notificationCount;
+
+  /// A back arrow and screen title above the search field, for a *pushed*
+  /// feed (a single community). The Feed and Communities tabs pass neither —
+  /// they sit in the bottom-nav shell and have nothing to go back to — so
+  /// their chrome is unchanged.
+  final VoidCallback? onBack;
+  final String? title;
+
+  /// The bell belongs to the two **tabs**, which are where notifications are
+  /// read from. A single community's feed is a pushed screen and drops it.
+  final bool showNotifications;
+
+  /// Height of the bar **without** the title row, excluding the status-bar
+  /// inset it adds itself. `SliverAppBar` needs its `toolbarHeight` up front
+  /// — it cannot size itself to a `flexibleSpace` — so this is published
+  /// rather than hardcoded at the two call sites.
+  static const double baseHeight = 92;
+
+  static const double _titleFontSize = 16;
+  static const double _backIconSize = 22;
+
+  /// The toolbar height a bar with these options needs.
+  ///
+  /// The title row is **measured, not a constant**: at a large system font
+  /// scale a fixed 30px would clip the title, and the bar is inside a
+  /// fixed-height `SliverAppBar`, so anything taller than this overflows
+  /// rather than scrolling. Scaling the font size and taking the larger of
+  /// it and the back glyph keeps both legible.
+  static double heightFor(BuildContext context, {bool hasTitle = false}) {
+    if (!hasTitle) return baseHeight;
+    final titleHeight =
+        MediaQuery.textScalerOf(context).scale(_titleFontSize) * 1.3;
+    return baseHeight + math.max(_backIconSize, titleHeight) + AppSpacing.sm;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,70 +90,123 @@ class SearchTopBar extends StatelessWidget {
             alignment: Alignment.center,
           ),
         ),
-        child: Row(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
-              child: Container(
-                alignment: Alignment.center,
-                height: 44,
-                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.18),
-                  borderRadius: AppRadii.medium,
-                ),
-                child: Row(
-                  children: [
-                    Icon(Icons.search,
-                        color: Colors.white.withValues(alpha: 0.85)),
-                    const SizedBox(width: AppSpacing.sm),
-                    Expanded(
-                      // Without an explicit `fontSize`/`height` this field
-                      // inherits the theme's `titleMedium` (14sp, height
-                      // 1.40), giving it a much taller line-box than the
-                      // 24px icons beside it — the hint then sits visibly
-                      // high. `textAlignVertical` can't fix an oversized
-                      // line-box and a SizedBox only clips it. Pin the box
-                      // with `height: 1.0` plus a matching `strutStyle`.
-                      child: TextField(
-                        style: const TextStyle(
-                            color: Colors.white, fontSize: 14, height: 1.0),
-                        strutStyle:
-                            const StrutStyle(fontSize: 14, height: 1.0),
-                        textAlignVertical: TextAlignVertical.center,
-                        onChanged: onQueryChanged,
-                        // `InputDecoration.collapsed` only nulls the base
-                        // `border`; the global InputDecorationTheme still
-                        // supplies a `focusedBorder` that leaks through on
-                        // tap. Null every state explicitly.
-                        decoration: InputDecoration(
-                          isCollapsed: true,
-                          filled: false,
-                          hintText: hintText,
-                          hintStyle: const TextStyle(
-                              color: Colors.white70,
-                              fontSize: 14,
-                              height: 1.0),
-                          border: InputBorder.none,
-                          enabledBorder: InputBorder.none,
-                          focusedBorder: InputBorder.none,
-                          errorBorder: InputBorder.none,
-                          focusedErrorBorder: InputBorder.none,
-                          disabledBorder: InputBorder.none,
+            if (onBack != null || title != null) ...[
+              Row(
+                children: [
+                  if (onBack != null)
+                    GestureDetector(
+                      onTap: onBack,
+                      behavior: HitTestBehavior.opaque,
+                      child: const Padding(
+                        padding: EdgeInsets.only(right: AppSpacing.sm),
+                        child: Icon(
+                          Icons.arrow_back,
+                          color: Colors.white,
+                          size: 22,
                         ),
                       ),
                     ),
-                    if (onFilterTap != null)
-                      GestureDetector(
-                        onTap: onFilterTap,
-                        child: Icon(Icons.tune,
-                            color: Colors.white.withValues(alpha: 0.85)),
+                  if (title != null)
+                    Expanded(
+                      child: Text(
+                        title!,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: _titleFontSize,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
-                  ],
-                ),
+                    ),
+                ],
               ),
+              const SizedBox(height: AppSpacing.sm),
+            ],
+            Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    alignment: Alignment.center,
+                    height: 44,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.md,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.18),
+                      borderRadius: AppRadii.medium,
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.search,
+                          color: Colors.white.withValues(alpha: 0.85),
+                        ),
+                        const SizedBox(width: AppSpacing.sm),
+                        Expanded(
+                          // Without an explicit `fontSize`/`height` this field
+                          // inherits the theme's `titleMedium` (14sp, height
+                          // 1.40), giving it a much taller line-box than the
+                          // 24px icons beside it — the hint then sits visibly
+                          // high. `textAlignVertical` can't fix an oversized
+                          // line-box and a SizedBox only clips it. Pin the box
+                          // with `height: 1.0` plus a matching `strutStyle`.
+                          child: TextField(
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 14,
+                              height: 1.0,
+                            ),
+                            strutStyle: const StrutStyle(
+                              fontSize: 14,
+                              height: 1.0,
+                            ),
+                            textAlignVertical: TextAlignVertical.center,
+                            onChanged: onQueryChanged,
+                            // `InputDecoration.collapsed` only nulls the base
+                            // `border`; the global InputDecorationTheme still
+                            // supplies a `focusedBorder` that leaks through on
+                            // tap. Null every state explicitly.
+                            decoration: InputDecoration(
+                              isCollapsed: true,
+                              filled: false,
+                              hintText: hintText,
+                              hintStyle: const TextStyle(
+                                color: Colors.white70,
+                                fontSize: 14,
+                                height: 1.0,
+                              ),
+                              border: InputBorder.none,
+                              enabledBorder: InputBorder.none,
+                              focusedBorder: InputBorder.none,
+                              errorBorder: InputBorder.none,
+                              focusedErrorBorder: InputBorder.none,
+                              disabledBorder: InputBorder.none,
+                            ),
+                          ),
+                        ),
+                        if (onFilterTap != null)
+                          GestureDetector(
+                            onTap: onFilterTap,
+                            child: Icon(
+                              Icons.tune,
+                              color: Colors.white.withValues(alpha: 0.85),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+                if (showNotifications) ...[
+                  const SizedBox(width: AppSpacing.sm),
+                  _NotificationBell(count: notificationCount),
+                ],
+              ],
             ),
-            const SizedBox(width: AppSpacing.sm),
-            _NotificationBell(count: notificationCount),
           ],
         ),
       ),

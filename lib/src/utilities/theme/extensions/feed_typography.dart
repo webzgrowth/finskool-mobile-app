@@ -22,6 +22,7 @@ class FeedTypography extends ThemeExtension<FeedTypography> {
     required this.timestamp,
     required this.title,
     required this.body,
+    required this.bodyBold,
     required this.hashtag,
     required this.reactionCount,
     required this.durationBadge,
@@ -34,6 +35,11 @@ class FeedTypography extends ThemeExtension<FeedTypography> {
   final TextStyle timestamp;
   final TextStyle title;
   final TextStyle body;
+
+  /// The `**bold**` runs in a post's markdown body. Same size and colour as
+  /// [body] — only the weight differs — and built through `inter()` so the
+  /// variable font's weight axis actually moves.
+  final TextStyle bodyBold;
   final TextStyle hashtag;
   final TextStyle reactionCount;
   final TextStyle durationBadge;
@@ -57,6 +63,8 @@ class FeedTypography extends ThemeExtension<FeedTypography> {
         size: 14, weight: 700, height: 1.193, color: AppPalette.postTitle),
     // Inter 400 · 10 · 13.36px · #2D2D2D
     body: inter(size: 10, weight: 400, height: 1.336, color: AppPalette.postBody),
+    bodyBold:
+        inter(size: 10, weight: 700, height: 1.336, color: AppPalette.postBody),
     // Poppins 400 · 10.04 · 15.06px · #7D7D91  (approximated with Inter)
     hashtag:
         inter(size: 10, weight: 400, height: 1.5, color: AppPalette.postMeta),
@@ -93,6 +101,11 @@ class FeedTypography extends ThemeExtension<FeedTypography> {
         weight: 400,
         height: 1.336,
         color: AppPalette.darkOnSurfaceMuted),
+    bodyBold: inter(
+        size: 10,
+        weight: 700,
+        height: 1.336,
+        color: AppPalette.darkOnSurfaceMuted),
     hashtag: inter(
         size: 10,
         weight: 400,
@@ -119,6 +132,7 @@ class FeedTypography extends ThemeExtension<FeedTypography> {
     TextStyle? timestamp,
     TextStyle? title,
     TextStyle? body,
+    TextStyle? bodyBold,
     TextStyle? hashtag,
     TextStyle? reactionCount,
     TextStyle? durationBadge,
@@ -131,6 +145,7 @@ class FeedTypography extends ThemeExtension<FeedTypography> {
         timestamp: timestamp ?? this.timestamp,
         title: title ?? this.title,
         body: body ?? this.body,
+        bodyBold: bodyBold ?? this.bodyBold,
         hashtag: hashtag ?? this.hashtag,
         reactionCount: reactionCount ?? this.reactionCount,
         durationBadge: durationBadge ?? this.durationBadge,
@@ -147,6 +162,7 @@ class FeedTypography extends ThemeExtension<FeedTypography> {
       timestamp: TextStyle.lerp(timestamp, other.timestamp, t)!,
       title: TextStyle.lerp(title, other.title, t)!,
       body: TextStyle.lerp(body, other.body, t)!,
+      bodyBold: TextStyle.lerp(bodyBold, other.bodyBold, t)!,
       hashtag: TextStyle.lerp(hashtag, other.hashtag, t)!,
       reactionCount: TextStyle.lerp(reactionCount, other.reactionCount, t)!,
       durationBadge: TextStyle.lerp(durationBadge, other.durationBadge, t)!,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:finskool/src/comman/rich_text_spans.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
 import 'package:finskool/src/domain/model/feed_post_model.dart';
 import 'post_author_row.dart';
@@ -41,7 +42,15 @@ class FeedPostCard extends StatelessWidget {
           const SizedBox(height: AppSpacing.md),
           Text(post.title, style: context.feedType.title),
           const SizedBox(height: AppSpacing.xs),
-          Text(post.body, style: context.feedType.body),
+          // `content` is HTML from the admin composer (the spec says
+          // Markdown; it isn't) — bodySpans sniffs and renders either.
+          Text.rich(TextSpan(
+            children: bodySpans(
+              post.body,
+              context.feedType.body,
+              context.feedType.bodyBold,
+            ),
+          )),
           const SizedBox(height: AppSpacing.md),
           PostMediaCarousel(media: post.media),
           const SizedBox(height: AppSpacing.md),

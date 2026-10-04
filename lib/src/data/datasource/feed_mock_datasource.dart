@@ -3,9 +3,14 @@ import 'package:finskool/src/domain/model/post_media_model.dart';
 import 'package:finskool/src/domain/model/reaction_type.dart';
 import 'package:finskool/src/domain/model/reactor_model.dart';
 
-/// Hardcoded feed data standing in for a real backend. `FeedBloc` calls
-/// this directly — swap this file's contents for a `Dio`-backed
-/// repository call once a real API exists; nothing else needs to change.
+/// Hardcoded feed data, **retired**. `FeedBloc` now runs against the real
+/// `GET /mobile/posts` via `PostsRemoteDatasource`; nothing references this
+/// any more.
+///
+/// Kept on disk — same convention as the app's other retired mocks — because
+/// it is the only offline sample of the typed `PostMediaModel` shape
+/// (the API gives flat `imageUrls`, so embeds and duration badges can only be
+/// exercised from here).
 class FeedMockDatasource {
   static const _chartImage =
       'https://images.unsplash.com/photo-1642790106117-e829e14a795f?w=800';
@@ -40,6 +45,8 @@ class FeedMockDatasource {
   static List<FeedPostModel> getPosts() => [
         FeedPostModel(
           id: 'p1',
+          communityId: 'c1',
+          communityName: 'Finskool Free',
           authorName: 'Ritesh Kumar',
           authorAvatarUrl: _avatar,
           postedAt: DateTime.now().subtract(const Duration(hours: 2)),
@@ -69,6 +76,8 @@ class FeedMockDatasource {
         ),
         FeedPostModel(
           id: 'p2',
+          communityId: 'c1',
+          communityName: 'Finskool Free',
           authorName: 'Ritesh Kumar',
           authorAvatarUrl: _avatar,
           postedAt: DateTime.now().subtract(const Duration(hours: 5)),

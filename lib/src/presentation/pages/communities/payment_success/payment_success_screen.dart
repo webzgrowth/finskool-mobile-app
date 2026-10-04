@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
+import 'package:finskool/src/comman/ist_time.dart';
 import 'package:finskool/src/comman/routes.dart';
 import 'package:finskool/src/comman/widgets/success_animation.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
@@ -65,7 +65,7 @@ class PaymentSuccessScreen extends StatelessWidget {
                 style: type.description,
               ),
               const Spacer(),
-              Text(DateFormat('d MMMM yyyy h:mm a').format(paidAt),
+              Text(formatIst(paidAt, 'd MMMM yyyy h:mm a'),
                   style: type.pricePeriod),
               const SizedBox(height: 2),
               Text(

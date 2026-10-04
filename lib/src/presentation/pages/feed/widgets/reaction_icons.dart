@@ -6,8 +6,9 @@ import 'package:finskool/src/domain/model/reaction_type.dart';
 ///
 /// Figma draws the long-press picker's six reactions as plain **emoji text**
 /// — the frame is literally named "Picker" (`605:17127`) and each child is a
-/// text node holding 👍❤️🔥👏✅😮. Emoji are therefore the design here, not a
-/// stand-in for missing art.
+/// text node holding an emoji character. Emoji are therefore the design
+/// here, not a stand-in for missing art. (Figma drew a different six —
+/// 👍❤️🔥👏✅😮 — but the backend's seeded set is authoritative.)
 ///
 /// Two things do have real art, and they are different in kind:
 /// * [likeButton] is a monochrome UI glyph (one path, `#7D7D91`) — the Like
@@ -33,22 +34,22 @@ class ReactionIcons {
 
   /// The coloured disc behind a reaction in the post card's badge stack.
   ///
-  /// Figma's colourful feed variant (`605:15302`) specifies only three of
-  /// our six: thumbs-up on blue `#388FE7`, heart on red `#F15759`, clap on
-  /// green `#6DAE53`. Its remaining two discs belong to reactions we don't
-  /// have (bulb on amber, laughing on teal), so those colours are
-  /// **reassigned** to `wow` and `verified`, and `fire` takes the orange
-  /// from Figma's own laughing-emoji artwork. Worth confirming with the
-  /// designer if exact parity matters.
+  /// Figma's colourful feed variant (`605:15302`) specifies discs for
+  /// thumbs-up (blue `#388FE7`), heart (red `#F15759`), clap (green
+  /// `#6DAE53`), bulb (amber) and laughing (teal) — a set that only partly
+  /// overlaps the reactions this app offers. So: like and love
+  /// are Figma's own, `haha` takes the teal Figma gave its laughing emoji,
+  /// and `wow` and `angry` reuse the remaining palette tokens rather
+  /// than inventing new ones. Figma never designed those two —
+  /// **confirm with the designer** before treating them as final.
   static Color badgeColor(BuildContext context, ReactionType reaction) {
     final g = context.gradients;
     return switch (reaction) {
       ReactionType.like => g.badgeLike,
       ReactionType.love => g.badgeLove,
-      ReactionType.fire => g.badgeFire,
-      ReactionType.clap => g.badgeClap,
-      ReactionType.verified => g.badgeVerified,
+      ReactionType.haha => g.badgeHaha,
       ReactionType.wow => g.badgeWow,
+      ReactionType.angry => g.badgeAngry,
     };
   }
 }

@@ -41,7 +41,7 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
     final bloc = context.read<CommunitiesBloc>();
     switch (community.access) {
       case CommunityAccess.subscribed:
-        context.push('/community/${community.id}', extra: community.name);
+        context.push('/community/${community.id}', extra: community);
       case CommunityAccess.pricingOnRequest:
         bloc.add(CommunitiesEvent.requestPricing(community.id));
       case CommunityAccess.locked:

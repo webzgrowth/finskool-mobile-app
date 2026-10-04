@@ -146,8 +146,13 @@ GoRouter routerinit = GoRouter(
       name: AppRoutes.COMMUNITY_DETAIL_ROUTE_NAME,
       path: AppRoutes.COMMUNITY_DETAIL_ROUTE_PATH,
       builder: (BuildContext context, GoRouterState state) {
+        // `extra` carries the whole model from the Communities tab; a cold
+        // deep link to /community/:id has none, so fall back to the path
+        // parameter and a generic title rather than failing to build.
+        final community = state.extra as CommunityModel?;
         return CommunityDetailScreen(
-          communityName: state.extra as String? ?? 'Community',
+          communityId: community?.id ?? state.pathParameters['id'] ?? '',
+          communityName: community?.name ?? 'Community',
         );
       },
     ),

@@ -80,6 +80,14 @@ class AuthRepositoryImpl implements AuthRepository {
       });
 
   @override
+  Future<Either<Failure, UserModel>> refreshSession() =>
+      handleErrors(() async {
+        final user = await _remote.getMe();
+        await _cacheUser(user);
+        return user;
+      });
+
+  @override
   bool get hasSession {
     final cookie = SharedPreferenceHelper().getdata(StorageKeys.sessionCookie);
     return cookie != null && cookie.isNotEmpty;

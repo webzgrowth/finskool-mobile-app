@@ -56,13 +56,16 @@ extension FeedEventPatterns on FeedEvent {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _LoadFeed value)?  loadFeed,TResult Function( _ReactToPost value)?  reactToPost,TResult Function( _RemoveReaction value)?  removeReaction,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _LoadFeed value)?  loadFeed,TResult Function( _RefreshFeed value)?  refreshFeed,TResult Function( _LoadMore value)?  loadMore,TResult Function( _ReactToPost value)?  reactToPost,TResult Function( _RemoveReaction value)?  removeReaction,TResult Function( _ReactionsHydrated value)?  reactionsHydrated,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case _LoadFeed() when loadFeed != null:
-return loadFeed(_that);case _ReactToPost() when reactToPost != null:
+return loadFeed(_that);case _RefreshFeed() when refreshFeed != null:
+return refreshFeed(_that);case _LoadMore() when loadMore != null:
+return loadMore(_that);case _ReactToPost() when reactToPost != null:
 return reactToPost(_that);case _RemoveReaction() when removeReaction != null:
-return removeReaction(_that);case _:
+return removeReaction(_that);case _ReactionsHydrated() when reactionsHydrated != null:
+return reactionsHydrated(_that);case _:
   return orElse();
 
 }
@@ -80,13 +83,16 @@ return removeReaction(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _LoadFeed value)  loadFeed,required TResult Function( _ReactToPost value)  reactToPost,required TResult Function( _RemoveReaction value)  removeReaction,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _LoadFeed value)  loadFeed,required TResult Function( _RefreshFeed value)  refreshFeed,required TResult Function( _LoadMore value)  loadMore,required TResult Function( _ReactToPost value)  reactToPost,required TResult Function( _RemoveReaction value)  removeReaction,required TResult Function( _ReactionsHydrated value)  reactionsHydrated,}){
 final _that = this;
 switch (_that) {
 case _LoadFeed():
-return loadFeed(_that);case _ReactToPost():
+return loadFeed(_that);case _RefreshFeed():
+return refreshFeed(_that);case _LoadMore():
+return loadMore(_that);case _ReactToPost():
 return reactToPost(_that);case _RemoveReaction():
-return removeReaction(_that);case _:
+return removeReaction(_that);case _ReactionsHydrated():
+return reactionsHydrated(_that);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -103,13 +109,16 @@ return removeReaction(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _LoadFeed value)?  loadFeed,TResult? Function( _ReactToPost value)?  reactToPost,TResult? Function( _RemoveReaction value)?  removeReaction,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _LoadFeed value)?  loadFeed,TResult? Function( _RefreshFeed value)?  refreshFeed,TResult? Function( _LoadMore value)?  loadMore,TResult? Function( _ReactToPost value)?  reactToPost,TResult? Function( _RemoveReaction value)?  removeReaction,TResult? Function( _ReactionsHydrated value)?  reactionsHydrated,}){
 final _that = this;
 switch (_that) {
 case _LoadFeed() when loadFeed != null:
-return loadFeed(_that);case _ReactToPost() when reactToPost != null:
+return loadFeed(_that);case _RefreshFeed() when refreshFeed != null:
+return refreshFeed(_that);case _LoadMore() when loadMore != null:
+return loadMore(_that);case _ReactToPost() when reactToPost != null:
 return reactToPost(_that);case _RemoveReaction() when removeReaction != null:
-return removeReaction(_that);case _:
+return removeReaction(_that);case _ReactionsHydrated() when reactionsHydrated != null:
+return reactionsHydrated(_that);case _:
   return null;
 
 }
@@ -126,12 +135,15 @@ return removeReaction(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  loadFeed,TResult Function( String postId,  ReactionType reaction)?  reactToPost,TResult Function( String postId)?  removeReaction,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String? communityId)?  loadFeed,TResult Function()?  refreshFeed,TResult Function()?  loadMore,TResult Function( String postId,  ReactionType reaction)?  reactToPost,TResult Function( String postId)?  removeReaction,TResult Function( int generation,  String postId,  List<ReactorModel> reactors)?  reactionsHydrated,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _LoadFeed() when loadFeed != null:
-return loadFeed();case _ReactToPost() when reactToPost != null:
+return loadFeed(_that.communityId);case _RefreshFeed() when refreshFeed != null:
+return refreshFeed();case _LoadMore() when loadMore != null:
+return loadMore();case _ReactToPost() when reactToPost != null:
 return reactToPost(_that.postId,_that.reaction);case _RemoveReaction() when removeReaction != null:
-return removeReaction(_that.postId);case _:
+return removeReaction(_that.postId);case _ReactionsHydrated() when reactionsHydrated != null:
+return reactionsHydrated(_that.generation,_that.postId,_that.reactors);case _:
   return orElse();
 
 }
@@ -149,12 +161,15 @@ return removeReaction(_that.postId);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  loadFeed,required TResult Function( String postId,  ReactionType reaction)  reactToPost,required TResult Function( String postId)  removeReaction,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String? communityId)  loadFeed,required TResult Function()  refreshFeed,required TResult Function()  loadMore,required TResult Function( String postId,  ReactionType reaction)  reactToPost,required TResult Function( String postId)  removeReaction,required TResult Function( int generation,  String postId,  List<ReactorModel> reactors)  reactionsHydrated,}) {final _that = this;
 switch (_that) {
 case _LoadFeed():
-return loadFeed();case _ReactToPost():
+return loadFeed(_that.communityId);case _RefreshFeed():
+return refreshFeed();case _LoadMore():
+return loadMore();case _ReactToPost():
 return reactToPost(_that.postId,_that.reaction);case _RemoveReaction():
-return removeReaction(_that.postId);case _:
+return removeReaction(_that.postId);case _ReactionsHydrated():
+return reactionsHydrated(_that.generation,_that.postId,_that.reactors);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -171,12 +186,15 @@ return removeReaction(_that.postId);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  loadFeed,TResult? Function( String postId,  ReactionType reaction)?  reactToPost,TResult? Function( String postId)?  removeReaction,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String? communityId)?  loadFeed,TResult? Function()?  refreshFeed,TResult? Function()?  loadMore,TResult? Function( String postId,  ReactionType reaction)?  reactToPost,TResult? Function( String postId)?  removeReaction,TResult? Function( int generation,  String postId,  List<ReactorModel> reactors)?  reactionsHydrated,}) {final _that = this;
 switch (_that) {
 case _LoadFeed() when loadFeed != null:
-return loadFeed();case _ReactToPost() when reactToPost != null:
+return loadFeed(_that.communityId);case _RefreshFeed() when refreshFeed != null:
+return refreshFeed();case _LoadMore() when loadMore != null:
+return loadMore();case _ReactToPost() when reactToPost != null:
 return reactToPost(_that.postId,_that.reaction);case _RemoveReaction() when removeReaction != null:
-return removeReaction(_that.postId);case _:
+return removeReaction(_that.postId);case _ReactionsHydrated() when reactionsHydrated != null:
+return reactionsHydrated(_that.generation,_that.postId,_that.reactors);case _:
   return null;
 
 }
@@ -188,7 +206,75 @@ return removeReaction(_that.postId);case _:
 
 
 class _LoadFeed implements FeedEvent {
-  const _LoadFeed();
+  const _LoadFeed({this.communityId});
+  
+
+ final  String? communityId;
+
+/// Create a copy of FeedEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$LoadFeedCopyWith<_LoadFeed> get copyWith => __$LoadFeedCopyWithImpl<_LoadFeed>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _LoadFeed&&(identical(other.communityId, communityId) || other.communityId == communityId));
+}
+
+
+@override
+int get hashCode {
+    return Object.hash(runtimeType,communityId);
+}
+
+@override
+String toString() {
+    return 'FeedEvent.loadFeed(communityId: $communityId)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$LoadFeedCopyWith<$Res> implements $FeedEventCopyWith<$Res> {
+  factory _$LoadFeedCopyWith(_LoadFeed value, $Res Function(_LoadFeed) _then) = __$LoadFeedCopyWithImpl;
+@useResult
+$Res call({
+ String? communityId
+});
+
+
+
+
+}
+/// @nodoc
+class __$LoadFeedCopyWithImpl<$Res>
+    implements _$LoadFeedCopyWith<$Res> {
+  __$LoadFeedCopyWithImpl(this._self, this._then);
+
+  final _LoadFeed _self;
+  final $Res Function(_LoadFeed) _then;
+
+/// Create a copy of FeedEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? communityId = freezed,}) {
+  return _then(_LoadFeed(
+communityId: freezed == communityId ? _self.communityId : communityId // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class _RefreshFeed implements FeedEvent {
+  const _RefreshFeed();
   
 
 
@@ -198,7 +284,7 @@ class _LoadFeed implements FeedEvent {
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _LoadFeed);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _RefreshFeed);
 }
 
 
@@ -207,7 +293,39 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-    return 'FeedEvent.loadFeed()';
+    return 'FeedEvent.refreshFeed()';
+}
+
+
+}
+
+
+
+
+/// @nodoc
+
+
+class _LoadMore implements FeedEvent {
+  const _LoadMore();
+  
+
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _LoadMore);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+    return 'FeedEvent.loadMore()';
 }
 
 
@@ -355,9 +473,90 @@ as String,
 }
 
 /// @nodoc
+
+
+class _ReactionsHydrated implements FeedEvent {
+  const _ReactionsHydrated({required this.generation, required this.postId, required  List<ReactorModel> reactors}): _reactors = reactors;
+  
+
+ final  int generation;
+ final  String postId;
+ final  List<ReactorModel> _reactors;
+ List<ReactorModel> get reactors {
+  if (_reactors is EqualUnmodifiableListView) return _reactors;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_reactors);
+}
+
+
+/// Create a copy of FeedEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$ReactionsHydratedCopyWith<_ReactionsHydrated> get copyWith => __$ReactionsHydratedCopyWithImpl<_ReactionsHydrated>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _ReactionsHydrated&&(identical(other.generation, generation) || other.generation == generation)&&(identical(other.postId, postId) || other.postId == postId)&&const DeepCollectionEquality().equals(other.reactors, _reactors));
+}
+
+
+@override
+int get hashCode {
+    return Object.hash(runtimeType,generation,postId,const DeepCollectionEquality().hash(_reactors));
+}
+
+@override
+String toString() {
+    return 'FeedEvent.reactionsHydrated(generation: $generation, postId: $postId, reactors: $reactors)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$ReactionsHydratedCopyWith<$Res> implements $FeedEventCopyWith<$Res> {
+  factory _$ReactionsHydratedCopyWith(_ReactionsHydrated value, $Res Function(_ReactionsHydrated) _then) = __$ReactionsHydratedCopyWithImpl;
+@useResult
+$Res call({
+ int generation, String postId, List<ReactorModel> reactors
+});
+
+
+
+
+}
+/// @nodoc
+class __$ReactionsHydratedCopyWithImpl<$Res>
+    implements _$ReactionsHydratedCopyWith<$Res> {
+  __$ReactionsHydratedCopyWithImpl(this._self, this._then);
+
+  final _ReactionsHydrated _self;
+  final $Res Function(_ReactionsHydrated) _then;
+
+/// Create a copy of FeedEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? generation = null,Object? postId = null,Object? reactors = null,}) {
+  return _then(_ReactionsHydrated(
+generation: null == generation ? _self.generation : generation // ignore: cast_nullable_to_non_nullable
+as int,postId: null == postId ? _self.postId : postId // ignore: cast_nullable_to_non_nullable
+as String,reactors: null == reactors ? _self._reactors : reactors // ignore: cast_nullable_to_non_nullable
+as List<ReactorModel>,
+  ));
+}
+
+
+}
+
+/// @nodoc
 mixin _$FeedState {
 
- RequestState get state; List<FeedPostModel> get posts;
+ RequestState get state;/// The last failure's copy. Shown as a snackbar rather than replacing the
+/// list, so a failed reaction or a failed extra page doesn't wipe the
+/// feed that's already rendered.
+ String get message; List<FeedPostModel> get posts; int get page; bool get hasMore; bool get isLoadingMore; String? get communityId;
 /// Create a copy of FeedState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -369,20 +568,20 @@ $FeedStateCopyWith<FeedState> get copyWith => _$FeedStateCopyWithImpl<FeedState>
 @override
 bool operator ==(Object other) {
   final _this = this as FeedState;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is FeedState&&(identical(other.state, _this.state) || other.state == _this.state)&&const DeepCollectionEquality().equals(other.posts, _this.posts));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is FeedState&&(identical(other.state, _this.state) || other.state == _this.state)&&(identical(other.message, _this.message) || other.message == _this.message)&&const DeepCollectionEquality().equals(other.posts, _this.posts)&&(identical(other.page, _this.page) || other.page == _this.page)&&(identical(other.hasMore, _this.hasMore) || other.hasMore == _this.hasMore)&&(identical(other.isLoadingMore, _this.isLoadingMore) || other.isLoadingMore == _this.isLoadingMore)&&(identical(other.communityId, _this.communityId) || other.communityId == _this.communityId));
 }
 
 
 @override
 int get hashCode {
   final _this = this as FeedState;
-  return Object.hash(runtimeType,_this.state,const DeepCollectionEquality().hash(_this.posts));
+  return Object.hash(runtimeType,_this.state,_this.message,const DeepCollectionEquality().hash(_this.posts),_this.page,_this.hasMore,_this.isLoadingMore,_this.communityId);
 }
 
 @override
 String toString() {
   final _this = this as FeedState;
-  return 'FeedState(state: ${_this.state}, posts: ${_this.posts})';
+  return 'FeedState(state: ${_this.state}, message: ${_this.message}, posts: ${_this.posts}, page: ${_this.page}, hasMore: ${_this.hasMore}, isLoadingMore: ${_this.isLoadingMore}, communityId: ${_this.communityId})';
 }
 
 
@@ -393,7 +592,7 @@ abstract mixin class $FeedStateCopyWith<$Res>  {
   factory $FeedStateCopyWith(FeedState value, $Res Function(FeedState) _then) = _$FeedStateCopyWithImpl;
 @useResult
 $Res call({
- RequestState state, List<FeedPostModel> posts
+ RequestState state, String message, List<FeedPostModel> posts, int page, bool hasMore, bool isLoadingMore, String? communityId
 });
 
 
@@ -410,11 +609,16 @@ class _$FeedStateCopyWithImpl<$Res>
 
 /// Create a copy of FeedState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? state = null,Object? posts = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? state = null,Object? message = null,Object? posts = null,Object? page = null,Object? hasMore = null,Object? isLoadingMore = null,Object? communityId = freezed,}) {
   return _then(FeedState(
 state: null == state ? _self.state : state // ignore: cast_nullable_to_non_nullable
-as RequestState,posts: null == posts ? _self.posts : posts // ignore: cast_nullable_to_non_nullable
-as List<FeedPostModel>,
+as RequestState,message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
+as String,posts: null == posts ? _self.posts : posts // ignore: cast_nullable_to_non_nullable
+as List<FeedPostModel>,page: null == page ? _self.page : page // ignore: cast_nullable_to_non_nullable
+as int,hasMore: null == hasMore ? _self.hasMore : hasMore // ignore: cast_nullable_to_non_nullable
+as bool,isLoadingMore: null == isLoadingMore ? _self.isLoadingMore : isLoadingMore // ignore: cast_nullable_to_non_nullable
+as bool,communityId: freezed == communityId ? _self.communityId : communityId // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 
@@ -496,10 +700,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( RequestState state,  List<FeedPostModel> posts)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( RequestState state,  String message,  List<FeedPostModel> posts,  int page,  bool hasMore,  bool isLoadingMore,  String? communityId)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _FeedState() when $default != null:
-return $default(_that.state,_that.posts);case _:
+return $default(_that.state,_that.message,_that.posts,_that.page,_that.hasMore,_that.isLoadingMore,_that.communityId);case _:
   return orElse();
 
 }
@@ -517,10 +721,10 @@ return $default(_that.state,_that.posts);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( RequestState state,  List<FeedPostModel> posts)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( RequestState state,  String message,  List<FeedPostModel> posts,  int page,  bool hasMore,  bool isLoadingMore,  String? communityId)  $default,) {final _that = this;
 switch (_that) {
 case _FeedState():
-return $default(_that.state,_that.posts);}
+return $default(_that.state,_that.message,_that.posts,_that.page,_that.hasMore,_that.isLoadingMore,_that.communityId);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -534,10 +738,10 @@ return $default(_that.state,_that.posts);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( RequestState state,  List<FeedPostModel> posts)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( RequestState state,  String message,  List<FeedPostModel> posts,  int page,  bool hasMore,  bool isLoadingMore,  String? communityId)?  $default,) {final _that = this;
 switch (_that) {
 case _FeedState() when $default != null:
-return $default(_that.state,_that.posts);case _:
+return $default(_that.state,_that.message,_that.posts,_that.page,_that.hasMore,_that.isLoadingMore,_that.communityId);case _:
   return null;
 
 }
@@ -548,11 +752,15 @@ return $default(_that.state,_that.posts);case _:
 /// @nodoc
 
 
-class _FeedState implements FeedState {
-  const _FeedState({required this.state, required  List<FeedPostModel> posts}): _posts = posts;
+class _FeedState extends FeedState {
+  const _FeedState({required this.state, required this.message, required  List<FeedPostModel> posts, required this.page, required this.hasMore, required this.isLoadingMore, this.communityId}): _posts = posts,super._();
   
 
 @override final  RequestState state;
+/// The last failure's copy. Shown as a snackbar rather than replacing the
+/// list, so a failed reaction or a failed extra page doesn't wipe the
+/// feed that's already rendered.
+@override final  String message;
  final  List<FeedPostModel> _posts;
 @override List<FeedPostModel> get posts {
   if (_posts is EqualUnmodifiableListView) return _posts;
@@ -560,6 +768,10 @@ class _FeedState implements FeedState {
   return EqualUnmodifiableListView(_posts);
 }
 
+@override final  int page;
+@override final  bool hasMore;
+@override final  bool isLoadingMore;
+@override final  String? communityId;
 
 /// Create a copy of FeedState
 /// with the given fields replaced by the non-null parameter values.
@@ -571,18 +783,18 @@ _$FeedStateCopyWith<_FeedState> get copyWith => __$FeedStateCopyWithImpl<_FeedSt
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _FeedState&&(identical(other.state, state) || other.state == state)&&const DeepCollectionEquality().equals(other.posts, _posts));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _FeedState&&(identical(other.state, state) || other.state == state)&&(identical(other.message, message) || other.message == message)&&const DeepCollectionEquality().equals(other.posts, _posts)&&(identical(other.page, page) || other.page == page)&&(identical(other.hasMore, hasMore) || other.hasMore == hasMore)&&(identical(other.isLoadingMore, isLoadingMore) || other.isLoadingMore == isLoadingMore)&&(identical(other.communityId, communityId) || other.communityId == communityId));
 }
 
 
 @override
 int get hashCode {
-    return Object.hash(runtimeType,state,const DeepCollectionEquality().hash(_posts));
+    return Object.hash(runtimeType,state,message,const DeepCollectionEquality().hash(_posts),page,hasMore,isLoadingMore,communityId);
 }
 
 @override
 String toString() {
-    return 'FeedState(state: $state, posts: $posts)';
+    return 'FeedState(state: $state, message: $message, posts: $posts, page: $page, hasMore: $hasMore, isLoadingMore: $isLoadingMore, communityId: $communityId)';
 }
 
 
@@ -593,7 +805,7 @@ abstract mixin class _$FeedStateCopyWith<$Res> implements $FeedStateCopyWith<$Re
   factory _$FeedStateCopyWith(_FeedState value, $Res Function(_FeedState) _then) = __$FeedStateCopyWithImpl;
 @override @useResult
 $Res call({
- RequestState state, List<FeedPostModel> posts
+ RequestState state, String message, List<FeedPostModel> posts, int page, bool hasMore, bool isLoadingMore, String? communityId
 });
 
 
@@ -610,11 +822,16 @@ class __$FeedStateCopyWithImpl<$Res>
 
 /// Create a copy of FeedState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? state = null,Object? posts = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? state = null,Object? message = null,Object? posts = null,Object? page = null,Object? hasMore = null,Object? isLoadingMore = null,Object? communityId = freezed,}) {
   return _then(_FeedState(
 state: null == state ? _self.state : state // ignore: cast_nullable_to_non_nullable
-as RequestState,posts: null == posts ? _self._posts : posts // ignore: cast_nullable_to_non_nullable
-as List<FeedPostModel>,
+as RequestState,message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
+as String,posts: null == posts ? _self._posts : posts // ignore: cast_nullable_to_non_nullable
+as List<FeedPostModel>,page: null == page ? _self.page : page // ignore: cast_nullable_to_non_nullable
+as int,hasMore: null == hasMore ? _self.hasMore : hasMore // ignore: cast_nullable_to_non_nullable
+as bool,isLoadingMore: null == isLoadingMore ? _self.isLoadingMore : isLoadingMore // ignore: cast_nullable_to_non_nullable
+as bool,communityId: freezed == communityId ? _self.communityId : communityId // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 

@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:finskool/src/comman/placeholder_images.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
 
 /// A community card's header image, with the member-count pill and the
@@ -16,10 +17,15 @@ class CommunityCover extends StatelessWidget {
     super.key,
     required this.imageUrl,
     required this.memberCount,
+    required this.communityId,
   });
 
   final String? imageUrl;
   final int memberCount;
+
+  /// Only used to pick a stable stand-in cover when [imageUrl] is null —
+  /// most communities come back from the API without one today.
+  final String communityId;
 
   static const double height = 156;
   static const double badgeSize = 44;
@@ -38,16 +44,16 @@ class CommunityCover extends StatelessWidget {
             child: SizedBox(
               height: height,
               width: double.infinity,
-              child: imageUrl == null
-                  ? ColoredBox(color: cs.surfaceContainerHighest)
-                  : CachedNetworkImage(
-                      imageUrl: imageUrl!,
-                      fit: BoxFit.cover,
-                      placeholder: (_, _) =>
-                          ColoredBox(color: cs.surfaceContainerHighest),
-                      errorWidget: (_, _, _) =>
-                          ColoredBox(color: cs.surfaceContainerHighest),
-                    ),
+              child: CachedNetworkImage(
+                imageUrl: imageUrl?.isNotEmpty == true
+                    ? imageUrl!
+                    : communityCoverFallback(communityId),
+                fit: BoxFit.cover,
+                placeholder: (_, _) =>
+                    ColoredBox(color: cs.surfaceContainerHighest),
+                errorWidget: (_, _, _) =>
+                    ColoredBox(color: cs.surfaceContainerHighest),
+              ),
             ),
           ),
           Positioned(

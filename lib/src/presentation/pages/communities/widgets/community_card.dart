@@ -72,6 +72,7 @@ class _CommunityCardState extends State<CommunityCard> {
             CommunityCover(
               imageUrl: community.coverImageUrl,
               memberCount: community.memberCount,
+              communityId: community.id,
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(

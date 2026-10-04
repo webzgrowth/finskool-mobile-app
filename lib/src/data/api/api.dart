@@ -39,4 +39,31 @@ class Api {
   static const String forgotPassword = '/auth/mobile/forgot-password';
   static const String forgotPasswordOtp = '/auth/mobile/forgot-password/verify-otp';
   static const String forgotPasswordReset = '/auth/mobile/forgot-password/reset';
+
+  /// The signed-in user plus **the communities they're subscribed to**, each
+  /// with an `expiresAt`. The catalog endpoint below deliberately says
+  /// nothing about membership, so this is the other half of the Communities
+  /// tab — see `CommunitiesRemoteDatasource`.
+  static const String me = '/auth/mobile/me';
+
+  ///  =================================================================
+  ///  ************************* Communities ***************************
+  ///  =================================================================
+
+  /// Every **purchasable** community — i.e. all of them except the one free
+  /// community every account is auto-joined to at registration, which is
+  /// excluded here and only ever appears via [me].
+  static const String communities = '/mobile/communities';
+
+  ///  =================================================================
+  ///  ********************* Posts / reactions *************************
+  ///  =================================================================
+  static const String posts = '/mobile/posts';
+  static const String reactionTypes = '/mobile/reaction-types';
+
+  /// The first endpoint in this registry with a path parameter, hence a
+  /// function rather than a `const String`. Keep new path-param endpoints in
+  /// this shape instead of interpolating the id inside a datasource.
+  static String postReactions(String postId) =>
+      '/mobile/posts/$postId/reactions';
 }

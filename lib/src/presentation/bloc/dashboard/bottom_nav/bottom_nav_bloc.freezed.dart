@@ -15,66 +15,30 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$BottomNavEvent {
 
- int get index;
-/// Create a copy of BottomNavEvent
-/// with the given fields replaced by the non-null parameter values.
-@JsonKey(includeFromJson: false, includeToJson: false)
-@pragma('vm:prefer-inline')
-$BottomNavEventCopyWith<BottomNavEvent> get copyWith => _$BottomNavEventCopyWithImpl<BottomNavEvent>(this as BottomNavEvent, _$identity);
+
 
 
 
 @override
 bool operator ==(Object other) {
-  final _this = this as BottomNavEvent;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is BottomNavEvent&&(identical(other.index, _this.index) || other.index == _this.index));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is BottomNavEvent);
 }
 
 
 @override
-int get hashCode {
-  final _this = this as BottomNavEvent;
-  return Object.hash(runtimeType,_this.index);
-}
+int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  final _this = this as BottomNavEvent;
-  return 'BottomNavEvent(index: ${_this.index})';
+    return 'BottomNavEvent()';
 }
 
 
 }
 
 /// @nodoc
-abstract mixin class $BottomNavEventCopyWith<$Res>  {
-  factory $BottomNavEventCopyWith(BottomNavEvent value, $Res Function(BottomNavEvent) _then) = _$BottomNavEventCopyWithImpl;
-@useResult
-$Res call({
- int index
-});
-
-
-
-
-}
-/// @nodoc
-class _$BottomNavEventCopyWithImpl<$Res>
-    implements $BottomNavEventCopyWith<$Res> {
-  _$BottomNavEventCopyWithImpl(this._self, this._then);
-
-  final BottomNavEvent _self;
-  final $Res Function(BottomNavEvent) _then;
-
-/// Create a copy of BottomNavEvent
-/// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? index = null,}) {
-  return _then(BottomNavEvent.tabChanged(
-null == index ? _self.index : index // ignore: cast_nullable_to_non_nullable
-as int,
-  ));
-}
-
+class $BottomNavEventCopyWith<$Res>  {
+$BottomNavEventCopyWith(BottomNavEvent _, $Res Function(BottomNavEvent) __);
 }
 
 
@@ -92,11 +56,12 @@ extension BottomNavEventPatterns on BottomNavEvent {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _TabChanged value)?  tabChanged,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _TabChanged value)?  tabChanged,TResult Function( _Reset value)?  reset,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case _TabChanged() when tabChanged != null:
-return tabChanged(_that);case _:
+return tabChanged(_that);case _Reset() when reset != null:
+return reset(_that);case _:
   return orElse();
 
 }
@@ -114,11 +79,12 @@ return tabChanged(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _TabChanged value)  tabChanged,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _TabChanged value)  tabChanged,required TResult Function( _Reset value)  reset,}){
 final _that = this;
 switch (_that) {
 case _TabChanged():
-return tabChanged(_that);case _:
+return tabChanged(_that);case _Reset():
+return reset(_that);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -135,11 +101,12 @@ return tabChanged(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _TabChanged value)?  tabChanged,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _TabChanged value)?  tabChanged,TResult? Function( _Reset value)?  reset,}){
 final _that = this;
 switch (_that) {
 case _TabChanged() when tabChanged != null:
-return tabChanged(_that);case _:
+return tabChanged(_that);case _Reset() when reset != null:
+return reset(_that);case _:
   return null;
 
 }
@@ -156,10 +123,11 @@ return tabChanged(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( int index)?  tabChanged,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( int index)?  tabChanged,TResult Function()?  reset,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _TabChanged() when tabChanged != null:
-return tabChanged(_that.index);case _:
+return tabChanged(_that.index);case _Reset() when reset != null:
+return reset();case _:
   return orElse();
 
 }
@@ -177,10 +145,11 @@ return tabChanged(_that.index);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( int index)  tabChanged,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( int index)  tabChanged,required TResult Function()  reset,}) {final _that = this;
 switch (_that) {
 case _TabChanged():
-return tabChanged(_that.index);case _:
+return tabChanged(_that.index);case _Reset():
+return reset();case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -197,10 +166,11 @@ return tabChanged(_that.index);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( int index)?  tabChanged,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( int index)?  tabChanged,TResult? Function()?  reset,}) {final _that = this;
 switch (_that) {
 case _TabChanged() when tabChanged != null:
-return tabChanged(_that.index);case _:
+return tabChanged(_that.index);case _Reset() when reset != null:
+return reset();case _:
   return null;
 
 }
@@ -215,11 +185,11 @@ class _TabChanged implements BottomNavEvent {
   const _TabChanged(this.index);
   
 
-@override final  int index;
+ final  int index;
 
 /// Create a copy of BottomNavEvent
 /// with the given fields replaced by the non-null parameter values.
-@override @JsonKey(includeFromJson: false, includeToJson: false)
+@JsonKey(includeFromJson: false, includeToJson: false)
 @pragma('vm:prefer-inline')
 _$TabChangedCopyWith<_TabChanged> get copyWith => __$TabChangedCopyWithImpl<_TabChanged>(this, _$identity);
 
@@ -247,7 +217,7 @@ String toString() {
 /// @nodoc
 abstract mixin class _$TabChangedCopyWith<$Res> implements $BottomNavEventCopyWith<$Res> {
   factory _$TabChangedCopyWith(_TabChanged value, $Res Function(_TabChanged) _then) = __$TabChangedCopyWithImpl;
-@override @useResult
+@useResult
 $Res call({
  int index
 });
@@ -266,7 +236,7 @@ class __$TabChangedCopyWithImpl<$Res>
 
 /// Create a copy of BottomNavEvent
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? index = null,}) {
+@pragma('vm:prefer-inline') $Res call({Object? index = null,}) {
   return _then(_TabChanged(
 null == index ? _self.index : index // ignore: cast_nullable_to_non_nullable
 as int,
@@ -275,6 +245,38 @@ as int,
 
 
 }
+
+/// @nodoc
+
+
+class _Reset implements BottomNavEvent {
+  const _Reset();
+  
+
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Reset);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+    return 'BottomNavEvent.reset()';
+}
+
+
+}
+
+
+
 
 /// @nodoc
 mixin _$BottomNavState {

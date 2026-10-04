@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:finskool/src/comman/storage_keys.dart';
+import 'package:finskool/src/data/api/session_expiry.dart';
 import 'package:finskool/src/utilities/shared_pref_helper.dart';
 
 /// Mobile auth is **cookie-based, not a Bearer token** — `POST /login`
@@ -61,13 +62,23 @@ class SessionInterceptor extends Interceptor {
 
   /// One active session per account — logging in on another device kills
   /// this one. Drop the dead cookie so the app falls back to signed-out
-  /// instead of retrying with a credential the server has already discarded.
+  /// instead of retrying with a credential the server has already discarded,
+  /// and tell the app, so it doesn't sit in a signed-in shell where every
+  /// request fails.
+  ///
+  /// It fires on **any** 401, not just `SESSION_INVALIDATED` — an expired or
+  /// server-side-revoked session answers with a plain "Not authenticated"
+  /// too. The guard against false positives is that a cookie must have been
+  /// stored in the first place: a failed *login* is also a 401, but there is
+  /// no session to lose, so it is left alone.
   void _clearOnInvalidatedSession(Response response) {
     if (response.statusCode != 401) return;
-    final body = response.data;
-    if (body is Map && body['code'] == 'SESSION_INVALIDATED') {
-      SharedPreferenceHelper().remove(StorageKeys.sessionCookie);
-    }
+    final prefs = SharedPreferenceHelper();
+    final session = prefs.getdata(StorageKeys.sessionCookie);
+    if (session == null || session.isEmpty) return;
+
+    prefs.remove(StorageKeys.sessionCookie);
+    SessionExpiry.instance.notifyExpired();
   }
 
   String? _readCookieValue(String header) {

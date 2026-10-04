@@ -11,18 +11,18 @@ Future<Either<Failure, T>> handleErrors<T>(Future<T> Function() action) async {
   try {
     return Right(await action());
   } on ApiException catch (e) {
-    // The backend answered, and said no. Preserve `code` — it's what the
-    // UI branches on — and promote a 422 to a ValidationFailure so per-field
-    // messages survive all the way to the form.
+    // The backend answered, and said no. Its `message` is shown to the user
+    // **verbatim** — the backend is the single source of truth for failure
+    // copy, so there is deliberately no client-side code-to-copy mapping
+    // here. Preserve `code` too: the UI branches on it.
+    //
+    // A 422 is promoted to a ValidationFailure so per-field messages survive
+    // all the way to the form.
     final errors = e.errors;
     if (errors != null && errors.isNotEmpty) {
-      return Left(ValidationFailure(
-        messageForCode(e.code, e.message),
-        errors: errors,
-        code: e.code,
-      ));
+      return Left(ValidationFailure(e.message, errors: errors, code: e.code));
     }
-    return Left(ServerFailure(messageForCode(e.code, e.message), code: e.code));
+    return Left(ServerFailure(e.message, code: e.code));
   } on ServerException catch (e) {
     return Left(ServerFailure(e.message));
   } on SocketException {
@@ -51,50 +51,5 @@ String _dioMessage(DioException e) {
       return 'Request cancelled.';
     default:
       return 'Something went wrong on our end. Please try again.';
-  }
-}
-
-/// Maps the codes documented in `docs/auth_api_doc.md` to copy that tells the
-/// user what to *do*. Anything unrecognised falls through to the server's own
-/// message, which is already human-readable.
-String messageForCode(String? code, String fallback) {
-  switch (code) {
-    // -- registration --
-    case 'ALREADY_REGISTERED':
-      return 'This number is already registered. Try logging in instead.';
-    case 'EMAIL_TAKEN':
-      return 'That email is already in use.';
-    case 'PHONE_INACTIVE':
-      return 'This number has been deactivated. Please contact support.';
-    // -- login --
-    case 'NOT_REGISTERED':
-      return 'No account found for that email. Please sign up first.';
-    case 'PHONE_NOT_VERIFIED':
-      return 'Your number isn\'t verified yet. Please verify it to continue.';
-    case 'SUBSCRIPTION_EXPIRED':
-      return 'Your subscription has expired. Renew it to continue.';
-    case 'SESSION_INVALIDATED':
-      return 'You were signed out because your account was used on another '
-          'device.';
-    // -- OTP --
-    case 'OTP_INVALID':
-      return 'That code isn\'t right. Please check and try again.';
-    case 'OTP_EXPIRED':
-      return 'That code has expired. Request a new one.';
-    case 'OTP_LOCKED':
-      return 'Too many incorrect attempts. Request a new code.';
-    case 'OTP_COOLDOWN':
-      // The server's message names the exact remaining seconds — keep it.
-      return fallback;
-    case 'ALREADY_VERIFIED':
-      return 'This number is already verified. Please log in.';
-    // -- password reset --
-    case 'RESET_TOKEN_INVALID':
-      return 'That reset link has expired. Please request a new code.';
-    // -- communities --
-    case 'COMMUNITY_ACCESS_DENIED':
-      return 'You don\'t have access to that community.';
-    default:
-      return fallback;
   }
 }

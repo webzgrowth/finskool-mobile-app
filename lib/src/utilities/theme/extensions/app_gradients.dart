@@ -15,10 +15,9 @@ class AppGradients extends ThemeExtension<AppGradients> {
     required this.feedCard,
     required this.badgeLike,
     required this.badgeLove,
-    required this.badgeFire,
-    required this.badgeClap,
-    required this.badgeVerified,
+    required this.badgeHaha,
     required this.badgeWow,
+    required this.badgeAngry,
     required this.pickerSurface,
     required this.pickerBorder,
   });
@@ -28,14 +27,14 @@ class AppGradients extends ThemeExtension<AppGradients> {
   final Color feedCard;
 
   /// Ring behind each badge in a post's reaction stack, per reaction.
-  /// Figma's colourful feed variant gives like/love/clap directly; the
-  /// other three are reassigned from the same palette.
+  /// Figma's colourful feed variant gives like and love directly, and its
+  /// laughing disc's teal lands on `haha`; `wow` and `angry` are reassigned
+  /// from the same palette — see `reaction_icons.dart`.
   final Color badgeLike;
   final Color badgeLove;
-  final Color badgeFire;
-  final Color badgeClap;
-  final Color badgeVerified;
+  final Color badgeHaha;
   final Color badgeWow;
+  final Color badgeAngry;
 
   /// The long-press reaction picker's plate and its hairline border.
   final Color pickerSurface;
@@ -59,10 +58,9 @@ class AppGradients extends ThemeExtension<AppGradients> {
     feedCard: AppPalette.white,
     badgeLike: AppPalette.badgeBlue,
     badgeLove: AppPalette.badgeRed,
-    badgeFire: AppPalette.badgeOrange,
-    badgeClap: AppPalette.badgeGreen,
-    badgeVerified: AppPalette.badgeTeal,
+    badgeHaha: AppPalette.badgeTeal,
     badgeWow: AppPalette.badgeAmber,
+    badgeAngry: AppPalette.badgeOrange,
     pickerSurface: AppPalette.pickerSurface,
     pickerBorder: AppPalette.pickerBorder,
   );
@@ -77,10 +75,9 @@ class AppGradients extends ThemeExtension<AppGradients> {
     feedCard: AppPalette.darkSurfaceHigh,
     badgeLike: AppPalette.badgeBlue,
     badgeLove: AppPalette.badgeRed,
-    badgeFire: AppPalette.badgeOrange,
-    badgeClap: AppPalette.badgeGreen,
-    badgeVerified: AppPalette.badgeTeal,
+    badgeHaha: AppPalette.badgeTeal,
     badgeWow: AppPalette.badgeAmber,
+    badgeAngry: AppPalette.badgeOrange,
     pickerSurface: AppPalette.darkSurfaceHigh,
     pickerBorder: AppPalette.teal800,
   );
@@ -95,10 +92,9 @@ class AppGradients extends ThemeExtension<AppGradients> {
     Color? feedCard,
     Color? badgeLike,
     Color? badgeLove,
-    Color? badgeFire,
-    Color? badgeClap,
-    Color? badgeVerified,
+    Color? badgeHaha,
     Color? badgeWow,
+    Color? badgeAngry,
     Color? pickerSurface,
     Color? pickerBorder,
   }) =>
@@ -108,10 +104,9 @@ class AppGradients extends ThemeExtension<AppGradients> {
         feedCard: feedCard ?? this.feedCard,
         badgeLike: badgeLike ?? this.badgeLike,
         badgeLove: badgeLove ?? this.badgeLove,
-        badgeFire: badgeFire ?? this.badgeFire,
-        badgeClap: badgeClap ?? this.badgeClap,
-        badgeVerified: badgeVerified ?? this.badgeVerified,
+        badgeHaha: badgeHaha ?? this.badgeHaha,
         badgeWow: badgeWow ?? this.badgeWow,
+        badgeAngry: badgeAngry ?? this.badgeAngry,
         pickerSurface: pickerSurface ?? this.pickerSurface,
         pickerBorder: pickerBorder ?? this.pickerBorder,
       );
@@ -125,10 +120,9 @@ class AppGradients extends ThemeExtension<AppGradients> {
       feedCard: Color.lerp(feedCard, other.feedCard, t)!,
       badgeLike: Color.lerp(badgeLike, other.badgeLike, t)!,
       badgeLove: Color.lerp(badgeLove, other.badgeLove, t)!,
-      badgeFire: Color.lerp(badgeFire, other.badgeFire, t)!,
-      badgeClap: Color.lerp(badgeClap, other.badgeClap, t)!,
-      badgeVerified: Color.lerp(badgeVerified, other.badgeVerified, t)!,
+      badgeHaha: Color.lerp(badgeHaha, other.badgeHaha, t)!,
       badgeWow: Color.lerp(badgeWow, other.badgeWow, t)!,
+      badgeAngry: Color.lerp(badgeAngry, other.badgeAngry, t)!,
       pickerSurface: Color.lerp(pickerSurface, other.pickerSurface, t)!,
       pickerBorder: Color.lerp(pickerBorder, other.pickerBorder, t)!,
     );

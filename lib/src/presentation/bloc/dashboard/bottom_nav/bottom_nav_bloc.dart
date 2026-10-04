@@ -16,6 +16,7 @@ class BottomNavBloc extends Bloc<BottomNavEvent, BottomNavState> {
       event.map(
         tabChanged: (_TabChanged value) =>
             emit(state.copyWith(selectedIndex: value.index)),
+        reset: (_) => emit(BottomNavState.initial()),
       );
     });
   }

@@ -36,7 +36,7 @@ class MediaThumbnailStrip extends StatelessWidget {
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
-                    CachedNetworkImage(imageUrl: media[i].imageUrl, fit: BoxFit.cover),
+                    _Poster(item: media[i]),
                     // Active thumbnail stays full brightness; the rest
                     // are dimmed with a grey scrim instead of putting a
                     // border on the active one.
@@ -49,6 +49,46 @@ class MediaThumbnailStrip extends StatelessWidget {
           );
         },
       ),
+    );
+  }
+}
+
+/// A preview still, or a play glyph on a dark plate when the item has none.
+///
+/// A `videos` entry carries a real `thumbnailUrl`, so most embeds now show
+/// their actual frame here. An embed that came through `imageUrls` has no
+/// poster at all — its `imageUrl` is the embed URL, which would 404 as an
+/// image — so it falls back rather than rendering a broken tile.
+class _Poster extends StatelessWidget {
+  const _Poster({required this.item});
+
+  final PostMediaModel item;
+
+  @override
+  Widget build(BuildContext context) {
+    final poster = item.posterUrl;
+    final fallback = ColoredBox(
+      color: Colors.black54,
+      child: item.isEmbed
+          ? const Icon(Icons.play_arrow_rounded, color: Colors.white, size: 20)
+          : const SizedBox.shrink(),
+    );
+    if (poster == null) return fallback;
+
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        CachedNetworkImage(
+          imageUrl: poster,
+          fit: BoxFit.cover,
+          placeholder: (_, _) => const ColoredBox(color: Colors.black26),
+          errorWidget: (_, _, _) => fallback,
+        ),
+        if (item.isEmbed)
+          const Center(
+            child: Icon(Icons.play_arrow_rounded, color: Colors.white, size: 20),
+          ),
+      ],
     );
   }
 }

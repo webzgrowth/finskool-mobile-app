@@ -9,9 +9,11 @@ import 'widgets/subscription_benefits_section.dart';
 import 'widgets/subscription_community_card.dart';
 import 'widgets/subscription_plan_section.dart';
 import 'widgets/subscription_transaction_section.dart';
+import 'widgets/welcome_kit_section.dart';
 
-/// Figma `Frame 2121453551` — plan info, transaction receipt, benefits and
-/// a help link. Reached from the Profile tab's "My Subscription" rows.
+/// Figma `Frame 2121453551` / `Frame 2121453573` — plan info, transaction
+/// receipt, the Welcome Kit, benefits and a help link. Reached from the
+/// Profile tab's "My Subscription" rows.
 class SubscriptionDetailScreen extends StatelessWidget {
   const SubscriptionDetailScreen({super.key, required this.community});
 
@@ -20,6 +22,7 @@ class SubscriptionDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final info = community.subscriptionInfo;
+    final kit = community.welcomeKit;
 
     return TealSheetScaffold(
       children: [
@@ -33,8 +36,19 @@ class SubscriptionDetailScreen extends StatelessWidget {
           SubscriptionTransactionSection(info: info),
           const SizedBox(height: AppSpacing.lg),
         ],
+        // The kit brackets "What You get": its cards and risk notices come
+        // before, its disclaimer and sign-off after. That interleaving is
+        // why the screen orders these rather than one Welcome Kit widget.
+        if (kit != null) ...[
+          WelcomeKitSection(kit: kit),
+          const SizedBox(height: AppSpacing.lg),
+        ],
         if (community.benefits.isNotEmpty) ...[
           SubscriptionBenefitsSection(benefits: community.benefits),
+          const SizedBox(height: AppSpacing.lg),
+        ],
+        if (kit != null) ...[
+          WelcomeKitFooter(kit: kit),
           const SizedBox(height: AppSpacing.lg),
         ],
         _NeedHelpButton(

@@ -30,6 +30,14 @@ abstract class AuthRepository {
   /// True when a `mobile_session_id` cookie is on disk. Synchronous and
   /// offline — it says we *have* a credential, not that the server still
   /// accepts it (another device's login may have invalidated it).
+  /// Re-reads the signed-in user from `GET /auth/mobile/me` and refreshes
+  /// the local cache, or fails if the session is no longer valid.
+  ///
+  /// [cachedUser] is a *copy*, written at login; this is the source of
+  /// truth, and the only way to find out a session has died without waiting
+  /// for some other request to fail.
+  Future<Either<Failure, UserModel>> refreshSession();
+
   bool get hasSession;
 
   /// The last logged-in user, restored from cache. Null when signed out or

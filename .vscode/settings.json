@@ -1,3 +1,4 @@
 {
-  "git.autoRepositoryDetection": "openEditors"
+  "git.autoRepositoryDetection": "openEditors",
+  "java.configuration.updateBuildConfiguration": "interactive"
 }

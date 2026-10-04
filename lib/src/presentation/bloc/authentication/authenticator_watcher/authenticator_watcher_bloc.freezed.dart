@@ -56,12 +56,13 @@ extension AuthenticatorWatcherEventPatterns on AuthenticatorWatcherEvent {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _AuthCheckRequest value)?  authCheckRequest,TResult Function( _SignOut value)?  signOut,TResult Function( _NotificationsToggled value)?  notificationsToggled,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _AuthCheckRequest value)?  authCheckRequest,TResult Function( _SignOut value)?  signOut,TResult Function( _SessionExpired value)?  sessionExpired,TResult Function( _NotificationsToggled value)?  notificationsToggled,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case _AuthCheckRequest() when authCheckRequest != null:
 return authCheckRequest(_that);case _SignOut() when signOut != null:
-return signOut(_that);case _NotificationsToggled() when notificationsToggled != null:
+return signOut(_that);case _SessionExpired() when sessionExpired != null:
+return sessionExpired(_that);case _NotificationsToggled() when notificationsToggled != null:
 return notificationsToggled(_that);case _:
   return orElse();
 
@@ -80,12 +81,13 @@ return notificationsToggled(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _AuthCheckRequest value)  authCheckRequest,required TResult Function( _SignOut value)  signOut,required TResult Function( _NotificationsToggled value)  notificationsToggled,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _AuthCheckRequest value)  authCheckRequest,required TResult Function( _SignOut value)  signOut,required TResult Function( _SessionExpired value)  sessionExpired,required TResult Function( _NotificationsToggled value)  notificationsToggled,}){
 final _that = this;
 switch (_that) {
 case _AuthCheckRequest():
 return authCheckRequest(_that);case _SignOut():
-return signOut(_that);case _NotificationsToggled():
+return signOut(_that);case _SessionExpired():
+return sessionExpired(_that);case _NotificationsToggled():
 return notificationsToggled(_that);case _:
   throw StateError('Unexpected subclass');
 
@@ -103,12 +105,13 @@ return notificationsToggled(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _AuthCheckRequest value)?  authCheckRequest,TResult? Function( _SignOut value)?  signOut,TResult? Function( _NotificationsToggled value)?  notificationsToggled,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _AuthCheckRequest value)?  authCheckRequest,TResult? Function( _SignOut value)?  signOut,TResult? Function( _SessionExpired value)?  sessionExpired,TResult? Function( _NotificationsToggled value)?  notificationsToggled,}){
 final _that = this;
 switch (_that) {
 case _AuthCheckRequest() when authCheckRequest != null:
 return authCheckRequest(_that);case _SignOut() when signOut != null:
-return signOut(_that);case _NotificationsToggled() when notificationsToggled != null:
+return signOut(_that);case _SessionExpired() when sessionExpired != null:
+return sessionExpired(_that);case _NotificationsToggled() when notificationsToggled != null:
 return notificationsToggled(_that);case _:
   return null;
 
@@ -126,11 +129,12 @@ return notificationsToggled(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  authCheckRequest,TResult Function()?  signOut,TResult Function( bool enabled)?  notificationsToggled,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  authCheckRequest,TResult Function()?  signOut,TResult Function()?  sessionExpired,TResult Function( bool enabled)?  notificationsToggled,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _AuthCheckRequest() when authCheckRequest != null:
 return authCheckRequest();case _SignOut() when signOut != null:
-return signOut();case _NotificationsToggled() when notificationsToggled != null:
+return signOut();case _SessionExpired() when sessionExpired != null:
+return sessionExpired();case _NotificationsToggled() when notificationsToggled != null:
 return notificationsToggled(_that.enabled);case _:
   return orElse();
 
@@ -149,11 +153,12 @@ return notificationsToggled(_that.enabled);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  authCheckRequest,required TResult Function()  signOut,required TResult Function( bool enabled)  notificationsToggled,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  authCheckRequest,required TResult Function()  signOut,required TResult Function()  sessionExpired,required TResult Function( bool enabled)  notificationsToggled,}) {final _that = this;
 switch (_that) {
 case _AuthCheckRequest():
 return authCheckRequest();case _SignOut():
-return signOut();case _NotificationsToggled():
+return signOut();case _SessionExpired():
+return sessionExpired();case _NotificationsToggled():
 return notificationsToggled(_that.enabled);case _:
   throw StateError('Unexpected subclass');
 
@@ -171,11 +176,12 @@ return notificationsToggled(_that.enabled);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  authCheckRequest,TResult? Function()?  signOut,TResult? Function( bool enabled)?  notificationsToggled,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  authCheckRequest,TResult? Function()?  signOut,TResult? Function()?  sessionExpired,TResult? Function( bool enabled)?  notificationsToggled,}) {final _that = this;
 switch (_that) {
 case _AuthCheckRequest() when authCheckRequest != null:
 return authCheckRequest();case _SignOut() when signOut != null:
-return signOut();case _NotificationsToggled() when notificationsToggled != null:
+return signOut();case _SessionExpired() when sessionExpired != null:
+return sessionExpired();case _NotificationsToggled() when notificationsToggled != null:
 return notificationsToggled(_that.enabled);case _:
   return null;
 
@@ -240,6 +246,38 @@ int get hashCode => runtimeType.hashCode;
 @override
 String toString() {
     return 'AuthenticatorWatcherEvent.signOut()';
+}
+
+
+}
+
+
+
+
+/// @nodoc
+
+
+class _SessionExpired implements AuthenticatorWatcherEvent {
+  const _SessionExpired();
+  
+
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _SessionExpired);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+    return 'AuthenticatorWatcherEvent.sessionExpired()';
 }
 
 

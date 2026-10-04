@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:finskool/src/comman/routes.dart';
 import 'package:finskool/src/presentation/bloc/authentication/authenticator_watcher/authenticator_watcher_bloc.dart';
 import 'package:finskool/src/presentation/bloc/dashboard/bottom_nav/bottom_nav_bloc.dart';
 import 'package:finskool/src/presentation/pages/feed/feed_screen.dart';
 import 'package:finskool/src/presentation/pages/communities/communities_screen.dart';
+
 import 'performance/performance_screen.dart';
 import 'profile/profile_screen.dart';
 import 'widgets/app_bottom_nav_bar.dart';
@@ -28,28 +31,45 @@ class _DashboardShellScreenState extends State<DashboardShellScreen> {
     // so without this the watcher would still say "unauthenticated" and the
     // Profile tab would show nobody. Doing it here covers every route into
     // the shell — login, signup, and the Google path — in one place.
-    context
-        .read<AuthenticatorWatcherBloc>()
-        .add(const AuthenticatorWatcherEvent.authCheckRequest());
+    context.read<AuthenticatorWatcherBloc>().add(
+      const AuthenticatorWatcherEvent.authCheckRequest(),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<BottomNavBloc, BottomNavState>(
-      builder: (context, state) {
-        return Scaffold(
-          body: IndexedStack(
-            index: state.selectedIndex,
-            children: const [
-              FeedScreen(),
-              CommunitiesScreen(),
-              PerformanceScreen(),
-              ProfileScreen(),
-            ],
-          ),
-          bottomNavigationBar: const AppBottomNavBar(),
+    return BlocListener<AuthenticatorWatcherBloc, AuthenticatorWatcherState>(
+      listenWhen: (previous, current) => previous != current,
+      // Owned by the shell, not the Profile tab: the session can die from
+      // anywhere (a login on another device expires this one mid-scroll, and
+      // `SessionExpiry` reports it), and every tab is behind this widget.
+      listener: (context, state) {
+        state.mapOrNull<void>(
+          unauthenticated: (_) {
+            // Back to Feed before leaving. BottomNavBloc is a singleton, so the
+            // index would otherwise still point at whatever tab the user was on
+            // when the next login opens the shell.
+            context.read<BottomNavBloc>().add(const BottomNavEvent.reset());
+            context.go(AppRoutes.LOGIN_ROUTE_PATH);
+          },
         );
       },
+      child: BlocBuilder<BottomNavBloc, BottomNavState>(
+        builder: (context, state) {
+          return Scaffold(
+            body: IndexedStack(
+              index: state.selectedIndex,
+              children: const [
+                FeedScreen(),
+                CommunitiesScreen(),
+                PerformanceScreen(),
+                ProfileScreen(),
+              ],
+            ),
+            bottomNavigationBar: const AppBottomNavBar(),
+          );
+        },
+      ),
     );
   }
 }

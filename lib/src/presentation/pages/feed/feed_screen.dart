@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:finskool/src/utilities/theme/theme.dart';
 import 'package:finskool/src/presentation/bloc/feed/posts/feed_bloc.dart';
-import 'package:finskool/src/presentation/bloc/feed/filter/feed_filter_bloc.dart';
+import 'widgets/feed_list_view.dart';
 import 'widgets/feed_top_bar.dart';
-import 'widgets/feed_post_card.dart';
 
-/// The main feed tab. `SliverAppBar(floating: true, snap: true)` gives
-/// the "hide on scroll down, snap back on scroll up" behavior for free —
-/// Material's built-in floating-app-bar pattern, not a hand-rolled
-/// `AnimationController` (see CLAUDE.md's "Bloc granularity" note on why
-/// this scroll-driven visibility isn't a bloc either).
+/// The Feed **tab** — the free community's posts.
+///
+/// The feed itself lives in [FeedListView], shared with a single community's
+/// feed (`CommunityDetailScreen`); this screen supplies only the tab's top
+/// bar and its initial load. It reads the app-wide [FeedBloc] from
+/// `main.dart`'s provider, where a community's feed scopes its own instance.
 class FeedScreen extends StatefulWidget {
   const FeedScreen({super.key});
 
@@ -22,54 +21,19 @@ class _FeedScreenState extends State<FeedScreen> {
   @override
   void initState() {
     super.initState();
-    context.read<FeedBloc>().add(const FeedEvent.loadFeed());
+    // The tab lives in an IndexedStack and stays mounted, so only load when
+    // there's nothing there yet — otherwise every rebuild refetches.
+    final bloc = context.read<FeedBloc>();
+    if (bloc.state.posts.isEmpty) {
+      bloc.add(const FeedEvent.loadFeed());
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
     return Scaffold(
-      backgroundColor: cs.surfaceContainer,
-      body: BlocBuilder<FeedFilterBloc, FeedFilterState>(
-        builder: (context, filterState) {
-          return BlocBuilder<FeedBloc, FeedState>(
-            builder: (context, feedState) {
-              final posts = feedState.posts.where((p) {
-                final query = filterState.query.trim().toLowerCase();
-                if (query.isEmpty) return true;
-                return p.title.toLowerCase().contains(query) ||
-                    p.body.toLowerCase().contains(query) ||
-                    p.hashtags.any((h) => h.toLowerCase().contains(query));
-              }).toList();
-
-              return CustomScrollView(
-                slivers: [
-                  SliverAppBar(
-                    floating: true,
-                    snap: true,
-                    toolbarHeight: 92,
-                    automaticallyImplyLeading: false,
-                    backgroundColor: Colors.transparent,
-                    elevation: 0,
-                    flexibleSpace: const FeedTopBar(),
-                  ),
-                  if (feedState.state.isLoading || feedState.state.isEmpty)
-                    const SliverFillRemaining(
-                      child: Center(child: CircularProgressIndicator()),
-                    )
-                  else
-                    SliverList.builder(
-                      itemCount: posts.length,
-                      itemBuilder: (context, i) =>
-                          FeedPostCard(post: posts[i]),
-                    ),
-                  const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.lg)),
-                ],
-              );
-            },
-          );
-        },
-      ),
+      backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
+      body: const FeedListView(topBar: FeedTopBar()),
     );
   }
 }

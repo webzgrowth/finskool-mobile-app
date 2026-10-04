@@ -44,6 +44,13 @@ void main() async{
       },
       logger.logZoneError,
     ),
+    // `debug` rather than the default `info`, or `ApiLoggingInterceptor`'s
+    // request/response lines are filtered out before they ever print — they
+    // are logged at debug level. `logInRelease` stays false, so none of this
+    // reaches a release build. The chunk size is raised because a feed page
+    // is far longer than the 1024-char default, which would otherwise saw it
+    // into unreadable fragments.
+    const LogOptions(level: LoggerLevel.debug, chunkSize: 8192),
   );
 }
 

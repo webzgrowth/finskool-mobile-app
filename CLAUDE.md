@@ -36,8 +36,9 @@ lib/src/
   injections/         get_it + injectable wiring
 ```
 
-`data/` and `domain/` are currently empty scaffolding — nothing is wired
-through them yet. That is expected, not a bug to fix mid-task.
+`data/` and `domain/` are real: auth, the feed and communities all run the
+full datasource → repository → usecase chain through them. (Older notes in
+this file called them empty scaffolding — they aren't any more.)
 
 ## Rules
 
@@ -118,7 +119,8 @@ inlining it would push the bloc file over the line-length rule.
 ## Networking / API integration
 
 The contract lives in `docs/auth_api_doc.md`. **Auth is fully wired to the
-real backend**; everything else (the feed) is still mocked.
+real backend**, and so is the **feed** (posts + reactions — see "Feed /
+Dashboard"). Only the communities catalog is still mocked.
 
 **Mobile auth is cookie-based, not a Bearer token.** `POST /auth/mobile/login`
 returns no token — it sets an httpOnly `mobile_session_id` cookie, and that
@@ -152,10 +154,25 @@ The chain is datasource → repository → usecase, and the layer boundary is a
 rule: **everything below the repository throws; everything above gets an
 `Either<Failure, T>`.** Repositories are one-liners wrapping
 `handleErrors` (`comman/error_handler.dart`), which maps `ApiException` onto
-`ServerFailure`/`ValidationFailure` and runs `messageForCode` to turn the
-API's codes into copy that tells the user what to do. A `422` becomes a
-`ValidationFailure` carrying per-field messages, which each bloc drops onto
-its own `emailError`/`phoneError`/… slots instead of one generic snackbar.
+`ServerFailure`/`ValidationFailure`. A `422` becomes a `ValidationFailure`
+carrying per-field messages, which each bloc drops onto its own
+`emailError`/`phoneError`/… slots instead of one generic snackbar.
+
+**The backend owns all failure copy.** `ApiException.message` is passed to
+the user **verbatim** — there is deliberately no client-side code-to-copy
+mapping. A `messageForCode` switch used to rewrite known codes
+(`SUBSCRIPTION_REQUIRED`, `SESSION_INVALIDATED`, `OTP_INVALID`, …) into
+local wording; it was **removed on purpose**, so don't reintroduce one. If a
+failure message reads badly, fix it on the backend rather than overriding it
+here. `code` is still preserved on the failure, because the UI branches on
+it.
+
+The only locally-worded failures left are the ones where no server message
+exists at all, and they must stay: `_dioMessage` (timeout, DNS, TLS, a 5xx
+with no body), `SocketException` → "No internet connection.", and
+`api_envelope.dart`'s last-resort string for a response that omits
+`message` entirely. Local **form validation** copy (`comman/validators.dart`)
+is unrelated to this and stays as it is.
 
 Blocs take usecases by constructor injection, so **any bloc change needs
 `dart run build_runner build`** — the generated registrations are no longer
@@ -366,24 +383,184 @@ why they're separate): `BottomNavBloc` (tab selection), `bloc/feed/posts/
 FeedBloc` (post list + reaction state), `bloc/feed/filter/FeedFilterBloc`
 (search text + filter chips).
 
-**Mock data, real shape.** `FeedBloc` calls `data/datasource/
-FeedMockDatasource` directly for a hardcoded `List<FeedPostModel>` —
-`data/`+`domain/` are still otherwise-empty scaffolding (see Known gaps),
-so this intentionally skips a full repository/usecase chain. Swapping in a
-real `Dio`-backed repository later only touches this one file.
+**The feed is wired to the real API.** `GET /mobile/posts` via
+`PostsRemoteDatasource` → `PostsRepository` → four usecases in
+`domain/usecases/feed/`. `FeedMockDatasource` is retired but left on disk —
+it's the only offline sample of the typed `PostMediaModel` shape.
 
-**Post media** (`domain/model/post_media_model.dart`) is one of
-`image` / `youtubeEmbed` / `instagramEmbed`. Embeds render inline via
-`webview_flutter` (`widgets/embed_player.dart`) — true in-feed playback,
-not a tap-to-open-externally thumbnail. Native uploaded-video playback
-(`video_player`) is out of scope; the "01:11"-style badge on an `image`
-item is a decorative overlay, not a real video control.
+**The post list now carries `reactionCounts` and `myReaction`** (the backend
+added them; the OpenAPI spec doesn't show them). So counts and the user's own
+reaction are **exact**, parsed straight out of `FeedPostModel.fromJson`, and
+the old per-post count hydration is gone — along with `reactionTotal`, which
+only existed to paper over the undercount, and `FeedBloc`'s `AuthRepository`,
+which only existed to infer `myReaction` by matching the cached user id
+against the reactor rows.
+
+`FeedBloc` still hydrates one thing per post: the **reactor list** (*who*
+reacted) for the Reactions sheet, via
+`GET /mobile/posts/{id}/reactions?pageSize=50`, fired without `await` so the
+cards paint first. `applyReactors` touches nothing but `reactors` — folding
+counts back out of those rows would undo exact figures and undercount any
+post past 50 reactors. Notes that still apply:
+
+- A write (`PUT`/`DELETE`) answers with counts but **no rows**, so `_write`
+  re-runs `_hydrateOne` for that post afterwards. Without it the Reactions
+  sheet kept listing whoever had reacted at load time — i.e. nobody, for a
+  post whose first reaction is the user's own, which read as "the sheet is
+  broken". The sheet's tab counts read `post.reactionCounts` (authoritative)
+  rather than folding `post.reactors`, which lag by that one round-trip.
+- The sheet still **cannot page**, so it lists at most 50 reactors even on a
+  post whose (now exact) count is higher.
+- An `int _generation` guard drops responses belonging to a feed that's
+  since been replaced, and a `Set<String> _pendingWrites` stops a slow
+  hydration from clobbering a reaction the user just made.
+
+Reactions are **optimistic then reconciled**: the bloc patches counts
+locally, then replaces them wholesale with the `PUT`/`DELETE` response
+(the API omits zero-count types, so replace — never merge), or rolls that
+one post back on failure. A failed reaction or a failed extra page keeps
+`RequestState.loaded` and raises `FeedState.message` as a snackbar; it
+never blanks a feed the user is already reading.
+
+Paging is `page`/`pageSize` (20), with infinite scroll from a local
+`ScrollController` in `feed_screen.dart` and a `RefreshIndicator`. Two
+guards in `_onScroll` are load-bearing: it returns when `maxScrollExtent`
+is 0, and it **clamps** the 600px trigger distance to half the list rather
+than subtracting it flat. A plain `maxScrollExtent - 600` goes negative on
+any feed shorter than 600px, which made the check true from `pixels: 0`
+and fired `loadMore()` on every scroll notification in both directions. It
+also repeats the bloc's own `hasMore`/`isLoadingMore` guard, so a feed with
+no next page stops dispatching at the source instead of churning one
+dropped event per tick. The
+endpoint's `date`/`order` params are plumbed through `GetPosts` but have no
+UI; the filter chips are still client-side.
+
+The feed is always scoped to **exactly one community**. `communityId` is
+omitted, which asks for the one free community every account is subscribed
+to at registration. `FeedEvent.loadFeed({communityId})` carries it for when
+a picker exists.
+
+**Video players are mounted only on tap** (`widgets/lazy_embed.dart`), and
+that is a bug fix, not a style choice. The players are native **platform
+views**; Flutter composites those by inserting the native view and painting
+overlapping Flutter widgets into overlay layers above it, which goes wrong
+inside a scrolling list — a video scrolled to the bottom of the feed painted
+straight **over the bottom navigation bar**. The layout was never at fault
+(the shell's `Scaffold` has no `extendBody`), so padding and clipping can't
+fix it; not creating the platform view until it's wanted does. It also stops
+a feed holding one live WebView per visible video. `LazyEmbed` shows
+`posterUrl` — the API's real `thumbnailUrl` — with a play badge until
+tapped, then plays **inline, in the card**.
+
+**Post media comes from three places**, unioned by `FeedPostModel._media`
+in that order — images first, then videos:
+
+1. `imageUrls` — a flat list of strings, no type, host-sniffed by
+   `PostMediaModel.fromUrl`.
+2. **Pictures embedded inline in the HTML `content`**, which is where the
+   admin composer actually puts them; a post can have images while
+   `imageUrls` is `[]`. Deduped against source 1.
+3. **`videos`** — a typed array the OpenAPI spec **does not document** but
+   the API does send: `{id, kind, url, embedUrl, externalId, title,
+   thumbnailUrl}`. `PostMediaModel.fromVideoJson` parses it. `kind` maps
+   `youtube`/`instagram` onto their types and **anything else onto
+   `videoEmbed`** — an unrecognised kind is still played in the WebView
+   rather than dropped. An entry with neither `embedUrl` nor `url` returns
+   null and is skipped.
+
+`PostMediaType` is therefore `image` / `youtubeEmbed` / `instagramEmbed` /
+`videoEmbed`. Native uploaded-video playback (`video_player`) is still out
+of scope.
+
+### Embeds play in-app
+
+Two renderers, picked in `PostMediaCarousel._MediaItem` by whether the item
+resolved a `videoId`:
+
+**YouTube → `YoutubeEmbedPlayer`** (`youtube_player_flutter`). It takes the
+**video id**, not a URL — `videos[].externalId` is exactly what
+`YoutubePlayerController.fromVideoId` wants, so nothing parses a watch link
+on this path. `PostMediaModel.videoId` carries it, falling back to
+`youtubeVideoId(url)` only for a YouTube link that came through `imageUrls`
+or the post body. Note the package is **v10**, a rewrite on top of
+`youtube_player_iframe`: the widely-copied `YoutubePlayerController(
+initialVideoId:, flags: YoutubePlayerFlags(...))` snippet is the 8.x API and
+will not compile. Use `.fromVideoId(videoId:, autoPlay:, params:
+YoutubePlayerParams(...))`, and `close()` the controller in `dispose` **and**
+in `didUpdateWidget` when the id changes — the carousel reuses one element
+per page slot, so without that the previous video keeps playing under the
+next card. `autoPlay` stays false: several cards are on screen at once.
+
+**Instagram and everything else → `EmbedPlayer`**, a WebView. It
+**loads the embed URL directly** — it does *not* wrap it in an `<iframe>`
+inside a `loadHtmlString` document, which is what it used to do for
+YouTube's referer check. For Instagram that wrapper was actively harmful:
+its embed script sizes itself by posting to `window.parent`, and nesting it
+a frame deeper under a synthetic origin left posts **intermittently blank**.
+Two more things keep it working, and both are easy to delete by accident:
+
+- **A real browser `userAgent`.** Instagram serves a stripped page or a
+  login wall to clients it doesn't recognise — the other common cause of a
+  blank embed.
+- **Failures are surfaced**, via `onWebResourceError`/`onHttpError`, as an
+  "This post can't be shown" tile. A deleted or private Instagram post can
+  never render, and a black rectangle is indistinguishable from one that is
+  merely slow. Only the *first* outcome counts, so a late sub-resource
+  error can't blank a frame that already painted.
+- **`comman/embed_urls.dart` normalises the URL first.** A watch/permalink
+  URL is not embeddable. `embedTargetFor` maps every YouTube shape
+  (`watch?v=`, `youtu.be/`, `/embed/`, `/shorts/`, `/live/`, and
+  `youtube-nocookie.com`) onto `youtube.com/embed/<id>` with
+  **`playsinline=1`**, and maps Instagram `/p/`, `/reel/`, `/tv/` onto
+  `/embed` — Instagram frames no other route. It returns the matching
+  `origin` for the `baseUrl`. Plain `/embed`, not `/embed/captioned`: the
+  captioned variant grows to fit the caption and no card ratio can hold it.
+- **Inline playback is enabled per platform.** The federated
+  `webview_flutter` surface can't express it, so `webview_flutter_android`
+  and `webview_flutter_wkwebview` were promoted from transitive to direct
+  dependencies for `WebKitWebViewControllerCreationParams(
+  allowsInlineMediaPlayback: true)` and Android's
+  `setMediaPlaybackRequiresUserGesture(false)`. Without them iOS takes the
+  first tap fullscreen into the system player.
+
+`test/embed_urls_test.dart` pins every URL shape — still worth keeping for
+Instagram, and because `youtubeVideoId` feeds the real player. `EmbedPlayer`
+has **no `AspectRatio` of its own**: `PostMediaCarousel` sizes each item from
+`PostMediaModel.aspectRatio`, which is Figma's 16:9 except for
+`instagramEmbed`, whose embed is portrait (4:5) and gets its picture and
+account header cropped off in a 16:9 box. The carousel wraps that in an
+`AnimatedSize` so a mixed carousel doesn't snap height mid-swipe.
+
+**Only source 3 has a poster frame.** `thumbnailUrl` is why
+`PostMediaModel.posterUrl` exists: it returns the thumbnail, or the
+`imageUrl` for a real image, or **null** for an embed that came from
+`imageUrls` — whose `imageUrl` is the embed URL and would 404 in an image
+widget. `MediaThumbnailStrip._Poster` falls back to a play glyph on a dark
+plate when it is null. The "01:11"-style badge is a decorative overlay, not
+a real video control, and `durationLabel` is never populated from the API.
+
+**`ReactionType` is the backend's seeded set, minus one.**
+`like, love, haha, wow, angry` (👍❤️😂😮😡), in the API's `sortOrder`.
+The backend also seeds **`sad`, which this app deliberately omits** — the
+product call is that it doesn't belong on this feed. Nothing special is
+needed to filter it: `ReactionTypeX.fromName` is nullable, so a `sad` row
+drops out of the counts, the reactor list and the type catalog on its own.
+Don't re-add it to the enum to "match the backend". Figma drew a *different* six — 👍❤️🔥👏✅😮 — but
+`GET /mobile/reaction-types` is authoritative and there is no social
+endpoint to add `fire`/`clap`/`verified` to, so they're gone. The integer
+`reactionTypeId` that `PUT .../reactions` wants is resolved at runtime by
+`ReactionTypeCatalog` (which memoises the **in-flight future**, so N
+simultaneous reacts cause one fetch) — never hardcoded.
+
+`ReactionTypeX.fromName` is **nullable on purpose**: every reaction name now
+arrives from the API, so an unknown one drops that single datum rather than
+throwing and taking the whole feed down. Callers skip the row or count key.
 
 **Reaction icons: emoji are the design, not a placeholder.** Figma's
 long-press picker is a frame literally named `Picker` (`605:17127`) holding
-six *text* nodes with 👍❤️🔥👏✅😮 — the designer used emoji characters
-too, so `ReactionTypeX.emoji` is correct and there is no picker art to
-export. Do not "upgrade" it to an icon set.
+six *text* nodes of emoji characters — the designer used emoji too, so
+`ReactionTypeX.emoji` is correct and there is no picker art to export. Do
+not "upgrade" it to an icon set.
 
 Its geometry is pinned to Figma in `ReactionPickerOverlay`: a 235x39 pill
 (`#F2F2F2` plate, 0.38px `#D7D7D7` hairline), six 27.87px items on a 36px
@@ -397,7 +574,8 @@ Two reactions do have exported art, and they differ in kind
 `reaction_like_fill.svg` is a monochrome UI glyph — the **Like control**,
 the only tintable asset; `reaction_like.svg` / `reaction_heart.png` are
 full-colour illustrations for the badge stack. `ReactionGlyph` picks art
-when it exists and falls back to the emoji.
+when it exists and falls back to the emoji — so `haha`, `wow`, `sad` and
+`angry` are all emoji.
 
 **Emoji text needs `inherit: false`.** The app theme sets a custom
 `fontFamily`, and U+2764 (❤) defaults to *text* presentation — under a
@@ -418,18 +596,23 @@ on a 13px pitch, each holding ~12px of art, then the total. Who reacted is
 the Reactions sheet's job; `FeedPostModel.rankedReactions` drives the stack.
 
 Per-reaction disc colours live on `AppGradients` and are resolved by
-`ReactionIcons.badgeColor`. Figma specifies only three of our six —
-thumbs-up on blue `#388FE7`, heart on red `#F15759`, clap on green
-`#6DAE53`. Its other two discs belong to reactions we don't have (bulb on
-amber `#FFDA56`, laughing on teal `#108B8B`), so **those colours are
-reassigned** to `wow` and `verified`, and `fire` takes the orange `#F95428`
-from Figma's own laughing-emoji artwork. Confirm with the designer before
-treating those three as final.
+`ReactionIcons.badgeColor`. Figma's set only partly overlaps the backend's,
+so: `like` keeps Figma's blue `#388FE7` and `love` its red `#F15759`;
+`haha` takes the teal `#108B8B` Figma gave its *laughing* emoji, which is
+now a genuine match rather than a reassignment; and `wow` (amber
+`#FFDA56`), `sad` (green `#6DAE53`) and `angry` (orange `#F95428`) reuse
+the remaining palette tokens. **Confirm those last three with the
+designer** — Figma never designed them. No new `AppPalette` entries were
+invented for this.
 
-The `bulb` (insight) reaction in the badge mockup isn't offered by the
-picker, and the picker's 🔥✅😮 never appear as badges. The picker is
-authoritative — the bulb is leftover art and `ReactionType` deliberately
-has no `insight` value.
+Figma's `bulb` (insight) and `clap` discs now belong to no reaction at all,
+and `ReactionType` deliberately has no `insight` value.
+
+**Avatars are nullable now.** `authorAvatarUrl` and `ReactorModel.avatarUrl`
+are `String?`, deliberately *not* defaulted to `''` — they feed
+`CachedNetworkImage`, so an empty string fires a guaranteed-failing request
+per card. Both fall back to `comman/initials.dart`'s `initialsFor(name)`,
+which `UserAvatar` now shares rather than keeping its own copy.
 
 ### Reactions bottom sheet
 
@@ -437,6 +620,15 @@ Measured from Figma's sheet in `605:16036`. It is **not** a Material chip
 row: every tab label is teal `#108B8B` regardless of state, and the *only*
 selected indicator is a 1px underline sitting on the tab row's `#D9D9D9`
 rule. Zero-count reactions still get a tab.
+
+`showReactionsSheet` takes a **post id**, not a reactor list: it reads the
+post back out of `FeedBloc` through a `BlocSelector`, so the sheet keeps up
+with hydration still arriving and with the user reacting from the card
+behind it. It is pushed on the root navigator, outside the feed's subtree,
+so the bloc is handed across with `BlocProvider.value`. The "All" tab shows
+`post.totalReactions` (authoritative) rather than `reactors.length`, and
+the sheet **cannot page** — it shows the hydrated 50 even though the
+endpoint supports `page`. Paging it would need a per-post reactions bloc.
 
 | Part | Figma |
 |---|---|
@@ -454,6 +646,46 @@ The tab underline must be a **bottom border on the padded tab**, not a
 sibling box: a `Container(height: 1)` with no child collapses to zero width
 inside a `Column`, so it renders as nothing. A transparent border on the
 unselected tabs keeps heights equal so selecting causes no layout shift.
+
+### Post body is HTML, whatever the spec says
+
+The OpenAPI spec calls `content` "Markdown source". **It isn't** — the admin
+side composes posts in a rich-text editor, so what arrives is HTML
+(`<p>test</p>`, which used to render with the tags visible on screen).
+
+`comman/rich_text_spans.dart`'s **`bodySpans()`** is the entry point: it
+sniffs for a tag and routes to `htmlSpans()` or, for genuinely plain text,
+the original `boldSpans()` markdown path. Use `bodySpans` for any post body.
+
+API request/response bodies are logged by `ApiLoggingInterceptor` at
+**debug** level, and `main()` passes `LogOptions(level: LoggerLevel.debug)`
+to make them actually print — the default is `info`, which silently filtered
+every one of those lines. `CommunitiesRemoteDatasource._log` does the same for both community
+endpoints, and `PostsRemoteDatasource._logMedia` additionally
+dumps each post's raw **key set** plus `imageUrls` and the inline `<img>`
+srcs, because the parsed model can't show you media that arrived under an
+unexpected key. All of it is debug level, so none reaches release.
+
+`comman/html_spans.dart` handles the subset a rich-text editor emits — bold,
+italic, `br`/`p`/`div`/`hN` line structure, `ul`/`ol`/`li` bullets, and HTML
+entities — with everything else degrading to its text content. It is a hand
+parser on purpose, not `flutter_html`; add a real package only if posts start
+carrying tables or tappable links. `test/html_spans_test.dart` pins the
+behaviour.
+
+**Images come from two places.** `imageUrls` is a flat list of strings with no
+type, so `PostMediaModel.fromUrl` sniffs the kind from the URL host
+(youtube.com/youtu.be, instagram.com, else image). But the composer embeds
+uploaded pictures **inline in `content`** instead, so a post can have images
+while `imageUrls` is empty — `FeedPostModel.fromJson` therefore unions
+`imageUrls` with `htmlImageUrls(content)`, deduped. If images still don't
+appear, check the URLs are absolute: `PostMediaCarousel` now draws an
+explicit error tile, so a broken URL shows a placeholder glyph rather than
+the blank 16:9 hole it used to leave.
+
+The API gives no poster frame for an embed — `imageUrl` carries the embed URL
+itself — and no duration, so that decorative "01:11" badge can never render
+from real data.
 
 ### Centring glyphs in reaction discs
 
@@ -511,6 +743,38 @@ established in `authentication/widgets/country_picker_sheet.dart`
 (`showModalBottomSheet(isScrollControlled: true, backgroundColor:
 Colors.transparent)`, drag handle, `AppRadii.sheet`).
 
+**The selected tab resets to Feed when the user signs out, not on shell
+entry.** `BottomNavBloc` is a `@singleton` built eagerly at startup, so
+`selectedIndex` outlives a logout — signing out from Profile left it at 3
+and the next login opened on Profile. The shell's `unauthenticated` listener
+dispatches `BottomNavEvent.reset()` before `context.go`-ing to login.
+Deliberately **not** done in `DashboardShellScreen.initState`:
+`compliance_form.dart` and `payment_success_screen.dart` both re-enter the
+shell with `context.go(DASHBOARD)`, and resetting there would drop the user
+on Feed after a purchase instead of back on Communities. Logout is the only
+hole, since a cold start constructs the bloc at 0 anyway.
+
+**The session is resolved against the server, and expiry signs you out.**
+`AuthenticatorWatcherEvent.authCheckRequest()` now calls
+`GET /auth/mobile/me` (`RefreshSession` usecase) instead of trusting the
+prefs cache, so the signed-in user is the server's answer and the cache is
+only a fallback. Two failures are treated differently on purpose: if the
+cookie is gone after the call (`SessionInterceptor` clears it on a 401), the
+user is signed out; **any other failure keeps the cached user signed in**,
+because losing network is not losing your account.
+
+Mid-session death is handled too. `SessionInterceptor` fires
+`SessionExpiry.instance.notifyExpired()` whenever a 401 comes back **and a
+cookie was actually stored** — that last condition is what stops a failed
+*login* (also a 401) from looking like an expiry. `AuthenticatorWatcherBloc`
+subscribes to that stream and raises `sessionExpired`. It's a plain
+broadcast-stream singleton rather than a bloc because the interceptor is in
+the data layer and fires from inside a Dio callback, not an event handler.
+
+The resulting **signed-out redirect lives on `DashboardShellScreen`**, not
+`ProfileScreen` — the session can die on any tab. It resets the nav index and
+`context.go`s to login.
+
 `DashboardShellScreen` re-dispatches `AuthenticatorWatcherEvent
 .authCheckRequest()` in `initState`. Logging in only updates `LoginFormBloc`,
 so without that the watcher would still report `unauthenticated` and the
@@ -533,13 +797,76 @@ user can enter, buy, or ask the price of. Built from Figma's `750:1111`
 at `pages/communities/`, **not** under `pages/dashboard/` — `FeedScreen` set
 that precedent; the shell just imports the tab screen.
 
-**Mock data, real shape.** `docs/auth_api_doc.md` documents **no community
-endpoints** beyond `/auth/mobile/select-community`, so
-`CommunitiesRepositoryImpl` reads `data/datasource/
-communities_mock_datasource.dart`. The datasource → repository → usecase
-chain is real, so swapping in a remote datasource touches one file. When it
-lands, note `ApiClient` only returns `Map<String, dynamic>?` — a list
-endpoint needs a `data: { items: [...] }` envelope or a new `getList`.
+**The catalog is wired to the real API.** `CommunitiesRemoteDatasource` →
+`CommunitiesRepositoryImpl` → the existing usecases.
+`CommunitiesMockDatasource` is retired but left on disk, like
+`FeedMockDatasource`.
+
+It takes **two** endpoints, because neither answers the whole question:
+
+| | `GET /mobile/communities` | `GET /auth/mobile/me` |
+|---|---|---|
+| what | every **purchasable** community | the ones the user **is in** |
+| has | plans, `whatsIncluded`, `type`, member count | `expiresAt` |
+| lacks | any notion of membership | price, plans, benefits |
+
+The catalog also **excludes the one free community** outright, so a user's
+free membership only ever appears via `/me`. `getCommunities` fires both
+together (`Future.wait` — they're independent) and merges: a community in
+both keeps its catalog detail and gains `subscribed` + its expiry; one only
+in `/me` is appended as-is. `expiresAt` is what finally makes
+`subscribedUntil` real — the "Active till…" / "Expires in N days" line and
+the Renew pill were mock-only before.
+
+Note `data` on the catalog endpoint is a **top-level array**, so it needs
+`ApiClient.getList`; plain `get` maps it to null and loses the response.
+
+**Four fields have no API equivalent** and are derived or defaulted in
+`CommunityModel.fromCatalogJson` rather than faked:
+
+- `access` — derived, as above. A community with **no plans** becomes
+  `pricingOnRequest`, since nothing is purchasable.
+- `planStyle` — always `duration`. The academy's "Enroll Now" tier styling
+  needs a backend field.
+- `newAnnouncements` — always 0, so the Communities nav badge now reads 0
+  rather than an invented count. No unread endpoint exists.
+- `CommunityPlanModel.featured` — always false, so `headlinePlan` falls back
+  to the cheapest. Which plan headlines a card stays editorial; nothing in
+  the payload expresses it.
+
+`saveLabel` and `perMonthLabel` **are** derived
+(`CommunityPlanModel.fromCatalogList`) — unlike `featured` these are
+arithmetic, not editorial: the per-month rate, and the saving against the
+dearest per-month rate on offer.
+
+`subscriptionInfo` (transaction id, paid date, method) has no endpoint
+either. `SubscriptionDetailScreen` guards on null and would simply omit its
+Plan and Transaction cards, which left the screen looking half-built, so
+`DemoSubscriptionDatasource` **derives a stand-in receipt** for every
+subscribed community and the repository attaches it in `_withDemoReceipt`.
+
+It is derived, not hardcoded: the plan and amount are the community's own
+`headlinePlan`, and `startedOn`/`paidOn` are counted back from the real
+`expiresAt`, so the dates bracket the plan's duration and differ per
+community. Only the transaction id (deterministic from the community id, so
+it doesn't change as you navigate) and the payment method are invented. The
+free community has no plans, so it gets a truthful **₹0 "Free membership"**
+card rather than a price it never charged.
+
+A fallback that injected three mock *subscribed communities* was added and
+then **removed on request** — don't reintroduce it. The consequence is
+intended: with no real subscription, `ProfileScreen` hides its whole "My
+Subscription" section and the Welcome Kit is unreachable. `communities_mock_
+datasource.dart` is now unreferenced; it stays on disk like
+`FeedMockDatasource`, as the only sample of the full `CommunityModel` shape.
+
+**This is demo scaffolding — delete it when a purchase-history endpoint
+exists.** Grep `DemoSubscriptionDatasource`. Same category as
+`comman/placeholder_images.dart`, which stands in for a null
+`coverImageUrl` with the retired mock's three Unsplash covers, picked
+deterministically per community id so the list isn't six copies of one
+photo. Both exist so an empty field still *looks* finished; both make it
+easy to forget the field is empty.
 
 **One `CommunityModel`, two shapes.** Login returns a *subset* of its fields
 (the subscribed communities); the catalog knows more (category, pricing,
@@ -637,8 +964,43 @@ matched for free.
 `Wrap`/`Row`. Use `Center(widthFactor: 1)` for anything that should hug its
 label — this bit the tag chips, the announcement tag and the plan buttons.
 
-**Not built, knowingly:** the inside of a community (`CommunityDetailScreen`
-is a routed placeholder — Figma has no design for it).
+### Inside a community
+
+`CommunityDetailScreen` is **the Feed, scoped to one community** — literally
+`FeedListView`, the same widget the Feed tab uses, so cards, reactions,
+search, filter, refresh and paging are identical by construction. Only the
+top bar differs: `SearchTopBar` gained optional `onBack`/`title`, which only
+a *pushed* feed sets (the two tabs sit in the nav shell and pass neither, so
+their chrome is untouched).
+
+**A taller bar must raise `toolbarHeight` or it overflows.** `SliverAppBar`
+cannot size itself to its `flexibleSpace`, so the title row has to be paid
+for explicitly: `FeedListView` takes a `toolbarHeight` and the community
+screen passes `SearchTopBar.heightFor(context, hasTitle: true)`. That helper
+*measures* the row against `MediaQuery.textScalerOf` rather than adding a
+flat 30px — at a large system font scale a constant would clip the title.
+`test/community_top_bar_test.dart` pins both the fit and the overflow it
+replaced.
+
+**`FeedBloc` and `FeedFilterBloc` are `@injectable`, not `@singleton`** —
+the one deliberate deviation from the bloc convention above, and it is
+load-bearing. The community screen scopes its own pair via
+`BlocProvider(create: (_) => locator<T>())`, so entering a community cannot
+clobber the Feed tab's posts, scroll offset or search text. `main.dart` is
+unchanged and still yields one app-lifetime instance for the tab; every
+other `locator<FeedBloc>()` call now returns a **new** bloc, so don't add
+one expecting the shared instance. `ReactionTypeCatalog` stays
+`@lazySingleton`, so reaction types are still fetched once across both.
+
+Every consumer (`FeedPostCard`, `PostReactionBar`, `showReactionsSheet`,
+`feedBodySlivers`, the filter sheet) resolves its bloc from `context`, so the
+scoped provider redirects the whole subtree with no further changes.
+
+The route passes the whole `CommunityModel` via `extra` (like
+`/subscription-detail`), falling back to the `:id` path parameter for a cold
+deep link. The error-retry in `feedBodySlivers` passes
+`state.communityId` — without it a failed community feed retried as the
+*free* feed.
 
 ### Subscription Detail screen
 
@@ -674,6 +1036,41 @@ Cells are separated by full-height 1px rules (`GridVRule`, which needs the
 `IntrinsicHeight` above the `Row`), rows by `GridHRule`. Auto-renew takes
 a double-width cell — Figma has no third item on that row and no rule to
 its right.
+
+#### Welcome Kit
+
+Figma `Frame 2121453573` adds onboarding material **between** the invoice
+button and the help link: "Watch before you start" (intro + video rows),
+"Capital Allocation" (a figure on a mint plate, then "Strategy at a glance"
+tiles), risk notices, then — *after* "What You get" — a blue disclaimer and
+the centred teal mission sign-off.
+
+That interleaving is why it is **two widgets, not one**:
+`WelcomeKitSection` renders everything up to the benefits list and
+`WelcomeKitFooter` everything after, with `SubscriptionDetailScreen` owning
+the order. Don't merge them without moving the benefits list too.
+
+It is **content, and entirely unbacked**: no endpoint describes videos,
+capital figures, strategy stats or risk wording.
+`WelcomeKitDemoDatasource` holds it keyed by slug and returns null for a
+community the design doesn't cover — the Academy gets no section rather
+than borrowing Intraday's numbers. Capital guidance and risk copy are
+exactly the kind of thing that gets revised, so **move this to the backend
+before the figures can change**; a shipped build is a bad place to keep
+them.
+
+Two details worth not "fixing": the stat grid is a `Wrap` of half-width
+tiles rather than a `GridView`, because Investor's **five** stats must
+leave the last tile half-width (the design does this) instead of stretching
+it; and the three notice banners share one widget driven by `NoticeTone`,
+which selects plate, hairline, ink and icon together.
+
+**These colours and sizes came from a screenshot, not Figma** — the Figma
+MCP was unavailable (it authenticates by OAuth, so a pasted PAT can't be
+used). The `AppPalette` "Welcome Kit" block and the new
+`SubscriptionDetailTypography` entries are screenshot-derived and flagged
+as such; re-verify them when Figma is reachable. Video thumbnails fall back
+to a play glyph on a dark plate, since nothing supplies the artwork.
 
 `AutoRenewToggle` is a green "On" pill with the knob on the left, not a
 Material `Switch`, and is local state: there's no backend field for
@@ -951,6 +1348,12 @@ Do not treat these as incidental bugs to fix while doing something else:
   user-supplied reference screenshot, so both are trustworthy; only the
   actual icon glyphs (`profile_icons.dart`, and the bottom nav's
   Feed/Communities icons) are still placeholders, pending a Figma export.
+- Payments are still **not** wired: `/communities/{id}/plans/{planId}/orders`
+  and `/payments/verify` (Razorpay) exist in the spec but
+  `CommunityPurchaseBloc` still fabricates the transaction, and
+  `unlockCommunity`/`requestPricing` remain local-only. A purchase made
+  in-app is replayed over the catalog from prefs until the backend reports it
+  through `/auth/mobile/me`.
 - `SelectCommunity` is only ever called automatically, when login returns
   exactly one community. A user in **two or more** communities never gets to
   choose (the backend falls back to "all my communities merged"); that picker
@@ -970,3 +1373,23 @@ Do not treat these as incidental bugs to fix while doing something else:
   `int`, `sized_box_extension.dart` on `num`) — importing both in one file is
   ambiguous.
 - `test/widget_test.dart` is the stock counter test and does not match `MyApp`.
+  It **fails**, and did before the feed was wired up — don't read it as a
+  regression.
+- `flutter build apk` currently fails on `permission_handler_android`
+  requiring `compileSdk 37`. Pre-existing Gradle config, unrelated to Dart.
+- **The feed's reaction counts are approximate past 50 reactors**, and
+  `myReaction` is unresolvable for a user past that point — both because
+  `GET /mobile/posts` carries no reaction data. See "Feed / Dashboard".
+- The spec at `https://community.finskool21.in/api/docs/` (Swagger UI; the
+  OpenAPI document is embedded in its `swagger-ui-init.js`, so the page
+  can't be read directly) now also documents endpoints that would close
+  gaps listed here, **none of them wired yet**:
+  `POST /auth/mobile/me/kyc` + `GET /auth/mobile/me` (SEBI DOB + PAN, which
+  is what the Edit Profile em-dashes and the local-only
+  `StorageKeys.complianceCompleted` flag are waiting for), and
+  `GET /mobile/communities` / `GET /communities/{id}/plans` /
+  `POST /communities/{id}/plans/{planId}/orders` / `POST /payments/verify`
+  (Razorpay), which would replace `CommunitiesMockDatasource` and
+  `CommunityPurchaseBloc`'s fabricated transaction. Note
+  `/auth/mobile/select-community` is in our `api.dart` but **not** in the
+  current spec — confirm it still exists before relying on it.

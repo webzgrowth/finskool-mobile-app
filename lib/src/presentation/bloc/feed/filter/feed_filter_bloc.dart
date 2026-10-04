@@ -10,8 +10,16 @@ part 'feed_filter_bloc.freezed.dart';
 /// separate from [FeedBloc] since "what the user is searching/filtering
 /// for" and "the post data itself" are different responsibilities (see
 /// CLAUDE.md's "Bloc granularity" note). `FeedScreen` combines this
-/// bloc's state with `FeedBloc`'s post list in the widget layer.
-@singleton
+/// bloc's state with `FeedBloc`'s post list in the widget layer.///
+/// **`@injectable`, not `@singleton`** — the one deviation from the
+/// convention in CLAUDE.md, and it is load-bearing. A community's feed
+/// (`CommunityDetailScreen`) scopes its own instance, so entering a
+/// community cannot clobber the Feed tab's posts, scroll position or
+/// `communityId`. `main.dart`'s `BlocProvider(create: (_) => locator<T>())`
+/// still yields exactly one app-lifetime instance for the tab; every other
+/// `locator<T>()` call now returns a *new* bloc, so don't add one expecting
+/// the shared instance.
+@injectable
 class FeedFilterBloc extends Bloc<FeedFilterEvent, FeedFilterState> {
   FeedFilterBloc() : super(FeedFilterState.initial()) {
     on<FeedFilterEvent>((event, emit) {

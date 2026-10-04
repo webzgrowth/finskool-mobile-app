@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:finskool/src/comman/placeholder_images.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:finskool/src/domain/model/community/community_model.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
@@ -26,13 +27,16 @@ class SubscriptionCommunityCard extends StatelessWidget {
       child: Stack(
         fit: StackFit.expand,
         children: [
-          if (community.coverImageUrl != null)
-            CachedNetworkImage(
-              imageUrl: community.coverImageUrl!,
-              fit: BoxFit.cover,
-              placeholder: (_, _) => const SizedBox.shrink(),
-              errorWidget: (_, _, _) => const SizedBox.shrink(),
-            ),
+          // Falls back to a stand-in cover like the catalog card does — the
+          // API supplies no `coverImageUrl` for most communities yet.
+          CachedNetworkImage(
+            imageUrl: community.coverImageUrl?.isNotEmpty == true
+                ? community.coverImageUrl!
+                : communityCoverFallback(community.id),
+            fit: BoxFit.cover,
+            placeholder: (_, _) => const SizedBox.shrink(),
+            errorWidget: (_, _, _) => const SizedBox.shrink(),
+          ),
           // The art runs edge to edge but the copy sits on the left, so the
           // scrim is horizontal — a bottom-up fade would wash out the name
           // while leaving the right side unreadable.

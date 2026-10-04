@@ -24,6 +24,12 @@ dependencies:
   cached_network_image: ^4.0.0
   flutter_svg: ^2.1.0
   webview_flutter: ^4.13.0
+  # Promoted from transitive to direct: `EmbedPlayer` needs the platform
+  # creation params to allow *inline* media playback, which the federated
+  # `webview_flutter` surface doesn't expose. Without them an embed plays by
+  # taking over the whole screen in the system player.
+  webview_flutter_android: ^4.14.1
+  webview_flutter_wkwebview: ^3.26.1
   intl: ^0.20.2
   google_sign_in: ^7.2.0
   device_info_plus: ^13.2.0
@@ -39,6 +45,7 @@ dependencies:
   injectable: ^3.0.0
   freezed_annotation: ^3.1.0
   lottie: ^3.6.1
+  youtube_player_flutter: ^10.0.1
 
 
 dev_dependencies:

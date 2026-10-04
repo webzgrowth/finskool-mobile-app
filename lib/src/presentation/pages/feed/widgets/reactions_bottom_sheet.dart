@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
+import 'package:finskool/src/domain/model/feed_post_model.dart';
 import 'package:finskool/src/domain/model/reaction_type.dart';
-import 'package:finskool/src/domain/model/reactor_model.dart';
+import 'package:finskool/src/presentation/bloc/feed/posts/feed_bloc.dart';
 import 'reaction_tab.dart';
 import 'reactor_list_tile.dart';
 
@@ -9,22 +11,43 @@ import 'reactor_list_tile.dart';
 /// frame `605:16036`: 486/852 of the screen, white, 10px top corners, an
 /// 82x5 near-black handle, an 18px semibold title, then the underlined tab
 /// row over a `#D9D9D9` rule.
+///
+/// Takes a post **id**, not a reactor list: it reads the post back out of
+/// [FeedBloc] so the sheet keeps up with reaction data still arriving from
+/// hydration, and with the user reacting from the card behind it.
 Future<void> showReactionsSheet(
   BuildContext context, {
-  required List<ReactorModel> reactors,
+  required String postId,
 }) {
+  final bloc = context.read<FeedBloc>();
   return showModalBottomSheet(
     context: context,
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
-    builder: (_) => _ReactionsSheet(reactors: reactors),
+    // The sheet is pushed on the root navigator, outside this subtree, so
+    // the bloc has to be handed across explicitly.
+    builder: (_) => BlocProvider.value(
+      value: bloc,
+      child: BlocSelector<FeedBloc, FeedState, FeedPostModel?>(
+        selector: (state) => _postById(state, postId),
+        builder: (_, post) =>
+            post == null ? const SizedBox.shrink() : _ReactionsSheet(post: post),
+      ),
+    ),
   );
 }
 
-class _ReactionsSheet extends StatefulWidget {
-  const _ReactionsSheet({required this.reactors});
+FeedPostModel? _postById(FeedState state, String postId) {
+  for (final post in state.posts) {
+    if (post.id == postId) return post;
+  }
+  return null;
+}
 
-  final List<ReactorModel> reactors;
+class _ReactionsSheet extends StatefulWidget {
+  const _ReactionsSheet({required this.post});
+
+  final FeedPostModel post;
 
   @override
   State<_ReactionsSheet> createState() => _ReactionsSheetState();
@@ -44,13 +67,14 @@ class _ReactionsSheetState extends State<_ReactionsSheet> {
     final cs = Theme.of(context).colorScheme;
     final type = context.feedType;
 
-    final counts = <ReactionType, int>{};
-    for (final r in widget.reactors) {
-      counts[r.reaction] = (counts[r.reaction] ?? 0) + 1;
-    }
+    final reactors = widget.post.reactors;
+    // The post's own counts, not a fold over [reactors]: a write answers with
+    // authoritative counts and no rows, so the rows lag by one round-trip
+    // while the re-read lands.
+    final counts = widget.post.reactionCounts;
     final visible = _filter == null
-        ? widget.reactors
-        : widget.reactors.where((r) => r.reaction == _filter).toList();
+        ? reactors
+        : reactors.where((r) => r.reaction == _filter).toList();
 
     return Container(
       height: MediaQuery.sizeOf(context).height * _heightFraction,
@@ -86,7 +110,9 @@ class _ReactionsSheetState extends State<_ReactionsSheet> {
             const SizedBox(height: 7),
             _TabRow(
               inset: _inset,
-              total: widget.reactors.length,
+              // The post's authoritative total, which can exceed the rows
+              // fetched — the reactions endpoint pages at 50.
+              total: widget.post.totalReactions,
               counts: counts,
               filter: _filter,
               onSelect: (f) => setState(() => _filter = f),

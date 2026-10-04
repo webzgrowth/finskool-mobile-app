@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:finskool/src/comman/initials.dart';
 import 'package:finskool/src/domain/model/auth/user_model.dart';
 
 /// A user's avatar photo, with an initials fallback when there's no
@@ -27,7 +28,7 @@ class UserAvatar extends StatelessWidget {
       child: user?.avatarUrl != null
           ? null
           : Text(
-              _initials,
+              initialsFor(user?.name),
               style: TextStyle(
                 fontSize: radius * 0.7,
                 fontWeight: FontWeight.w600,
@@ -35,14 +36,5 @@ class UserAvatar extends StatelessWidget {
               ),
             ),
     );
-  }
-
-  String get _initials {
-    final name = user?.name.trim() ?? '';
-    if (name.isEmpty) return '?';
-    final parts = name.split(RegExp(r'\s+'));
-    if (parts.length == 1) return parts.first.substring(0, 1).toUpperCase();
-    return (parts.first.substring(0, 1) + parts.last.substring(0, 1))
-        .toUpperCase();
   }
 }

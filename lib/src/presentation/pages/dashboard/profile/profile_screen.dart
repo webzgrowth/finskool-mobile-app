@@ -9,6 +9,7 @@ import 'package:finskool/src/presentation/bloc/authentication/authenticator_watc
 import 'package:finskool/src/presentation/bloc/communities/compliance/compliance_bloc.dart';
 import 'package:finskool/src/presentation/bloc/communities/list/communities_bloc.dart';
 import 'package:finskool/src/presentation/bloc/communities/purchase/community_purchase_bloc.dart';
+
 import 'widgets/logout_button.dart';
 import 'widgets/profile_hero_banner.dart';
 import 'widgets/profile_icons.dart';
@@ -31,13 +32,9 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<AuthenticatorWatcherBloc, AuthenticatorWatcherState>(
-      listenWhen: (previous, current) => previous != current,
-      listener: (context, state) {
-        state.mapOrNull(
-          unauthenticated: (_) => context.go(AppRoutes.LOGIN_ROUTE_PATH),
-        );
-      },
+    // The signed-out redirect lives on DashboardShellScreen — the session
+    // can expire from any tab, so it isn't this screen's job.
+    return BlocBuilder<AuthenticatorWatcherBloc, AuthenticatorWatcherState>(
       builder: (context, authState) {
         final user = authState.mapOrNull(authenticated: (s) => s.user);
         final cs = Theme.of(context).colorScheme;
@@ -161,8 +158,7 @@ class ProfileScreen extends StatelessWidget {
                       icon: const Icon(ProfileIcons.share),
                       title: 'Share the app',
                       subtitle: 'Invite friends to Finskool21',
-                      onTap: () =>
-                          context.push(AppRoutes.SHARE_APP_ROUTE_PATH),
+                      onTap: () => context.push(AppRoutes.SHARE_APP_ROUTE_PATH),
                     ),
                   ],
                 ),
@@ -180,10 +176,12 @@ class ProfileScreen extends StatelessWidget {
                         // switch in the app uses.
                         activeThumbColor: cs.onPrimary,
                         activeTrackColor: AppPalette.announcementGreen,
-                        onChanged: (value) => context
-                            .read<AuthenticatorWatcherBloc>()
-                            .add(AuthenticatorWatcherEvent
-                                .notificationsToggled(value)),
+                        onChanged: (value) =>
+                            context.read<AuthenticatorWatcherBloc>().add(
+                              AuthenticatorWatcherEvent.notificationsToggled(
+                                value,
+                              ),
+                            ),
                       ),
                     ),
                     ProfileMenuRow(
@@ -196,13 +194,19 @@ class ProfileScreen extends StatelessWidget {
                 ),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(
-                      AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, AppSpacing.xl),
+                    AppSpacing.lg,
+                    AppSpacing.sm,
+                    AppSpacing.lg,
+                    AppSpacing.xl,
+                  ),
                   // Figma has no visible logout row in this mockup, so it
                   // stays a clearly separate destructive action below the
                   // sections rather than folded into one of them.
                   child: LogoutButton(
                     loading: authState.maybeMap(
-                        authenticating: (_) => true, orElse: () => false),
+                      authenticating: (_) => true,
+                      orElse: () => false,
+                    ),
                     onPressed: () => context
                         .read<AuthenticatorWatcherBloc>()
                         .add(const AuthenticatorWatcherEvent.signOut()),
@@ -225,8 +229,8 @@ class ProfileScreen extends StatelessWidget {
     final plan = community.headlinePlan;
     if (plan == null) return;
     context.read<CommunityPurchaseBloc>().add(
-          CommunityPurchaseEvent.started(community: community, plan: plan),
-        );
+      CommunityPurchaseEvent.started(community: community, plan: plan),
+    );
     context.read<ComplianceBloc>().add(const ComplianceEvent.initial());
     context.push(AppRoutes.COMMUNITY_PAYMENT_SUCCESS_ROUTE_PATH);
   }

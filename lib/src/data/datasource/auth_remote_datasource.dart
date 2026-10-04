@@ -7,6 +7,7 @@ import 'package:finskool/src/domain/model/auth/auth_session_model.dart';
 import 'package:finskool/src/domain/model/auth/login_request_model.dart';
 import 'package:finskool/src/domain/model/auth/register_request_model.dart';
 import 'package:finskool/src/domain/model/auth/register_result_model.dart';
+import 'package:finskool/src/domain/model/auth/user_model.dart';
 
 /// Registration, login and session endpoints. One method per endpoint, each a
 /// single call plus a `fromJson`.
@@ -49,6 +50,21 @@ class AuthRemoteDatasource {
   /// Safe to call with no session, an expired one, or one already ended
   /// elsewhere — the API always answers 200.
   Future<void> logout() => _client.post(Api.logout);
+
+  /// The authenticated user, from the server rather than the prefs cache.
+  ///
+  /// This is the only call that can tell us the session is still good — a
+  /// dead cookie comes back 401, which `SessionInterceptor` turns into a
+  /// cleared credential and a `SessionExpiry` notification.
+  Future<UserModel> getMe() async {
+    final data = await _client.get(Api.me);
+    final payload = _require(data, Api.me);
+    final user = payload['user'];
+    if (user is! Map<String, dynamic>) {
+      throw ApiException('The server returned no profile for ${Api.me}.');
+    }
+    return UserModel.fromJson(user);
+  }
 
   Future<void> selectCommunity(String communityId) =>
       _client.post(Api.selectCommunity, body: {'communityId': communityId});
