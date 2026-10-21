@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:finskool/src/comman/design_metrics.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
 
@@ -48,7 +49,7 @@ class NavBarItem extends StatelessWidget {
       containedInkWell: true,
       highlightShape: BoxShape.rectangle,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(9.54, 3, 9.54, 4),
+        padding: const EdgeInsets.fromLTRB(9.54, 6.2, 9.54, 4),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -132,9 +133,13 @@ class _Glyph extends StatelessWidget {
       duration: NavBarItem._duration,
       // At the export's own size — Figma centres each glyph, 13.5 to 15.9px,
       // in the disc; forcing one size would scale the smaller ones up.
-      builder: (context, color, _) => SvgPicture.asset(
-        asset,
-        colorFilter: ColorFilter.mode(color!, BlendMode.srcIn),
+      builder: (context, color, _) => Transform.scale(
+        // Figma's 13–16px glyphs read small on Android; see `iconScaleOf`.
+        scale: iconScaleOf(context),
+        child: SvgPicture.asset(
+          asset,
+          colorFilter: ColorFilter.mode(color!, BlendMode.srcIn),
+        ),
       ),
     );
   }

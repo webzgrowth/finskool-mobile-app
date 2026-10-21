@@ -28,7 +28,6 @@ class AppBottomNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
     // The Communities badge is the sum of every community's unread
     // announcements — the only badge backed by real data. Figma also shows
     // one on Feed; that needs an unread-post count the feed doesn't track
@@ -45,10 +44,9 @@ class AppBottomNavBar extends StatelessWidget {
     return BlocBuilder<BottomNavBloc, BottomNavState>(
       builder: (context, state) {
         return Container(
-          decoration: BoxDecoration(
-            color: AppPalette.white,
-            border: Border(top: BorderSide(color: cs.outlineVariant)),
-          ),
+          // Flat white with no top rule: Figma's bar (`605:16001`) has none,
+          // and the `outlineVariant` line that was here read as a green border.
+          color: AppPalette.white,
           padding: EdgeInsets.only(
             bottom: MediaQuery.paddingOf(context).bottom,
           ),

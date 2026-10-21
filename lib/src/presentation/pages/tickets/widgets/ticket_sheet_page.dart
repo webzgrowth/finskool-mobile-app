@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:finskool/src/comman/design_metrics.dart';
 import 'package:flutter/services.dart' show SystemUiOverlayStyle;
 import 'package:finskool/src/utilities/theme/theme.dart';
 
@@ -41,7 +42,7 @@ class TicketSheetPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final inset = MediaQuery.paddingOf(context).top;
+    final inset = designTopInset(context);
     final sheetTop = inset + _heroBelowStatusBar;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(

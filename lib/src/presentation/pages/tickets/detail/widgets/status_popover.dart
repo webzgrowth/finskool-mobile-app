@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:finskool/src/comman/design_metrics.dart';
 import 'package:finskool/src/domain/model/ticket/ticket_enums.dart';
 import 'package:finskool/src/domain/model/ticket/ticket_model.dart';
 import 'package:finskool/src/presentation/pages/tickets/widgets/ticket_close_button.dart';
@@ -22,7 +23,7 @@ class StatusPopover extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final type = context.ticketType;
-    final top = MediaQuery.paddingOf(context).top + 13;
+    final top = designTopInset(context) + 13;
     return Positioned.fill(
       child: GestureDetector(
         behavior: HitTestBehavior.translucent,

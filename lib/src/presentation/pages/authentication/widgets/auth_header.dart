@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:finskool/src/comman/design_metrics.dart';
 import 'package:flutter/services.dart' show SystemUiOverlayStyle;
 import 'package:finskool/src/utilities/theme/theme.dart';
 
@@ -28,7 +29,7 @@ class AuthHeader extends StatelessWidget {
     final tt = Theme.of(context).textTheme;
     // Status bar height differs across iOS (notch/Dynamic Island) and
     // Android devices, so read it from MediaQuery instead of a fixed value.
-    final topInset = MediaQuery.paddingOf(context).top;
+    final topInset = designTopInset(context);
     return Container(
       width: double.infinity,
       padding: EdgeInsets.fromLTRB(

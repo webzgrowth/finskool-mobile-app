@@ -22,11 +22,7 @@ import 'feed_body_slivers.dart';
 /// only when empty (it stays mounted in an `IndexedStack`), a community
 /// loads once when its bloc is created. Each owner does its own.
 class FeedListView extends StatefulWidget {
-  const FeedListView({
-    super.key,
-    required this.topBar,
-    this.toolbarHeight = SearchTopBar.baseHeight,
-  });
+  const FeedListView({super.key, required this.topBar, this.toolbarHeight});
 
   /// Rendered inside a floating [SliverAppBar] — Material's hide-on-scroll
   /// pattern, not a hand-rolled controller.
@@ -36,7 +32,9 @@ class FeedListView extends StatefulWidget {
   /// taller than the default — one carrying a back arrow and a community
   /// name — must say so, or it overflows its box. Use
   /// [SearchTopBar.heightFor].
-  final double toolbarHeight;
+  /// Null asks for [SearchTopBar.heightFor] — the plain bar, including the
+  /// status-bar shortfall on devices whose inset is under Figma's 44.
+  final double? toolbarHeight;
 
   @override
   State<FeedListView> createState() => _FeedListViewState();
@@ -118,7 +116,8 @@ class _FeedListViewState extends State<FeedListView> {
                   SliverAppBar(
                     floating: true,
                     snap: true,
-                    toolbarHeight: widget.toolbarHeight,
+                    toolbarHeight:
+                        widget.toolbarHeight ?? SearchTopBar.heightFor(context),
                     automaticallyImplyLeading: false,
                     backgroundColor: Colors.transparent,
                     elevation: 0,

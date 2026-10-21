@@ -310,8 +310,9 @@ void main() {
       final at44 = await titleTop(44);
       // A taller Dynamic Island pushes it down by exactly the difference...
       expect(await titleTop(59), at44 + 15);
-      // ...and a thin Android bar pulls it up with the bar.
-      expect(await titleTop(24), at44 - 20);
+      // ...but a thin Android bar (24dp) is floored at Figma's 44, so the hero
+      // keeps its proportions instead of coming out 20dp short.
+      expect(await titleTop(24), at44);
     });
   });
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:finskool/src/comman/design_metrics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:finskool/src/comman/widgets/user_avatar.dart';
@@ -26,7 +27,7 @@ class ProfileHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final type = context.profileType;
-    final sheetTop = MediaQuery.paddingOf(context).top + 61;
+    final sheetTop = designTopInset(context) + 61;
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light,
       child: Stack(

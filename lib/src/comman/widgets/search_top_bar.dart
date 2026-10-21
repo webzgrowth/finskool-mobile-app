@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'dart:ui' show ImageFilter;
 
 import 'package:flutter/material.dart';
+import 'package:finskool/src/comman/design_metrics.dart';
 import 'package:flutter/services.dart' show SystemUiOverlayStyle;
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
@@ -42,7 +43,7 @@ class SearchTopBar extends StatelessWidget {
   final bool showNotifications;
 
   /// Content height **without** the title row, excluding the status-bar inset
-  /// (`SliverAppBar` adds that itself): 16 above the field, 36 for it, 10
+  /// (`SliverAppBar` adds that itself): 12 above the field, 36 for it, 14
   /// below. `SliverAppBar` needs its `toolbarHeight` up front, so this is
   /// published rather than hardcoded at the call sites.
   static const double baseHeight = 62;
@@ -53,25 +54,33 @@ class SearchTopBar extends StatelessWidget {
   /// The toolbar height a bar with these options needs. The title row is
   /// **measured, not a constant**: at a large system font a fixed 30px would
   /// clip the title inside the fixed-height `SliverAppBar`.
+  ///
+  /// It also pays [statusBarShortfall]: the bar is sized under Figma's 44pt
+  /// status bar, and the `SliverAppBar` only adds the device's own inset (24dp
+  /// on many Androids), which left the bar visibly short there.
   static double heightFor(BuildContext context, {bool hasTitle = false}) {
-    if (!hasTitle) return baseHeight;
+    final shortfall = statusBarShortfall(context);
+    if (!hasTitle) return baseHeight + shortfall;
     final titleHeight =
         MediaQuery.textScalerOf(context).scale(_titleFontSize) * 1.3;
-    return baseHeight + math.max(_backIconSize, titleHeight) + AppSpacing.sm;
+    return baseHeight +
+        shortfall +
+        math.max(_backIconSize, titleHeight) +
+        AppSpacing.sm;
   }
 
   @override
   Widget build(BuildContext context) {
-    final topInset = MediaQuery.paddingOf(context).top;
+    final topInset = designTopInset(context);
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light,
       child: Container(
         width: double.infinity,
         padding: EdgeInsets.fromLTRB(
           14,
-          topInset + (title != null || onBack != null ? AppSpacing.sm : 16),
+          topInset + (title != null || onBack != null ? AppSpacing.sm : 12),
           showNotifications ? 25 : 14,
-          10,
+          14,
         ),
         decoration: const BoxDecoration(
           // The hero art is 393 wide at 1:1 with Figma's frame, so it is fitted
@@ -169,7 +178,7 @@ class _SearchField extends StatelessWidget {
           padding: const EdgeInsets.only(left: 17, right: 7),
           child: Row(
             children: [
-              SvgPicture.asset('assets/icons/topbar_search.svg'),
+              _Scaled(SvgPicture.asset('assets/icons/topbar_search.svg')),
               const SizedBox(width: 3.2),
               Expanded(
                 // Pin the line box (`height: 1.0` plus a matching strut): left
@@ -216,8 +225,8 @@ class _SearchField extends StatelessWidget {
                       height: 23,
                       width: 23,
                       child: Center(
-                        child: SvgPicture.asset(
-                          'assets/icons/topbar_filter.svg',
+                        child: _Scaled(
+                          SvgPicture.asset('assets/icons/topbar_filter.svg'),
                         ),
                       ),
                     ),
@@ -302,7 +311,9 @@ class _NotificationBell extends StatelessWidget {
           // Figma's own bell (13.08x14.5), centred on the disc. Its export
           // baked in a red dot and a literal "3"; both are drawn separately so
           // the count is real.
-          Center(child: SvgPicture.asset('assets/icons/topbar_bell.svg')),
+          Center(
+            child: _Scaled(SvgPicture.asset('assets/icons/topbar_bell.svg')),
+          ),
           if (showCount)
             Positioned(
               top: 5,
@@ -326,4 +337,17 @@ class _NotificationBell extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Grows one of Figma's small glyphs on Android — see [iconScaleOf]. A
+/// transform, so the glyph's layout box (and everything around it) is
+/// untouched.
+class _Scaled extends StatelessWidget {
+  const _Scaled(this.child);
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) =>
+      Transform.scale(scale: iconScaleOf(context), child: child);
 }

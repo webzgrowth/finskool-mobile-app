@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.finskool"
+    namespace = "com.finskool21.app"
     compileSdk = 37
     ndkVersion = flutter.ndkVersion
 
@@ -15,8 +15,8 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.finskool"
+        // The Play Store identity: permanent once published, so it is not "com.example".
+        applicationId = "com.finskool21.app"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:finskool/src/comman/design_metrics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
@@ -26,7 +27,7 @@ class TealSheetScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final inset = MediaQuery.paddingOf(context).top;
+    final inset = designTopInset(context);
     final bottomInset = MediaQuery.paddingOf(context).bottom;
     final sheetTop = inset + sheetOffset;
 

@@ -1,4 +1,4 @@
-package com.example.finskool
+package com.finskool21.app
 
 import io.flutter.embedding.android.FlutterActivity
 

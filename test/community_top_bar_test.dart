@@ -16,7 +16,11 @@ Widget _harness({
 }) => MaterialApp(
   theme: AppTheme.light,
   home: MediaQuery(
-    data: MediaQueryData(textScaler: TextScaler.linear(textScale)),
+    data: MediaQueryData(
+      textScaler: TextScaler.linear(textScale),
+      // An iPhone-sized inset, so the 44pt design floor adds nothing.
+      padding: const EdgeInsets.only(top: 44),
+    ),
     child: Scaffold(
       body: CustomScrollView(
         slivers: [
@@ -46,6 +50,28 @@ final _bell = find.byWidgetPredicate(
 );
 
 void main() {
+  testWidgets('an Android-sized status bar is made up to Figma\'s 44', (
+    tester,
+  ) async {
+    late double height;
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.light,
+        home: MediaQuery(
+          data: const MediaQueryData(padding: EdgeInsets.only(top: 24)),
+          child: Builder(
+            builder: (context) {
+              height = SearchTopBar.heightFor(context);
+              return const SizedBox();
+            },
+          ),
+        ),
+      ),
+    );
+    // The SliverAppBar adds the real 24; the other 20 come from the bar.
+    expect(height, SearchTopBar.baseHeight + 20);
+  });
+
   // The bar reads its text styles from the theme, and Ahem would overflow
   // where Inter does not.
   setUpAll(loadAppFonts);

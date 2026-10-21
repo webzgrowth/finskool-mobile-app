@@ -75,7 +75,7 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
                     SliverAppBar(
                       floating: true,
                       snap: true,
-                      toolbarHeight: SearchTopBar.baseHeight,
+                      toolbarHeight: SearchTopBar.heightFor(context),
                       automaticallyImplyLeading: false,
                       backgroundColor: Colors.transparent,
                       elevation: 0,
