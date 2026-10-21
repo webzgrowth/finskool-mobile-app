@@ -6,23 +6,23 @@ import 'package:finskool/src/presentation/bloc/authentication/authenticator_watc
 import 'package:finskool/src/presentation/bloc/communities/list/communities_bloc.dart';
 import 'package:finskool/src/presentation/bloc/dashboard/bottom_nav/bottom_nav_bloc.dart';
 
+import 'package:finskool/src/utilities/theme/theme.dart';
+
 import 'nav_bar_item.dart';
 
 /// The 4-tab dashboard bottom bar, driven entirely by [BottomNavBloc].
 ///
-/// Feed/Communities/Performance are `IconData` — the first two are Material
-/// stand-ins for exports Figma access was rate-limited before delivering
-/// (`element-3`, `Frame 2121453450`; see CLAUDE.md "Profile"). Performance
-/// deliberately does **not** use Figma's own node for that tab, which is
-/// literally the search-bar glyph reused — confirmed a placeholder in the
-/// design file itself, not a real icon to export.
+/// The three glyphs are Figma's own exports from `iPhone 16 - 12`
+/// (`element-3`, the people group and the trend arrow — the last is named
+/// `search-alt-2_svgrepo.com` in the file but is drawn as the arrow, which is
+/// what ships). They replace the Material stand-ins this bar used to carry.
 class AppBottomNavBar extends StatelessWidget {
   const AppBottomNavBar({super.key});
 
-  static const _icons = [
-    Icons.grid_view_rounded, // Feed — stand-in for `element-3`
-    Icons.groups_rounded, // Communities — stand-in for `Frame 2121453450`
-    Icons.trending_up_rounded, // Performance — deliberate stand-in, see above
+  static const _glyphs = [
+    'assets/icons/nav_feed.svg',
+    'assets/icons/nav_communities.svg',
+    'assets/icons/nav_performance.svg',
   ];
   static const _labels = ['Feed', 'Communities', 'Performance', 'Profile'];
 
@@ -46,30 +46,40 @@ class AppBottomNavBar extends StatelessWidget {
       builder: (context, state) {
         return Container(
           decoration: BoxDecoration(
-            color: cs.surface,
+            color: AppPalette.white,
             border: Border(top: BorderSide(color: cs.outlineVariant)),
           ),
           padding: EdgeInsets.only(
             bottom: MediaQuery.paddingOf(context).bottom,
           ),
-          child: Row(
-            children: List.generate(_labels.length, (i) {
-              final isProfile = i == _labels.length - 1;
-              return Expanded(
-                child: NavBarItem(
-                  icon: isProfile ? null : _icons[i],
-                  customIcon: isProfile
-                      ? UserAvatar(user: user, radius: 16)
-                      : null,
-                  label: _labels[i],
-                  badgeCount: i == 1 ? announcements : null,
-                  selected: state.selectedIndex == i,
-                  onTap: () => context.read<BottomNavBloc>().add(
-                    BottomNavEvent.tabChanged(i),
-                  ),
-                ),
-              );
-            }),
+          // Figma spaces the four tabs with space-between inside a 42 / 29px
+          // gutter — not four equal columns — so Communities and Performance
+          // (the wide labels) sit closer together than Feed and Profile do.
+          child: LayoutBuilder(
+            builder: (context, box) => Padding(
+              padding: EdgeInsets.only(
+                left: box.maxWidth * 42 / 393,
+                right: box.maxWidth * 29 / 393,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: List.generate(_labels.length, (i) {
+                  final isProfile = i == _labels.length - 1;
+                  return NavBarItem(
+                    glyph: isProfile ? null : _glyphs[i],
+                    customIcon: isProfile
+                        ? UserAvatar(user: user, radius: 10.5)
+                        : null,
+                    label: _labels[i],
+                    badgeCount: i == 1 ? announcements : null,
+                    selected: state.selectedIndex == i,
+                    onTap: () => context.read<BottomNavBloc>().add(
+                      BottomNavEvent.tabChanged(i),
+                    ),
+                  );
+                }),
+              ),
+            ),
           ),
         );
       },

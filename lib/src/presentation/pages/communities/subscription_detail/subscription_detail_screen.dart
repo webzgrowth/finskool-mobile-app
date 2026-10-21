@@ -25,31 +25,33 @@ class SubscriptionDetailScreen extends StatelessWidget {
     final kit = community.welcomeKit;
 
     return TealSheetScaffold(
+      // Figma draws this sheet 56 below the status bar (Edit Profile's is 61).
+      sheetOffset: 56,
       children: [
-        SheetBackArrow(onTap: () => context.pop()),
-        const SizedBox(height: AppSpacing.md),
+        SheetBackArrow(onTap: () => context.pop(), filled: true),
+        const SizedBox(height: 7),
         SubscriptionCommunityCard(community: community),
-        const SizedBox(height: AppSpacing.lg),
+        const SizedBox(height: 14),
         if (info != null) ...[
           SubscriptionPlanSection(community: community, info: info),
-          const SizedBox(height: AppSpacing.lg),
+          const SizedBox(height: 16),
           SubscriptionTransactionSection(info: info),
-          const SizedBox(height: AppSpacing.lg),
+          const SizedBox(height: 20),
         ],
         // The kit brackets "What You get": its cards and risk notices come
-        // before, its disclaimer and sign-off after. That interleaving is
+        // before, its acknowledgment and sign-off after. That interleaving is
         // why the screen orders these rather than one Welcome Kit widget.
         if (kit != null) ...[
           WelcomeKitSection(kit: kit),
-          const SizedBox(height: AppSpacing.lg),
+          const SizedBox(height: 16),
         ],
         if (community.benefits.isNotEmpty) ...[
           SubscriptionBenefitsSection(benefits: community.benefits),
-          const SizedBox(height: AppSpacing.lg),
+          const SizedBox(height: 13),
         ],
         if (kit != null) ...[
           WelcomeKitFooter(kit: kit),
-          const SizedBox(height: AppSpacing.lg),
+          const SizedBox(height: 18),
         ],
         _NeedHelpButton(
           onTap: () => context.push(AppRoutes.HELP_SUPPORT_ROUTE_PATH),
@@ -66,18 +68,20 @@ class _NeedHelpButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final type = context.subscriptionType;
-    return SizedBox(
-      width: double.infinity,
-      child: OutlinedButton(
-        onPressed: onTap,
-        style: OutlinedButton.styleFrom(
-          side: const BorderSide(color: AppPalette.subscriptionBorder),
-          backgroundColor: cs.surface,
-          padding: const EdgeInsets.symmetric(vertical: 14),
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        height: 42,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: AppPalette.ticketHint),
         ),
-        child: Text('Need help with this plan?', style: type.helpButton),
+        child: Text(
+          'Need help with this plan?',
+          style: context.subscriptionType.helpButton,
+        ),
       ),
     );
   }

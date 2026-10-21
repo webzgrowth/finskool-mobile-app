@@ -9,17 +9,20 @@ class HashtagChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
+    // Figma: a 17.8px pill, `#F5F6F9`, fully rounded, text 10px.
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.sm,
-        vertical: 4,
-      ),
+      height: 17.8,
+      padding: const EdgeInsets.symmetric(horizontal: 8),
       decoration: BoxDecoration(
-        color: cs.surfaceContainer,
-        borderRadius: AppRadii.small,
+        color: AppPalette.feedChip,
+        borderRadius: BorderRadius.circular(14.5),
       ),
-      child: Text(text, style: context.feedType.hashtag),
+      // `Container(alignment:)` would expand to fill the Wrap's width; a
+      // width-hugging Center keeps the pill the size of its label.
+      child: Center(
+        widthFactor: 1,
+        child: Text(text, style: context.feedType.hashtag),
+      ),
     );
   }
 }

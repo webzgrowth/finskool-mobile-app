@@ -1,12 +1,14 @@
-import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:finskool/src/comman/placeholder_images.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:finskool/src/comman/placeholder_images.dart';
 import 'package:finskool/src/domain/model/community/community_model.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
 
-/// The community header card — cover image under a teal scrim, with a
-/// white chart disc top-left and the category/name/Active stack bottom-left.
+/// The community header card: 130 tall, r10, the cover art running under a
+/// scrim that is solid `#108B8B` on the left (where the copy sits) and clears
+/// to the art on the right. A 36px white disc with the chart glyph top-left,
+/// then category / name / the "Active" pill stacked bottom-left.
 class SubscriptionCommunityCard extends StatelessWidget {
   const SubscriptionCommunityCard({super.key, required this.community});
 
@@ -14,14 +16,12 @@ class SubscriptionCommunityCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
     final type = context.subscriptionType;
-
     return Container(
-      height: 125,
+      height: 130,
       decoration: BoxDecoration(
-        color: AppPalette.primary,
-        borderRadius: BorderRadius.circular(AppRadii.md),
+        color: AppPalette.badgeTeal,
+        borderRadius: BorderRadius.circular(10),
       ),
       clipBehavior: Clip.antiAlias,
       child: Stack(
@@ -37,57 +37,49 @@ class SubscriptionCommunityCard extends StatelessWidget {
             placeholder: (_, _) => const SizedBox.shrink(),
             errorWidget: (_, _, _) => const SizedBox.shrink(),
           ),
-          // The art runs edge to edge but the copy sits on the left, so the
-          // scrim is horizontal — a bottom-up fade would wash out the name
-          // while leaving the right side unreadable.
-          Container(
+          // The copy is on the left, so the scrim is horizontal: solid teal
+          // under the text, clearing to the art — a bottom-up fade would wash
+          // out the name and leave the right side unreadable.
+          const DecoratedBox(
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
                 colors: [
-                  AppPalette.primary,
-                  AppPalette.primary.withValues(alpha: 0.55),
+                  AppPalette.badgeTeal,
+                  AppPalette.badgeTeal,
+                  Color(0x00108B8B),
                 ],
+                stops: [0, 0.42, 1],
               ),
             ),
           ),
           Positioned(
-            top: AppSpacing.md,
-            left: AppSpacing.md,
+            top: 10,
+            left: 17,
             child: Container(
-              height: 34,
-              width: 34,
+              height: 36,
+              width: 36,
               alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: cs.surface,
+              decoration: const BoxDecoration(
+                color: AppPalette.white,
                 shape: BoxShape.circle,
               ),
-              child: SvgPicture.asset(
-                'assets/icons/community_chart.svg',
-                height: 16,
-                width: 16,
-                colorFilter: const ColorFilter.mode(
-                  AppPalette.primary,
-                  BlendMode.srcIn,
-                ),
-              ),
+              child: SvgPicture.asset('assets/icons/sub_chart.svg'),
             ),
           ),
           Positioned(
-            left: AppSpacing.md,
-            right: AppSpacing.md,
-            bottom: AppSpacing.md,
+            left: 17,
+            bottom: 18,
+            right: 17,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
                 if (community.category != null)
                   Text(community.category!, style: type.category),
-                const SizedBox(height: 2),
+                const SizedBox(height: 3),
                 Text(community.name, style: type.communityName),
-                const SizedBox(height: 6),
-                _ActivePill(type: type),
+                const SizedBox(height: 4.5),
+                const _ActivePill(),
               ],
             ),
           ),
@@ -98,31 +90,30 @@ class SubscriptionCommunityCard extends StatelessWidget {
 }
 
 class _ActivePill extends StatelessWidget {
-  const _ActivePill({required this.type});
-
-  final SubscriptionDetailTypography type;
+  const _ActivePill();
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      height: 16,
+      padding: const EdgeInsets.symmetric(horizontal: 8.4),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(AppRadii.pill),
+        color: AppPalette.white,
+        borderRadius: BorderRadius.circular(40),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            height: 5,
-            width: 5,
+            height: 4,
+            width: 4,
             decoration: const BoxDecoration(
-              color: AppPalette.announcementGreen,
+              color: AppPalette.profileRenew,
               shape: BoxShape.circle,
             ),
           ),
-          const SizedBox(width: 5),
-          Text('Active', style: type.activeStatus),
+          const SizedBox(width: 3.2),
+          Text('Active', style: context.subscriptionType.activeStatus),
         ],
       ),
     );

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:finskool/src/comman/routes.dart';
+import 'package:finskool/src/utilities/page_transitions.dart';
 import 'package:finskool/src/presentation/pages/splash/splash_screen.dart';
 import 'package:finskool/src/presentation/pages/authentication/auth_screen.dart';
 import 'package:finskool/src/presentation/pages/authentication/widgets/auth_tab_switch.dart';
@@ -33,9 +34,8 @@ GoRouter routerinit = GoRouter(
     GoRoute(
       name: AppRoutes.SPLASH_ROUTE_NAME,
       path: AppRoutes.SPLASH_ROUTE_PATH,
-      builder: (BuildContext context, GoRouterState state) {
-        return const SplashScreen();
-      },
+      pageBuilder: (BuildContext context, GoRouterState state) =>
+          fadeThroughPage(state, const SplashScreen()),
     ),
 
     ///  =================================================================
@@ -44,16 +44,14 @@ GoRouter routerinit = GoRouter(
     GoRoute(
       name: AppRoutes.LOGIN_ROUTE_NAME,
       path: AppRoutes.LOGIN_ROUTE_PATH,
-      builder: (BuildContext context, GoRouterState state) {
-        return const AuthScreen(initialTab: AuthTab.login);
-      },
+      pageBuilder: (BuildContext context, GoRouterState state) =>
+          fadeThroughPage(state, const AuthScreen(initialTab: AuthTab.login)),
     ),
     GoRoute(
       name: AppRoutes.SIGNUP_ROUTE_NAME,
       path: AppRoutes.SIGNUP_ROUTE_PATH,
-      builder: (BuildContext context, GoRouterState state) {
-        return const AuthScreen(initialTab: AuthTab.signUp);
-      },
+      pageBuilder: (BuildContext context, GoRouterState state) =>
+          fadeThroughPage(state, const AuthScreen(initialTab: AuthTab.signUp)),
     ),
 
     ///  =================================================================
@@ -237,6 +235,13 @@ GoRouter routerinit = GoRouter(
       },
     ),
     GoRoute(
+      name: AppRoutes.PRIVACY_SECURITY_ROUTE_NAME,
+      path: AppRoutes.PRIVACY_SECURITY_ROUTE_PATH,
+      builder: (BuildContext context, GoRouterState state) {
+        return const ProfilePlaceholderScreen(title: 'Privacy & security');
+      },
+    ),
+    GoRoute(
       name: AppRoutes.TERMS_PRIVACY_ROUTE_NAME,
       path: AppRoutes.TERMS_PRIVACY_ROUTE_PATH,
       builder: (BuildContext context, GoRouterState state) {
@@ -250,9 +255,8 @@ GoRouter routerinit = GoRouter(
     GoRoute(
       name: AppRoutes.DASHBOARD_ROUTE_NAME,
       path: AppRoutes.DASHBOARD_ROUTE_PATH,
-      builder: (BuildContext context, GoRouterState state) {
-        return const DashboardShellScreen();
-      },
+      pageBuilder: (BuildContext context, GoRouterState state) =>
+          fadeThroughPage(state, const DashboardShellScreen()),
     ),
   ],
 );

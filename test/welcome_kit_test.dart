@@ -3,16 +3,15 @@ import 'package:finskool/src/data/datasource/welcome_kit_demo_datasource.dart';
 import 'package:finskool/src/domain/model/community/welcome_kit.dart';
 
 void main() {
-  test('intraday carries two videos, four stats and both risk notices', () {
+  test('intraday carries two videos, four stats and the risk notice', () {
     final kit = WelcomeKitDemoDatasource.forSlug('intraday-community')!;
     expect(kit.videos, hasLength(2));
     expect(kit.capital.amount, '₹50,000');
     expect(kit.capital.caption, 'Minimum recommended capital');
     expect(kit.capital.stats, hasLength(4));
-    expect(kit.riskNotices.map((n) => n.tone), [
-      NoticeTone.warning,
-      NoticeTone.danger,
-    ]);
+    // The Final design shows only the red notice; the amber accuracy caveat
+    // that used to sit above it is gone.
+    expect(kit.riskNotices.map((n) => n.tone), [NoticeTone.danger]);
   });
 
   test('investor has one video, five stats and no risk notices', () {

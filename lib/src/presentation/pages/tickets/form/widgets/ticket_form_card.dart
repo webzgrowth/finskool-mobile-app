@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:finskool/src/domain/model/ticket/ticket_enums.dart';
 import 'package:finskool/src/presentation/bloc/tickets/form/ticket_form_bloc.dart';
-import 'package:finskool/src/presentation/pages/tickets/widgets/ticket_section_card.dart';
+import 'package:finskool/src/comman/widgets/teal_section_card.dart';
 
 import 'ticket_dropdown_field.dart';
 import 'ticket_text_input.dart';
@@ -30,7 +30,7 @@ class TicketFormCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TicketSectionCard(
+    return TealSectionCard(
       title: 'Ticket details',
       padding: const EdgeInsets.fromLTRB(12, 11, 12, 12),
       child: Column(

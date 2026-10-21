@@ -1,46 +1,43 @@
 import 'package:flutter/material.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
 
-/// A [AppPalette.primary] header bar over a near-white body, used by the
-/// Subscription Detail and Edit Profile screens.
+/// "Plan Details", "Personal Details", "Attachments", "Ticket Overview"…: a
+/// 35px `#108B8B` header over a `#F6F6F6` body, r10, with a hairline teal edge
+/// and a soft shadow on the body — the one section-card shape in the Final
+/// design, shared by Subscription Detail, Edit Profile and the ticket screens.
 ///
-/// The body is [AppPalette.subscriptionBody] — a shade off the white sheet
-/// it sits on — with a hairline border; those two together separate the
-/// card from the page rather than a shadow.
-///
-/// [trailing] puts an action in the header bar (Edit Profile's pencil).
-/// Distinct from `ProfileSectionCard`, which is the Profile tab's plain
-/// title-over-grey-card treatment.
+/// [trailing] puts an action or hint in the header (Edit Profile's pencil, a
+/// ticket card's "Optional").
 class TealSectionCard extends StatelessWidget {
   const TealSectionCard({
     super.key,
     required this.title,
     required this.child,
     this.trailing,
+    this.padding = const EdgeInsets.all(12),
   });
 
   final String title;
   final Widget child;
   final Widget? trailing;
+  final EdgeInsetsGeometry padding;
+
+  static const _teal = AppPalette.badgeTeal;
+  static const _radius = 10.0;
 
   @override
   Widget build(BuildContext context) {
     final type = context.subscriptionType;
     return Container(
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(AppRadii.md),
-        border: Border.all(color: AppPalette.subscriptionBorder),
+        color: _teal,
+        borderRadius: BorderRadius.circular(_radius),
       ),
-      clipBehavior: Clip.antiAlias,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.md,
-              vertical: 10,
-            ),
-            color: AppPalette.primary,
+          Padding(
+            padding: const EdgeInsets.fromLTRB(12, 7, 12, 6),
             child: Row(
               children: [
                 Expanded(child: Text(title, style: type.sectionTitle)),
@@ -49,8 +46,21 @@ class TealSectionCard extends StatelessWidget {
             ),
           ),
           Container(
-            padding: const EdgeInsets.all(AppSpacing.md),
-            color: AppPalette.subscriptionBody,
+            padding: padding,
+            decoration: BoxDecoration(
+              color: AppPalette.ticketCard,
+              borderRadius: const BorderRadius.vertical(
+                bottom: Radius.circular(_radius),
+              ),
+              border: Border.all(color: _teal, width: 0.75),
+              boxShadow: const [
+                BoxShadow(
+                  color: AppPalette.ticketShadow,
+                  blurRadius: 10,
+                  offset: Offset(0, 3),
+                ),
+              ],
+            ),
             child: child,
           ),
         ],

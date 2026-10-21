@@ -36,7 +36,7 @@ class SebiDetailsSection extends StatelessWidget {
               children: [
                 Expanded(
                   child: DetailCell(
-                    icon: Icons.calendar_today_outlined,
+                    glyph: 'assets/icons/sub_calendar_check.svg',
                     label: 'Date of birth',
                     value: dateOfBirth ?? _missing,
                   ),
@@ -44,7 +44,7 @@ class SebiDetailsSection extends StatelessWidget {
                 const GridVRule(),
                 Expanded(
                   child: DetailCell(
-                    icon: Icons.credit_card_outlined,
+                    glyph: 'assets/icons/sub_card.svg',
                     label: 'PAN number',
                     value: pan ?? _missing,
                   ),

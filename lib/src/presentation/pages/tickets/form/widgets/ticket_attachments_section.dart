@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:finskool/src/presentation/bloc/tickets/form/ticket_attachment_draft.dart';
 import 'package:finskool/src/presentation/pages/tickets/widgets/dashed_border.dart';
-import 'package:finskool/src/presentation/pages/tickets/widgets/ticket_section_card.dart';
+import 'package:finskool/src/comman/widgets/teal_section_card.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
 
 import 'ticket_field_shell.dart';
@@ -28,9 +28,9 @@ class TicketAttachmentsSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final type = context.ticketType;
-    return TicketSectionCard(
+    return TealSectionCard(
       title: 'Attachments',
-      hint: 'Optional',
+      trailing: Text('Optional', style: context.ticketType.cardHint),
       child: Column(
         children: [
           GestureDetector(

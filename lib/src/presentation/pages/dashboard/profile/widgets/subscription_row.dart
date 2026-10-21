@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:finskool/src/domain/model/community/community_access.dart';
 import 'package:finskool/src/domain/model/community/community_model.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
 
-import 'profile_icons.dart';
+import 'profile_glyphs.dart';
 import 'profile_menu_row.dart';
 
-/// One entry in the "My Subscription" section — a subscribed community's
-/// name, its "Active till…" / "Expires in N days" status, and a Renew pill
-/// once it's inside the renewal window (`CommunityModel.needsRenewal`).
+/// One subscribed community: its name, "Active till…" or a red "Expires in N
+/// days", and — inside the renewal window — a green Renew pill in place of
+/// the chevron.
 ///
-/// The community row's icon differs from every other Profile row: Figma
-/// shows an education glyph on the Academy entry and a chart glyph on the
-/// trading ones — derived from `planStyle` since there's no dedicated icon
-/// field on the model for a single row's decoration.
+/// Figma gives each community its own glyph (chart for Intraday, a cap for the
+/// Academy, a bolt for Investor); the model carries no icon, so it is picked
+/// from `planStyle` and the slug — anything unrecognised gets the chart.
 class SubscriptionRow extends StatelessWidget {
   const SubscriptionRow({
     super.key,
@@ -26,22 +26,30 @@ class SubscriptionRow extends StatelessWidget {
   final VoidCallback onTap;
   final VoidCallback onRenew;
 
+  String get _glyph {
+    if (community.planStyle.isTier) return ProfileGlyphs.education;
+    final key = '${community.slug} ${community.name}'.toLowerCase();
+    if (key.contains('academy')) return ProfileGlyphs.education;
+    if (key.contains('investor')) return ProfileGlyphs.investor;
+    return ProfileGlyphs.chart;
+  }
+
   @override
   Widget build(BuildContext context) {
     assert(community.access == CommunityAccess.subscribed);
+    final type = context.profileType;
     final renew = community.needsRenewal;
-
     return ProfileMenuRow(
-      icon: Icon(
-        community.planStyle.isTier
-            ? ProfileIcons.education
-            : ProfileIcons.chart,
-      ),
+      glyph: _glyph,
       title: community.name,
       subtitle: community.subscriptionStatusLabel,
-      subtitleColor: renew ? context.profileType.statusExpiring.color : null,
+      subtitleStyle: renew ? type.statusExpiring : null,
       trailing: renew ? _RenewPill(onTap: onRenew) : null,
-      onTap: renew ? null : onTap,
+      // The whole row opens the subscription; only the pill renews. (An
+      // earlier pass sent a row tap to the purchase flow, which made an
+      // expiring subscription impossible to open.)
+      onTap: onTap,
+      showChevron: !renew,
     );
   }
 }
@@ -56,29 +64,23 @@ class _RenewPill extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.md,
-          vertical: 6,
-        ),
+        height: 25,
+        padding: const EdgeInsets.symmetric(horizontal: 12),
         decoration: BoxDecoration(
-          color: AppPalette.announcementGreen,
-          borderRadius: BorderRadius.circular(AppRadii.pill),
+          color: AppPalette.profileRenew,
+          borderRadius: BorderRadius.circular(20),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              'Renew',
-              style: context.profileType.rowSubtitle.copyWith(
-                color: Theme.of(context).colorScheme.onPrimary,
-                fontWeight: FontWeight.w600,
+            Text('Renew', style: context.profileType.renew),
+            const SizedBox(width: 6),
+            SvgPicture.asset(
+              ProfileGlyphs.chevron,
+              colorFilter: const ColorFilter.mode(
+                AppPalette.white,
+                BlendMode.srcIn,
               ),
-            ),
-            const SizedBox(width: 2),
-            Icon(
-              Icons.chevron_right_rounded,
-              size: 14,
-              color: Theme.of(context).colorScheme.onPrimary,
             ),
           ],
         ),

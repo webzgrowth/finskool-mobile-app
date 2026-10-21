@@ -32,29 +32,32 @@ class PostAuthorRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
+    final type = context.feedType;
     return Row(
       children: [
+        // 35px, not Material's 40: Figma's avatar is `Ellipse 1702`, 35x35.
         CircleAvatar(
-          radius: 20,
-          backgroundColor: cs.surfaceContainerHighest,
+          radius: 17.5,
+          backgroundColor: Theme.of(context)
+              .colorScheme
+              .surfaceContainerHighest,
           child: avatarUrl == null
-              ? Text(initialsFor(name), style: context.feedType.authorName)
+              ? Text(initialsFor(name), style: type.authorName)
               : ClipOval(
                   child: CachedNetworkImage(
                     imageUrl: avatarUrl!,
-                    height: 40,
-                    width: 40,
+                    height: 35,
+                    width: 35,
                     fit: BoxFit.cover,
                   ),
                 ),
         ),
-        const SizedBox(width: AppSpacing.sm),
+        const SizedBox(width: 14.5),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(name, style: context.feedType.authorName),
-            Text(_timeLabel, style: context.feedType.timestamp),
+            Text(name, style: type.authorName),
+            Text(_timeLabel, style: type.timestamp),
           ],
         ),
       ],

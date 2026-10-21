@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:finskool/src/comman/routes.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
+import 'package:finskool/src/domain/model/auth/user_model.dart';
 import 'package:finskool/src/domain/model/community/community_access.dart';
 import 'package:finskool/src/domain/model/community/community_model.dart';
 import 'package:finskool/src/presentation/bloc/authentication/authenticator_watcher/authenticator_watcher_bloc.dart';
@@ -12,14 +13,13 @@ import 'package:finskool/src/presentation/bloc/communities/list/communities_bloc
 import 'package:finskool/src/presentation/bloc/communities/purchase/community_purchase_bloc.dart';
 
 import 'widgets/logout_button.dart';
-import 'widgets/profile_hero_banner.dart';
-import 'widgets/profile_icons.dart';
-import 'widgets/profile_identity_info.dart';
-import 'widgets/profile_menu_row.dart';
-import 'widgets/profile_section_card.dart';
-import 'widgets/subscription_row.dart';
 
-/// The Profile tab — Figma `893:15731`: an avatar header, then five
+import 'package:finskool/src/comman/widgets/fade_slide_in.dart';
+
+import 'widgets/profile_sections.dart';
+import 'widgets/profile_header.dart';
+
+/// The Profile tab — Final page, frame `Profile` (`1372:1676`): an avatar header, then five
 /// sectioned cards of menu rows (My Subscription, Account, Support,
 /// Finskool21, Settings).
 ///
@@ -62,141 +62,41 @@ class ProfileScreen extends StatelessWidget {
             // a tall identity header that should behave like normal
             // content.
             child: ListView(
-              // `ListView` (unlike `CustomScrollView`) auto-pads its top
-              // edge by `MediaQuery.padding.top` when not given an
-              // explicit `padding` — since `SafeArea(top: false)` leaves
-              // that inset value in place for `ProfileHeroBanner` to
-              // consume itself, this auto-padding stacked a *second*
-              // status-bar-height gap above the banner, pushing the teal
-              // image down below the status bar instead of bleeding
-              // behind it.
+              // `ListView` auto-pads its top edge by the status-bar inset
+              // when not given an explicit `padding`, which would stack a
+              // second gap above the header; `ProfileHeader` bleeds behind the
+              // status bar itself.
               padding: EdgeInsets.zero,
               children: [
-                ProfileHeroBanner(user: user),
-                ProfileIdentityInfo(user: user),
-                BlocBuilder<CommunitiesBloc, CommunitiesState>(
-                  builder: (context, communitiesState) {
-                    final subscribed = communitiesState.communities
-                        .where((c) => c.access == CommunityAccess.subscribed)
-                        .toList();
-                    if (subscribed.isEmpty) return const SizedBox.shrink();
-                    return ProfileSectionCard(
-                      title: 'My Subscription',
-                      rows: [
-                        for (final community in subscribed)
-                          SubscriptionRow(
-                            community: community,
-                            onTap: () => context.push(
-                              AppRoutes.SUBSCRIPTION_DETAIL_ROUTE_PATH,
-                              extra: community,
-                            ),
-                            onRenew: () => _renew(context, community),
-                          ),
-                      ],
-                    );
-                  },
-                ),
-                ProfileSectionCard(
-                  title: 'Account',
-                  rows: [
-                    ProfileMenuRow(
-                      icon: const Icon(ProfileIcons.user),
-                      title: 'Edit Profile',
-                      subtitle: 'Name, email and phone',
-                      onTap: () =>
-                          context.push(AppRoutes.EDIT_PROFILE_ROUTE_PATH),
-                    ),
-                    ProfileMenuRow(
-                      icon: const Icon(ProfileIcons.gift),
-                      title: 'Welcome kits',
-                      subtitle: 'Videos, guides and insights',
-                      onTap: () =>
-                          context.push(AppRoutes.WELCOME_KITS_ROUTE_PATH),
-                    ),
-                  ],
-                ),
-                ProfileSectionCard(
-                  title: 'Support',
-                  rows: [
-                    ProfileMenuRow(
-                      icon: const Icon(ProfileIcons.tickets),
-                      title: 'My tickets',
-                      subtitle: 'Track your queries',
-                      // The real unread-reply count, kept live by the socket
-                      // through `TicketsUnreadBloc`. Hidden at zero rather
-                      // than drawing an empty "0" disc.
-                      trailing:
+                ProfileHeader(user: user),
+                ColoredBox(
+                  color: AppPalette.white,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: BlocBuilder<CommunitiesBloc, CommunitiesState>(
+                      builder: (context, communities) =>
                           BlocBuilder<TicketsUnreadBloc, TicketsUnreadState>(
-                            builder: (context, state) => state.count > 0
-                                ? _CountBadge(count: state.count)
-                                : const SizedBox.shrink(),
-                          ),
-                      onTap: () =>
-                          context.push(AppRoutes.SUPPORT_TICKETS_ROUTE_PATH),
-                    ),
-                    ProfileMenuRow(
-                      icon: const Icon(ProfileIcons.support),
-                      title: 'Help & support',
-                      subtitle: 'FAQs and contact',
-                      onTap: () =>
-                          context.push(AppRoutes.HELP_SUPPORT_ROUTE_PATH),
-                    ),
-                    ProfileMenuRow(
-                      icon: const Icon(ProfileIcons.star),
-                      title: 'Give feedback',
-                      subtitle: 'Tell us what to improve',
-                      onTap: () =>
-                          context.push(AppRoutes.GIVE_FEEDBACK_ROUTE_PATH),
-                    ),
-                  ],
-                ),
-                ProfileSectionCard(
-                  title: 'Finskool21',
-                  rows: [
-                    ProfileMenuRow(
-                      icon: const Icon(ProfileIcons.rupee),
-                      title: 'About & SEBI info',
-                      subtitle: 'Registration, awards, disclaimer',
-                      onTap: () =>
-                          context.push(AppRoutes.ABOUT_SEBI_ROUTE_PATH),
-                    ),
-                    ProfileMenuRow(
-                      icon: const Icon(ProfileIcons.share),
-                      title: 'Share the app',
-                      subtitle: 'Invite friends to Finskool21',
-                      onTap: () => context.push(AppRoutes.SHARE_APP_ROUTE_PATH),
-                    ),
-                  ],
-                ),
-                ProfileSectionCard(
-                  title: 'Settings',
-                  rows: [
-                    ProfileMenuRow(
-                      icon: const Icon(ProfileIcons.notifications),
-                      title: 'Notifications',
-                      trailing: Switch(
-                        value: user?.postNotificationsEnabled ?? true,
-                        // Overrides the app-wide (teal) switch theme
-                        // deliberately — the reference screenshot's toggle
-                        // is green here, not the brand teal every other
-                        // switch in the app uses.
-                        activeThumbColor: cs.onPrimary,
-                        activeTrackColor: AppPalette.announcementGreen,
-                        onChanged: (value) =>
-                            context.read<AuthenticatorWatcherBloc>().add(
-                              AuthenticatorWatcherEvent.notificationsToggled(
-                                value,
-                              ),
+                            builder: (context, unread) => ProfileSections(
+                              subscribed: communities.communities
+                                  .where(
+                                    (c) =>
+                                        c.access == CommunityAccess.subscribed,
+                                  )
+                                  .toList(),
+                              unreadTickets: unread.count,
+                              notificationsOn:
+                                  user?.postNotificationsEnabled ?? true,
+                              onToggleNotifications: (value) =>
+                                  context.read<AuthenticatorWatcherBloc>().add(
+                                    AuthenticatorWatcherEvent.notificationsToggled(
+                                      value,
+                                    ),
+                                  ),
+                              onRenew: (c) => _renew(context, c),
                             ),
-                      ),
+                          ),
                     ),
-                    ProfileMenuRow(
-                      icon: const Icon(ProfileIcons.document),
-                      title: 'Terms & privacy policy',
-                      onTap: () =>
-                          context.push(AppRoutes.TERMS_PRIVACY_ROUTE_PATH),
-                    ),
-                  ],
+                  ),
                 ),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(
@@ -239,25 +139,5 @@ class ProfileScreen extends StatelessWidget {
     );
     context.read<ComplianceBloc>().add(const ComplianceEvent.initial());
     context.push(AppRoutes.COMMUNITY_PAYMENT_SUCCESS_ROUTE_PATH);
-  }
-}
-
-class _CountBadge extends StatelessWidget {
-  const _CountBadge({required this.count});
-
-  final int count;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 20,
-      width: 20,
-      alignment: Alignment.center,
-      decoration: const BoxDecoration(
-        color: AppPalette.notificationDot,
-        shape: BoxShape.circle,
-      ),
-      child: Text('$count', style: context.profileType.badge),
-    );
   }
 }

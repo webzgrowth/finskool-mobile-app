@@ -7,9 +7,9 @@ import 'reaction_icons.dart';
 /// Renders one reaction at [size], preferring the illustrated art exported
 /// from Figma and falling back to the emoji glyph.
 ///
-/// Only 👍 (vector) and ❤️ (raster) have art; the rest render as emoji text,
-/// which is what Figma does too, so the fallback is the design rather than a
-/// compromise.
+/// 👍 and 😂 are Figma's vector art and ❤️ its raster; wow and angry have no
+/// Figma art, so they render as emoji text — the fallback, not a stand-in
+/// for something missing.
 class ReactionGlyph extends StatelessWidget {
   const ReactionGlyph({super.key, required this.reaction, required this.size});
 

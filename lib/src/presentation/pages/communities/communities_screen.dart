@@ -75,7 +75,7 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
                     SliverAppBar(
                       floating: true,
                       snap: true,
-                      toolbarHeight: 92,
+                      toolbarHeight: SearchTopBar.baseHeight,
                       automaticallyImplyLeading: false,
                       backgroundColor: Colors.transparent,
                       elevation: 0,
@@ -87,6 +87,8 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
                             .add(CommunityFilterEvent.queryChanged(v)),
                       ),
                     ),
+                    // Figma: the first card sits 20 under the bar.
+                    const SliverToBoxAdapter(child: SizedBox(height: 20)),
                     if (state.state.isLoading || state.state.isEmpty)
                       const SliverFillRemaining(
                         child: Center(child: CircularProgressIndicator()),
@@ -109,9 +111,7 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
                           onCta: (plan) => _onCta(communities[i], plan),
                         ),
                       ),
-                    const SliverToBoxAdapter(
-                      child: SizedBox(height: AppSpacing.lg),
-                    ),
+                    const SliverToBoxAdapter(child: SizedBox(height: 20)),
                   ],
                 );
               },

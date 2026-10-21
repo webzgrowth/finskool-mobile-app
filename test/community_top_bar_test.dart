@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:finskool/src/comman/widgets/search_top_bar.dart';
+import 'package:finskool/src/utilities/theme/theme.dart';
+
+import 'support/ticket_fakes.dart';
 
 /// The bar lives inside a fixed-height `SliverAppBar`, so anything taller
 /// than its `toolbarHeight` is a RenderFlex overflow, not a scroll.
@@ -11,6 +14,7 @@ Widget _harness({
   double textScale = 1.0,
   bool showNotifications = true,
 }) => MaterialApp(
+  theme: AppTheme.light,
   home: MediaQuery(
     data: MediaQueryData(textScaler: TextScaler.linear(textScale)),
     child: Scaffold(
@@ -22,7 +26,7 @@ Widget _harness({
             toolbarHeight: height,
             automaticallyImplyLeading: false,
             flexibleSpace: SearchTopBar(
-              hintText: 'Search posts, stocks or tags...',
+              hintText: 'Search posts, stocks or tags…',
               onQueryChanged: (_) {},
               onFilterTap: () {},
               onBack: title == null ? null : () {},
@@ -37,7 +41,15 @@ Widget _harness({
   ),
 );
 
+final _bell = find.byWidgetPredicate(
+  (w) => w is SvgPicture && w.bytesLoader.toString().contains('bell.svg'),
+);
+
 void main() {
+  // The bar reads its text styles from the theme, and Ahem would overflow
+  // where Inter does not.
+  setUpAll(loadAppFonts);
+
   testWidgets('the tab bar fits its default height', (tester) async {
     await tester.pumpWidget(_harness(height: SearchTopBar.baseHeight));
     await tester.pumpAndSettle();
@@ -50,6 +62,7 @@ void main() {
     late double height;
     await tester.pumpWidget(
       MaterialApp(
+        theme: AppTheme.light,
         home: Builder(
           builder: (context) {
             height = SearchTopBar.heightFor(context, hasTitle: true);
@@ -71,6 +84,7 @@ void main() {
     late double height;
     await tester.pumpWidget(
       MaterialApp(
+        theme: AppTheme.light,
         home: MediaQuery(
           data: const MediaQueryData(textScaler: TextScaler.linear(scale)),
           child: Builder(
@@ -90,18 +104,19 @@ void main() {
   });
 
   // Regression: the flag was plumbed through but the widget never read it,
-  // so the bell kept rendering inside a community. The bell is the only
-  // SvgPicture in this bar.
+  // so the bell kept rendering inside a community. The bell is found by its
+  // asset: the search and filter glyphs are SVGs too.
   testWidgets('the tab bar keeps its notification bell', (tester) async {
     await tester.pumpWidget(_harness(height: SearchTopBar.baseHeight));
     await tester.pumpAndSettle();
-    expect(find.byType(SvgPicture), findsOneWidget);
+    expect(_bell, findsOneWidget);
   });
 
   testWidgets('a community bar drops it', (tester) async {
     late double height;
     await tester.pumpWidget(
       MaterialApp(
+        theme: AppTheme.light,
         home: Builder(
           builder: (context) {
             height = SearchTopBar.heightFor(context, hasTitle: true);
@@ -118,7 +133,7 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    expect(find.byType(SvgPicture), findsNothing);
+    expect(_bell, findsNothing);
     expect(find.text('Intraday Community'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });

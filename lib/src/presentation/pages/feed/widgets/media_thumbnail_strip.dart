@@ -20,28 +20,26 @@ class MediaThumbnailStrip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 48,
+      height: 37.1,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: media.length,
-        separatorBuilder: (_, _) => const SizedBox(width: AppSpacing.xs),
+        separatorBuilder: (_, _) => const SizedBox(width: 5.9),
         itemBuilder: (context, i) {
           final active = i == activeIndex;
           return GestureDetector(
             onTap: () => onTap(i),
             child: ClipRRect(
-              borderRadius: AppRadii.small,
+              borderRadius: BorderRadius.circular(4),
               child: SizedBox(
-                width: 64,
+                width: 37.1,
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
                     _Poster(item: media[i]),
-                    // Active thumbnail stays full brightness; the rest
-                    // are dimmed with a grey scrim instead of putting a
-                    // border on the active one.
-                    if (!active)
-                      Container(color: Colors.black.withValues(alpha: 0.45)),
+                    // Active stays as is; the rest are veiled with white at
+                    // 20% (Figma `#FFFFFF33`) rather than darkened.
+                    if (!active) Container(color: const Color(0x33FFFFFF)),
                   ],
                 ),
               ),

@@ -66,19 +66,12 @@ class WelcomeKitDemoDatasource {
     ),
     riskNotices: [
       WelcomeKitNotice(
-        tone: NoticeTone.warning,
-        title: '~70% indicative accuracy',
-        body:
-            'Actual market **performance may vary**. No level of accuracy '
-            'or return is guaranteed.',
-      ),
-      WelcomeKitNotice(
         tone: NoticeTone.danger,
         title: 'This is a high-risk strategy',
         body:
             'Intraday trading involves a **high level of market risk** and '
             'is not suitable for investors uncomfortable with short-term '
-            'fluctuations or potential losses.',
+            '**fluctuations or potential losses.**',
       ),
     ],
     disclaimer: _disclaimer,

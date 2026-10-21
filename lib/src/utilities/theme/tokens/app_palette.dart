@@ -91,6 +91,47 @@ class AppPalette {
   /// what this screen actually shows.
   static const Color profileCardFill = Color(0xFFF5F5F7);
 
+  /// The top bar's glass search field: fill white at 12%, hairline white at
+  /// 18%, hint white at 80%, filter button white at 14%, bell dot `#E50000`
+  /// and the bell's own `#269595` stroke.
+  static const Color topBarFill = Color(0x1FFFFFFF);
+  static const Color topBarStroke = Color(0x2EFFFFFF);
+  static const Color topBarHint = Color(0xCCFFFFFF);
+  static const Color topBarFilterFill = Color(0x24FFFFFF);
+
+  /// The hero's bottom-edge colours, left and right, used under the art on a
+  /// status bar taller than Figma's 44.
+  static const Color topBarBaseLeft = Color(0xFF337E80);
+  static const Color topBarBaseRight = Color(0xFF3F8B8D);
+  static const Color topBarBellDot = Color(0xFFE50000);
+
+  /// Final-page Subscription Detail: the risk notice's plate/ink, the
+  /// near-black body copy (`#1A2E2C`) and the intro ink (`#1A1A1A`).
+  static const Color subRiskPlate = Color(0xFFFDECEC);
+  static const Color subRiskInk = Color(0xFFE53935);
+  static const Color subRiskBody = Color(0xE0E53935);
+  static const Color subBodyInk = Color(0xFF1A2E2C);
+  static const Color subIntroInk = Color(0xFF1A1A1A);
+
+  /// Post card (Final page `605:15302`): the divider above the reaction row,
+  /// the hashtag pill fill and the carousel's inactive dot.
+  static const Color feedRule = Color(0xFFD9D9D9);
+
+  /// The light plate behind an embed (`#F4F4F4`, Figma's `Rectangle 42155` on
+  /// the tall-media card) while it loads, and the WebView's own background.
+  static const Color feedMediaPlate = Color(0xFFF4F4F4);
+  static const Color feedBorder = Color(0xFFA5D3D3);
+  static const Color feedChip = Color(0xFFF5F6F9);
+  static const Color feedDot = Color(0xFFE0E0E0);
+
+  /// Inactive bottom-nav label and icon (`#888880`).
+  static const Color navInactive = Color(0xFF888880);
+
+  /// Final-page profile: the green "Renew" pill (`#34C759`) and the
+  /// "Member since" pill's text (white at 88%).
+  static const Color profileRenew = Color(0xFF34C759);
+  static const Color profilePillInk = Color(0xE0FFFFFF);
+
   ///  =================================================================
   ///  ******************* Subscription Detail *************************
   ///  =================================================================

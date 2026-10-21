@@ -1,22 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
 
-/// One cell of a details grid: a small [AppPalette.primary] disc sitting to
-/// the **left** of a bold label, with the value beneath the label (indented
-/// past the disc, not under it).
+/// One cell of a details grid: a 17.5px `#108B8B` disc holding Figma's white
+/// glyph, to the **left** of a bold label, with the value beneath the label —
+/// indented past the disc (24px from its left edge), not under it.
 ///
-/// Note this inverts the usual emphasis — the label is the bold near-black
-/// one and the value beneath it is the quiet grey.
+/// This inverts the usual emphasis: the label is the bold near-black one and
+/// the value beneath it is the quiet one.
 class DetailCell extends StatelessWidget {
   const DetailCell({
     super.key,
-    required this.icon,
+    required this.glyph,
     required this.label,
     this.value,
     this.trailing,
   }) : assert(value != null || trailing != null);
 
-  final IconData icon;
+  /// An asset path (`assets/icons/sub_*.svg`), already white.
+  final String glyph;
   final String label;
   final String? value;
 
@@ -26,27 +28,17 @@ class DetailCell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final type = context.subscriptionType;
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Stack(
       children: [
-        Container(
-          height: 18,
-          width: 18,
-          alignment: Alignment.center,
-          decoration: const BoxDecoration(
-            color: AppPalette.primary,
-            shape: BoxShape.circle,
-          ),
-          child: Icon(icon, size: 10, color: AppPalette.white),
-        ),
-        const SizedBox(width: 5),
-        Expanded(
+        Positioned(top: 2, left: 0, child: _Disc(glyph)),
+        Padding(
+          padding: const EdgeInsets.only(left: 24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(label, style: type.label),
-              const SizedBox(height: 3),
+              const SizedBox(height: 2),
               trailing ?? Text(value!, style: type.value),
             ],
           ),
@@ -56,27 +48,47 @@ class DetailCell extends StatelessWidget {
   }
 }
 
-/// The 1px rule between two cells in a details grid. Full-height, so it
-/// needs an `IntrinsicHeight` above the `Row` that holds it.
+class _Disc extends StatelessWidget {
+  const _Disc(this.glyph);
+
+  final String glyph;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 17.5,
+      width: 17.5,
+      alignment: Alignment.center,
+      decoration: const BoxDecoration(
+        color: AppPalette.badgeTeal,
+        shape: BoxShape.circle,
+      ),
+      child: SvgPicture.asset(glyph),
+    );
+  }
+}
+
+/// The hairline between two cells in a details grid: `#888780`, 0.3 wide.
+/// Full-height, so it needs an `IntrinsicHeight` above the `Row` holding it.
 class GridVRule extends StatelessWidget {
   const GridVRule({super.key});
 
   @override
   Widget build(BuildContext context) => Container(
-    width: 1,
+    width: 0.3,
     margin: const EdgeInsets.symmetric(horizontal: 6),
-    color: AppPalette.subscriptionDivider,
+    color: AppPalette.ticketHint,
   );
 }
 
-/// The 1px rule between two rows of a details grid.
+/// The hairline between two rows of a details grid.
 class GridHRule extends StatelessWidget {
   const GridHRule({super.key});
 
   @override
   Widget build(BuildContext context) => Container(
-    height: 1,
-    margin: const EdgeInsets.symmetric(vertical: 10),
-    color: AppPalette.subscriptionDivider,
+    height: 0.3,
+    margin: const EdgeInsets.symmetric(vertical: 11),
+    color: AppPalette.ticketHint,
   );
 }

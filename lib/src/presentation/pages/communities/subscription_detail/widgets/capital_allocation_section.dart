@@ -6,9 +6,9 @@ import 'package:finskool/src/utilities/theme/theme.dart';
 
 import 'strategy_stat_grid.dart';
 
-/// The figure on its mint plate, then the at-a-glance tiles. Both headings
-/// come from the data: a trading community says "Capital Allocation" /
-/// "Strategy at a glance", a course says something else entirely.
+/// The figure on a white plate (r10), then "Strategy at a glance" and its
+/// tiles. Both headings come from the data: a trading community says "Capital
+/// Allocation" / "Strategy at a glance", a course says something else.
 class CapitalAllocationSection extends StatelessWidget {
   const CapitalAllocationSection({super.key, required this.capital});
 
@@ -19,38 +19,38 @@ class CapitalAllocationSection extends StatelessWidget {
     final type = context.subscriptionType;
     return TealSectionCard(
       title: capital.title,
+      padding: const EdgeInsets.fromLTRB(14, 13, 14, 17),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.all(AppSpacing.md),
+            padding: const EdgeInsets.fromLTRB(13, 6, 15, 11),
             decoration: BoxDecoration(
-              color: AppPalette.capitalHighlight,
-              borderRadius: BorderRadius.circular(AppRadii.md),
+              color: AppPalette.white,
+              borderRadius: BorderRadius.circular(10),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(capital.amount, style: type.capitalAmount),
-                const SizedBox(height: 2),
                 Text(capital.caption, style: type.capitalCaption),
-                const SizedBox(height: AppSpacing.xs),
+                const SizedBox(height: 3),
                 Text.rich(
                   TextSpan(
                     children: bodySpans(
                       capital.description,
-                      type.kitBody,
-                      type.kitBodyBold,
+                      type.capitalNote,
+                      type.capitalNoteBold,
                     ),
                   ),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: AppSpacing.md),
-          Text(capital.statsHeading, style: type.kitBodyBold),
-          const SizedBox(height: AppSpacing.sm),
+          const SizedBox(height: 11),
+          Text(capital.statsHeading, style: type.statsHeading),
+          const SizedBox(height: 6),
           StrategyStatGrid(stats: capital.stats),
         ],
       ),

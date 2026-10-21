@@ -10,7 +10,7 @@ import 'package:finskool/src/domain/model/reaction_type.dart';
 /// here, not a stand-in for missing art. (Figma drew a different six —
 /// 👍❤️🔥👏✅😮 — but the backend's seeded set is authoritative.)
 ///
-/// Two things do have real art, and they are different in kind:
+/// Three things do have real art, and they are different in kind:
 /// * [likeButton] is a monochrome UI glyph (one path, `#7D7D91`) — the Like
 ///   control, and the only asset that can be tinted.
 /// * the badge art below is full-colour illustration (gradients, skin tone)
@@ -22,11 +22,26 @@ class ReactionIcons {
   static const String likeButton = 'assets/icons/reaction_like_fill.svg';
 
   static const String _likeBadge = 'assets/icons/reaction_like.svg';
+  static const String _hahaBadge = 'assets/icons/reaction_haha.svg';
   static const String _loveBadge = 'assets/icons/reaction_heart.png';
 
   /// Vector badge art, or null when the reaction only exists as an emoji.
-  static String? svgBadge(ReactionType reaction) =>
-      reaction == ReactionType.like ? _likeBadge : null;
+  static String? svgBadge(ReactionType reaction) => switch (reaction) {
+    ReactionType.like => _likeBadge,
+    ReactionType.haha => _hahaBadge,
+    _ => null,
+  };
+
+  /// The Reactions sheet's tab order. Figma lays the discs out blue, red,
+  /// yellow, teal — like, love, then the yellow one (`wow` here), then the
+  /// laughing face — which isn't the enum's (API `sortOrder`) order.
+  static const List<ReactionType> sheetOrder = [
+    ReactionType.like,
+    ReactionType.love,
+    ReactionType.wow,
+    ReactionType.haha,
+    ReactionType.angry,
+  ];
 
   /// Raster badge art (the heart was uploaded as an image, not a vector).
   static String? pngBadge(ReactionType reaction) =>

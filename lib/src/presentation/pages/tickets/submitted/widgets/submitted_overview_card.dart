@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:finskool/src/comman/ist_time.dart';
 import 'package:finskool/src/domain/model/ticket/ticket_enums.dart';
 import 'package:finskool/src/domain/model/ticket/ticket_model.dart';
-import 'package:finskool/src/presentation/pages/tickets/widgets/ticket_section_card.dart';
+import 'package:finskool/src/comman/widgets/teal_section_card.dart';
 import 'package:finskool/src/presentation/pages/tickets/widgets/ticket_status_pill.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
 
@@ -17,7 +17,7 @@ class SubmittedOverviewCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final type = context.ticketType;
     final files = ticket.attachments.length;
-    return TicketSectionCard(
+    return TealSectionCard(
       title: 'Ticket Overview',
       padding: const EdgeInsets.fromLTRB(17, 15, 17, 16),
       child: Column(

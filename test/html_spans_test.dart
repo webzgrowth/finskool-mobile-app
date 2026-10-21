@@ -40,6 +40,29 @@ void main() {
     expect(render('<p>a<br>b</p>'), 'a\nb');
   });
 
+  test('a paragraph inside a list item keeps its bullet on the same line', () {
+    // Rich-text editors wrap item text in <p>; the bullet used to land alone.
+    expect(
+      render('<ul><li><p>a</p></li><li><p><strong>b</strong> c</p></li></ul>'),
+      '• a\n• b c',
+    );
+  });
+
+  test('an empty list item leaves no stray bullet', () {
+    expect(
+      render('<ul><li></li><li><p>x</p></li><li><p></p></li></ul>'),
+      '• x',
+    );
+  });
+
+  test('ordered lists count, and list-style none drops the markers', () {
+    expect(render('<ol><li>a</li><li>b</li></ol>'), '1. a\n2. b');
+    expect(
+      render('<ul style="list-style: none"><li>a</li><li>b</li></ul>'),
+      'a\nb',
+    );
+  });
+
   test('entities are unescaped', () {
     expect(
       render('<p>Tata&nbsp;&amp;&nbsp;Sons &#8377;100</p>'),

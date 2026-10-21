@@ -588,13 +588,16 @@ border width — Flutter draws a `Border` inside the box, and omitting it
 made the row 0.76px wider than its content box and tripped a RenderFlex
 overflow.
 
-Two reactions do have exported art, and they differ in kind
+Three reactions have exported art, and they differ in kind
 (`pages/feed/widgets/reaction_icons.dart`):
 `reaction_like_fill.svg` is a monochrome UI glyph — the **Like control**,
-the only tintable asset; `reaction_like.svg` / `reaction_heart.png` are
-full-colour illustrations for the badge stack. `ReactionGlyph` picks art
-when it exists and falls back to the emoji — so `haha`, `wow`, `sad` and
-`angry` are all emoji.
+the only tintable asset; `reaction_like.svg`, `reaction_haha.svg` (Figma's
+laughing face) and `reaction_heart.png` are full-colour illustrations for the
+badges. `ReactionGlyph` picks art when it exists and falls back to the emoji —
+so `wow` and `angry`, which Figma never drew, are emoji. (The laughing face
+only exports from node `605:16870`; the same-named nodes in the feed frame
+return an empty image.) The Reactions sheet's tabs follow Figma's disc order
+via `ReactionIcons.sheetOrder`, not the enum's.
 
 **Emoji text needs `inherit: false`.** The app theme sets a custom
 `fontFamily`, and U+2764 (❤) defaults to *text* presentation — under a
@@ -1021,6 +1024,39 @@ deep link. The error-retry in `feedBodySlivers` passes
 `state.communityId` — without it a failed community feed retried as the
 *free* feed.
 
+### Final-page pass (Home, Communities top bar, Subscription Detail)
+
+Everything under this heading was matched against Figma's **Final** page with
+goldens (`test/*_goldens_test.dart` → `build/profile_goldens/`). **Where it
+disagrees with older text below, this wins** — the `WORKING` page holds earlier,
+different versions of these screens.
+
+* **Top bar** (`comman/widgets/search_top_bar.dart`, shared by Feed and
+  Communities): 62px of content under the status bar (`baseHeight`), a 36px
+  glass field (white 12% fill, white-18% hairline, r10.55), exported search and
+  filter glyphs, a 23px filter chip and a 29px bell disc with a 6.5px red dot.
+  Text styles live in `TopBarTypography` (`context.topBarType`); the hint is
+  Poppins in Figma, approximated with Inter. The first card sits 20 below it.
+* **Post card** (`FeedPostCard`): r20, a 0.5dp `#A5D3D3` hairline (Figma's
+  `#108B8B` stroke renders as one device pixel at 2x), 35px avatar, media at
+  **332x171** (not 16:9 — `PostMediaModel.aspectRatio`), 37px thumbnails veiled
+  with white 20%, a 17.8px `#F5F6F9` hashtag pill. `Container(alignment:)`
+  makes that pill fill the Wrap — it uses a width-hugging `Center`.
+* **Subscription Detail**: same chrome as Edit Profile — `TealSheetScaffold`
+  (the ticket hero, sheet 56px under the status bar here, 61 on Edit Profile),
+  `TealSectionCard` (the one teal-header/`#F6F6F6` card, shared with tickets),
+  `DetailCell` with exported glyphs (`assets/icons/sub_*.svg`). Only the red risk
+  notice is shown for Intraday: the amber "~70% accuracy" banner is blank in
+  Figma and was removed from the data. The cover image gets a scrim that is
+  solid `#108B8B` on the left and clears to the art on the right.
+* **Row taps**: a subscription row opens its detail; only the Renew pill
+  renews. (An earlier pass sent a row tap to the purchase flow for an expiring
+  plan, which made it impossible to open.)
+* **Golden tests that touch network images** can't use `cached_network_image`
+  (its cache needs sqflite/path_provider). Pre-seed
+  `PaintingBinding.instance.imageCache` with `CachedNetworkImageProvider(url)`
+  keys — see `subdetail_goldens_test.dart`.
+
 ### Subscription Detail screen
 
 `pages/communities/subscription_detail/` — reached from the Profile tab's
@@ -1152,6 +1188,47 @@ compliance-skip → payment-success path a fresh purchase takes, just from an
 already-subscribed community. If a real renewal flow gets designed later,
 that's the call site to change.
 
+### Final-page Profile (the shipped look)
+
+Source: Final page, frame `Profile` (`1372:1676`) — **not** the `WORKING`
+page's profile, which is an older, different design. Everything below was read
+with figma-mcp-rust and checked against Figma's render
+(`test/profile_goldens_test.dart` → `build/profile_goldens/profile.png`; it
+matches pixel for pixel).
+
+* **Header** `ProfileHeader`: the same `ticket_hero_bg.png` as the ticket
+  screens, a white sheet 61px under the status bar (from `MediaQuery`), the
+  107px avatar straddling the seam, name Manrope 700 · 22 `#108B8B`.
+* **Rows** `ProfileMenuRow`: a 36px `#108B8B` tile with Figma's exported white
+  glyph (`ProfileGlyphs` → `assets/icons/profile_*.svg`), title Inter 600 ·
+  13/18, subtitle Inter 400 · 11/15. Cards are `#F6F6F6`, r16, with a soft
+  shadow; section labels are upper-cased Manrope 700 · 11 at 0.88 tracking.
+* **Renew** is a green `#34C759` pill with a chevron; "Expires in N days" is
+  red `#E10200`. The switch is `ProfileToggle` (40x24, `#108B8B`), not a
+  Material `Switch`.
+* **Privacy & security** is new in this design and routes to the placeholder.
+* **Log out** is not drawn in Figma and stays below the cards.
+* `ProfileTypography` pins `letterSpacing: 0` (see the ticket note — the
+  ambient 0.25 widened every row by ~4px).
+* The avatar is the user's photo or initials; Figma's cartoon face is a
+  sample, not a default for everyone.
+
+### Motion
+
+* **Routes**: `utilities/page_transitions.dart`. Apple platforms keep the
+  Cupertino transition (it carries the interactive swipe-back, which a custom
+  builder would drop); Android gets `PremiumPageTransitionsBuilder` (slide +
+  fade with a parallax on the covered page). Whole-screen *replacements*
+  (splash, login, signup, dashboard) use `fadeThroughPage`.
+* **Tabs**: `AnimatedIndexedStack` fades the incoming tab in. Each child is
+  wrapped identically whether active or not — swapping a wrapper in and out
+  would change its element type and discard the tab's state.
+* **Entrance**: `FadeSlideIn` staggers the profile cards. The nav item's disc,
+  glyph, label and underline animate together on select.
+* **Platform views**: don't wrap a native view (the YouTube/Instagram embeds)
+  in `Opacity`/`FadeTransition` for longer than a blink — compositing a
+  platform view under a layer is what once drew a video over the nav bar.
+
 ### Edit Profile
 
 `pages/dashboard/profile/edit_profile/`, routed at `/edit-profile` — Figma
@@ -1233,15 +1310,12 @@ therefore a *ring* on that tab (a border) rather than the filled-disc
 treatment the icon tabs get, since a solid circle behind a photo would hide
 most of it.
 
-**Feed and Communities nav icons are still Material stand-ins**
-(`grid_view_rounded`, `groups_rounded`) — Figma's exports (`element-3`,
-`Frame 2121453450`) were blocked by a Figma rate limit that didn't clear
-even after 15 minutes of paced retries (see "Figma access" below); swap
-them in `AppBottomNavBar._icons` once available. **Performance deliberately
-does not use Figma's own node for that tab** — it's literally the
-search-bar glyph reused, a placeholder-in-the-file, not a real icon;
-`trending_up_rounded` stands in instead and should stay until a real
-Performance icon is designed, not get "corrected" back to the search glyph.
+**The nav glyphs are Figma's own exports** (`assets/icons/nav_*.svg`, from
+`iPhone 16 - 12`). Performance's glyph is a node *named*
+`search-alt-2_svgrepo.com` but drawn as the trend arrow, and that arrow is what
+ships — an earlier note here called it a placeholder and kept a Material icon.
+Tabs hug their labels and sit `space-between` inside a 42/29px gutter, not in
+four equal columns; that asymmetry is Figma's.
 
 ### `UserAvatar` — shared, not duplicated
 
@@ -1520,11 +1594,6 @@ Do not treat these as incidental bugs to fix while doing something else:
 - `CommunityDetailScreen` (behind "Enter Community") is a routed
   placeholder — Figma has no design for the inside of a community, and the
   post model has no community field yet. The route works; the body doesn't.
-- The **Profile tab still has Material-icon stand-ins** — see "## Profile".
-  Layout/structure/copy came from a cached Figma dump and colors from a
-  user-supplied reference screenshot, so both are trustworthy; only the
-  actual icon glyphs (`profile_icons.dart`, and the bottom nav's
-  Feed/Communities icons) are still placeholders, pending a Figma export.
 - Payments are still **not** wired: `/communities/{id}/plans/{planId}/orders`
   and `/payments/verify` (Razorpay) exist in the spec but
   `CommunityPurchaseBloc` still fabricates the transaction, and

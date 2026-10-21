@@ -11,6 +11,9 @@ import 'components/surface_themes.dart';
 import 'extensions/app_gradients.dart';
 import 'extensions/community_typography.dart';
 import 'extensions/feed_typography.dart';
+import '../page_transitions.dart';
+import 'extensions/nav_typography.dart';
+import 'extensions/top_bar_typography.dart';
 import 'extensions/profile_typography.dart';
 import 'extensions/subscription_detail_typography.dart';
 import 'extensions/ticket_typography.dart';
@@ -38,11 +41,14 @@ class AppTheme {
       primaryColor: cs.primary,
       visualDensity: VisualDensity.adaptivePlatformDensity,
       splashFactory: InkSparkle.splashFactory,
+      pageTransitionsTheme: pageTransitions,
       extensions: [
         AppGradients.of(cs.brightness),
         FeedTypography.of(cs.brightness),
         CommunityTypography.of(cs.brightness),
         ProfileTypography.of(cs.brightness),
+        NavTypography.of(cs.brightness),
+        TopBarTypography.of(cs.brightness),
         SubscriptionDetailTypography.of(cs.brightness),
         TicketTypography.of(cs.brightness),
       ],

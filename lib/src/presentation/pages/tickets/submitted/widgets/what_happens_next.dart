@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:finskool/src/presentation/pages/tickets/widgets/ticket_section_card.dart';
+import 'package:finskool/src/comman/widgets/teal_section_card.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
 
 /// "What happens next": three numbered steps on a 68px pitch.
@@ -21,7 +21,7 @@ class WhatHappensNext extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TicketSectionCard(
+    return TealSectionCard(
       title: 'What happens next',
       padding: const EdgeInsets.fromLTRB(17, 14.5, 17, 14),
       child: Column(

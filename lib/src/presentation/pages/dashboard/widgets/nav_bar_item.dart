@@ -1,124 +1,171 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
 
-/// A single bottom-nav tab: icon + label; [selected] shows the icon on a
-/// filled teal circular badge plus a small underline indicator.
+/// A single bottom-nav tab. It hugs its label (`max(disc, label) + 19px`), as
+/// in Figma, where the tabs are different widths.
+///
+/// Figma: a 31.8px icon disc (`#108B8B` and a white glyph when selected,
+/// bare when not), the label 2px below it, and a 23x2 teal underline under the
+/// selected label. Everything that changes on select — disc fill, glyph
+/// colour, label colour, underline — animates together over 240ms, and the
+/// disc gives a small spring on the way in, so a tab switch feels like one
+/// movement rather than four.
+///
+/// The Profile tab shows the real avatar ([customIcon]) with a selected ring
+/// instead of a filled disc: a solid teal disc would hide the photo.
 class NavBarItem extends StatelessWidget {
   const NavBarItem({
     super.key,
-    this.icon,
+    this.glyph,
     this.customIcon,
     required this.label,
     required this.selected,
     required this.onTap,
     this.badgeCount,
   }) : assert(
-         icon != null || customIcon != null,
-         'NavBarItem needs either icon or customIcon',
+         glyph != null || customIcon != null,
+         'NavBarItem needs either glyph or customIcon',
        );
 
-  /// Falls back to this when [customIcon] is absent.
-  final IconData? icon;
-
-  /// Overrides [icon] entirely — the Profile tab's real avatar photo isn't
-  /// a glyph at all (Figma's nav bar has no icon for it, just a filled
-  /// circle), so it needs to render a `UserAvatar` instead of an `Icon`.
+  /// An SVG asset path; tinted white when selected.
+  final String? glyph;
   final Widget? customIcon;
-
   final String label;
   final bool selected;
   final VoidCallback onTap;
 
-  /// Unread count bubble on the icon — the Figma nav shows "100" on Feed
-  /// and "50" on Communities (`750:1638`, `750:1654`). Null or 0 hides it.
+  /// Unread bubble on the icon. Null or 0 hides it.
   final int? badgeCount;
+
+  static const _duration = Duration(milliseconds: 240);
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
-    final color = selected ? cs.primary : cs.onSurfaceVariant;
-    return InkWell(
+    final type = context.navType;
+    return InkResponse(
       onTap: onTap,
+      containedInkWell: true,
+      highlightShape: BoxShape.rectangle,
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
+        padding: const EdgeInsets.fromLTRB(9.54, 3, 9.54, 4),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Stack(
               clipBehavior: Clip.none,
               children: [
-                AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  height: 36,
-                  width: 36,
-                  decoration: BoxDecoration(
-                    // A photo avatar (Profile) gets a selected *ring*
-                    // instead of a filled disc — a solid teal circle
-                    // behind a photo would hide most of it. Icon tabs
-                    // keep the existing filled-disc treatment.
-                    color: customIcon == null && selected
-                        ? cs.primary
-                        : Colors.transparent,
-                    shape: BoxShape.circle,
-                    border: customIcon != null && selected
-                        ? Border.all(color: cs.primary, width: 2)
-                        : null,
-                  ),
-                  alignment: Alignment.center,
-                  child:
-                      customIcon ??
-                      Icon(
-                        icon,
-                        color: selected ? cs.onPrimary : color,
-                        size: 22,
+                TweenAnimationBuilder<double>(
+                  tween: Tween(end: selected ? 1 : 0),
+                  duration: _duration,
+                  curve: Curves.easeOutBack,
+                  builder: (context, t, _) => Transform.scale(
+                    scale: 1 + 0.06 * t.clamp(0, 1.2),
+                    child: AnimatedContainer(
+                      duration: _duration,
+                      curve: Curves.easeOutCubic,
+                      height: 31.8,
+                      width: 31.8,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: customIcon == null && selected
+                            ? AppPalette.badgeTeal
+                            : Colors.transparent,
+                        shape: BoxShape.circle,
+                        border: customIcon != null
+                            ? Border.all(
+                                color: selected
+                                    ? AppPalette.badgeTeal
+                                    : Colors.transparent,
+                                width: 2,
+                              )
+                            : null,
                       ),
+                      child: customIcon ?? _Glyph(glyph!, selected),
+                    ),
+                  ),
                 ),
                 if (badgeCount != null && badgeCount! > 0)
                   Positioned(
                     top: -4,
                     right: -10,
-                    child: Container(
-                      height: 16,
-                      constraints: const BoxConstraints(minWidth: 22),
-                      padding: const EdgeInsets.symmetric(horizontal: 5),
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        // Not `error` red: Figma's nav badges are neutral —
-                        // slate on an unselected tab, near-black on the
-                        // selected one. (Read from the design screenshot;
-                        // re-measure the exact hexes when Figma is
-                        // reachable again.)
-                        color: selected
-                            ? AppPalette.reactionRing
-                            : AppPalette.postMeta,
-                        borderRadius: BorderRadius.circular(AppRadii.xs),
-                      ),
-                      child: Text(
-                        badgeCount! > 99 ? '99+' : '$badgeCount',
-                        style: tt.labelSmall?.copyWith(
-                          color: cs.onError,
-                          fontSize: 9,
-                          height: 1.0,
-                        ),
-                      ),
-                    ),
+                    child: _Badge(count: badgeCount!, selected: selected),
                   ),
               ],
             ),
             const SizedBox(height: 2),
-            Text(label, style: tt.labelSmall?.copyWith(color: color)),
-            const SizedBox(height: 4),
+            AnimatedDefaultTextStyle(
+              duration: _duration,
+              style: selected ? type.active : type.inactive,
+              child: Text(label),
+            ),
+            const SizedBox(height: 3),
             AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              height: 3,
-              width: selected ? 16 : 0,
+              duration: _duration,
+              curve: Curves.easeOutCubic,
+              height: 2,
+              width: selected ? 23 : 0,
               decoration: BoxDecoration(
-                color: cs.primary,
-                borderRadius: BorderRadius.circular(2),
+                color: AppPalette.badgeTeal,
+                borderRadius: BorderRadius.circular(10),
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _Glyph extends StatelessWidget {
+  const _Glyph(this.asset, this.selected);
+
+  final String asset;
+  final bool selected;
+
+  @override
+  Widget build(BuildContext context) {
+    return TweenAnimationBuilder<Color?>(
+      tween: ColorTween(
+        end: selected ? AppPalette.white : AppPalette.navInactive,
+      ),
+      duration: NavBarItem._duration,
+      // At the export's own size — Figma centres each glyph, 13.5 to 15.9px,
+      // in the disc; forcing one size would scale the smaller ones up.
+      builder: (context, color, _) => SvgPicture.asset(
+        asset,
+        colorFilter: ColorFilter.mode(color!, BlendMode.srcIn),
+      ),
+    );
+  }
+}
+
+class _Badge extends StatelessWidget {
+  const _Badge({required this.count, required this.selected});
+
+  final int count;
+  final bool selected;
+
+  @override
+  Widget build(BuildContext context) {
+    final tt = Theme.of(context).textTheme;
+    return Container(
+      height: 16,
+      constraints: const BoxConstraints(minWidth: 22),
+      padding: const EdgeInsets.symmetric(horizontal: 5),
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        // Figma's nav badges are neutral: slate unselected, near-black on the
+        // selected tab.
+        color: selected ? AppPalette.reactionRing : AppPalette.postMeta,
+        borderRadius: BorderRadius.circular(AppRadii.xs),
+      ),
+      child: Text(
+        count > 99 ? '99+' : '$count',
+        style: tt.labelSmall?.copyWith(
+          color: AppPalette.white,
+          fontSize: 9,
+          height: 1.0,
         ),
       ),
     );

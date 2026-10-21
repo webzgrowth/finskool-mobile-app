@@ -42,11 +42,12 @@ class PostMediaModel {
 
   bool get isEmbed => type != PostMediaType.image;
 
-  /// How tall the carousel should be for this item. Figma's 16:9 holds for
-  /// images and video, but Instagram's embed is portrait — forcing it into
-  /// 16:9 crops the picture and the account header off the frame.
+  /// How tall the carousel should be for this item. Figma draws images and
+  /// video at 332x171 — a hair wider than 16:9 (`605:15442`). Instagram's
+  /// embed is portrait, and forcing it into a landscape box crops the picture
+  /// and the account header off the frame, so it keeps 4:5.
   double get aspectRatio =>
-      type == PostMediaType.instagramEmbed ? 4 / 5 : 16 / 9;
+      type == PostMediaType.instagramEmbed ? 4 / 5 : 332 / 171;
 
   /// A still worth rendering, or null when this item has none and the
   /// WebView is the only thing that can show it.

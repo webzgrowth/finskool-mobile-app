@@ -124,10 +124,10 @@ class _FeedListViewState extends State<FeedListView> {
                     elevation: 0,
                     flexibleSpace: widget.topBar,
                   ),
+                  // Figma: the first card sits 20 under the bar.
+                  const SliverToBoxAdapter(child: SizedBox(height: 20)),
                   ...feedBodySlivers(context, feedState, query),
-                  const SliverToBoxAdapter(
-                    child: SizedBox(height: AppSpacing.lg),
-                  ),
+                  const SliverToBoxAdapter(child: SizedBox(height: 20)),
                 ],
               ),
             ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:finskool/src/comman/routes.dart';
+import 'package:finskool/src/comman/widgets/animated_indexed_stack.dart';
 import 'package:finskool/src/presentation/bloc/authentication/authenticator_watcher/authenticator_watcher_bloc.dart';
 import 'package:finskool/src/presentation/bloc/dashboard/bottom_nav/bottom_nav_bloc.dart';
 import 'package:finskool/src/presentation/bloc/tickets/unread/tickets_unread_bloc.dart';
@@ -12,7 +13,8 @@ import 'performance/performance_screen.dart';
 import 'profile/profile_screen.dart';
 import 'widgets/app_bottom_nav_bar.dart';
 
-/// Hosts the 4 bottom-nav tabs behind an [IndexedStack] — kept as a flat
+/// Hosts the 4 bottom-nav tabs behind an [AnimatedIndexedStack] (an
+/// `IndexedStack` that fades the incoming tab in) — kept as a flat
 /// widget switch (not a go_router `StatefulShellRoute`) since the router
 /// elsewhere in this app is flat too; revisit only if deep-linking to a
 /// specific tab becomes a requirement. `IndexedStack` (not a plain
@@ -70,7 +72,7 @@ class _DashboardShellScreenState extends State<DashboardShellScreen> {
       child: BlocBuilder<BottomNavBloc, BottomNavState>(
         builder: (context, state) {
           return Scaffold(
-            body: IndexedStack(
+            body: AnimatedIndexedStack(
               index: state.selectedIndex,
               children: const [
                 FeedScreen(),

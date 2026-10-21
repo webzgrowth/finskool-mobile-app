@@ -116,6 +116,8 @@ class AppRoutes {
   // One combined route: Figma shows "Terms & privacy policy" as a single
   // row, so this doesn't reuse the separate (unrouted) TERM_OF_USE /
   // PRIVACY constants below — those are left alone per Known Gaps.
+  static const String PRIVACY_SECURITY_ROUTE_NAME = "privacy-security";
+  static const String PRIVACY_SECURITY_ROUTE_PATH = "/profile/privacy-security";
   static const String TERMS_PRIVACY_ROUTE_NAME = "terms-privacy";
   static const String TERMS_PRIVACY_ROUTE_PATH = "/profile/terms-privacy";
 

@@ -1,15 +1,19 @@
 import 'dart:math' as math;
+import 'dart:ui' show ImageFilter;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show SystemUiOverlayStyle;
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
 
-/// The gradient-grid search bar shared by the Feed and Communities tabs.
+/// The gradient-grid search bar shared by the Feed and Communities tabs —
+/// Final page `iPhone 16 - 12` (`605:15302`).
 ///
-/// Extracted from `FeedTopBar`, which was hardcoded to `FeedFilterBloc` and
-/// the feed's hint text. Both tabs use the identical chrome in Figma, so
-/// this owns the layout and each tab supplies its own copy and callbacks.
+/// Measured: the hero is 62px of content under the status bar; the glass
+/// search field is 36 tall at 16px below the inset (r10.55, white at 12% with
+/// a white-18% hairline), its search glyph 17px in and the filter button a
+/// 23px chip 9px from the right edge; the bell is a 29px white disc, 25px off
+/// the field. Each tab supplies its own copy and callbacks.
 class SearchTopBar extends StatelessWidget {
   const SearchTopBar({
     super.key,
@@ -26,37 +30,29 @@ class SearchTopBar extends StatelessWidget {
   final ValueChanged<String> onQueryChanged;
   final VoidCallback? onFilterTap;
 
-  /// Shown as a red count bubble on the bell. Null or 0 renders the plain
-  /// dot instead.
+  /// Shown as a red count on the bell. Null or 0 draws the bell bare.
   final int? notificationCount;
 
   /// A back arrow and screen title above the search field, for a *pushed*
-  /// feed (a single community). The Feed and Communities tabs pass neither —
-  /// they sit in the bottom-nav shell and have nothing to go back to — so
-  /// their chrome is unchanged.
+  /// feed (a single community). The two tabs pass neither.
   final VoidCallback? onBack;
   final String? title;
 
-  /// The bell belongs to the two **tabs**, which are where notifications are
-  /// read from. A single community's feed is a pushed screen and drops it.
+  /// The bell belongs to the two **tabs**; a pushed community feed drops it.
   final bool showNotifications;
 
-  /// Height of the bar **without** the title row, excluding the status-bar
-  /// inset it adds itself. `SliverAppBar` needs its `toolbarHeight` up front
-  /// — it cannot size itself to a `flexibleSpace` — so this is published
-  /// rather than hardcoded at the two call sites.
-  static const double baseHeight = 92;
+  /// Content height **without** the title row, excluding the status-bar inset
+  /// (`SliverAppBar` adds that itself): 16 above the field, 36 for it, 10
+  /// below. `SliverAppBar` needs its `toolbarHeight` up front, so this is
+  /// published rather than hardcoded at the call sites.
+  static const double baseHeight = 62;
 
   static const double _titleFontSize = 16;
   static const double _backIconSize = 22;
 
-  /// The toolbar height a bar with these options needs.
-  ///
-  /// The title row is **measured, not a constant**: at a large system font
-  /// scale a fixed 30px would clip the title, and the bar is inside a
-  /// fixed-height `SliverAppBar`, so anything taller than this overflows
-  /// rather than scrolling. Scaling the font size and taking the larger of
-  /// it and the back glyph keeps both legible.
+  /// The toolbar height a bar with these options needs. The title row is
+  /// **measured, not a constant**: at a large system font a fixed 30px would
+  /// clip the title inside the fixed-height `SliverAppBar`.
   static double heightFor(BuildContext context, {bool hasTitle = false}) {
     if (!hasTitle) return baseHeight;
     final titleHeight =
@@ -72,22 +68,27 @@ class SearchTopBar extends StatelessWidget {
       child: Container(
         width: double.infinity,
         padding: EdgeInsets.fromLTRB(
-          AppSpacing.lg,
-          topInset + AppSpacing.sm,
-          AppSpacing.lg,
-          AppSpacing.md,
+          14,
+          topInset + (title != null || onBack != null ? AppSpacing.sm : 16),
+          showNotifications ? 25 : 14,
+          10,
         ),
         decoration: const BoxDecoration(
-          // The source PNG has its own rounded bottom corners baked in, but
-          // `BoxFit.cover` crops the excess width from the sides — exactly
-          // where those corners live. Round it here instead.
-          borderRadius: BorderRadius.vertical(
-            bottom: Radius.circular(AppRadii.lg),
+          // The hero art is 393 wide at 1:1 with Figma's frame, so it is fitted
+          // to the **width** and pinned to the top: `BoxFit.cover` would scale
+          // it up to the taller (inset-inclusive) bar and stretch the grid's
+          // 41.9px pitch. Below the art, on a tall status bar, the bar's own
+          // gradient continues in the art's last colours.
+          gradient: LinearGradient(
+            colors: [AppPalette.topBarBaseLeft, AppPalette.topBarBaseRight],
           ),
+          // The source PNG has its own rounded bottom corners baked in, but
+          // fitting to width crops nothing there; round it here regardless.
+          borderRadius: BorderRadius.vertical(bottom: Radius.circular(10)),
           image: DecorationImage(
             image: AssetImage('assets/images/feed_top_bar_bg.png'),
-            fit: BoxFit.cover,
-            alignment: Alignment.center,
+            fit: BoxFit.fitWidth,
+            alignment: Alignment.topCenter,
           ),
         ),
         child: Column(
@@ -105,8 +106,8 @@ class SearchTopBar extends StatelessWidget {
                         padding: EdgeInsets.only(right: AppSpacing.sm),
                         child: Icon(
                           Icons.arrow_back,
-                          color: Colors.white,
-                          size: 22,
+                          color: AppPalette.white,
+                          size: _backIconSize,
                         ),
                       ),
                     ),
@@ -116,11 +117,7 @@ class SearchTopBar extends StatelessWidget {
                         title!,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: _titleFontSize,
-                          fontWeight: FontWeight.w700,
-                        ),
+                        style: context.topBarType.title,
                       ),
                     ),
                 ],
@@ -130,84 +127,154 @@ class SearchTopBar extends StatelessWidget {
             Row(
               children: [
                 Expanded(
-                  child: Container(
-                    alignment: Alignment.center,
-                    height: 44,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.md,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.18),
-                      borderRadius: AppRadii.medium,
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.search,
-                          color: Colors.white.withValues(alpha: 0.85),
-                        ),
-                        const SizedBox(width: AppSpacing.sm),
-                        Expanded(
-                          // Without an explicit `fontSize`/`height` this field
-                          // inherits the theme's `titleMedium` (14sp, height
-                          // 1.40), giving it a much taller line-box than the
-                          // 24px icons beside it — the hint then sits visibly
-                          // high. `textAlignVertical` can't fix an oversized
-                          // line-box and a SizedBox only clips it. Pin the box
-                          // with `height: 1.0` plus a matching `strutStyle`.
-                          child: TextField(
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 14,
-                              height: 1.0,
-                            ),
-                            strutStyle: const StrutStyle(
-                              fontSize: 14,
-                              height: 1.0,
-                            ),
-                            textAlignVertical: TextAlignVertical.center,
-                            onChanged: onQueryChanged,
-                            // `InputDecoration.collapsed` only nulls the base
-                            // `border`; the global InputDecorationTheme still
-                            // supplies a `focusedBorder` that leaks through on
-                            // tap. Null every state explicitly.
-                            decoration: InputDecoration(
-                              isCollapsed: true,
-                              filled: false,
-                              hintText: hintText,
-                              hintStyle: const TextStyle(
-                                color: Colors.white70,
-                                fontSize: 14,
-                                height: 1.0,
-                              ),
-                              border: InputBorder.none,
-                              enabledBorder: InputBorder.none,
-                              focusedBorder: InputBorder.none,
-                              errorBorder: InputBorder.none,
-                              focusedErrorBorder: InputBorder.none,
-                              disabledBorder: InputBorder.none,
-                            ),
-                          ),
-                        ),
-                        if (onFilterTap != null)
-                          GestureDetector(
-                            onTap: onFilterTap,
-                            child: Icon(
-                              Icons.tune,
-                              color: Colors.white.withValues(alpha: 0.85),
-                            ),
-                          ),
-                      ],
-                    ),
+                  child: _SearchField(
+                    hintText: hintText,
+                    onChanged: onQueryChanged,
+                    onFilterTap: onFilterTap,
                   ),
                 ),
                 if (showNotifications) ...[
-                  const SizedBox(width: AppSpacing.sm),
+                  const SizedBox(width: 25),
                   _NotificationBell(count: notificationCount),
                 ],
               ],
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SearchField extends StatelessWidget {
+  const _SearchField({
+    required this.hintText,
+    required this.onChanged,
+    required this.onFilterTap,
+  });
+
+  final String hintText;
+  final ValueChanged<String> onChanged;
+  final VoidCallback? onFilterTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final type = context.topBarType;
+    return _Glass(
+      radius: 10.55,
+      blur: 8,
+      child: SizedBox(
+        height: 36,
+        child: Padding(
+          padding: const EdgeInsets.only(left: 17, right: 7),
+          child: Row(
+            children: [
+              SvgPicture.asset('assets/icons/topbar_search.svg'),
+              const SizedBox(width: 3.2),
+              Expanded(
+                // Pin the line box (`height: 1.0` plus a matching strut): left
+                // to inherit the theme's `titleMedium` (14sp, 1.4) the
+                // field's line-box is taller than the glyph and the text sits
+                // high.
+                child: TextField(
+                  style: type.input,
+                  strutStyle: StrutStyle(
+                    fontSize: type.input.fontSize,
+                    height: 1.0,
+                  ),
+                  cursorColor: AppPalette.white,
+                  textAlignVertical: TextAlignVertical.center,
+                  onChanged: onChanged,
+                  // `InputDecoration.collapsed` only nulls the base `border`;
+                  // the global InputDecorationTheme still supplies per-state
+                  // borders (and a 16px `contentPadding`) that leak through.
+                  decoration: InputDecoration(
+                    isCollapsed: true,
+                    filled: false,
+                    contentPadding: EdgeInsets.zero,
+                    hintText: hintText,
+                    hintStyle: type.hint,
+                    border: InputBorder.none,
+                    enabledBorder: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                    errorBorder: InputBorder.none,
+                    focusedErrorBorder: InputBorder.none,
+                    disabledBorder: InputBorder.none,
+                  ),
+                ),
+              ),
+              if (onFilterTap != null)
+                GestureDetector(
+                  onTap: onFilterTap,
+                  behavior: HitTestBehavior.opaque,
+                  child: _Glass(
+                    radius: 6.76,
+                    blur: 6,
+                    lift: 0.05,
+                    rim: false,
+                    child: SizedBox(
+                      height: 23,
+                      width: 23,
+                      child: Center(
+                        child: SvgPicture.asset(
+                          'assets/icons/topbar_filter.svg',
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Figma's "glass" fill: the backdrop blurred behind a translucent white, lit
+/// from the top-left (the file sets light angle -45°, intensity 0.8) — a
+/// brighter wash and rim on the lit corner that falls off toward the opposite
+/// one. [lift] adds extra white for the small filter chip, which Figma fills
+/// with white at 14% on top of the glass.
+class _Glass extends StatelessWidget {
+  const _Glass({
+    required this.child,
+    required this.radius,
+    required this.blur,
+    this.lift = 0,
+    this.rim = true,
+  });
+
+  final Widget child;
+  final double radius;
+  final double blur;
+  final double lift;
+
+  /// Figma draws a rim on the field but not on the filter chip inside it.
+  final bool rim;
+
+  @override
+  Widget build(BuildContext context) {
+    final shape = BorderRadius.circular(radius);
+    return ClipRRect(
+      borderRadius: shape,
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            borderRadius: shape,
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                AppPalette.white.withValues(alpha: 0.15 + lift),
+                AppPalette.white.withValues(alpha: 0.09 + lift),
+              ],
+            ),
+            // Figma's stroke: white at 18%, 1px, uniform.
+            border: rim ? Border.all(color: AppPalette.topBarStroke) : null,
+          ),
+          child: child,
         ),
       ),
     );
@@ -223,43 +290,35 @@ class _NotificationBell extends StatelessWidget {
   Widget build(BuildContext context) {
     final showCount = count != null && count! > 0;
     return Container(
-      height: 44,
-      width: 44,
+      height: 29.17,
+      width: 29.17,
       decoration: const BoxDecoration(
-        color: Colors.white,
+        color: AppPalette.white,
         shape: BoxShape.circle,
       ),
       child: Stack(
-        alignment: Alignment.center,
         clipBehavior: Clip.none,
         children: [
-          // The exact teal-outlined bell from Figma (`750:1626`). Its
-          // export baked in a red dot and a literal "3"; both were stripped
-          // so the count below can be real.
-          SvgPicture.asset('assets/icons/bell.svg', height: 19, width: 15),
+          // Figma's own bell (13.08x14.5), centred on the disc. Its export
+          // baked in a red dot and a literal "3"; both are drawn separately so
+          // the count is real.
+          Center(child: SvgPicture.asset('assets/icons/topbar_bell.svg')),
           if (showCount)
             Positioned(
               top: 5,
-              right: 4,
+              left: 14.6,
               child: Container(
-                height: 15,
-                constraints: const BoxConstraints(minWidth: 15),
-                padding: const EdgeInsets.symmetric(horizontal: 3),
+                height: 6.52,
+                constraints: const BoxConstraints(minWidth: 6.52),
+                padding: EdgeInsets.symmetric(horizontal: count! > 9 ? 1.5 : 0),
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: AppPalette.notificationDot,
+                  color: AppPalette.topBarBellDot,
                   borderRadius: BorderRadius.circular(AppRadii.pill),
-                  border: Border.all(color: Colors.white, width: 1.2),
                 ),
                 child: Text(
                   count! > 99 ? '99+' : '$count',
-                  style: const TextStyle(
-                    inherit: false,
-                    color: Colors.white,
-                    fontSize: 8,
-                    height: 1.0,
-                    fontWeight: FontWeight.w700,
-                  ),
+                  style: context.topBarType.badge,
                 ),
               ),
             ),

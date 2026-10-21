@@ -18,6 +18,14 @@ List<TextSpan> htmlSpans(String html, TextStyle base, TextStyle bold) {
   var depthBold = 0;
   var depthItalic = 0;
 
+  // List state. A bullet is *pending* from `<li>` until the item's first real
+  // text, so `<li><p>text</p></li>` — what rich-text editors emit — renders
+  // "• text" on one line. Writing the bullet at `<li>` and then letting the
+  // `<p>` start a new paragraph left the bullet alone on its own line.
+  final lists = <_ListState>[];
+  var itemDepth = 0;
+  var bulletPending = false;
+
   void flush() {
     if (buffer.isEmpty) return;
     spans.add(
@@ -47,7 +55,14 @@ List<TextSpan> htmlSpans(String html, TextStyle base, TextStyle bold) {
   for (final token in _tokens.allMatches(html)) {
     final tag = token.group(1);
     if (tag == null) {
-      buffer.write(_unescape(token.group(0)!));
+      final text = _unescape(token.group(0)!);
+      if (bulletPending && text.trim().isNotEmpty) {
+        buffer.write(lists.isEmpty ? '• ' : lists.last.marker());
+        bulletPending = false;
+      }
+      // Whitespace between tags is markup formatting, not content; before an
+      // item's text it would otherwise land ahead of the bullet.
+      if (!bulletPending || text.trim().isNotEmpty) buffer.write(text);
       continue;
     }
     final closing = tag.startsWith('/');
@@ -62,11 +77,39 @@ List<TextSpan> htmlSpans(String html, TextStyle base, TextStyle bold) {
       case 'br':
         breakLine();
       case 'p' || 'div' || 'h1' || 'h2' || 'h3' || 'h4' || 'h5' || 'h6':
-        breakLine(paragraph: true);
+        // Inside a list item a paragraph is just the item's text: a tight list
+        // has a single line break between items, not a blank line.
+        if (itemDepth > 0) {
+          if (!bulletPending) breakLine();
+        } else {
+          breakLine(paragraph: true);
+        }
       case 'li':
-        breakLine();
-        if (!closing) buffer.write('• ');
-      case 'ul' || 'ol' || 'blockquote':
+        if (closing) {
+          // An item that never got text drops out with its bullet.
+          bulletPending = false;
+          if (itemDepth > 0) itemDepth--;
+          breakLine();
+        } else {
+          breakLine();
+          itemDepth++;
+          bulletPending = !(lists.isNotEmpty && lists.last.plain);
+        }
+      case 'ul' || 'ol':
+        if (closing) {
+          if (lists.isNotEmpty) lists.removeLast();
+          bulletPending = false;
+        } else {
+          lists.add(
+            _ListState(
+              ordered: name.toLowerCase() == 'ol',
+              // `list-style: none` is how an editor says "no markers".
+              plain: RegExp(r'list-style(-type)?\s*:\s*none').hasMatch(tag),
+            ),
+          );
+        }
+        breakLine(paragraph: true);
+      case 'blockquote':
         breakLine(paragraph: true);
     }
   }
@@ -81,6 +124,19 @@ List<TextSpan> htmlSpans(String html, TextStyle base, TextStyle bold) {
       spans.add(TextSpan(text: trimmed, style: last.style));
   }
   return spans;
+}
+
+class _ListState {
+  _ListState({required this.ordered, required this.plain});
+
+  final bool ordered;
+
+  /// `list-style: none` — items get no marker at all.
+  final bool plain;
+  int _n = 0;
+
+  /// "• " or "1. ", advancing the count.
+  String marker() => ordered ? '${++_n}. ' : '• ';
 }
 
 /// Text runs and tags, in order. The text alternative is non-greedy up to the

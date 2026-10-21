@@ -5,6 +5,7 @@ import 'package:finskool/src/domain/model/feed_post_model.dart';
 import 'package:finskool/src/domain/model/reaction_type.dart';
 import 'package:finskool/src/presentation/bloc/feed/posts/feed_bloc.dart';
 
+import 'reaction_icons.dart';
 import 'reaction_tab.dart';
 import 'reactor_list_tile.dart';
 
@@ -181,7 +182,7 @@ class _TabRow extends StatelessWidget {
               ),
               // Every reaction gets a tab, including zero-count ones — Figma
               // shows "0" tabs rather than hiding them.
-              for (final reaction in ReactionType.values)
+              for (final reaction in ReactionIcons.sheetOrder)
                 ReactionTab(
                   reaction: reaction,
                   count: counts[reaction] ?? 0,

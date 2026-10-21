@@ -7,6 +7,8 @@ export 'color_schemes/light_scheme.dart';
 export 'extensions/app_gradients.dart';
 export 'extensions/community_typography.dart';
 export 'extensions/feed_typography.dart';
+export 'extensions/nav_typography.dart';
+export 'extensions/top_bar_typography.dart';
 export 'extensions/profile_typography.dart';
 export 'extensions/subscription_detail_typography.dart';
 export 'extensions/ticket_typography.dart';

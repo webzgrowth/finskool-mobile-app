@@ -26,7 +26,10 @@ BottomSheetThemeData buildBottomSheetTheme(ColorScheme cs) =>
       backgroundColor: cs.surface,
       surfaceTintColor: Colors.transparent,
       elevation: 0,
-      showDragHandle: true,
+      // Every sheet in the app draws its own handle inside its own white
+      // surface (over a transparent route). The theme's would be a second,
+      // floating one above that surface, over the dimmed page.
+      showDragHandle: false,
       dragHandleColor: cs.outlineVariant,
       shape: RoundedRectangleBorder(borderRadius: AppRadii.sheet),
     );

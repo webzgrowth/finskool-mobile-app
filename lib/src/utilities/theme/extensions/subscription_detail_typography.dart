@@ -3,8 +3,26 @@ import 'package:flutter/material.dart';
 import '../text/text_style_factory.dart';
 import '../tokens/app_palette.dart';
 
-/// Subscription Detail screen type scale, derived from the Figma
-/// screenshot (`Frame 2121453551`).
+/// Pinned to 0 for the same reason as the ticket styles: a bare `inter()`
+/// inherits Material's 0.25 letter-spacing from the ambient style, which is
+/// enough to re-wrap Figma's tightest lines.
+TextStyle _i(double size, double weight, double height, Color color) => inter(
+  size: size,
+  weight: weight,
+  height: height,
+  color: color,
+).copyWith(letterSpacing: 0);
+
+TextStyle _m(double size, double weight, double height, Color color) => manrope(
+  size: size,
+  weight: weight,
+  height: height,
+  color: color,
+).copyWith(letterSpacing: 0);
+
+/// Subscription Detail (and the Edit Profile cards that share its chrome),
+/// read from the Final page's `1216:6806` with figma-mcp-rust. Line heights
+/// are Figma's pixel values over the size.
 @immutable
 class SubscriptionDetailTypography
     extends ThemeExtension<SubscriptionDetailTypography> {
@@ -23,356 +41,109 @@ class SubscriptionDetailTypography
     required this.kitVideoTitle,
     required this.capitalAmount,
     required this.capitalCaption,
+    required this.capitalNote,
+    required this.capitalNoteBold,
+    required this.statsHeading,
     required this.statValue,
     required this.statLabel,
     required this.noticeTitle,
     required this.noticeBody,
+    required this.noticeBodyBold,
+    required this.disclaimer,
+    required this.disclaimerBold,
     required this.mission,
+    required this.benefit,
+    required this.benefitBold,
   });
 
+  /// "Plan Details": Manrope 700 · 16, white on the teal bar.
   final TextStyle sectionTitle;
+
+  /// The emphasised half of a detail cell — Manrope 700 · 12 black.
   final TextStyle label;
+
+  /// The quiet half beneath it — Inter 400 · 10.
   final TextStyle value;
+
   final TextStyle communityName;
   final TextStyle category;
   final TextStyle activeStatus;
   final TextStyle buttonLabel;
   final TextStyle helpButton;
 
-  /// "Welcome Kit" — the one heading on this screen that sits on the page
-  /// rather than in a teal bar, and is underlined.
+  /// "Welcome Kit" — sits on the page rather than in a teal bar, underlined.
   final TextStyle kitTitle;
   final TextStyle kitBody;
   final TextStyle kitBodyBold;
   final TextStyle kitVideoTitle;
   final TextStyle capitalAmount;
   final TextStyle capitalCaption;
+  final TextStyle capitalNote;
+  final TextStyle capitalNoteBold;
+  final TextStyle statsHeading;
   final TextStyle statValue;
   final TextStyle statLabel;
   final TextStyle noticeTitle;
   final TextStyle noticeBody;
+  final TextStyle noticeBodyBold;
+  final TextStyle disclaimer;
+  final TextStyle disclaimerBold;
   final TextStyle mission;
+  final TextStyle benefit;
+  final TextStyle benefitBold;
 
   static final SubscriptionDetailTypography light =
       SubscriptionDetailTypography(
-        sectionTitle: inter(
-          size: 15,
-          weight: 700,
-          height: 1.3,
-          color: AppPalette.white,
-        ),
-        // The label is the emphasised half of a detail cell; the value below
-        // it is the quiet one — the inverse of most rows in this app. 12 is
-        // the ceiling: at 13 "Amount Paid" wraps, and Figma keeps it on one
-        // line.
-        label: inter(
-          size: 12,
-          weight: 700,
-          height: 1.25,
-          color: AppPalette.postTitle,
-        ),
-        value: inter(
-          size: 11,
-          weight: 400,
-          height: 1.3,
-          color: AppPalette.subscriptionValue,
-        ),
-        communityName: manrope(
-          size: 17,
-          weight: 700,
-          height: 1.25,
-          color: AppPalette.white,
-        ),
-        category: inter(
-          size: 11,
-          weight: 400,
-          height: 1.25,
-          color: AppPalette.white,
-        ),
-        // Green on the pill's white fill — not white on green.
-        activeStatus: inter(
-          size: 11,
-          weight: 600,
-          height: 1.2,
-          color: AppPalette.announcementGreen,
-        ),
-        buttonLabel: inter(
-          size: 14,
-          weight: 600,
-          height: 1.3,
-          color: AppPalette.white,
-        ),
-        helpButton: inter(
-          size: 14,
-          weight: 400,
-          height: 1.3,
-          color: AppPalette.postMeta,
-        ),
-        kitTitle: inter(
-          size: 17,
-          weight: 700,
-          height: 1.25,
-          color: AppPalette.postTitle,
-        ),
-        kitBody: inter(
-          size: 11,
-          weight: 400,
-          height: 1.45,
-          color: AppPalette.subscriptionValue,
-        ),
-        kitBodyBold: inter(
-          size: 11,
-          weight: 700,
-          height: 1.45,
-          color: AppPalette.postTitle,
-        ),
-        kitVideoTitle: inter(
-          size: 11,
-          weight: 400,
-          height: 1.35,
-          color: AppPalette.postTitle,
-        ),
-        capitalAmount: inter(
-          size: 22,
-          weight: 700,
-          height: 1.2,
-          color: AppPalette.capitalAmount,
-        ),
-        capitalCaption: inter(
-          size: 11,
-          weight: 700,
-          height: 1.3,
-          color: AppPalette.postTitle,
-        ),
-        statValue: inter(
-          size: 17,
-          weight: 700,
-          height: 1.2,
-          color: AppPalette.postTitle,
-        ),
-        statLabel: inter(
-          size: 10,
-          weight: 400,
-          height: 1.3,
-          color: AppPalette.subscriptionValue,
-        ),
-        // The colour here is a base only — `WelcomeKitNoticeCard` overrides it
-        // per tone, since the three banners differ in ink as well as plate.
-        noticeTitle: inter(
-          size: 11,
-          weight: 700,
-          height: 1.35,
-          color: AppPalette.postTitle,
-        ),
-        noticeBody: inter(
-          size: 10,
-          weight: 400,
-          height: 1.4,
-          color: AppPalette.postTitle,
-        ),
-        mission: inter(
-          size: 11,
-          weight: 600,
-          height: 1.5,
-          color: AppPalette.primary,
-        ),
+        sectionTitle: _m(16, 700, 22 / 16, AppPalette.white),
+        label: _m(12, 700, 14 / 12, AppPalette.postTitle),
+        value: _i(10, 400, 15 / 10, AppPalette.subIntroInk),
+        communityName: _m(18, 700, 22.75 / 18, AppPalette.white),
+        category: _i(10, 500, 12 / 10, const Color(0xFFF5F6F9)),
+        activeStatus: _i(8, 400, 9.6 / 8, AppPalette.profileRenew),
+        buttonLabel: _i(
+          14,
+          600,
+          20 / 14,
+          AppPalette.white,
+        ).copyWith(letterSpacing: 0.2657),
+        helpButton: _i(
+          14,
+          500,
+          20 / 14,
+          AppPalette.ticketHint,
+        ).copyWith(letterSpacing: 0.2657),
+        kitTitle: _m(20, 700, 27 / 20, AppPalette.postTitle),
+        kitBody: _i(10, 400, 15 / 10, AppPalette.subIntroInk),
+        kitBodyBold: _i(10, 700, 15 / 10, AppPalette.postTitle),
+        kitVideoTitle: _i(10, 400, 13 / 10, AppPalette.postTitle),
+        capitalAmount: _m(18, 700, 25 / 18, AppPalette.badgeTeal),
+        capitalCaption: _i(10, 500, 12 / 10, AppPalette.postTitle),
+        capitalNote: _i(8, 400, 10 / 8, AppPalette.subBodyInk),
+        capitalNoteBold: _i(8, 700, 10 / 8, AppPalette.subBodyInk),
+        statsHeading: _m(14, 700, 19 / 14, AppPalette.postTitle),
+        statValue: _m(18, 700, 25 / 18, AppPalette.postTitle),
+        statLabel: _i(11, 400, 13 / 11, AppPalette.postTitle),
+        noticeTitle: _m(12.5, 700, 17 / 12.5, AppPalette.subRiskInk),
+        noticeBody: _i(10, 400, 15 / 10, AppPalette.subRiskBody),
+        noticeBodyBold: _i(10, 700, 15 / 10, AppPalette.subRiskInk),
+        disclaimer: _i(12, 400, 17 / 12, AppPalette.subBodyInk),
+        disclaimerBold: _i(12, 700, 17 / 12, AppPalette.subBodyInk),
+        mission: _i(11.5, 600, 19 / 11.5, AppPalette.badgeTeal),
+        benefit: _i(10.69, 400, 17.5 / 10.69, AppPalette.postTitle),
+        benefitBold: _i(10.69, 700, 17.5 / 10.69, AppPalette.postTitle),
       );
 
-  static final SubscriptionDetailTypography dark = SubscriptionDetailTypography(
-    sectionTitle: inter(
-      size: 15,
-      weight: 700,
-      height: 1.3,
-      color: AppPalette.white,
-    ),
-    label: inter(
-      size: 12,
-      weight: 700,
-      height: 1.25,
-      color: AppPalette.darkOnSurface,
-    ),
-    value: inter(
-      size: 11,
-      weight: 400,
-      height: 1.3,
-      color: AppPalette.darkOnSurfaceMuted,
-    ),
-    communityName: manrope(
-      size: 17,
-      weight: 700,
-      height: 1.25,
-      color: AppPalette.white,
-    ),
-    category: inter(
-      size: 11,
-      weight: 400,
-      height: 1.25,
-      color: AppPalette.white,
-    ),
-    activeStatus: inter(
-      size: 11,
-      weight: 600,
-      height: 1.2,
-      color: AppPalette.announcementGreen,
-    ),
-    buttonLabel: inter(
-      size: 14,
-      weight: 600,
-      height: 1.3,
-      color: AppPalette.white,
-    ),
-    helpButton: inter(
-      size: 14,
-      weight: 400,
-      height: 1.3,
-      color: AppPalette.darkOnSurfaceMuted,
-    ),
-    kitTitle: inter(
-      size: 17,
-      weight: 700,
-      height: 1.25,
-      color: AppPalette.darkOnSurface,
-    ),
-    kitBody: inter(
-      size: 11,
-      weight: 400,
-      height: 1.45,
-      color: AppPalette.darkOnSurfaceMuted,
-    ),
-    kitBodyBold: inter(
-      size: 11,
-      weight: 700,
-      height: 1.45,
-      color: AppPalette.darkOnSurface,
-    ),
-    kitVideoTitle: inter(
-      size: 11,
-      weight: 400,
-      height: 1.35,
-      color: AppPalette.darkOnSurface,
-    ),
-    capitalAmount: inter(
-      size: 22,
-      weight: 700,
-      height: 1.2,
-      color: AppPalette.capitalAmount,
-    ),
-    capitalCaption: inter(
-      size: 11,
-      weight: 700,
-      height: 1.3,
-      color: AppPalette.darkOnSurface,
-    ),
-    statValue: inter(
-      size: 17,
-      weight: 700,
-      height: 1.2,
-      color: AppPalette.darkOnSurface,
-    ),
-    statLabel: inter(
-      size: 10,
-      weight: 400,
-      height: 1.3,
-      color: AppPalette.darkOnSurfaceMuted,
-    ),
-    // The notice banners keep their own tinted inks in both themes — the
-    // plates they sit on are the same tints either way.
-    // The colour here is a base only — `WelcomeKitNoticeCard` overrides it
-    // per tone, since the three banners differ in ink as well as plate.
-    noticeTitle: inter(
-      size: 11,
-      weight: 700,
-      height: 1.35,
-      color: AppPalette.postTitle,
-    ),
-    noticeBody: inter(
-      size: 10,
-      weight: 400,
-      height: 1.4,
-      color: AppPalette.postTitle,
-    ),
-    mission: inter(
-      size: 11,
-      weight: 600,
-      height: 1.5,
-      color: AppPalette.primary,
-    ),
-  );
-
-  static SubscriptionDetailTypography of(Brightness brightness) =>
-      brightness == Brightness.dark ? dark : light;
+  /// The design has no dark variant; this screen is always on a white sheet.
+  static SubscriptionDetailTypography of(Brightness brightness) => light;
 
   @override
-  SubscriptionDetailTypography copyWith({
-    TextStyle? sectionTitle,
-    TextStyle? label,
-    TextStyle? value,
-    TextStyle? communityName,
-    TextStyle? category,
-    TextStyle? activeStatus,
-    TextStyle? buttonLabel,
-    TextStyle? helpButton,
-    TextStyle? kitTitle,
-    TextStyle? kitBody,
-    TextStyle? kitBodyBold,
-    TextStyle? kitVideoTitle,
-    TextStyle? capitalAmount,
-    TextStyle? capitalCaption,
-    TextStyle? statValue,
-    TextStyle? statLabel,
-    TextStyle? noticeTitle,
-    TextStyle? noticeBody,
-    TextStyle? mission,
-  }) => SubscriptionDetailTypography(
-    sectionTitle: sectionTitle ?? this.sectionTitle,
-    label: label ?? this.label,
-    value: value ?? this.value,
-    communityName: communityName ?? this.communityName,
-    category: category ?? this.category,
-    activeStatus: activeStatus ?? this.activeStatus,
-    buttonLabel: buttonLabel ?? this.buttonLabel,
-    helpButton: helpButton ?? this.helpButton,
-    kitTitle: kitTitle ?? this.kitTitle,
-    kitBody: kitBody ?? this.kitBody,
-    kitBodyBold: kitBodyBold ?? this.kitBodyBold,
-    kitVideoTitle: kitVideoTitle ?? this.kitVideoTitle,
-    capitalAmount: capitalAmount ?? this.capitalAmount,
-    capitalCaption: capitalCaption ?? this.capitalCaption,
-    statValue: statValue ?? this.statValue,
-    statLabel: statLabel ?? this.statLabel,
-    noticeTitle: noticeTitle ?? this.noticeTitle,
-    noticeBody: noticeBody ?? this.noticeBody,
-    mission: mission ?? this.mission,
-  );
+  SubscriptionDetailTypography copyWith() => this;
 
   @override
   SubscriptionDetailTypography lerp(
     ThemeExtension<SubscriptionDetailTypography>? other,
     double t,
-  ) {
-    if (other is! SubscriptionDetailTypography) return this;
-    return SubscriptionDetailTypography(
-      sectionTitle: TextStyle.lerp(sectionTitle, other.sectionTitle, t)!,
-      label: TextStyle.lerp(label, other.label, t)!,
-      value: TextStyle.lerp(value, other.value, t)!,
-      communityName: TextStyle.lerp(communityName, other.communityName, t)!,
-      category: TextStyle.lerp(category, other.category, t)!,
-      activeStatus: TextStyle.lerp(activeStatus, other.activeStatus, t)!,
-      buttonLabel: TextStyle.lerp(buttonLabel, other.buttonLabel, t)!,
-      helpButton: TextStyle.lerp(helpButton, other.helpButton, t)!,
-      kitTitle: TextStyle.lerp(kitTitle, other.kitTitle, t)!,
-      kitBody: TextStyle.lerp(kitBody, other.kitBody, t)!,
-      kitBodyBold: TextStyle.lerp(kitBodyBold, other.kitBodyBold, t)!,
-      kitVideoTitle: TextStyle.lerp(kitVideoTitle, other.kitVideoTitle, t)!,
-      capitalAmount: TextStyle.lerp(capitalAmount, other.capitalAmount, t)!,
-      capitalCaption: TextStyle.lerp(capitalCaption, other.capitalCaption, t)!,
-      statValue: TextStyle.lerp(statValue, other.statValue, t)!,
-      statLabel: TextStyle.lerp(statLabel, other.statLabel, t)!,
-      noticeTitle: TextStyle.lerp(noticeTitle, other.noticeTitle, t)!,
-      noticeBody: TextStyle.lerp(noticeBody, other.noticeBody, t)!,
-      mission: TextStyle.lerp(mission, other.mission, t)!,
-    );
-  }
+  ) => this;
 }
 
 extension SubscriptionDetailTypographyX on BuildContext {

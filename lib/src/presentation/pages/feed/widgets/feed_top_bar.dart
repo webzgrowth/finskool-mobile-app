@@ -27,7 +27,7 @@ class FeedTopBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SearchTopBar(
-      hintText: 'Search posts, stocks or tags...',
+      hintText: 'Search posts, stocks or tags…',
       onBack: onBack,
       title: title,
       showNotifications: showNotifications,

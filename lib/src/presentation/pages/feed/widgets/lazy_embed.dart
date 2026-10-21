@@ -94,10 +94,7 @@ class _EmbedPoster extends StatelessWidget {
           child: SizedBox(
             height: 22,
             width: 22,
-            child: CircularProgressIndicator(
-              strokeWidth: 2,
-              color: Colors.white54,
-            ),
+            child: CircularProgressIndicator(strokeWidth: 2),
           ),
         ),
         if (item.title != null)
@@ -122,21 +119,13 @@ class _EmbedPoster extends StatelessWidget {
   }
 }
 
-/// Instagram has no artwork to show, so this stands in for it — a dark
-/// gradient rather than flat black, which read as a broken player.
+/// Instagram has no artwork to show, so this stands in for it: Figma's light
+/// `#F4F4F4` plate. It was a dark gradient, which read as a broken player.
 class _Plate extends StatelessWidget {
   const _Plate();
 
   @override
   Widget build(BuildContext context) {
-    return const DecoratedBox(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFF2B2B33), Color(0xFF14141A)],
-        ),
-      ),
-    );
+    return const ColoredBox(color: AppPalette.feedMediaPlate);
   }
 }

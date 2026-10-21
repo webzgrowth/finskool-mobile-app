@@ -39,7 +39,7 @@ class _PostMediaCarouselState extends State<PostMediaCarousel> {
     return Column(
       children: [
         ClipRRect(
-          borderRadius: AppRadii.medium,
+          borderRadius: BorderRadius.circular(10),
           // Follows the item on screen, so a portrait Instagram embed isn't
           // squeezed into the 16:9 a video wants. Animated because a mixed
           // carousel would otherwise snap height mid-swipe.
@@ -63,21 +63,25 @@ class _PostMediaCarouselState extends State<PostMediaCarousel> {
                     Positioned(
                       left: 0,
                       right: 0,
-                      bottom: AppSpacing.sm,
+                      bottom: 12.4,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: List.generate(widget.media.length, (i) {
                           final active = i == _page;
                           return AnimatedContainer(
                             duration: const Duration(milliseconds: 200),
-                            margin: const EdgeInsets.symmetric(horizontal: 2),
-                            height: 6,
-                            width: active ? 18 : 6,
+                            // Figma: a 16.4x6.6 white pill beside 6.4px
+                            // `#E0E0E0` dots, 1.5 apart.
+                            margin: const EdgeInsets.symmetric(
+                              horizontal: 0.75,
+                            ),
+                            height: 6.5,
+                            width: active ? 16.4 : 6.4,
                             decoration: BoxDecoration(
-                              color: Colors.white.withValues(
-                                alpha: active ? 1 : 0.5,
-                              ),
-                              borderRadius: BorderRadius.circular(3),
+                              color: active
+                                  ? AppPalette.white
+                                  : AppPalette.feedDot,
+                              borderRadius: BorderRadius.circular(3.3),
                             ),
                           );
                         }),
@@ -89,7 +93,7 @@ class _PostMediaCarouselState extends State<PostMediaCarousel> {
           ),
         ),
         if (widget.media.length > 1) ...[
-          const SizedBox(height: AppSpacing.sm),
+          const SizedBox(height: 10),
           MediaThumbnailStrip(
             media: widget.media,
             activeIndex: _page,
@@ -153,13 +157,15 @@ class _MediaItem extends StatelessWidget {
         ),
         if (item.durationLabel != null)
           Positioned(
-            right: AppSpacing.sm,
-            top: AppSpacing.sm,
+            right: 12.7,
+            top: 11,
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              height: 10.9,
+              padding: const EdgeInsets.symmetric(horizontal: 5.4),
+              alignment: Alignment.center,
               decoration: BoxDecoration(
                 color: Colors.black.withValues(alpha: 0.6),
-                borderRadius: AppRadii.small,
+                borderRadius: BorderRadius.circular(3.1),
               ),
               child: Text(
                 item.durationLabel!,

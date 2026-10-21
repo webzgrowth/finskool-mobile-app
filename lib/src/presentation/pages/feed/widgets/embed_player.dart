@@ -3,6 +3,7 @@ import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_android/webview_flutter_android.dart';
 import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
 import 'package:finskool/src/comman/embed_urls.dart';
+import 'package:finskool/src/utilities/theme/theme.dart';
 
 /// Renders an Instagram post — or any embed kind added server-side later —
 /// inline in the card. YouTube does **not** come through here; it has its own
@@ -50,11 +51,17 @@ class _EmbedPlayerState extends State<EmbedPlayer> {
 
     final controller = WebViewController.fromPlatformCreationParams(params)
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..setBackgroundColor(Colors.black)
+      // Not black: Instagram's embed page paints no background of its own (it
+      // expects the host page's), so a black WebView showed through as a dark
+      // rectangle where the post should be.
+      ..setBackgroundColor(AppPalette.feedMediaPlate)
       ..setUserAgent(_userAgent)
       ..setNavigationDelegate(
         NavigationDelegate(
-          onPageFinished: (_) => _settle(failed: false),
+          onPageFinished: (_) {
+            _controller.runJavaScript(_autoplayScript);
+            _settle(failed: false);
+          },
           // Surfaced rather than swallowed: a silently blank frame is
           // indistinguishable from a post that's simply slow.
           onWebResourceError: (error) {
@@ -73,6 +80,46 @@ class _EmbedPlayerState extends State<EmbedPlayer> {
     }
     return controller;
   }
+
+  /// Makes the embed behave like Instagram's own feed: the post's video starts
+  /// **muted** on its own, loops, and keeps its controls so the viewer can
+  /// unmute — as the YouTube player does.
+  ///
+  /// Possible because the embed page is loaded as the top-level document (not
+  /// framed), so its `<video>` is reachable. Browsers only allow autoplay when
+  /// muted, hence `muted` first; iOS and Android are also configured above not
+  /// to demand a tap. The page builds its player lazily, so this polls for ~20s
+  /// and, when there is only a poster with a play button, presses it.
+  static const _autoplayScript = '''
+(function () {
+  var style = document.createElement('style');
+  style.textContent = 'html,body{background:#F4F4F4 !important}';
+  document.head.appendChild(style);
+  function start() {
+    var v = document.querySelector('video');
+    if (v) {
+      v.muted = true;
+      v.setAttribute('muted', '');
+      v.playsInline = true;
+      v.setAttribute('playsinline', '');
+      v.loop = true;
+      v.controls = true;
+      var p = v.play();
+      if (p && p.catch) p.catch(function () {});
+      return true;
+    }
+    var b = document.querySelector(
+      '[class*="PlayButton"],[class*="playButton"],[aria-label*="Play" i]'
+    );
+    if (b) b.click();
+    return false;
+  }
+  var tries = 0;
+  var timer = setInterval(function () {
+    if (start() || ++tries > 40) clearInterval(timer);
+  }, 500);
+})();
+''';
 
   void _settle({required bool failed}) {
     if (!mounted) return;
@@ -95,15 +142,12 @@ class _EmbedPlayerState extends State<EmbedPlayer> {
         WebViewWidget(controller: _controller),
         if (_loading)
           const ColoredBox(
-            color: Colors.black,
+            color: AppPalette.feedMediaPlate,
             child: Center(
               child: SizedBox(
                 height: 22,
                 width: 22,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: Colors.white54,
-                ),
+                child: CircularProgressIndicator(strokeWidth: 2),
               ),
             ),
           ),
@@ -120,16 +164,20 @@ class _EmbedUnavailable extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const ColoredBox(
-      color: Colors.black87,
+      color: AppPalette.feedMediaPlate,
       child: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.link_off_rounded, color: Colors.white54, size: 22),
+            Icon(
+              Icons.link_off_rounded,
+              color: AppPalette.ticketHint,
+              size: 22,
+            ),
             SizedBox(height: 6),
             Text(
               "This post can't be shown",
-              style: TextStyle(color: Colors.white54, fontSize: 11),
+              style: TextStyle(color: AppPalette.ticketHint, fontSize: 11),
             ),
           ],
         ),
