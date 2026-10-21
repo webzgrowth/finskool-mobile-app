@@ -12,7 +12,8 @@ import 'package:finskool/src/comman/enum.dart';
 /// Generic over the bloc because each auth bloc has its own state type but
 /// the same `RequestState` + `message` shape; [status] and [message] pull
 /// those two fields out.
-class AuthFormListener<B extends StateStreamable<S>, S> extends StatelessWidget {
+class AuthFormListener<B extends StateStreamable<S>, S>
+    extends StatelessWidget {
   const AuthFormListener({
     super.key,
     required this.status,

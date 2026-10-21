@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:finskool/src/presentation/pages/authentication/widgets/auth_header.dart';
 import 'package:finskool/src/presentation/pages/authentication/widgets/auth_header_subtitle.dart';
 import 'package:finskool/src/presentation/pages/authentication/widgets/auth_card.dart';
+
 import 'compliance_form.dart';
 
 /// The one-time SEBI step before a user's first paid community —

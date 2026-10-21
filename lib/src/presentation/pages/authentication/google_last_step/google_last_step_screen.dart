@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:finskool/src/presentation/pages/authentication/widgets/auth_header.dart';
 import 'package:finskool/src/presentation/pages/authentication/widgets/auth_header_subtitle.dart';
 import 'package:finskool/src/presentation/pages/authentication/widgets/auth_card.dart';
+
 import 'google_last_step_form.dart';
 
 /// Shown after "Sign up with Google": confirm the picked Google account,

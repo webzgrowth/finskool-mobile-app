@@ -16,6 +16,5 @@ class ReactToPost {
   Future<Either<Failure, ReactionSummaryModel>> execute({
     required String postId,
     required ReactionType reaction,
-  }) =>
-      _repository.react(postId: postId, reaction: reaction);
+  }) => _repository.react(postId: postId, reaction: reaction);
 }

@@ -27,8 +27,12 @@ class ResendCodeRow extends StatelessWidget {
           onTap: canResend ? onResend : null,
           child: Text(
             canResend ? 'Resend' : 'Resend in $minutes:$seconds',
-            style: inter(size: 10, weight: 700, height: 1.6, color: cs.primary)
-                .copyWith(decoration: TextDecoration.underline),
+            style: inter(
+              size: 10,
+              weight: 700,
+              height: 1.6,
+              color: cs.primary,
+            ).copyWith(decoration: TextDecoration.underline),
           ),
         ),
       ],

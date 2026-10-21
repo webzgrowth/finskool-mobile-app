@@ -69,18 +69,22 @@ class CommunitiesRemoteDatasource {
 /// reasoning as `PostsRemoteDatasource._logPosts`.
 void _log(String label, String path, List<dynamic> rows) {
   if (!kDebugMode) return;
-  _dump('═══ $label ($path): ${rows.length} communit'
-      '${rows.length == 1 ? 'y' : 'ies'} ═══');
+  _dump(
+    '═══ $label ($path): ${rows.length} communit'
+    '${rows.length == 1 ? 'y' : 'ies'} ═══',
+  );
 
   var index = 0;
   for (final row in rows.whereType<Map<String, dynamic>>()) {
     index++;
-    _dump('─── $label $index/${rows.length} ───\n'
-        'keys          : ${row.keys.toList()}\n'
-        'coverImageUrl : ${row['coverImageUrl']}\n'
-        'badgeUrl      : ${row['badgeUrl']}\n'
-        'plans         : ${(row['plans'] as List?)?.length ?? 0}\n'
-        '${_pretty(row)}');
+    _dump(
+      '─── $label $index/${rows.length} ───\n'
+      'keys          : ${row.keys.toList()}\n'
+      'coverImageUrl : ${row['coverImageUrl']}\n'
+      'badgeUrl      : ${row['badgeUrl']}\n'
+      'plans         : ${(row['plans'] as List?)?.length ?? 0}\n'
+      '${_pretty(row)}',
+    );
   }
 }
 

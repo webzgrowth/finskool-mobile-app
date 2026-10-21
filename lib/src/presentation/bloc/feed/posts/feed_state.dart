@@ -19,13 +19,13 @@ sealed class FeedState with _$FeedState {
   const FeedState._();
 
   factory FeedState.initial() => const FeedState(
-        state: RequestState.empty,
-        message: '',
-        posts: [],
-        page: 0,
-        hasMore: true,
-        isLoadingMore: false,
-      );
+    state: RequestState.empty,
+    message: '',
+    posts: [],
+    page: 0,
+    hasMore: true,
+    isLoadingMore: false,
+  );
 
   /// Loaded, but the backend genuinely has nothing. Distinct from "the search
   /// box filtered everything out", which the screen computes itself.

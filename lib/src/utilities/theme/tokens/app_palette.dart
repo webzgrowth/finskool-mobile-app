@@ -170,6 +170,70 @@ class AppPalette {
   static const Color noticeDangerBorder = Color(0xFFF3C0BC);
   static const Color noticeDangerInk = Color(0xFFD4342A);
 
+  // ── Support tickets ────────────────────────────────────────────────
+  // Read from Figma's **Final** page (file FINSKOOL App, frames
+  // `Profile / My Tickets` and `Profile / Raise a Ticket`) with
+  // figma-mcp-rust — exact, not sampled. An earlier pass was built from the
+  // *working* `tickets` page (a cream canvas, lime accents, a dark-teal
+  // button) and was thrown away: the final design is a white sheet over a
+  // short teal hero with `#108B8B` actions and grey `#F6F6F6` cards.
+  //
+  // `#108B8B` is `badgeTeal` and `#153D3A` is `reactionRing`; both are reused
+  // rather than re-declared.
+
+  static const Color ticketCard = Color(0xFFF6F6F6);
+  static const Color ticketInk = Color(0xFF12201F);
+
+  /// Field and chip text (`#1A1A1A`), a hair softer than true black.
+  static const Color ticketInkSoft = Color(0xFF1A1A1A);
+
+  /// Ticket numbers, meta lines, summary labels.
+  static const Color ticketMuted = Color(0xFF7A7A74);
+
+  /// Subtitles, hints, placeholders and the dashed upload box's helper copy.
+  static const Color ticketHint = Color(0xFF888780);
+  static const Color ticketFootnote = Color(0xFF8A8A85);
+  static const Color ticketPlaceholder = Color(0xFF9A9A94);
+  static const Color ticketTile = Color(0xFFE6F2F0);
+
+  /// A pending stepper disc, an unselected star.
+  static const Color ticketPending = Color(0xFFEAE7DE);
+  static const Color ticketPendingLine = Color(0xFFE0DED6);
+
+  /// The centred "Status changed…" pill: `#7D7D91` at 20%, with `#6B6B6B` text.
+  static const Color ticketSystemSurface = Color(0x337D7D91);
+  static const Color ticketSystemInk = Color(0xFF6B6B6B);
+
+  static const Color ticketCardBorder = Color(0x0F153D3A);
+  static const Color ticketDivider = Color(0x14153D3A);
+  static const Color ticketOutline = Color(0x40153D3A);
+  static const Color ticketChevron = Color(0x99153D3A);
+
+  /// Input border `#7D7D91` at 60%; an unselected filter chip's at 50%.
+  static const Color ticketFieldBorder = Color(0x997D7D91);
+  static const Color ticketChipBorder = Color(0x807D7D91);
+  static const Color ticketShadow = Color(0x0F153D3A);
+
+  static const Color ticketRed = Color(0xFFC62828);
+  static const Color ticketRequired = Color(0xFFE10200);
+  static const Color ticketPendingRed = Color(0xFFFF383C);
+  static const Color ticketOpenSurface = Color(0x1AFE0000);
+  static const Color ticketProgressSurface = Color(0xFFFDF3E0);
+  static const Color ticketProgressInk = Color(0xFF8A5A0B);
+  static const Color ticketResolvedSurface = Color(0xFFE3F6E8);
+  static const Color ticketResolvedInk = Color(0xFF1F8A3B);
+
+  /// `#108B8B` at 10% behind a file's type tag, and the success halo.
+  static const Color ticketTagSurface = Color(0x1A108B8B);
+
+  /// The success disc inside the halo.
+  static const Color ticketSuccessDisc = Color(0xFFB7DCDC);
+
+  /// The support bubble's hairline, and the file chip inside a member's
+  /// bubble (white at 12% — measured: it lands on `#2D9999` over `#108B8B`).
+  static const Color ticketBubbleBorder = Color(0xFFE4E7E7);
+  static const Color ticketChipOnDark = Color(0x1FFFFFFF);
+
   // Status
   static const Color error = Color(0xFFB3261E);
   static const Color errorContainer = Color(0xFFF9DEDC);

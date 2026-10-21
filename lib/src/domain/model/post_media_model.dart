@@ -67,14 +67,13 @@ class PostMediaModel {
     final type = host.endsWith('youtube.com') || host.endsWith('youtu.be')
         ? PostMediaType.youtubeEmbed
         : host.endsWith('instagram.com')
-            ? PostMediaType.instagramEmbed
-            : PostMediaType.image;
+        ? PostMediaType.instagramEmbed
+        : PostMediaType.image;
     return PostMediaModel(
       type: type,
       imageUrl: url,
       embedUrl: type == PostMediaType.image ? null : url,
-      videoId:
-          type == PostMediaType.youtubeEmbed ? youtubeVideoId(url) : null,
+      videoId: type == PostMediaType.youtubeEmbed ? youtubeVideoId(url) : null,
     );
   }
 
@@ -92,8 +91,8 @@ class PostMediaModel {
     final playable = (embedUrl?.isNotEmpty ?? false)
         ? embedUrl!
         : (url?.isNotEmpty ?? false)
-            ? url!
-            : null;
+        ? url!
+        : null;
     if (playable == null) return null;
 
     final kind = (json['kind'] as String?)?.toLowerCase();
@@ -113,29 +112,29 @@ class PostMediaModel {
       // fallback for a payload that omits it.
       videoId: kind == 'youtube'
           ? ((json['externalId'] as String?)?.isNotEmpty ?? false)
-              ? json['externalId'] as String
-              : youtubeVideoId(playable)
+                ? json['externalId'] as String
+                : youtubeVideoId(playable)
           : null,
     );
   }
 
   factory PostMediaModel.fromJson(Map<String, dynamic> json) => PostMediaModel(
-        type: PostMediaType.values.firstWhere((t) => t.name == json['type']),
-        imageUrl: json['imageUrl'] as String,
-        embedUrl: json['embedUrl'] as String?,
-        thumbnailUrl: json['thumbnailUrl'] as String?,
-        title: json['title'] as String?,
-        videoId: json['videoId'] as String?,
-        durationLabel: json['durationLabel'] as String?,
-      );
+    type: PostMediaType.values.firstWhere((t) => t.name == json['type']),
+    imageUrl: json['imageUrl'] as String,
+    embedUrl: json['embedUrl'] as String?,
+    thumbnailUrl: json['thumbnailUrl'] as String?,
+    title: json['title'] as String?,
+    videoId: json['videoId'] as String?,
+    durationLabel: json['durationLabel'] as String?,
+  );
 
   Map<String, dynamic> toJson() => {
-        'type': type.name,
-        'imageUrl': imageUrl,
-        'embedUrl': embedUrl,
-        'thumbnailUrl': thumbnailUrl,
-        'title': title,
-        'videoId': videoId,
-        'durationLabel': durationLabel,
-      };
+    'type': type.name,
+    'imageUrl': imageUrl,
+    'embedUrl': embedUrl,
+    'thumbnailUrl': thumbnailUrl,
+    'title': title,
+    'videoId': videoId,
+    'durationLabel': durationLabel,
+  };
 }

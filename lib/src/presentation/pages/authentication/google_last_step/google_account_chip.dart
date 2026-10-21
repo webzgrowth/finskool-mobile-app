@@ -31,7 +31,11 @@ class GoogleAccountChip extends StatelessWidget {
               shape: BoxShape.circle,
             ),
             alignment: Alignment.center,
-            child: SvgPicture.asset('assets/icons/google.svg', height: 18, width: 18),
+            child: SvgPicture.asset(
+              'assets/icons/google.svg',
+              height: 18,
+              width: 18,
+            ),
           ),
           const SizedBox(width: AppSpacing.sm),
           Expanded(
@@ -49,7 +53,10 @@ class GoogleAccountChip extends StatelessWidget {
           Container(
             height: 29,
             width: 29,
-            decoration: BoxDecoration(color: cs.primary, shape: BoxShape.circle),
+            decoration: BoxDecoration(
+              color: cs.primary,
+              shape: BoxShape.circle,
+            ),
             alignment: Alignment.center,
             child: Icon(Icons.check, size: 16, color: cs.onPrimary),
           ),

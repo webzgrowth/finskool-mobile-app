@@ -17,8 +17,8 @@ class SignUpFormEvent with _$SignUpFormEvent {
       _PhonenumberChanged;
   const factory SignUpFormEvent.passwordChanged(String password) =
       _PasswordChanged;
-  const factory SignUpFormEvent.confirmPasswordChanged(
-      String confirmPassword) = _ConfirmPasswordChanged;
+  const factory SignUpFormEvent.confirmPasswordChanged(String confirmPassword) =
+      _ConfirmPasswordChanged;
   const factory SignUpFormEvent.togglePasswordVisibility() =
       _TogglePasswordVisibility;
   const factory SignUpFormEvent.toggleConfirmPasswordVisibility() =

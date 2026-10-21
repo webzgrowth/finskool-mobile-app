@@ -14,6 +14,5 @@ class LoginUser {
   Future<Either<Failure, AuthSessionModel>> execute({
     required String email,
     required String password,
-  }) =>
-      _repository.login(email: email, password: password);
+  }) => _repository.login(email: email, password: password);
 }

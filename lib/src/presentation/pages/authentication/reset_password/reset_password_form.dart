@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:finskool/src/comman/routes.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
 import 'package:finskool/src/presentation/bloc/authentication/password_reset/password_reset_bloc.dart';
+
 import '../widgets/auth_text_field.dart';
 import '../widgets/auth_field_icons.dart';
 import '../widgets/auth_submit_button.dart';
@@ -24,35 +25,37 @@ class ResetPasswordForm extends StatelessWidget {
       onSuccess: (context, _) =>
           context.push(AppRoutes.VERIFY_RESET_CODE_ROUTE_PATH),
       child: BlocBuilder<PasswordResetBloc, PasswordResetState>(
-      builder: (context, state) {
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const ResetCardTitle(title: 'Reset password'),
-            const SizedBox(height: AppSpacing.xl),
-            AuthTextField(
-              label: 'Email Address',
-              hint: 'Enter your registered email',
-              iconAsset: AuthFieldIcons.mail,
-              errorText: state.emailError,
-              keyboardType: TextInputType.emailAddress,
-              onChanged: (v) => bloc.add(PasswordResetEvent.emailChanged(v)),
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            Text('The code is valid for 10 minutes.',
-                style: Theme.of(context).textTheme.bodySmall),
-            const SizedBox(height: AppSpacing.xl),
-            AuthSubmitButton(
-              label: 'Send Reset Code',
-              loading: state.state.isLoading,
-              onPressed: () =>
-                  bloc.add(const PasswordResetEvent.sendResetCode()),
-            ),
-            const SizedBox(height: AppSpacing.lg),
-            const PrivacyFooterNote(),
-          ],
-        );
-      },
+        builder: (context, state) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const ResetCardTitle(title: 'Reset password'),
+              const SizedBox(height: AppSpacing.xl),
+              AuthTextField(
+                label: 'Email Address',
+                hint: 'Enter your registered email',
+                iconAsset: AuthFieldIcons.mail,
+                errorText: state.emailError,
+                keyboardType: TextInputType.emailAddress,
+                onChanged: (v) => bloc.add(PasswordResetEvent.emailChanged(v)),
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              Text(
+                'The code is valid for 10 minutes.',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+              const SizedBox(height: AppSpacing.xl),
+              AuthSubmitButton(
+                label: 'Send Reset Code',
+                loading: state.state.isLoading,
+                onPressed: () =>
+                    bloc.add(const PasswordResetEvent.sendResetCode()),
+              ),
+              const SizedBox(height: AppSpacing.lg),
+              const PrivacyFooterNote(),
+            ],
+          );
+        },
       ),
     );
   }

@@ -20,12 +20,11 @@ class GetPosts {
     String? communityId,
     String? date,
     String order = 'desc',
-  }) =>
-      _repository.getPosts(
-        page: page,
-        pageSize: pageSize,
-        communityId: communityId,
-        date: date,
-        order: order,
-      );
+  }) => _repository.getPosts(
+    page: page,
+    pageSize: pageSize,
+    communityId: communityId,
+    date: date,
+    order: order,
+  );
 }

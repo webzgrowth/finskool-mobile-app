@@ -42,8 +42,10 @@ class ProfileMenuRow extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Padding(
-        padding:
-            const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: 10),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.md,
+          vertical: 10,
+        ),
         child: Row(
           children: [
             Container(
@@ -68,10 +70,12 @@ class ProfileMenuRow extends StatelessWidget {
                   Text(title, style: type.rowTitle),
                   if (subtitle != null) ...[
                     const SizedBox(height: 2),
-                    Text(subtitle!,
-                        style: subtitleColor == null
-                            ? type.rowSubtitle
-                            : type.rowSubtitle.copyWith(color: subtitleColor)),
+                    Text(
+                      subtitle!,
+                      style: subtitleColor == null
+                          ? type.rowSubtitle
+                          : type.rowSubtitle.copyWith(color: subtitleColor),
+                    ),
                   ],
                 ],
               ),
@@ -80,8 +84,11 @@ class ProfileMenuRow extends StatelessWidget {
             trailing ??
                 (onTap == null
                     ? const SizedBox.shrink()
-                    : Icon(Icons.chevron_right_rounded,
-                        size: 18, color: cs.onSurfaceVariant)),
+                    : Icon(
+                        Icons.chevron_right_rounded,
+                        size: 18,
+                        color: cs.onSurfaceVariant,
+                      )),
           ],
         ),
       ),

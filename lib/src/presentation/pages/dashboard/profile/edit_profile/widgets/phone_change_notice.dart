@@ -30,8 +30,11 @@ class PhoneChangeNotice extends StatelessWidget {
               color: AppPalette.noticeAmber,
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.info_outline,
-                size: 12, color: AppPalette.white),
+            child: const Icon(
+              Icons.info_outline,
+              size: 12,
+              color: AppPalette.white,
+            ),
           ),
           const SizedBox(width: AppSpacing.sm),
           Expanded(

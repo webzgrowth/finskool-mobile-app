@@ -29,31 +29,30 @@ class UserModel {
   final DateTime? memberSince;
 
   factory UserModel.fromJson(Map<String, dynamic> json) => UserModel(
-        id: json['id'] as String,
-        name: json['name'] as String,
-        phone: json['phone'] as String,
-        email: json['email'] as String,
-        role: json['role'] as String,
-        isSuperAdmin: json['isSuperAdmin'] as bool? ?? false,
-        postNotificationsEnabled:
-            json['postNotificationsEnabled'] as bool? ?? true,
-        avatarUrl: json['avatarUrl'] as String?,
-        memberSince: json['memberSince'] == null
-            ? null
-            : DateTime.parse(json['memberSince'] as String),
-      );
+    id: json['id'] as String,
+    name: json['name'] as String,
+    phone: json['phone'] as String,
+    email: json['email'] as String,
+    role: json['role'] as String,
+    isSuperAdmin: json['isSuperAdmin'] as bool? ?? false,
+    postNotificationsEnabled: json['postNotificationsEnabled'] as bool? ?? true,
+    avatarUrl: json['avatarUrl'] as String?,
+    memberSince: json['memberSince'] == null
+        ? null
+        : DateTime.parse(json['memberSince'] as String),
+  );
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'name': name,
-        'phone': phone,
-        'email': email,
-        'role': role,
-        'isSuperAdmin': isSuperAdmin,
-        'postNotificationsEnabled': postNotificationsEnabled,
-        'avatarUrl': avatarUrl,
-        'memberSince': memberSince?.toIso8601String(),
-      };
+    'id': id,
+    'name': name,
+    'phone': phone,
+    'email': email,
+    'role': role,
+    'isSuperAdmin': isSuperAdmin,
+    'postNotificationsEnabled': postNotificationsEnabled,
+    'avatarUrl': avatarUrl,
+    'memberSince': memberSince?.toIso8601String(),
+  };
 
   /// The app writes back [postNotificationsEnabled] (the Profile screen's
   /// toggle) and the [name]/[email]/[phone] trio (the Edit Profile form).
@@ -65,17 +64,16 @@ class UserModel {
     String? name,
     String? email,
     String? phone,
-  }) =>
-      UserModel(
-        id: id,
-        name: name ?? this.name,
-        phone: phone ?? this.phone,
-        email: email ?? this.email,
-        role: role,
-        isSuperAdmin: isSuperAdmin,
-        postNotificationsEnabled:
-            postNotificationsEnabled ?? this.postNotificationsEnabled,
-        avatarUrl: avatarUrl,
-        memberSince: memberSince,
-      );
+  }) => UserModel(
+    id: id,
+    name: name ?? this.name,
+    phone: phone ?? this.phone,
+    email: email ?? this.email,
+    role: role,
+    isSuperAdmin: isSuperAdmin,
+    postNotificationsEnabled:
+        postNotificationsEnabled ?? this.postNotificationsEnabled,
+    avatarUrl: avatarUrl,
+    memberSince: memberSince,
+  );
 }

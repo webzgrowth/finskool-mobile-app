@@ -2,7 +2,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:finskool/src/utilities/extensions/string_extension.dart';
 import 'package:finskool/src/utilities/logger.dart';
 
-
 /// [BlocObserver] which logs all bloc state changes, errors and events.
 class AppBlocObserver extends BlocObserver {
   /// [BlocObserver] which logs all bloc state changes, errors and events.
@@ -26,14 +25,14 @@ class AppBlocObserver extends BlocObserver {
   @override
   void onEvent(Bloc<Object?, Object?> bloc, Object? event) {
     final buffer = StringBuffer()
-     ..writeln('On Event :')
+      ..writeln('On Event :')
       ..writeln('Bloc: ${bloc.runtimeType}')
       ..write('Event: ${event.toString().limit(200)}');
     logger.info(buffer.toString());
     super.onEvent(bloc, event);
   }
 
-    @override
+  @override
   void onChange(BlocBase bloc, Change change) {
     logger.info(
       'Bloc: ${bloc.runtimeType} | ${change.currentState} | ${change.nextState}',

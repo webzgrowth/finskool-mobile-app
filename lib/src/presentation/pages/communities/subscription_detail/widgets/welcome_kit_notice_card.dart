@@ -33,18 +33,24 @@ class WelcomeKitNoticeCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 if (notice.title != null) ...[
-                  Text(notice.title!,
-                      style: type.noticeTitle.copyWith(color: tone.ink)),
+                  Text(
+                    notice.title!,
+                    style: type.noticeTitle.copyWith(color: tone.ink),
+                  ),
                   const SizedBox(height: 3),
                 ],
-                Text.rich(TextSpan(
-                  children: bodySpans(
-                    notice.body,
-                    type.noticeBody.copyWith(color: tone.ink),
-                    type.noticeBody
-                        .copyWith(color: tone.ink, fontWeight: FontWeight.w700),
+                Text.rich(
+                  TextSpan(
+                    children: bodySpans(
+                      notice.body,
+                      type.noticeBody.copyWith(color: tone.ink),
+                      type.noticeBody.copyWith(
+                        color: tone.ink,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
                   ),
-                )),
+                ),
               ],
             ),
           ),
@@ -63,23 +69,23 @@ class _ToneStyle {
   final IconData icon;
 
   static _ToneStyle of(NoticeTone tone) => switch (tone) {
-        NoticeTone.info => const _ToneStyle(
-            AppPalette.noticeInfoSurface,
-            AppPalette.noticeInfoBorder,
-            AppPalette.noticeInfoInk,
-            Icons.info_outline,
-          ),
-        NoticeTone.warning => const _ToneStyle(
-            AppPalette.noticeWarnSurface,
-            AppPalette.noticeWarnBorder,
-            AppPalette.noticeWarnInk,
-            Icons.info_outline,
-          ),
-        NoticeTone.danger => const _ToneStyle(
-            AppPalette.noticeDangerSurface,
-            AppPalette.noticeDangerBorder,
-            AppPalette.noticeDangerInk,
-            Icons.warning_amber_rounded,
-          ),
-      };
+    NoticeTone.info => const _ToneStyle(
+      AppPalette.noticeInfoSurface,
+      AppPalette.noticeInfoBorder,
+      AppPalette.noticeInfoInk,
+      Icons.info_outline,
+    ),
+    NoticeTone.warning => const _ToneStyle(
+      AppPalette.noticeWarnSurface,
+      AppPalette.noticeWarnBorder,
+      AppPalette.noticeWarnInk,
+      Icons.info_outline,
+    ),
+    NoticeTone.danger => const _ToneStyle(
+      AppPalette.noticeDangerSurface,
+      AppPalette.noticeDangerBorder,
+      AppPalette.noticeDangerInk,
+      Icons.warning_amber_rounded,
+    ),
+  };
 }

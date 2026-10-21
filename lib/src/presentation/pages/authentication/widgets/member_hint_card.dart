@@ -21,10 +21,15 @@ class MemberHintCard extends StatelessWidget {
           Container(
             height: 20,
             width: 20,
-            decoration: BoxDecoration(color: cs.primary, shape: BoxShape.circle),
+            decoration: BoxDecoration(
+              color: cs.primary,
+              shape: BoxShape.circle,
+            ),
             alignment: Alignment.center,
-            child: Text('i',
-                style: tt.labelLarge?.copyWith(color: cs.onPrimary)),
+            child: Text(
+              'i',
+              style: tt.labelLarge?.copyWith(color: cs.onPrimary),
+            ),
           ),
           const SizedBox(width: AppSpacing.sm),
           Expanded(
@@ -41,8 +46,10 @@ class MemberHintCard extends StatelessWidget {
                     style: tt.bodySmall,
                     children: [
                       const TextSpan(
-                          text: 'Enter the same phone number you registered '
-                              'with on our '),
+                        text:
+                            'Enter the same phone number you registered '
+                            'with on our ',
+                      ),
                       TextSpan(
                         text: 'WhatsApp community,',
                         style: inter(
@@ -53,7 +60,9 @@ class MemberHintCard extends StatelessWidget {
                         ),
                       ),
                       const TextSpan(
-                          text: ' and your access will be restored automatically.'),
+                        text:
+                            ' and your access will be restored automatically.',
+                      ),
                     ],
                   ),
                 ),

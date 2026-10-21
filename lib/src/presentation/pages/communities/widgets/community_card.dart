@@ -4,6 +4,7 @@ import 'package:finskool/src/utilities/theme/theme.dart';
 import 'package:finskool/src/domain/model/community/community_access.dart';
 import 'package:finskool/src/domain/model/community/community_model.dart';
 import 'package:finskool/src/domain/model/community/community_plan_model.dart';
+
 import 'announcement_tag.dart';
 import 'community_cover.dart';
 import 'community_cta_button.dart';
@@ -40,19 +41,21 @@ class CommunityCard extends StatefulWidget {
 class _CommunityCardState extends State<CommunityCard> {
   CommunityPlanModel? _selected;
 
-  CommunityPlanModel? get _plan =>
-      _selected ?? widget.community.defaultPlan;
+  CommunityPlanModel? get _plan => _selected ?? widget.community.defaultPlan;
 
   @override
   Widget build(BuildContext context) {
     final community = widget.community;
     final type = context.communityType;
-    final showPricing =
-        community.access.isLocked && community.plans.isNotEmpty;
+    final showPricing = community.access.isLocked && community.plans.isNotEmpty;
 
     return Container(
       margin: const EdgeInsets.fromLTRB(
-          AppSpacing.lg, 0, AppSpacing.lg, AppSpacing.lg),
+        AppSpacing.lg,
+        0,
+        AppSpacing.lg,
+        AppSpacing.lg,
+      ),
       decoration: BoxDecoration(
         color: context.gradients.feedCard,
         borderRadius: BorderRadius.circular(AppRadii.lg),
@@ -76,7 +79,11 @@ class _CommunityCardState extends State<CommunityCard> {
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(
-                  AppSpacing.md, AppSpacing.sm, AppSpacing.md, AppSpacing.md),
+                AppSpacing.md,
+                AppSpacing.sm,
+                AppSpacing.md,
+                AppSpacing.md,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -84,8 +91,10 @@ class _CommunityCardState extends State<CommunityCard> {
                     children: [
                       if (community.category != null)
                         Expanded(
-                          child: Text(community.category!,
-                              style: type.category),
+                          child: Text(
+                            community.category!,
+                            style: type.category,
+                          ),
                         )
                       else
                         const Spacer(),
@@ -99,10 +108,15 @@ class _CommunityCardState extends State<CommunityCard> {
                     const SizedBox(height: AppSpacing.sm),
                     // Bold runs come from `**…**` markers — the designer's
                     // "important words in the description will be bold".
-                    Text.rich(TextSpan(
-                      children: boldSpans(community.description!,
-                          type.description, type.descriptionBold),
-                    )),
+                    Text.rich(
+                      TextSpan(
+                        children: boldSpans(
+                          community.description!,
+                          type.description,
+                          type.descriptionBold,
+                        ),
+                      ),
+                    ),
                   ],
                   if (community.tags.isNotEmpty) ...[
                     const SizedBox(height: AppSpacing.md),
@@ -131,8 +145,7 @@ class _CommunityCardState extends State<CommunityCard> {
                     PlanSelector(
                       plans: community.plans,
                       selectedId: _plan?.id ?? '',
-                      onSelected: (plan) =>
-                          setState(() => _selected = plan),
+                      onSelected: (plan) => setState(() => _selected = plan),
                     ),
                   ],
                   const SizedBox(height: AppSpacing.lg),

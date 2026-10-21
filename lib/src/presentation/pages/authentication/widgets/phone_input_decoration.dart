@@ -8,19 +8,19 @@ import 'package:finskool/src/utilities/theme/theme.dart';
 /// own states — so each must be cleared explicitly, or the field draws its
 /// own rounded outline right where it meets the country chip.
 InputDecoration phoneInputDecoration(TextTheme tt) => InputDecoration(
-      hintText: 'Enter your phone number',
-      hintStyle: tt.bodySmall,
-      filled: false,
-      counterText: '',
-      border: InputBorder.none,
-      enabledBorder: InputBorder.none,
-      focusedBorder: InputBorder.none,
-      errorBorder: InputBorder.none,
-      focusedErrorBorder: InputBorder.none,
-      disabledBorder: InputBorder.none,
-      isDense: true,
-      contentPadding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.md,
-        vertical: 12,
-      ),
-    );
+  hintText: 'Enter your phone number',
+  hintStyle: tt.bodySmall,
+  filled: false,
+  counterText: '',
+  border: InputBorder.none,
+  enabledBorder: InputBorder.none,
+  focusedBorder: InputBorder.none,
+  errorBorder: InputBorder.none,
+  focusedErrorBorder: InputBorder.none,
+  disabledBorder: InputBorder.none,
+  isDense: true,
+  contentPadding: const EdgeInsets.symmetric(
+    horizontal: AppSpacing.md,
+    vertical: 12,
+  ),
+);

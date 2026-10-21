@@ -5,22 +5,23 @@ import 'package:finskool/src/domain/model/community/community_model.dart';
 
 void main() {
   Map<String, dynamic> catalogRow({List<Map<String, dynamic>>? plans}) => {
-        'id': 'c1',
-        'name': 'Swing Alpha',
-        'slug': 'swing-alpha',
-        'description': 'Trade **swings**',
-        'tags': ['Equity'],
-        'type': 'Short Term Investment',
-        'coverImageUrl': null,
-        'badgeUrl': null,
-        'whatsIncluded': ['Daily calls', 'Weekly review'],
-        'subscribedMemberCount': 1240,
-        'plans': plans ??
-            [
-              {'id': 'p1', 'name': '1 Month', 'durationMonths': 1, 'price': 1500},
-              {'id': 'p3', 'name': '3 Month', 'durationMonths': 3, 'price': 3900},
-            ],
-      };
+    'id': 'c1',
+    'name': 'Swing Alpha',
+    'slug': 'swing-alpha',
+    'description': 'Trade **swings**',
+    'tags': ['Equity'],
+    'type': 'Short Term Investment',
+    'coverImageUrl': null,
+    'badgeUrl': null,
+    'whatsIncluded': ['Daily calls', 'Weekly review'],
+    'subscribedMemberCount': 1240,
+    'plans':
+        plans ??
+        [
+          {'id': 'p1', 'name': '1 Month', 'durationMonths': 1, 'price': 1500},
+          {'id': 'p3', 'name': '3 Month', 'durationMonths': 3, 'price': 3900},
+        ],
+  };
 
   test('catalog fields map onto the model despite different names', () {
     final c = CommunityModel.fromCatalogJson(catalogRow());
@@ -51,18 +52,30 @@ void main() {
   });
 
   test('a four-figure saving is compacted to Figma\'s "₹ 1k" form', () {
-    final c = CommunityModel.fromCatalogJson(catalogRow(plans: [
-      {'id': 'p1', 'name': '1 Month', 'durationMonths': 1, 'price': 1000},
-      {'id': 'p12', 'name': '12 Month', 'durationMonths': 12, 'price': 11000},
-    ]));
+    final c = CommunityModel.fromCatalogJson(
+      catalogRow(
+        plans: [
+          {'id': 'p1', 'name': '1 Month', 'durationMonths': 1, 'price': 1000},
+          {
+            'id': 'p12',
+            'name': '12 Month',
+            'durationMonths': 12,
+            'price': 11000,
+          },
+        ],
+      ),
+    );
     expect(c.plans.last.saveLabel, 'Save ₹ 1k');
   });
 
-  test('headlinePlan falls back to the cheapest, since nothing is featured', () {
-    final c = CommunityModel.fromCatalogJson(catalogRow());
-    expect(c.plans.every((p) => !p.featured), isTrue);
-    expect(c.headlinePlan?.id, 'p1');
-  });
+  test(
+    'headlinePlan falls back to the cheapest, since nothing is featured',
+    () {
+      final c = CommunityModel.fromCatalogJson(catalogRow());
+      expect(c.plans.every((p) => !p.featured), isTrue);
+      expect(c.headlinePlan?.id, 'p1');
+    },
+  );
 
   test('membership rows carry expiry, which drives the status label', () {
     final c = CommunityModel.fromMembershipJson({
@@ -77,12 +90,18 @@ void main() {
     expect(c.needsRenewal, isFalse);
   });
 
-  test('a missing expiresAt leaves the status label off rather than guessing', () {
-    final c = CommunityModel.fromMembershipJson(
-        {'id': 'c1', 'name': 'Free', 'slug': 'free'});
-    expect(c.subscribedUntil, isNull);
-    expect(c.subscriptionStatusLabel, isNull);
-  });
+  test(
+    'a missing expiresAt leaves the status label off rather than guessing',
+    () {
+      final c = CommunityModel.fromMembershipJson({
+        'id': 'c1',
+        'name': 'Free',
+        'slug': 'free',
+      });
+      expect(c.subscribedUntil, isNull);
+      expect(c.subscriptionStatusLabel, isNull);
+    },
+  );
 
   test('the cover placeholder is stable per community and varies between', () {
     expect(communityCoverFallback('c1'), communityCoverFallback('c1'));

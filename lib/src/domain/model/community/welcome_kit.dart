@@ -91,11 +91,7 @@ class WelcomeKitStat {
 enum NoticeTone { info, warning, danger }
 
 class WelcomeKitNotice {
-  const WelcomeKitNotice({
-    required this.tone,
-    required this.body,
-    this.title,
-  });
+  const WelcomeKitNotice({required this.tone, required this.body, this.title});
 
   final NoticeTone tone;
 

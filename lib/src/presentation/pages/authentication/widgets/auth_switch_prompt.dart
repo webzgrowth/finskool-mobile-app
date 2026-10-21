@@ -40,8 +40,10 @@ class AuthSwitchPrompt extends StatelessWidget {
               borderRadius: BorderRadius.circular(6),
             ),
           ),
-          child: Text(actionLabel,
-              style: tt.titleSmall?.copyWith(color: cs.primary)),
+          child: Text(
+            actionLabel,
+            style: tt.titleSmall?.copyWith(color: cs.primary),
+          ),
         ),
       ],
     );

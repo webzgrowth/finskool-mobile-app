@@ -86,7 +86,11 @@ class _Poster extends StatelessWidget {
         ),
         if (item.isEmbed)
           const Center(
-            child: Icon(Icons.play_arrow_rounded, color: Colors.white, size: 20),
+            child: Icon(
+              Icons.play_arrow_rounded,
+              color: Colors.white,
+              size: 20,
+            ),
           ),
       ],
     );

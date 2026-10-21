@@ -20,7 +20,8 @@ abstract class CommunitiesRepository {
   /// Stores the one-time SEBI details. Only the completion flag is kept;
   /// the PAN itself is never persisted.
   Future<Either<Failure, Unit>> submitCompliance(
-      ComplianceDetailsModel details);
+    ComplianceDetailsModel details,
+  );
 
   /// Whether compliance has already been completed, so the purchase flow
   /// can skip straight past it.

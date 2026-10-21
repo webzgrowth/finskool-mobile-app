@@ -10,9 +10,9 @@ sealed class GoogleSigninState with _$GoogleSigninState {
   }) = _GoogleSigninState;
 
   factory GoogleSigninState.initial() => GoogleSigninState(
-        requestState: RequestState.empty,
-        message: '',
-        authFlow: AuthFlow.initial,
-        email: null,
-      );
+    requestState: RequestState.empty,
+    message: '',
+    authFlow: AuthFlow.initial,
+    email: null,
+  );
 }

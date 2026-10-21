@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:finskool/src/domain/model/reaction_type.dart';
+
 import 'reaction_picker_row.dart';
 
 /// Drives the long-press reaction popup: which icon is hovered while the
@@ -49,8 +50,10 @@ class ReactionPickerOverlay {
     hide();
     final width = pillWidth;
     final screenWidth = MediaQuery.sizeOf(context).width;
-    final left =
-        (anchorTopCenter.dx - width / 2).clamp(8.0, screenWidth - width - 8);
+    final left = (anchorTopCenter.dx - width / 2).clamp(
+      8.0,
+      screenWidth - width - 8,
+    );
     final top = anchorTopCenter.dy - pillHeight - 16;
     _bounds = Rect.fromLTWH(left, top, width, pillHeight);
     _entry = OverlayEntry(
@@ -71,7 +74,8 @@ class ReactionPickerOverlay {
     // Vertical slop: at 39px tall the pill is easy to drag out of, and
     // leaving it vertically shouldn't clear a selection the user is still
     // scrubbing along — only horizontal misses count as "off the picker".
-    final withinRow = globalPosition.dx >= _bounds.left &&
+    final withinRow =
+        globalPosition.dx >= _bounds.left &&
         globalPosition.dx <= _bounds.right &&
         (globalPosition.dy - _bounds.center.dy).abs() <= pillHeight * 1.5;
     if (!withinRow) {
@@ -79,16 +83,16 @@ class ReactionPickerOverlay {
       return;
     }
     final relativeX = globalPosition.dx - _bounds.left - padH;
-    final index =
-        (relativeX / pitch).floor().clamp(0, reactions.length - 1);
+    final index = (relativeX / pitch).floor().clamp(0, reactions.length - 1);
     hoveredIndex.value = index;
   }
 
   /// Removes the popup, returning the hovered reaction (if any) so the
   /// caller can dispatch it.
   ReactionType? hide() {
-    final selected =
-        hoveredIndex.value == null ? null : reactions[hoveredIndex.value!];
+    final selected = hoveredIndex.value == null
+        ? null
+        : reactions[hoveredIndex.value!];
     _entry?.remove();
     _entry = null;
     hoveredIndex.value = null;

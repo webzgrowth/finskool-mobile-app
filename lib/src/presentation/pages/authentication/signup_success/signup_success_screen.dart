@@ -26,8 +26,9 @@ class SignupSuccessScreen extends StatelessWidget {
               const SizedBox(height: AppSpacing.xl),
               Text(
                 "You're all set!",
-                style:
-                    tt.headlineLarge?.copyWith(color: AppPalette.headerGradientEnd),
+                style: tt.headlineLarge?.copyWith(
+                  color: AppPalette.headerGradientEnd,
+                ),
               ),
               const SizedBox(height: AppSpacing.sm),
               Text.rich(
@@ -35,7 +36,8 @@ class SignupSuccessScreen extends StatelessWidget {
                   style: tt.bodyLarge?.copyWith(color: cs.onSurfaceVariant),
                   children: [
                     const TextSpan(
-                        text: 'Your account has been successfully verified. '),
+                      text: 'Your account has been successfully verified. ',
+                    ),
                     TextSpan(
                       text: 'Welcome to Finskool21!',
                       style: inter(

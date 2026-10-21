@@ -23,20 +23,22 @@ NavigationBarThemeData buildNavigationBarTheme(ColorScheme cs, TextTheme tt) =>
       ),
     );
 
-BottomNavigationBarThemeData buildBottomNavTheme(ColorScheme cs, TextTheme tt) =>
-    BottomNavigationBarThemeData(
-      backgroundColor: cs.surface,
-      type: BottomNavigationBarType.fixed,
-      elevation: 0,
-      selectedItemColor: cs.primary,
-      unselectedItemColor: cs.onSurfaceVariant,
-      selectedIconTheme: IconThemeData(color: cs.primary, size: 22),
-      unselectedIconTheme: IconThemeData(color: cs.onSurfaceVariant, size: 22),
-      selectedLabelStyle: tt.labelLarge,
-      unselectedLabelStyle: tt.labelMedium,
-      showSelectedLabels: true,
-      showUnselectedLabels: true,
-    );
+BottomNavigationBarThemeData buildBottomNavTheme(
+  ColorScheme cs,
+  TextTheme tt,
+) => BottomNavigationBarThemeData(
+  backgroundColor: cs.surface,
+  type: BottomNavigationBarType.fixed,
+  elevation: 0,
+  selectedItemColor: cs.primary,
+  unselectedItemColor: cs.onSurfaceVariant,
+  selectedIconTheme: IconThemeData(color: cs.primary, size: 22),
+  unselectedIconTheme: IconThemeData(color: cs.onSurfaceVariant, size: 22),
+  selectedLabelStyle: tt.labelLarge,
+  unselectedLabelStyle: tt.labelMedium,
+  showSelectedLabels: true,
+  showUnselectedLabels: true,
+);
 
 TabBarThemeData buildTabBarTheme(ColorScheme cs, TextTheme tt) =>
     TabBarThemeData(

@@ -21,20 +21,20 @@ enum ReactionType { like, love, haha, wow, angry }
 
 extension ReactionTypeX on ReactionType {
   String get emoji => switch (this) {
-        ReactionType.like => '👍',
-        ReactionType.love => '❤️',
-        ReactionType.haha => '😂',
-        ReactionType.wow => '😮',
-        ReactionType.angry => '😡',
-      };
+    ReactionType.like => '👍',
+    ReactionType.love => '❤️',
+    ReactionType.haha => '😂',
+    ReactionType.wow => '😮',
+    ReactionType.angry => '😡',
+  };
 
   String get label => switch (this) {
-        ReactionType.like => 'Like',
-        ReactionType.love => 'Love',
-        ReactionType.haha => 'Haha',
-        ReactionType.wow => 'Wow',
-        ReactionType.angry => 'Angry',
-      };
+    ReactionType.like => 'Like',
+    ReactionType.love => 'Love',
+    ReactionType.haha => 'Haha',
+    ReactionType.wow => 'Wow',
+    ReactionType.angry => 'Angry',
+  };
 
   /// Nullable on purpose. Every reaction name in the app now arrives from the
   /// API, so a name this build doesn't know about must leave that one datum

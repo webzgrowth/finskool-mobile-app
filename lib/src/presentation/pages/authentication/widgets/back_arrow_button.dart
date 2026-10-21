@@ -1,7 +1,9 @@
 import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
+
 import 'auth_field_icons.dart';
 
 /// The teal back arrow used across the password-reset screens — Figma

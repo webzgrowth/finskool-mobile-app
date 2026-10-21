@@ -4,6 +4,7 @@ import 'package:finskool/src/comman/enum.dart';
 import 'package:finskool/src/domain/model/auth/register_request_model.dart';
 import 'package:finskool/src/domain/usecases/auth/register_user.dart';
 import 'package:injectable/injectable.dart';
+
 import 'sign_up_form_validation.dart';
 
 part 'sign_up_form_event.dart';
@@ -19,10 +20,13 @@ class SignUpFormBloc extends Bloc<SignUpFormEvent, SignUpFormState> {
           emit(SignUpFormState.initial());
         },
         emailOnChanged: (event) {
-          emit(state.copyWith(
+          emit(
+            state.copyWith(
               email: event.email,
               emailError: null,
-              state: RequestState.empty));
+              state: RequestState.empty,
+            ),
+          );
         },
         registerUser: (_Register value) async {
           // `validated()` returns the state with per-field errors filled in
@@ -43,10 +47,7 @@ class SignUpFormBloc extends Bloc<SignUpFormEvent, SignUpFormState> {
         },
         lastNameChanged: (_LastNameChanged value) {
           emit(
-            state.copyWith(
-              lastName: value.lastName,
-              state: RequestState.empty,
-            ),
+            state.copyWith(lastName: value.lastName, state: RequestState.empty),
           );
         },
         countryCodeChanged: (_CountryCodeChanged value) {
@@ -91,8 +92,11 @@ class SignUpFormBloc extends Bloc<SignUpFormEvent, SignUpFormState> {
           emit(state.copyWith(obscurePassword: !state.obscurePassword));
         },
         toggleConfirmPasswordVisibility: (_) {
-          emit(state.copyWith(
-              obscureConfirmPassword: !state.obscureConfirmPassword));
+          emit(
+            state.copyWith(
+              obscureConfirmPassword: !state.obscureConfirmPassword,
+            ),
+          );
         },
         isFromSocial: (_IsFromSocial value) {
           emit(
@@ -124,13 +128,15 @@ class SignUpFormBloc extends Bloc<SignUpFormEvent, SignUpFormState> {
       ),
     );
 
-    emit(result.fold(
-      state.withFailure,
-      (registered) => state.copyWith(
-        state: RequestState.loaded,
-        message: '',
-        userId: registered.userId,
+    emit(
+      result.fold(
+        state.withFailure,
+        (registered) => state.copyWith(
+          state: RequestState.loaded,
+          message: '',
+          userId: registered.userId,
+        ),
       ),
-    ));
+    );
   }
 }

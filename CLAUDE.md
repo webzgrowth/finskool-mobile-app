@@ -440,17 +440,36 @@ omitted, which asks for the one free community every account is subscribed
 to at registration. `FeedEvent.loadFeed({communityId})` carries it for when
 a picker exists.
 
-**Video players are mounted only on tap** (`widgets/lazy_embed.dart`), and
-that is a bug fix, not a style choice. The players are native **platform
-views**; Flutter composites those by inserting the native view and painting
-overlapping Flutter widgets into overlay layers above it, which goes wrong
-inside a scrolling list — a video scrolled to the bottom of the feed painted
-straight **over the bottom navigation bar**. The layout was never at fault
-(the shell's `Scaffold` has no `extendBody`), so padding and clipping can't
-fix it; not creating the platform view until it's wanted does. It also stops
-a feed holding one live WebView per visible video. `LazyEmbed` shows
-`posterUrl` — the API's real `thumbnailUrl` — with a play badge until
-tapped, then plays **inline, in the card**.
+**Video players are mounted only while their post is on screen**
+(`widgets/lazy_embed.dart`, via `visibility_detector`) — an autoplay feature
+and a bug fix at once. The players are native **platform views**; Flutter
+composites those by inserting the native view and painting overlapping
+Flutter widgets into overlay layers above it, which goes wrong inside a
+scrolling list — a video low in the feed painted straight **over the bottom
+navigation bar**. The layout was never at fault (the shell's `Scaffold` has
+no `extendBody`), so padding and clipping can't fix it; holding at most one
+or two live views, and none at all offscreen, is what keeps it in check.
+**If that overlap returns, start here** — raising `_mountAbove`, or going
+back to mount-on-tap, are the levers.
+
+Mount at 70% visible, unmount below 40%. The **hysteresis is deliberate**: a
+single threshold thrashes a player in and out at the boundary, and every
+remount is a fresh page load.
+
+`YoutubeEmbedPlayer` therefore sets `autoPlay: true` — safe because the
+widget is never built for a card the viewer can't see — and **`mute: true`,
+which is not optional**: webviews refuse unmuted autoplay and the refusal is
+silent, so it would read as a broken player. Sound is a tap on the player's
+own control, as in every other feed.
+
+Instagram **cannot be autoplayed** — its embed exposes no play API to drive
+— so its post renders automatically and the video inside still needs a tap.
+It also has **no poster frame at all** (the API supplies none, and its embed
+URL is not an image), so `_EmbedPoster` falls back to a gradient plate rather
+than the flat black rectangle that used to sit there and read as broken.
+
+Note `LazyEmbed`'s placeholder holds a `CircularProgressIndicator`, so a
+widget test must not `pumpAndSettle` on it — it never settles.
 
 **Post media comes from three places**, unioned by `FeedPostModel._media`
 in that order — images first, then videos:
@@ -1190,8 +1209,9 @@ the `complianceCompleted` comment anticipates). Don't quietly start storing
 the full PAN.
 
 **Six menu rows have no destination designed** (About &
-SEBI info, Welcome kits, My tickets, Help & support, Give feedback, Terms &
-privacy policy — Edit Profile is now built, see above) — routed to one
+SEBI info, Welcome kits, Help & support, Give feedback, Terms &
+privacy policy — Edit Profile and My tickets are now built, see above and
+"Support tickets") — routed to one
 shared `ProfilePlaceholderScreen`
 parameterized by title, rather than seven near-duplicate files. Same
 "no design provided" approach as `CommunityDetailScreen`, just factored for
@@ -1250,6 +1270,163 @@ screenshot showed *that* icons exist (dark-teal circular discs, white
 glyphs) and confirmed their color/shape, but not the actual glyphs
 themselves; `profile_icons.dart` records the exact source node id for
 each so exporting and swapping is mechanical.
+
+## Support tickets
+
+Profile → **My tickets**: raise a ticket against one of your communities, chat
+with support, rate it once resolved. Contract: `mobile-tickets-integration.md`
+(REST under `/mobile/tickets`, chat over `wss://<host>/ws/tickets`). Design:
+Figma file *FINSKOOL App*, page **`Final`** (`541:11936`) — **not** the page
+named `tickets` (`531:261`), which is the *working* page: cream canvas, lime
+accents, a dark-teal button. An earlier build was made from it and thrown
+away. The final design is a white sheet over a short teal hero, `#108B8B`
+actions and grey `#F6F6F6` cards. Eight frames: list · empty · raise ·
+submitted · chat · chat + status popover (in progress) · same (resolved) ·
+chat + rating card. Renders to compare against are in `build/figma_final/`
+(`F1_list` … `F8_d`); `build/ticket_goldens/` has ours.
+
+```
+data/socket/            tickets_socket.dart (service), socket_frames.dart
+data/datasource/        tickets_remote_datasource.dart   (REST)
+domain/model/ticket/    plain models + enums
+domain/usecases/tickets one class per operation
+bloc/tickets/           unread/ list/ form/ chat/
+pages/tickets/          list/ form/ submitted/ detail/ widgets/
+```
+
+**Chat is socket-only — there are no REST chat endpoints.** Send, history and
+mark-read all go through `TicketsSocket`, so with it down the member can do
+none of them; `TicketChatState.isReconnecting` exists to say so.
+
+### Four blocs
+
+`TicketsUnreadBloc` is the only `@singleton`: it owns the Profile badge and
+*starts the socket*, which `DashboardShellScreen` triggers on `authenticated`
+and stops on `unauthenticated` (the socket authenticates once, at upgrade — left
+open across a logout it would stream the old account into the next one).
+`TicketsListBloc`, `TicketFormBloc` and `TicketChatBloc` are `@injectable`
+and route-scoped, like `FeedBloc` in a community.
+
+### The socket rules (all from the spec §6.3, all load-bearing)
+
+* **`IOWebSocketChannel.connect(headers:)`, never `WebSocketChannel.connect`** —
+  only the IO one can set the `Cookie: mobile_session_id=…` the upgrade needs.
+* **Close code 4401 means the session died, not "retry".** It routes into the
+  existing `SessionExpiry`, which `AuthenticatorWatcherBloc` already turns into
+  a trip to login. Reconnecting blindly would hammer a dead cookie forever.
+* **Nothing is replayed after a disconnect.** Every reconnect refetches the
+  list, the badge and the open conversation (`mergedWithLatest`).
+* **A member's own message arrives twice** (the ack *and* a `ticket.message`
+  event, either order). `TicketMessagePatch.withDelivered` is idempotent:
+  matched by `clientMessageId`, then `id`. **A retry must reuse its
+  `clientMessageId`** — the server stores each `(ticket, id)` once.
+* **`Idempotency-Key` on `POST /`**: reused on a plain retry, **rotated by any
+  edit** (an edited form is a different submission; reusing the key would hand
+  back the first, stale ticket).
+* The presigned PUT goes through `ApiClient.putBytes` on its **own `Dio`**. The
+  shared one would attach our session cookie and send the app's credential to a
+  third-party storage host.
+
+### What the design promises that the backend does not (spec §10)
+
+Decisions already made with the user — don't "restore" the design:
+
+| Figma | Shipped | Why |
+|---|---|---|
+| "No, reopen ticket" / "Yes, close ticket" | one **Submit rating** button | no reopen, no member-side close; the rating is the only member action |
+| "Replies are sent to your registered email" | "Replies appear under My tickets." | no email/push for replies |
+| step 3 "Close it when sorted… or reopen it" | "Rate it when sorted" | same |
+| Related subscription *(optional)* | required | `communityId` is mandatory |
+| *(no Type field)* | **Type** dropdown added | `type` is mandatory; without it everything is an "issue" |
+| Description counter /500 | /500 kept | stricter than the API's 2000, deliberately |
+| "Need help?" (empty state) | routes to Help & support | no FAQ screen exists |
+| avatar illustration beside the member's bubbles | the member's real `UserAvatar` | a chat showing another face as "you" is wrong; `TicketDetailScreen.memberAvatar` overrides it in tests |
+| "Replies are sent… email" under the list's "Raise a new ticket" | "You will be notified here when support replies." | same no-email rule as the form |
+| "View 3 earlier messages" | "View earlier messages" | the API gives no total |
+| chat has two buttons in the rating card | one **Submit rating** (disabled until a star is chosen) | see first row; the ✕ dismisses the card, and a resolved, unrated ticket offers it again next visit |
+| "Status changed to In progress" pill | shown **live only** | no status history (§10); can't be rebuilt for a conversation opened later. "Marked as resolved" *is* derived from `resolvedAt`. |
+| Stepper "In progress — 05 Oct" | no date | only `createdAt`/`resolvedAt` exist |
+| Filter chip counts | shown only once **every page** is loaded | no counts endpoint; a partial count would silently undercount |
+
+The dropdown option sheet, the reconnecting banner, field errors and the
+support-bubble attachment chip are **not drawn in Figma**; they are built from
+the same tokens and flagged in their doc comments for the designer.
+
+### Design fidelity
+
+Read with figma-mcp-rust from the **Final** page, so tokens are exact rather
+than screenshot-sampled (`AppPalette` "Support tickets" block,
+`TicketTypography`, `context.ticketType`). Things the node data **cannot** tell
+you, measured from Figma's render instead: per-corner radii (bubbles are
+**18** with a **4** tail on the sender's side), the 12%-white file chip inside
+a member's bubble, dashed borders (3.5 on / 3.5 off), and the hero.
+
+**The hero is a raster, not a gradient**: `assets/images/ticket_hero_bg.png`
+(750x270) was cut from Figma's own render, because this server doesn't
+serialise gradients and `auth_header_bg.png` is a brighter teal. The status-bar
+rows were rebuilt from clean rows (min-brightness anchors, linearly
+interpolated) so no clock or battery is baked in. Regenerate it from a fresh
+render if the design changes — don't paint over it.
+
+**One page chrome, `TicketSheetPage`**: hero + white sheet (radius 16) whose
+top is `MediaQuery.paddingOf(context).top + 61`, never a hardcoded 44, then a
+`TicketHeader` (back arrow, title, subtitle) and the body. Each screen has its
+own `TicketHeaderSpec` — Figma puts the title at a different y on every frame
+(list 17, form 13, chat 15, submitted has none). The back arrow is the
+exported `arrow-right` **mirrored**. `overlays:` take floating layers (the
+status popover, the rating card) laid out in the page's own box.
+
+Sections ("Ticket details", "Attachments", "Ticket Overview", "What happens
+next") are `TicketSectionCard`: a 35px `#108B8B` header over a `#F6F6F6`
+body, not the shared `TealSectionCard`, whose teal is `#1E9299`. Buttons span
+the content width — Figma draws them 333/335/337 wide on different frames,
+which is the design's own inconsistency, and the arrow gap differs per frame
+(`arrowGap`: 7 on Submit ticket, 2 elsewhere).
+
+**Overlay state is local, not bloc state**: which of the status popover and
+the rating card is up, and how many stars are picked, live in the screen's
+`State` (CLAUDE.md "Not everything is a bloc"). A child `Positioned` outside
+its parent's box **cannot be tapped** — the ✕ on the rating card sits in an
+outer `Stack` on the card's own bounds for that reason.
+
+Three traps that each cost real debugging time:
+
+* **`letterSpacing` leaks in from the ambient theme.** A bare `inter()` leaves
+  it unset, so `Text` inherits 0.25 from Material's defaults — wide enough to
+  wrap a 301pt line Figma fits on one. `TicketTypography` pins it to 0.
+* **`isCollapsed: true` does not zero `contentPadding`.** The global input theme
+  sets 16, and `applyDefaults` merges it back. Set `contentPadding: EdgeInsets.zero`.
+* **`pushReplacement` orphans the awaited push.** go_router drops a replaced
+  route's completer without completing it. My tickets runs the whole chain
+  (raise → submitted → ticket) with pops that carry results.
+
+### Tests
+
+`test/ticket_*_test.dart` and `tickets_socket_test.dart`. The socket tests run
+against a **real WebSocket server on localhost**, so the cookie header, ack
+correlation, backoff and the 4401 rule are exercised on the actual
+`IOWebSocketChannel`. Widget tests need `loadAppFonts()` (flutter_test falls
+back to Ahem, ~1.5x wider than Inter, and reports overflows real text never
+has) and must **create blocs inside `testWidgets`** — a bloc built in `setUp`
+lives outside the fake-async zone and its streams never flush.
+`SharedPreferenceHelper.init()` is `??=`, so seeding the mock store only works
+for the first test; write the value explicitly.
+
+`ticket_goldens_test.dart` (tag `golden`) renders all eight frames to
+`build/ticket_goldens/` for side-by-side comparison with Figma exports in
+`build/figma_final/`. Figma's frames are different heights (874–998) from the
+test's 812, so compare from the top, and note the goldens carry no status bar. It is for eyeballing, not CI: `flutter test --update-goldens
+test/ticket_goldens_test.dart`. flutter_test strips `BoxShadow` blur by default
+(`debugDisableShadows`), which the helper turns off and restores.
+
+### Figma bridge
+
+figma-mcp-rust talks to a Figma plugin over **port 1994**. If a second
+Claude Code session also loads the server, it can't bind the port, the plugin
+stays attached to the *first* one, and every call answers "plugin not
+connected" — or worse, answers from the other session's file. Check
+`lsof -iTCP:1994 -sTCP:LISTEN` and make sure the file open in Figma is the one
+you mean (`get_metadata` returns its name).
 
 ## Success animation
 

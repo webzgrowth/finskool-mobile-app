@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show SystemUiOverlayStyle;
 import 'package:finskool/src/utilities/theme/theme.dart';
+
 import 'auth_header_glow.dart';
 import 'auth_header_subtitle.dart';
 
@@ -68,8 +69,7 @@ class AuthHeader extends StatelessWidget {
                   shape: BoxShape.circle,
                 ),
                 clipBehavior: Clip.antiAlias,
-                child:
-                    Image.asset('assets/images/logo.png', fit: BoxFit.cover),
+                child: Image.asset('assets/images/logo.png', fit: BoxFit.cover),
               ),
               const SizedBox(height: AppSpacing.lg),
               Text(

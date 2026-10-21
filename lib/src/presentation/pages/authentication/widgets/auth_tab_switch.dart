@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
+
 import 'auth_tab_segment.dart';
 
 enum AuthTab { login, signUp }

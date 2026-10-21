@@ -3,6 +3,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:finskool/src/comman/initials.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
 import 'package:finskool/src/domain/model/reactor_model.dart';
+
 import 'reaction_glyph.dart';
 
 /// One person in the Reactions sheet.
@@ -83,8 +84,8 @@ class ReactionGlyphBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => ReactionBadge(
-        reaction: reactor.reaction,
-        diameter: ReactorListTile._badge,
-        art: ReactorListTile._badgeArt,
-      );
+    reaction: reactor.reaction,
+    diameter: ReactorListTile._badge,
+    art: ReactorListTile._badgeArt,
+  );
 }

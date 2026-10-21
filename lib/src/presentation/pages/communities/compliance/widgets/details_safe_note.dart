@@ -35,8 +35,10 @@ class DetailsSafeNote extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Your details are safe',
-                    style: type.planLabel.copyWith(color: cs.secondary)),
+                Text(
+                  'Your details are safe',
+                  style: type.planLabel.copyWith(color: cs.secondary),
+                ),
                 const SizedBox(height: 2),
                 Text(
                   'Stored securely and used only to meet SEBI requirements. '

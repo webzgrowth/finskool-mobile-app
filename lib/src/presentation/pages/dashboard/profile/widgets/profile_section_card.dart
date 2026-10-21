@@ -43,9 +43,9 @@ class ProfileSectionCard extends StatelessWidget {
                   if (i != rows.length - 1)
                     Padding(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: AppSpacing.md),
-                      child: Divider(
-                          height: 1, color: AppPalette.rowDivider),
+                        horizontal: AppSpacing.md,
+                      ),
+                      child: Divider(height: 1, color: AppPalette.rowDivider),
                     ),
                 ],
               ],

@@ -70,7 +70,8 @@ String? _youtubeId(Uri? uri) {
 /// handing it to the fullscreen system player. `rel=0` keeps the end screen's
 /// suggestions within the same channel, and `modestbranding=1` drops the
 /// corner logo.
-String _youtubeEmbed(String id) => '$_youtubeOrigin/embed/$id'
+String _youtubeEmbed(String id) =>
+    '$_youtubeOrigin/embed/$id'
     '?playsinline=1&rel=0&modestbranding=1&enablejsapi=1';
 
 /// Instagram frames only its `/embed` route — `/p/<code>/`, `/reel/<code>/`

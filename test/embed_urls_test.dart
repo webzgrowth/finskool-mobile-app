@@ -17,15 +17,20 @@ void main() {
         'https://www.youtube.com/live/$id',
       ]) {
         final target = embedTargetFor(url);
-        expect(target.src, startsWith('https://www.youtube.com/embed/$id?'),
-            reason: url);
+        expect(
+          target.src,
+          startsWith('https://www.youtube.com/embed/$id?'),
+          reason: url,
+        );
         expect(target.origin, 'https://www.youtube.com', reason: url);
       }
     });
 
     test('playsinline is set, which is what keeps playback in the card', () {
-      expect(embedTargetFor('https://youtu.be/$id').src,
-          contains('playsinline=1'));
+      expect(
+        embedTargetFor('https://youtu.be/$id').src,
+        contains('playsinline=1'),
+      );
     });
   });
 
@@ -51,8 +56,10 @@ void main() {
     });
 
     test('the origin is instagram, not youtube', () {
-      expect(embedTargetFor('https://www.instagram.com/p/A/').origin,
-          'https://www.instagram.com');
+      expect(
+        embedTargetFor('https://www.instagram.com/p/A/').origin,
+        'https://www.instagram.com',
+      );
     });
   });
 

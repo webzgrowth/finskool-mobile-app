@@ -61,12 +61,16 @@ class EditProfileActions extends StatelessWidget {
               children: [
                 Text(
                   'Discard Changes',
-                  style:
-                      type.buttonLabel.copyWith(color: AppPalette.destructive),
+                  style: type.buttonLabel.copyWith(
+                    color: AppPalette.destructive,
+                  ),
                 ),
                 const SizedBox(width: AppSpacing.sm),
-                const Icon(Icons.delete_outline,
-                    size: 16, color: AppPalette.destructive),
+                const Icon(
+                  Icons.delete_outline,
+                  size: 16,
+                  color: AppPalette.destructive,
+                ),
               ],
             ),
           ),

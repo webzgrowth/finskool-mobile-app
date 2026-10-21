@@ -12,6 +12,7 @@ import 'package:finskool/src/presentation/bloc/authentication/signup_verificatio
 import 'package:finskool/src/presentation/bloc/dashboard/bottom_nav/bottom_nav_bloc.dart';
 import 'package:finskool/src/presentation/bloc/feed/posts/feed_bloc.dart';
 import 'package:finskool/src/presentation/bloc/feed/filter/feed_filter_bloc.dart';
+import 'package:finskool/src/presentation/bloc/tickets/unread/tickets_unread_bloc.dart';
 import 'package:finskool/src/presentation/bloc/communities/list/communities_bloc.dart';
 import 'package:finskool/src/presentation/bloc/communities/filter/community_filter_bloc.dart';
 import 'package:finskool/src/presentation/bloc/communities/purchase/community_purchase_bloc.dart';
@@ -23,27 +24,23 @@ import 'package:finskool/src/utilities/logger.dart';
 import 'package:finskool/src/utilities/shared_pref_helper.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
 
-
-void main() async{
+void main() async {
   logger.runLogging(
-    () => runZonedGuarded(
-      () async {
-        WidgetsFlutterBinding.ensureInitialized();
+    () => runZonedGuarded(() async {
+      WidgetsFlutterBinding.ensureInitialized();
 
-        // Bloc.transformer = bloc_concurrency.sequential();
-        Bloc.observer = const AppBlocObserver();
+      // Bloc.transformer = bloc_concurrency.sequential();
+      Bloc.observer = const AppBlocObserver();
 
-        // await ErrorStack.init();
-        // Prefs first: `gh.singleton` registrations are eager, so every bloc
-        // (and the usecase -> repository -> ApiClient chain behind it) is
-        // constructed inside configureDependencies(). Anything reading prefs
-        // during construction would hit an uninitialised SharedPreferences.
-        await SharedPreferenceHelper().init();
-        configureDependencies();
-        runApp(const MyApp());
-      },
-      logger.logZoneError,
-    ),
+      // await ErrorStack.init();
+      // Prefs first: `gh.singleton` registrations are eager, so every bloc
+      // (and the usecase -> repository -> ApiClient chain behind it) is
+      // constructed inside configureDependencies(). Anything reading prefs
+      // during construction would hit an uninitialised SharedPreferences.
+      await SharedPreferenceHelper().init();
+      configureDependencies();
+      runApp(const MyApp());
+    }, logger.logZoneError),
     // `debug` rather than the default `info`, or `ApiLoggingInterceptor`'s
     // request/response lines are filtered out before they ever print — they
     // are logged at debug level. `logInRelease` stays false, so none of this
@@ -72,6 +69,10 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (_) => locator<BottomNavBloc>()),
         BlocProvider(create: (_) => locator<FeedBloc>()),
         BlocProvider(create: (_) => locator<FeedFilterBloc>()),
+        // tickets — app-wide because the Profile row's badge must stay live
+        // outside the tickets screens. The list, form and chat blocs are
+        // route-scoped instead.
+        BlocProvider(create: (_) => locator<TicketsUnreadBloc>()),
         // communities
         BlocProvider(create: (_) => locator<CommunitiesBloc>()),
         BlocProvider(create: (_) => locator<CommunityFilterBloc>()),

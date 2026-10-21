@@ -32,7 +32,10 @@ class FeedErrorSliver extends StatelessWidget {
                 style: Theme.of(context).textTheme.bodySmall,
               ),
               const SizedBox(height: AppSpacing.md),
-              ElevatedButton(onPressed: onRetry, child: const Text('Try again')),
+              ElevatedButton(
+                onPressed: onRetry,
+                child: const Text('Try again'),
+              ),
             ],
           ),
         ),

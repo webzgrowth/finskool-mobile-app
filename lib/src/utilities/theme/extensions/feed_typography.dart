@@ -54,73 +54,150 @@ class FeedTypography extends ThemeExtension<FeedTypography> {
   static final FeedTypography light = FeedTypography(
     // Manrope 700 · 14 · 20.25px · #143F3D
     authorName: manrope(
-        size: 14, weight: 700, height: 1.446, color: AppPalette.postAuthor),
+      size: 14,
+      weight: 700,
+      height: 1.446,
+      color: AppPalette.postAuthor,
+    ),
     // Inter 400 · 11 · 13.31px · #B4B2A9
     timestamp: inter(
-        size: 11, weight: 400, height: 1.21, color: AppPalette.postTimestamp),
+      size: 11,
+      weight: 400,
+      height: 1.21,
+      color: AppPalette.postTimestamp,
+    ),
     // Manrope 700 · 14 · 16.70px · #000000
     title: manrope(
-        size: 14, weight: 700, height: 1.193, color: AppPalette.postTitle),
+      size: 14,
+      weight: 700,
+      height: 1.193,
+      color: AppPalette.postTitle,
+    ),
     // Inter 400 · 10 · 13.36px · #2D2D2D
-    body: inter(size: 10, weight: 400, height: 1.336, color: AppPalette.postBody),
-    bodyBold:
-        inter(size: 10, weight: 700, height: 1.336, color: AppPalette.postBody),
+    body: inter(
+      size: 10,
+      weight: 400,
+      height: 1.336,
+      color: AppPalette.postBody,
+    ),
+    bodyBold: inter(
+      size: 10,
+      weight: 700,
+      height: 1.336,
+      color: AppPalette.postBody,
+    ),
     // Poppins 400 · 10.04 · 15.06px · #7D7D91  (approximated with Inter)
-    hashtag:
-        inter(size: 10, weight: 400, height: 1.5, color: AppPalette.postMeta),
+    hashtag: inter(
+      size: 10,
+      weight: 400,
+      height: 1.5,
+      color: AppPalette.postMeta,
+    ),
     // Nunito 400 · 13.04 · 17.88px · #000000  (approximated with Inter)
     reactionCount: inter(
-        size: 13, weight: 400, height: 1.371, color: AppPalette.postTitle),
+      size: 13,
+      weight: 400,
+      height: 1.371,
+      color: AppPalette.postTitle,
+    ),
     // Inter 500 · 8.55 · 11.40px · #FFFFFF
-    durationBadge:
-        inter(size: 8.5, weight: 500, height: 1.333, color: AppPalette.white),
+    durationBadge: inter(
+      size: 8.5,
+      weight: 500,
+      height: 1.333,
+      color: AppPalette.white,
+    ),
     // Inter 600 · 18 · 22px · #000000
     sheetTitle: inter(
-        size: 18, weight: 600, height: 1.222, color: AppPalette.postTitle),
+      size: 18,
+      weight: 600,
+      height: 1.222,
+      color: AppPalette.postTitle,
+    ),
     // Inter 400 · 12 · 22px · #108B8B — every tab is teal; only the
     // underline marks the selected one.
     tabLabel: inter(
-        size: 12, weight: 400, height: 1.833, color: AppPalette.badgeTeal),
+      size: 12,
+      weight: 400,
+      height: 1.833,
+      color: AppPalette.badgeTeal,
+    ),
     // Inter 500 · 12 · #000000
     reactorName: inter(
-        size: 12, weight: 500, height: 1.4, color: AppPalette.postTitle),
+      size: 12,
+      weight: 500,
+      height: 1.4,
+      color: AppPalette.postTitle,
+    ),
   );
 
   static final FeedTypography dark = FeedTypography(
     authorName: manrope(
-        size: 14, weight: 700, height: 1.446, color: AppPalette.darkOnSurface),
+      size: 14,
+      weight: 700,
+      height: 1.446,
+      color: AppPalette.darkOnSurface,
+    ),
     timestamp: inter(
-        size: 11,
-        weight: 400,
-        height: 1.21,
-        color: AppPalette.darkOnSurfaceMuted),
+      size: 11,
+      weight: 400,
+      height: 1.21,
+      color: AppPalette.darkOnSurfaceMuted,
+    ),
     title: manrope(
-        size: 14, weight: 700, height: 1.193, color: AppPalette.darkOnSurface),
+      size: 14,
+      weight: 700,
+      height: 1.193,
+      color: AppPalette.darkOnSurface,
+    ),
     body: inter(
-        size: 10,
-        weight: 400,
-        height: 1.336,
-        color: AppPalette.darkOnSurfaceMuted),
+      size: 10,
+      weight: 400,
+      height: 1.336,
+      color: AppPalette.darkOnSurfaceMuted,
+    ),
     bodyBold: inter(
-        size: 10,
-        weight: 700,
-        height: 1.336,
-        color: AppPalette.darkOnSurfaceMuted),
+      size: 10,
+      weight: 700,
+      height: 1.336,
+      color: AppPalette.darkOnSurfaceMuted,
+    ),
     hashtag: inter(
-        size: 10,
-        weight: 400,
-        height: 1.5,
-        color: AppPalette.darkOnSurfaceMuted),
+      size: 10,
+      weight: 400,
+      height: 1.5,
+      color: AppPalette.darkOnSurfaceMuted,
+    ),
     reactionCount: inter(
-        size: 13, weight: 400, height: 1.371, color: AppPalette.darkOnSurface),
-    durationBadge:
-        inter(size: 8.5, weight: 500, height: 1.333, color: AppPalette.white),
+      size: 13,
+      weight: 400,
+      height: 1.371,
+      color: AppPalette.darkOnSurface,
+    ),
+    durationBadge: inter(
+      size: 8.5,
+      weight: 500,
+      height: 1.333,
+      color: AppPalette.white,
+    ),
     sheetTitle: inter(
-        size: 18, weight: 600, height: 1.222, color: AppPalette.darkOnSurface),
+      size: 18,
+      weight: 600,
+      height: 1.222,
+      color: AppPalette.darkOnSurface,
+    ),
     tabLabel: inter(
-        size: 12, weight: 400, height: 1.833, color: AppPalette.teal400),
+      size: 12,
+      weight: 400,
+      height: 1.833,
+      color: AppPalette.teal400,
+    ),
     reactorName: inter(
-        size: 12, weight: 500, height: 1.4, color: AppPalette.darkOnSurface),
+      size: 12,
+      weight: 500,
+      height: 1.4,
+      color: AppPalette.darkOnSurface,
+    ),
   );
 
   static FeedTypography of(Brightness brightness) =>
@@ -139,20 +216,19 @@ class FeedTypography extends ThemeExtension<FeedTypography> {
     TextStyle? sheetTitle,
     TextStyle? tabLabel,
     TextStyle? reactorName,
-  }) =>
-      FeedTypography(
-        authorName: authorName ?? this.authorName,
-        timestamp: timestamp ?? this.timestamp,
-        title: title ?? this.title,
-        body: body ?? this.body,
-        bodyBold: bodyBold ?? this.bodyBold,
-        hashtag: hashtag ?? this.hashtag,
-        reactionCount: reactionCount ?? this.reactionCount,
-        durationBadge: durationBadge ?? this.durationBadge,
-        sheetTitle: sheetTitle ?? this.sheetTitle,
-        tabLabel: tabLabel ?? this.tabLabel,
-        reactorName: reactorName ?? this.reactorName,
-      );
+  }) => FeedTypography(
+    authorName: authorName ?? this.authorName,
+    timestamp: timestamp ?? this.timestamp,
+    title: title ?? this.title,
+    body: body ?? this.body,
+    bodyBold: bodyBold ?? this.bodyBold,
+    hashtag: hashtag ?? this.hashtag,
+    reactionCount: reactionCount ?? this.reactionCount,
+    durationBadge: durationBadge ?? this.durationBadge,
+    sheetTitle: sheetTitle ?? this.sheetTitle,
+    tabLabel: tabLabel ?? this.tabLabel,
+    reactorName: reactorName ?? this.reactorName,
+  );
 
   @override
   FeedTypography lerp(ThemeExtension<FeedTypography>? other, double t) {

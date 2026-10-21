@@ -2,8 +2,7 @@
 class Validators {
   Validators._();
 
-  static final RegExp _emailRegex =
-      RegExp(r'^[\w.+-]+@[\w-]+\.[a-zA-Z]{2,}$');
+  static final RegExp _emailRegex = RegExp(r'^[\w.+-]+@[\w-]+\.[a-zA-Z]{2,}$');
 
   static String? required(String value, String fieldLabel) {
     if (value.trim().isEmpty) return '$fieldLabel is required.';

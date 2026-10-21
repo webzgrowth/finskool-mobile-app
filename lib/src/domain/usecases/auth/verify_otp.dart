@@ -13,6 +13,5 @@ class VerifyOtp {
   Future<Either<Failure, Unit>> execute({
     required String userId,
     required String otp,
-  }) =>
-      _repository.verifyOtp(userId: userId, otp: otp);
+  }) => _repository.verifyOtp(userId: userId, otp: otp);
 }

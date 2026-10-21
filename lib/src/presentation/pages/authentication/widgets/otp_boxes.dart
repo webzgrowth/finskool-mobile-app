@@ -24,8 +24,10 @@ class OtpBoxes extends StatefulWidget {
 }
 
 class _OtpBoxesState extends State<OtpBoxes> {
-  late final _controllers =
-      List.generate(widget.length, (_) => TextEditingController());
+  late final _controllers = List.generate(
+    widget.length,
+    (_) => TextEditingController(),
+  );
   late final _nodes = List.generate(widget.length, (_) => FocusNode());
 
   @override
@@ -58,7 +60,9 @@ class _OtpBoxesState extends State<OtpBoxes> {
           width: OtpBoxes._boxSize,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: filled ? AppPalette.headerGradientEnd : cs.surfaceContainerHighest,
+            color: filled
+                ? AppPalette.headerGradientEnd
+                : cs.surfaceContainerHighest,
           ),
           alignment: Alignment.center,
           child: KeyboardListener(
@@ -78,8 +82,12 @@ class _OtpBoxesState extends State<OtpBoxes> {
               textAlignVertical: TextAlignVertical.center,
               keyboardType: TextInputType.number,
               maxLength: 1,
-              style:
-                  inter(size: 20, weight: 400, height: 1, color: cs.onPrimary),
+              style: inter(
+                size: 20,
+                weight: 400,
+                height: 1,
+                color: cs.onPrimary,
+              ),
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               decoration: const InputDecoration(
                 counterText: '',

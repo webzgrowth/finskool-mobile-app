@@ -25,9 +25,11 @@ class WatchFirstSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text.rich(TextSpan(
-            children: bodySpans(intro, type.kitBody, type.kitBodyBold),
-          )),
+          Text.rich(
+            TextSpan(
+              children: bodySpans(intro, type.kitBody, type.kitBodyBold),
+            ),
+          ),
           for (final video in videos) ...[
             const SizedBox(height: AppSpacing.md),
             _VideoRow(video: video),

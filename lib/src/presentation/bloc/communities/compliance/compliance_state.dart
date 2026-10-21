@@ -13,10 +13,10 @@ sealed class ComplianceState with _$ComplianceState {
   }) = _ComplianceState;
 
   factory ComplianceState.initial() => const ComplianceState(
-        state: RequestState.empty,
-        message: '',
-        dateOfBirth: '',
-        pan: '',
-        confirmed: false,
-      );
+    state: RequestState.empty,
+    message: '',
+    dateOfBirth: '',
+    pan: '',
+    confirmed: false,
+  );
 }

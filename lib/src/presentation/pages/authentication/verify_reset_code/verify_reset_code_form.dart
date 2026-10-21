@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:finskool/src/comman/routes.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
 import 'package:finskool/src/presentation/bloc/authentication/password_reset/password_reset_bloc.dart';
+
 import '../widgets/otp_boxes.dart';
 import '../widgets/auth_form_listener.dart';
 import '../widgets/auth_submit_button.dart';
@@ -24,63 +25,76 @@ class VerifyResetCodeForm extends StatelessWidget {
       status: (s) => s.state,
       message: (s) => s.message,
       isMine: (s) => s.step.isCodeVerified,
-      onSuccess: (context, _) => context.push(AppRoutes.NEW_PASSWORD_ROUTE_PATH),
+      onSuccess: (context, _) =>
+          context.push(AppRoutes.NEW_PASSWORD_ROUTE_PATH),
       child: BlocBuilder<PasswordResetBloc, PasswordResetState>(
-      builder: (context, state) {
-        final boldSpan = inter(size: 14, weight: 600, height: 1.3, color: cs.onSurface);
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Align(
-              alignment: Alignment.centerLeft,
-              child: BackArrowButton(onTap: () => context.pop()),
-            ),
-            Text.rich(
-              TextSpan(style: tt.bodyLarge?.copyWith(height: 1.3), children: [
-                const TextSpan(text: 'A '),
-                TextSpan(text: '6-digit code', style: boldSpan),
-                const TextSpan(
-                    text: ' has been sent to your registered email address '),
-                TextSpan(text: state.email, style: boldSpan),
-              ]),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: AppSpacing.xl),
-            OtpBoxes(
-              onChanged: (v) => bloc.add(PasswordResetEvent.codeChanged(v)),
-            ),
-            if (state.codeError != null) ...[
-              const SizedBox(height: AppSpacing.xs),
-              Text(state.codeError!,
+        builder: (context, state) {
+          final boldSpan = inter(
+            size: 14,
+            weight: 600,
+            height: 1.3,
+            color: cs.onSurface,
+          );
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Align(
+                alignment: Alignment.centerLeft,
+                child: BackArrowButton(onTap: () => context.pop()),
+              ),
+              Text.rich(
+                TextSpan(
+                  style: tt.bodyLarge?.copyWith(height: 1.3),
+                  children: [
+                    const TextSpan(text: 'A '),
+                    TextSpan(text: '6-digit code', style: boldSpan),
+                    const TextSpan(
+                      text: ' has been sent to your registered email address ',
+                    ),
+                    TextSpan(text: state.email, style: boldSpan),
+                  ],
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: AppSpacing.xl),
+              OtpBoxes(
+                onChanged: (v) => bloc.add(PasswordResetEvent.codeChanged(v)),
+              ),
+              if (state.codeError != null) ...[
+                const SizedBox(height: AppSpacing.xs),
+                Text(
+                  state.codeError!,
                   style: tt.bodySmall?.copyWith(
-                      color: Theme.of(context).colorScheme.error)),
+                    color: Theme.of(context).colorScheme.error,
+                  ),
+                ),
+              ],
+              const SizedBox(height: AppSpacing.md),
+              ResendCodeRow(
+                secondsRemaining: state.resendSeconds,
+                onResend: () => bloc.add(const PasswordResetEvent.resendCode()),
+              ),
+              const SizedBox(height: AppSpacing.xl),
+              AuthSubmitButton(
+                label: 'Verify & Continue',
+                loading: state.state.isLoading,
+                onPressed: () =>
+                    bloc.add(const PasswordResetEvent.verifyCode()),
+              ),
+              const SizedBox(height: AppSpacing.lg),
+              const PrivacyFooterNote(),
+              const SizedBox(height: AppSpacing.md),
+              ChangeLinkRow(
+                question: 'Wrong E-mail?',
+                actionLabel: 'Change it',
+                onTap: () {
+                  bloc.add(const PasswordResetEvent.changeEmail());
+                  context.pop();
+                },
+              ),
             ],
-            const SizedBox(height: AppSpacing.md),
-            ResendCodeRow(
-              secondsRemaining: state.resendSeconds,
-              onResend: () =>
-                  bloc.add(const PasswordResetEvent.resendCode()),
-            ),
-            const SizedBox(height: AppSpacing.xl),
-            AuthSubmitButton(
-              label: 'Verify & Continue',
-              loading: state.state.isLoading,
-              onPressed: () => bloc.add(const PasswordResetEvent.verifyCode()),
-            ),
-            const SizedBox(height: AppSpacing.lg),
-            const PrivacyFooterNote(),
-            const SizedBox(height: AppSpacing.md),
-            ChangeLinkRow(
-              question: 'Wrong E-mail?',
-              actionLabel: 'Change it',
-              onTap: () {
-                bloc.add(const PasswordResetEvent.changeEmail());
-                context.pop();
-              },
-            ),
-          ],
-        );
-      },
+          );
+        },
       ),
     );
   }

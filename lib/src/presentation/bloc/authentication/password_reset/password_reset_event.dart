@@ -3,8 +3,7 @@ part of 'password_reset_bloc.dart';
 @freezed
 class PasswordResetEvent with _$PasswordResetEvent {
   const factory PasswordResetEvent.initial() = _Initial;
-  const factory PasswordResetEvent.emailChanged(String email) =
-      _EmailChanged;
+  const factory PasswordResetEvent.emailChanged(String email) = _EmailChanged;
   const factory PasswordResetEvent.sendResetCode() = _SendResetCode;
   const factory PasswordResetEvent.codeChanged(String code) = _CodeChanged;
   const factory PasswordResetEvent.verifyCode() = _VerifyCode;

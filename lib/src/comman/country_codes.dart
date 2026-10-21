@@ -51,8 +51,6 @@ class CountryCodes {
     Country(name: 'Sri Lanka', dialCode: '+94', flag: '🇱🇰', digits: 9),
   ];
 
-  static Country byDialCode(String dialCode) => all.firstWhere(
-        (c) => c.dialCode == dialCode,
-        orElse: () => all.first,
-      );
+  static Country byDialCode(String dialCode) =>
+      all.firstWhere((c) => c.dialCode == dialCode, orElse: () => all.first);
 }

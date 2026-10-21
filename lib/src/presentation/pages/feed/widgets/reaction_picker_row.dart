@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
 import 'package:finskool/src/domain/model/reaction_type.dart';
+
 import 'reaction_picker_overlay.dart';
 
 /// The 6-emoji row itself — entrance scale/fade-in, and each glyph scales

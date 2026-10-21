@@ -8,10 +8,7 @@ import 'package:finskool/src/comman/widgets/teal_section_card.dart';
 /// Reuses the existing [BenefitCheck] and [boldSpans] from the
 /// community card, but always expanded (no collapsible panel).
 class SubscriptionBenefitsSection extends StatelessWidget {
-  const SubscriptionBenefitsSection({
-    super.key,
-    required this.benefits,
-  });
+  const SubscriptionBenefitsSection({super.key, required this.benefits});
 
   final List<String> benefits;
 

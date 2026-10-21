@@ -6,26 +6,29 @@ part of 'feed_bloc.dart';
 extension FeedBlocHandlers on FeedBloc {
   Future<void> _load(Emitter<FeedState> emit, {String? communityId}) async {
     _generation++;
-    emit(state.copyWith(
-      state: RequestState.loading,
-      message: '',
-      communityId: communityId,
-    ));
+    emit(
+      state.copyWith(
+        state: RequestState.loading,
+        message: '',
+        communityId: communityId,
+      ),
+    );
     final result = await _getPosts.execute(page: 1, communityId: communityId);
     result.fold(
-      (failure) => emit(state.copyWith(
-        state: RequestState.error,
-        message: failure.message,
-      )),
+      (failure) => emit(
+        state.copyWith(state: RequestState.error, message: failure.message),
+      ),
       (page) {
-        emit(state.copyWith(
-          state: RequestState.loaded,
-          message: '',
-          posts: page.posts,
-          page: page.page,
-          hasMore: page.hasMore,
-          isLoadingMore: false,
-        ));
+        emit(
+          state.copyWith(
+            state: RequestState.loaded,
+            message: '',
+            posts: page.posts,
+            page: page.page,
+            hasMore: page.hasMore,
+            isLoadingMore: false,
+          ),
+        );
         _hydrate(page.posts, _generation);
       },
     );
@@ -44,18 +47,18 @@ extension FeedBlocHandlers on FeedBloc {
       // A failed extra page keeps the rendered list and leaves `hasMore`
       // alone, so scrolling again retries. Flipping to `error` here would
       // blank a feed the user is already reading.
-      (failure) => emit(state.copyWith(
-        isLoadingMore: false,
-        message: failure.message,
-      )),
+      (failure) =>
+          emit(state.copyWith(isLoadingMore: false, message: failure.message)),
       (page) {
-        emit(state.copyWith(
-          posts: [...state.posts, ...page.posts],
-          page: page.page,
-          hasMore: page.hasMore,
-          isLoadingMore: false,
-          message: '',
-        ));
+        emit(
+          state.copyWith(
+            posts: [...state.posts, ...page.posts],
+            page: page.page,
+            hasMore: page.hasMore,
+            isLoadingMore: false,
+            message: '',
+          ),
+        );
         _hydrate(page.posts, generation);
       },
     );
@@ -88,20 +91,24 @@ extension FeedBlocHandlers on FeedBloc {
       result.fold(
         (failure) =>
             logger.warning('Reactions for $postId failed: ${failure.message}'),
-        (page) => add(FeedEvent.reactionsHydrated(
-          generation: generation,
-          postId: postId,
-          reactors: page.reactors,
-        )),
+        (page) => add(
+          FeedEvent.reactionsHydrated(
+            generation: generation,
+            postId: postId,
+            reactors: page.reactors,
+          ),
+        ),
       );
     });
   }
 
   void _onHydrated(_ReactionsHydrated value, Emitter<FeedState> emit) {
     if (value.generation != _generation) return;
-    emit(state.copyWith(
-      posts: state.posts.applyReactors(value.postId, value.reactors),
-    ));
+    emit(
+      state.copyWith(
+        posts: state.posts.applyReactors(value.postId, value.reactors),
+      ),
+    );
   }
 
   /// Patches the post optimistically, then reconciles with the server's
@@ -119,16 +126,18 @@ extension FeedBlocHandlers on FeedBloc {
     emit(state.copyWith(posts: optimistic(before), message: ''));
     final result = await call();
     _pendingWrites.remove(postId);
-    emit(result.fold(
-      (failure) => state.copyWith(
-        posts: state.posts.replacing(before.byId(postId)),
-        message: failure.message,
+    emit(
+      result.fold(
+        (failure) => state.copyWith(
+          posts: state.posts.replacing(before.byId(postId)),
+          message: failure.message,
+        ),
+        (summary) => state.copyWith(
+          posts: state.posts.applySummary(postId, summary),
+          message: '',
+        ),
       ),
-      (summary) => state.copyWith(
-        posts: state.posts.applySummary(postId, summary),
-        message: '',
-      ),
-    ));
+    );
     // The summary carries no rows, so re-read them — the sheet behind the
     // card is live and would otherwise still list the pre-write reactors.
     if (result.isRight()) _hydrateOne(postId, _generation);

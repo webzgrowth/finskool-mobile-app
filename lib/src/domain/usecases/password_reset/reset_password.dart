@@ -15,10 +15,9 @@ class ResetPassword {
     required String cypher,
     required String newPassword,
     required String confirmNewPassword,
-  }) =>
-      _repository.resetPassword(
-        cypher: cypher,
-        newPassword: newPassword,
-        confirmNewPassword: confirmNewPassword,
-      );
+  }) => _repository.resetPassword(
+    cypher: cypher,
+    newPassword: newPassword,
+    confirmNewPassword: confirmNewPassword,
+  );
 }

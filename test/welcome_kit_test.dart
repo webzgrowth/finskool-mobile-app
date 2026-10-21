@@ -9,8 +9,10 @@ void main() {
     expect(kit.capital.amount, '₹50,000');
     expect(kit.capital.caption, 'Minimum recommended capital');
     expect(kit.capital.stats, hasLength(4));
-    expect(kit.riskNotices.map((n) => n.tone),
-        [NoticeTone.warning, NoticeTone.danger]);
+    expect(kit.riskNotices.map((n) => n.tone), [
+      NoticeTone.warning,
+      NoticeTone.danger,
+    ]);
   });
 
   test('investor has one video, five stats and no risk notices', () {

@@ -19,16 +19,22 @@ class LoginFormBloc extends Bloc<LoginFormEvent, LoginFormState> {
           emit(LoginFormState.initial());
         },
         emailChanged: (value) async {
-          emit(state.copyWith(
+          emit(
+            state.copyWith(
               email: value.email,
               emailError: null,
-              state: RequestState.empty));
+              state: RequestState.empty,
+            ),
+          );
         },
         passwordChanged: (value) async {
-          emit(state.copyWith(
+          emit(
+            state.copyWith(
               password: value.password,
               passwordError: null,
-              state: RequestState.empty));
+              state: RequestState.empty,
+            ),
+          );
         },
         togglePasswordVisibility: (_) async {
           emit(state.copyWith(obscurePassword: !state.obscurePassword));
@@ -37,11 +43,13 @@ class LoginFormBloc extends Bloc<LoginFormEvent, LoginFormState> {
           final emailError = Validators.email(state.email);
           final passwordError = Validators.required(state.password, 'Password');
           if (emailError != null || passwordError != null) {
-            emit(state.copyWith(
-              emailError: emailError,
-              passwordError: passwordError,
-              state: RequestState.error,
-            ));
+            emit(
+              state.copyWith(
+                emailError: emailError,
+                passwordError: passwordError,
+                state: RequestState.error,
+              ),
+            );
             return;
           }
           await _authenticate(emit, state.email, state.password);
@@ -61,23 +69,27 @@ class LoginFormBloc extends Bloc<LoginFormEvent, LoginFormState> {
     String email,
     String password,
   ) async {
-    emit(state.copyWith(
-      state: RequestState.loading,
-      message: '',
-      errorCode: null,
-      emailError: null,
-      passwordError: null,
-    ));
+    emit(
+      state.copyWith(
+        state: RequestState.loading,
+        message: '',
+        errorCode: null,
+        emailError: null,
+        passwordError: null,
+      ),
+    );
 
     final result = await _loginUser.execute(email: email, password: password);
 
     // Success carries the session model, but nothing here needs it — the
     // credential is the cookie SessionInterceptor already stored, and the
     // user is cached by the repository.
-    emit(result.fold(_onFailure, (_) => state.copyWith(
-          state: RequestState.loaded,
-          message: '',
-        )));
+    emit(
+      result.fold(
+        _onFailure,
+        (_) => state.copyWith(state: RequestState.loaded, message: ''),
+      ),
+    );
   }
 
   LoginFormState _onFailure(Failure failure) {

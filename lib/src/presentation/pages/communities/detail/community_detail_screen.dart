@@ -38,8 +38,9 @@ class CommunityDetailScreen extends StatelessWidget {
           // Dispatched here rather than in an `initState`: `add()` only
           // queues, and creating-then-loading in one expression means the
           // first build already has a request in flight.
-          create: (_) => locator<FeedBloc>()
-            ..add(FeedEvent.loadFeed(communityId: communityId)),
+          create: (_) =>
+              locator<FeedBloc>()
+                ..add(FeedEvent.loadFeed(communityId: communityId)),
         ),
         BlocProvider(create: (_) => locator<FeedFilterBloc>()),
       ],

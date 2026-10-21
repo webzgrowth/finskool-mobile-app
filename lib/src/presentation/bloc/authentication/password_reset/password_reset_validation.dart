@@ -1,6 +1,7 @@
 import 'package:finskool/src/comman/enum.dart';
 import 'package:finskool/src/comman/failure.dart';
 import 'package:finskool/src/comman/validators.dart';
+
 import 'password_reset_bloc.dart';
 
 /// Which input a failed reset call should blame.
@@ -27,8 +28,7 @@ extension PasswordResetValidation on PasswordResetState {
 
   PasswordResetState validatedNewPassword() {
     final passwordErr = Validators.strongPassword(newPassword);
-    final confirmErr =
-        Validators.confirmPassword(newPassword, confirmPassword);
+    final confirmErr = Validators.confirmPassword(newPassword, confirmPassword);
     final hasError = passwordErr != null || confirmErr != null;
     return copyWith(
       newPasswordError: passwordErr,
@@ -51,8 +51,11 @@ extension PasswordResetValidation on PasswordResetState {
         ResetField.newPassword => 'newPassword',
       });
     } else if (field == ResetField.code &&
-        const {'OTP_INVALID', 'OTP_EXPIRED', 'OTP_LOCKED'}
-            .contains(failure.code)) {
+        const {
+          'OTP_INVALID',
+          'OTP_EXPIRED',
+          'OTP_LOCKED',
+        }.contains(failure.code)) {
       inline = failure.message;
     }
 
@@ -63,8 +66,9 @@ extension PasswordResetValidation on PasswordResetState {
       errorCode: failure.code,
       emailError: field == ResetField.email ? inline : emailError,
       codeError: field == ResetField.code ? inline : codeError,
-      newPasswordError:
-          field == ResetField.newPassword ? inline : newPasswordError,
+      newPasswordError: field == ResetField.newPassword
+          ? inline
+          : newPasswordError,
     );
   }
 }

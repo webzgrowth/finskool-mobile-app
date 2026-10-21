@@ -4,6 +4,7 @@ import 'package:finskool/src/utilities/theme/theme.dart';
 import 'package:finskool/src/domain/model/feed_post_model.dart';
 import 'package:finskool/src/domain/model/reaction_type.dart';
 import 'package:finskool/src/presentation/bloc/feed/posts/feed_bloc.dart';
+
 import 'reaction_tab.dart';
 import 'reactor_list_tile.dart';
 
@@ -30,8 +31,9 @@ Future<void> showReactionsSheet(
       value: bloc,
       child: BlocSelector<FeedBloc, FeedState, FeedPostModel?>(
         selector: (state) => _postById(state, postId),
-        builder: (_, post) =>
-            post == null ? const SizedBox.shrink() : _ReactionsSheet(post: post),
+        builder: (_, post) => post == null
+            ? const SizedBox.shrink()
+            : _ReactionsSheet(post: post),
       ),
     ),
   );
@@ -120,7 +122,8 @@ class _ReactionsSheetState extends State<_ReactionsSheet> {
             Expanded(
               child: visible.isEmpty
                   ? Center(
-                      child: Text('No reactions yet', style: type.timestamp))
+                      child: Text('No reactions yet', style: type.timestamp),
+                    )
                   : ListView.builder(
                       padding: const EdgeInsets.only(top: 6),
                       itemCount: visible.length,

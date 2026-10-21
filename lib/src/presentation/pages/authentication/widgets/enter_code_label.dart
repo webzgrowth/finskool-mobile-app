@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
+
 import 'auth_field_icons.dart';
 
 /// The small lock-badge + "Enter Code" heading shown above the OTP boxes.

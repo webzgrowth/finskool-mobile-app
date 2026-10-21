@@ -11,6 +11,7 @@ import 'package:finskool/src/presentation/pages/authentication/widgets/auth_form
 import 'package:finskool/src/presentation/pages/authentication/widgets/auth_submit_button.dart';
 import 'package:finskool/src/presentation/pages/authentication/widgets/auth_text_field.dart';
 import 'package:finskool/src/presentation/pages/authentication/widgets/reset_card_title.dart';
+
 import 'widgets/confirmation_check.dart';
 import 'widgets/details_safe_note.dart';
 
@@ -93,13 +94,13 @@ class ComplianceForm extends StatelessWidget {
   void _onSubmitted(BuildContext context, ComplianceState _) {
     final community = context.read<CommunityPurchaseBloc>().state.community;
     if (community != null) {
-      context
-          .read<CommunitiesBloc>()
-          .add(CommunitiesEvent.unlockCommunity(community.id));
+      context.read<CommunitiesBloc>().add(
+        CommunitiesEvent.unlockCommunity(community.id),
+      );
     }
     context.read<CommunityPurchaseBloc>().add(
-          const CommunityPurchaseEvent.cleared(),
-        );
+      const CommunityPurchaseEvent.cleared(),
+    );
     context.go(AppRoutes.DASHBOARD_ROUTE_PATH);
   }
 }

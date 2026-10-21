@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:finskool/src/domain/model/reaction_type.dart';
+
 import 'reaction_glyph.dart';
 
 /// The overlapping circles next to a post's reaction count.

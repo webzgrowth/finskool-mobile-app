@@ -20,7 +20,7 @@ class ResetCypherModel {
       );
 
   Map<String, dynamic> toJson() => {
-        'cypher': cypher,
-        'cypherExpiresInSeconds': cypherExpiresInSeconds,
-      };
+    'cypher': cypher,
+    'cypherExpiresInSeconds': cypherExpiresInSeconds,
+  };
 }

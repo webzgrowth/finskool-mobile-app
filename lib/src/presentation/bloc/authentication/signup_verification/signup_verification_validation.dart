@@ -1,6 +1,7 @@
 import 'package:finskool/src/comman/enum.dart';
 import 'package:finskool/src/comman/failure.dart';
 import 'package:finskool/src/comman/validators.dart';
+
 import 'signup_verification_bloc.dart';
 
 /// Field-level validation for [SignupVerificationState], kept out of the
@@ -29,7 +30,10 @@ extension SignupVerificationValidation on SignupVerificationState {
   /// A wrong or expired code belongs under the OTP boxes, where the user is
   /// looking; everything else (cooldowns, network errors) has no field and
   /// surfaces as [message] via a snackbar.
-  SignupVerificationState withFailure(Failure failure, {required bool onPhone}) {
+  SignupVerificationState withFailure(
+    Failure failure, {
+    required bool onPhone,
+  }) {
     const inlineCodes = {'OTP_INVALID', 'OTP_EXPIRED', 'OTP_LOCKED'};
     final inline = inlineCodes.contains(failure.code) ? failure.message : null;
 

@@ -25,8 +25,7 @@ class SubscriptionInfo {
 
   factory SubscriptionInfo.fromJson(Map<String, dynamic> json) =>
       SubscriptionInfo(
-        plan: CommunityPlanModel.fromJson(
-            json['plan'] as Map<String, dynamic>),
+        plan: CommunityPlanModel.fromJson(json['plan'] as Map<String, dynamic>),
         startedOn: DateTime.parse(json['startedOn'] as String),
         transactionId: json['transactionId'] as String,
         paidOn: DateTime.parse(json['paidOn'] as String),
@@ -35,11 +34,11 @@ class SubscriptionInfo {
       );
 
   Map<String, dynamic> toJson() => {
-        'plan': plan.toJson(),
-        'startedOn': startedOn.toIso8601String(),
-        'transactionId': transactionId,
-        'paidOn': paidOn.toIso8601String(),
-        'paymentMethod': paymentMethod,
-        'autoRenew': autoRenew,
-      };
+    'plan': plan.toJson(),
+    'startedOn': startedOn.toIso8601String(),
+    'transactionId': transactionId,
+    'paidOn': paidOn.toIso8601String(),
+    'paymentMethod': paymentMethod,
+    'autoRenew': autoRenew,
+  };
 }

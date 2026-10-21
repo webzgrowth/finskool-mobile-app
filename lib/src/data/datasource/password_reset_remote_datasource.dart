@@ -38,10 +38,12 @@ class PasswordResetRemoteDatasource {
     required String cypher,
     required String newPassword,
     required String confirmNewPassword,
-  }) =>
-      _client.post(Api.forgotPasswordReset, body: {
-        'cypher': cypher,
-        'newPassword': newPassword,
-        'confirmNewPassword': confirmNewPassword,
-      });
+  }) => _client.post(
+    Api.forgotPasswordReset,
+    body: {
+      'cypher': cypher,
+      'newPassword': newPassword,
+      'confirmNewPassword': confirmNewPassword,
+    },
+  );
 }

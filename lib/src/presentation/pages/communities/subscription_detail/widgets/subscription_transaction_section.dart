@@ -5,7 +5,6 @@ import 'package:finskool/src/utilities/theme/theme.dart';
 import 'package:finskool/src/comman/widgets/detail_cell.dart';
 import 'package:finskool/src/comman/widgets/teal_section_card.dart';
 
-
 /// Transaction Details — the receipt, then Download Invoice.
 ///
 /// There's no invoice generation anywhere in the app, so the button is a
@@ -38,7 +37,8 @@ class SubscriptionTransactionSection extends StatelessWidget {
                   child: DetailCell(
                     icon: Icons.calendar_today_outlined,
                     label: 'Paid on',
-                    value: DateFormat('d MMM yyyy,\nh:mm a').format(info.paidOn),
+                    value: DateFormat('d MMM yyyy,\nh:mm a')
+                        .format(info.paidOn),
                   ),
                 ),
                 const GridVRule(),

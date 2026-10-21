@@ -17,10 +17,10 @@ sealed class LoginFormState with _$LoginFormState {
   }) = _LoginFormState;
 
   factory LoginFormState.initial() => const LoginFormState(
-        state: RequestState.empty,
-        message: '',
-        email: '',
-        password: '',
-        obscurePassword: true,
-      );
+    state: RequestState.empty,
+    message: '',
+    email: '',
+    password: '',
+    obscurePassword: true,
+  );
 }

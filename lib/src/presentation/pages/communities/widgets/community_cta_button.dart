@@ -57,7 +57,9 @@ class CommunityCtaButton extends StatelessWidget {
                     height: 15,
                     width: 15,
                     child: CircularProgressIndicator(
-                        strokeWidth: 2, color: Colors.white),
+                      strokeWidth: 2,
+                      color: Colors.white,
+                    ),
                   )
                 else
                   SvgPicture.asset(
@@ -65,7 +67,9 @@ class CommunityCtaButton extends StatelessWidget {
                     height: 15.07,
                     width: 15.07,
                     colorFilter: const ColorFilter.mode(
-                        AppPalette.white, BlendMode.srcIn),
+                      AppPalette.white,
+                      BlendMode.srcIn,
+                    ),
                   ),
               ],
             ),

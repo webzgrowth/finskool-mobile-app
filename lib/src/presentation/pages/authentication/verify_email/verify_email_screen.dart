@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:finskool/src/presentation/pages/authentication/widgets/auth_header.dart';
 import 'package:finskool/src/presentation/pages/authentication/widgets/auth_header_subtitle.dart';
 import 'package:finskool/src/presentation/pages/authentication/widgets/auth_card.dart';
+
 import 'verify_email_form.dart';
 
 /// Step 3 of signup verification: enter the 6-digit email code. Figma only

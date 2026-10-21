@@ -15,9 +15,9 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    context
-        .read<AuthenticatorWatcherBloc>()
-        .add(const AuthenticatorWatcherEvent.authCheckRequest());
+    context.read<AuthenticatorWatcherBloc>().add(
+      const AuthenticatorWatcherEvent.authCheckRequest(),
+    );
   }
 
   @override
@@ -40,9 +40,7 @@ class _SplashScreenState extends State<SplashScreen> {
         body: Center(
           child: Text(
             'Finskool',
-            style: Theme.of(context)
-                .textTheme
-                .headlineLarge
+            style: Theme.of(context).textTheme.headlineLarge
                 ?.copyWith(color: Colors.white),
           ),
         ),

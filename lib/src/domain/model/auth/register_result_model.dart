@@ -26,9 +26,9 @@ class RegisterResultModel {
       );
 
   Map<String, dynamic> toJson() => {
-        'userId': userId,
-        'phone': phone,
-        'email': email,
-        'otpExpiresInSeconds': otpExpiresInSeconds,
-      };
+    'userId': userId,
+    'phone': phone,
+    'email': email,
+    'otpExpiresInSeconds': otpExpiresInSeconds,
+  };
 }

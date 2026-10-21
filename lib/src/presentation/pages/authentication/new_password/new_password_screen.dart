@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:finskool/src/presentation/pages/authentication/widgets/auth_header.dart';
 import 'package:finskool/src/presentation/pages/authentication/widgets/auth_header_subtitle.dart';
 import 'package:finskool/src/presentation/pages/authentication/widgets/auth_card.dart';
+
 import 'new_password_form.dart';
 
 /// Step 3 of the forgot-password flow: choose a new password.

@@ -102,8 +102,7 @@ class _PostReactionBarState extends State<PostReactionBar> {
         ),
         const Spacer(),
         GestureDetector(
-          onTap: () =>
-              showReactionsSheet(context, postId: widget.post.id),
+          onTap: () => showReactionsSheet(context, postId: widget.post.id),
           child: Row(
             children: [
               ReactionBadgeStack(reactions: widget.post.rankedReactions),

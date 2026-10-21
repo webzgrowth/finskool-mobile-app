@@ -1,6 +1,5 @@
 // ignore_for_file: constant_identifier_names
 
-
 class AppRoutes {
   // Splash routes
   static const String SPLASH_ROUTE_NAME = 'splash';
@@ -91,6 +90,20 @@ class AppRoutes {
   static const String SUPPORT_TICKETS_ROUTE_NAME = "support-tickets";
   static const String SUPPORT_TICKETS_ROUTE_PATH = "/profile/support-tickets";
 
+  // Literal sub-paths must be declared **before** the `:id` route in
+  // `go_router.dart` — go_router matches in declaration order, and `new`
+  // would otherwise be captured as a ticket id.
+  static const String TICKET_NEW_ROUTE_NAME = "ticket-new";
+  static const String TICKET_NEW_ROUTE_PATH = "/profile/support-tickets/new";
+
+  static const String TICKET_SUBMITTED_ROUTE_NAME = "ticket-submitted";
+  static const String TICKET_SUBMITTED_ROUTE_PATH =
+      "/profile/support-tickets/submitted";
+
+  static const String TICKET_DETAIL_ROUTE_NAME = "ticket-detail";
+  static const String TICKET_DETAIL_ROUTE_PATH = "/profile/support-tickets/:id";
+  static String ticketDetail(String id) => "/profile/support-tickets/$id";
+
   static const String HELP_SUPPORT_ROUTE_NAME = "help-support";
   static const String HELP_SUPPORT_ROUTE_PATH = "/profile/help-support";
 
@@ -142,8 +155,6 @@ class AppRoutes {
   static const String PICK_DROP_DETAILS_ROUTE_PATH =
       "pick-drop-details-address";
 
-
-
   // Coupons & offers
   static const String COUPON_OFFERS_ROUTE_NAME = "coupon-offer";
   static const String COUPON_OFFERS_ROUTE_PATH = "/coupon-offer";
@@ -193,8 +204,6 @@ class AppRoutes {
       "/handyman-pickup-details";
 
   //Handyman review routes
-  static const String HANDYMAN_REVIEW_ROUTE_NAME =
-      "handyman-review";
-  static const String HANDYMAN_REVIEW_ROUTE_PATH =
-      "/handyman-review";
+  static const String HANDYMAN_REVIEW_ROUTE_NAME = "handyman-review";
+  static const String HANDYMAN_REVIEW_ROUTE_PATH = "/handyman-review";
 }

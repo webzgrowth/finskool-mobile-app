@@ -21,8 +21,10 @@ class _AuthCardState extends State<AuthCard>
     vsync: this,
     duration: const Duration(milliseconds: 420),
   )..forward();
-  late final Animation<double> _fade =
-      CurvedAnimation(parent: _controller, curve: Curves.easeOut);
+  late final Animation<double> _fade = CurvedAnimation(
+    parent: _controller,
+    curve: Curves.easeOut,
+  );
   late final Animation<Offset> _slide = Tween(
     begin: const Offset(0, 0.06),
     end: Offset.zero,

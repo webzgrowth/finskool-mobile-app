@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
 import 'package:finskool/src/domain/model/reaction_type.dart';
+
 import 'reaction_glyph.dart';
 
 /// One tab in the Reactions sheet's filter row.

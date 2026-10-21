@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:finskool/src/presentation/pages/authentication/widgets/auth_header.dart';
 import 'package:finskool/src/presentation/pages/authentication/widgets/auth_header_subtitle.dart';
 import 'package:finskool/src/presentation/pages/authentication/widgets/auth_card.dart';
+
 import 'reset_password_form.dart';
 
 /// Step 1 of the forgot-password flow: collect the registered email.

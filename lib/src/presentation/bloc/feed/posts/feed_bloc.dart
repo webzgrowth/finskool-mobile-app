@@ -53,7 +53,9 @@ class FeedBloc extends Bloc<FeedEvent, FeedState> {
           value.postId,
           (posts) => posts.applyOptimistic(value.postId, value.reaction),
           () => _reactToPost.execute(
-              postId: value.postId, reaction: value.reaction),
+            postId: value.postId,
+            reaction: value.reaction,
+          ),
         ),
         removeReaction: (value) => _write(
           emit,

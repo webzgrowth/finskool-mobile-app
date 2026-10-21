@@ -25,7 +25,10 @@ class StrategyStatGrid extends StatelessWidget {
           runSpacing: _gap,
           children: [
             for (final stat in stats)
-              SizedBox(width: tileWidth, child: _StatTile(stat: stat)),
+              SizedBox(
+                width: tileWidth,
+                child: _StatTile(stat: stat),
+              ),
           ],
         );
       },

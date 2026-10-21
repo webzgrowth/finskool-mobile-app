@@ -25,9 +25,9 @@ class LoginRequestModel {
   }
 
   Map<String, dynamic> toJson() => {
-        'email': email.trim(),
-        'password': password,
-        if (deviceId != null) 'deviceId': deviceId,
-        if (deviceType != null) 'deviceType': deviceType,
-      };
+    'email': email.trim(),
+    'password': password,
+    if (deviceId != null) 'deviceId': deviceId,
+    if (deviceType != null) 'deviceType': deviceType,
+  };
 }

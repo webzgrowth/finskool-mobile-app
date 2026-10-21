@@ -14,9 +14,8 @@ class AppRadii {
   static BorderRadius get small => BorderRadius.circular(sm);
   static BorderRadius get medium => BorderRadius.circular(md);
   static BorderRadius get large => BorderRadius.circular(lg);
-  static BorderRadius get sheet => const BorderRadius.vertical(
-        top: Radius.circular(xl),
-      );
+  static BorderRadius get sheet =>
+      const BorderRadius.vertical(top: Radius.circular(xl));
 }
 
 /// Spacing scale. Prefer these over ad-hoc numbers in layouts.

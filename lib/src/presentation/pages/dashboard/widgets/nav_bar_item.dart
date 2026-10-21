@@ -12,8 +12,10 @@ class NavBarItem extends StatelessWidget {
     required this.selected,
     required this.onTap,
     this.badgeCount,
-  }) : assert(icon != null || customIcon != null,
-            'NavBarItem needs either icon or customIcon');
+  }) : assert(
+         icon != null || customIcon != null,
+         'NavBarItem needs either icon or customIcon',
+       );
 
   /// Falls back to this when [customIcon] is absent.
   final IconData? icon;
@@ -64,9 +66,13 @@ class NavBarItem extends StatelessWidget {
                         : null,
                   ),
                   alignment: Alignment.center,
-                  child: customIcon ??
-                      Icon(icon,
-                          color: selected ? cs.onPrimary : color, size: 22),
+                  child:
+                      customIcon ??
+                      Icon(
+                        icon,
+                        color: selected ? cs.onPrimary : color,
+                        size: 22,
+                      ),
                 ),
                 if (badgeCount != null && badgeCount! > 0)
                   Positioned(

@@ -113,26 +113,26 @@ class FeedPostModel {
   }
 
   factory FeedPostModel.fromJson(Map<String, dynamic> json) => FeedPostModel(
-        id: json['id'] as String,
-        communityId: json['communityId'] as String? ?? '',
-        communityName: json['communityName'] as String? ?? '',
-        communityBadgeUrl: json['communityBadgeUrl'] as String?,
-        authorName: json['authorName'] as String? ?? '',
-        authorAvatarUrl: json['authorAvatarUrl'] as String?,
-        // A draft can have no publishedAt; the feed only serves published
-        // posts, but fall back rather than throw.
-        postedAt: DateTime.parse(
-            (json['publishedAt'] ?? json['createdAt']) as String),
-        title: json['title'] as String? ?? '',
-        body: json['content'] as String? ?? '',
-        media: _media(json),
-        hashtags: List<String>.from((json['tags'] as List?) ?? const []),
-        pinOrder: json['pinOrder'] as int?,
-        commentCount: json['commentCount'] as int? ?? 0,
-        reactionCounts: _reactionCounts(json),
-        currentUserReaction:
-            ReactionTypeX.fromName(json['myReaction'] as String?),
-      );
+    id: json['id'] as String,
+    communityId: json['communityId'] as String? ?? '',
+    communityName: json['communityName'] as String? ?? '',
+    communityBadgeUrl: json['communityBadgeUrl'] as String?,
+    authorName: json['authorName'] as String? ?? '',
+    authorAvatarUrl: json['authorAvatarUrl'] as String?,
+    // A draft can have no publishedAt; the feed only serves published
+    // posts, but fall back rather than throw.
+    postedAt: DateTime.parse(
+      (json['publishedAt'] ?? json['createdAt']) as String,
+    ),
+    title: json['title'] as String? ?? '',
+    body: json['content'] as String? ?? '',
+    media: _media(json),
+    hashtags: List<String>.from((json['tags'] as List?) ?? const []),
+    pinOrder: json['pinOrder'] as int?,
+    commentCount: json['commentCount'] as int? ?? 0,
+    reactionCounts: _reactionCounts(json),
+    currentUserReaction: ReactionTypeX.fromName(json['myReaction'] as String?),
+  );
 
   /// Media from all three places the backend puts it:
   ///

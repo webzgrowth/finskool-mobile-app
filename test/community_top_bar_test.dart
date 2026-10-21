@@ -10,33 +10,32 @@ Widget _harness({
   String? title,
   double textScale = 1.0,
   bool showNotifications = true,
-}) =>
-    MaterialApp(
-      home: MediaQuery(
-        data: MediaQueryData(textScaler: TextScaler.linear(textScale)),
-        child: Scaffold(
-          body: CustomScrollView(
-            slivers: [
-              SliverAppBar(
-                floating: true,
-                snap: true,
-                toolbarHeight: height,
-                automaticallyImplyLeading: false,
-                flexibleSpace: SearchTopBar(
-                  hintText: 'Search posts, stocks or tags...',
-                  onQueryChanged: (_) {},
-                  onFilterTap: () {},
-                  onBack: title == null ? null : () {},
-                  title: title,
-                  showNotifications: showNotifications,
-                ),
-              ),
-              const SliverToBoxAdapter(child: SizedBox(height: 2000)),
-            ],
+}) => MaterialApp(
+  home: MediaQuery(
+    data: MediaQueryData(textScaler: TextScaler.linear(textScale)),
+    child: Scaffold(
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            floating: true,
+            snap: true,
+            toolbarHeight: height,
+            automaticallyImplyLeading: false,
+            flexibleSpace: SearchTopBar(
+              hintText: 'Search posts, stocks or tags...',
+              onQueryChanged: (_) {},
+              onFilterTap: () {},
+              onBack: title == null ? null : () {},
+              title: title,
+              showNotifications: showNotifications,
+            ),
           ),
-        ),
+          const SliverToBoxAdapter(child: SizedBox(height: 2000)),
+        ],
       ),
-    );
+    ),
+  ),
+);
 
 void main() {
   testWidgets('the tab bar fits its default height', (tester) async {
@@ -45,17 +44,23 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('a titled bar fits the height heightFor() reports',
-      (tester) async {
+  testWidgets('a titled bar fits the height heightFor() reports', (
+    tester,
+  ) async {
     late double height;
-    await tester.pumpWidget(MaterialApp(
-      home: Builder(builder: (context) {
-        height = SearchTopBar.heightFor(context, hasTitle: true);
-        return const SizedBox();
-      }),
-    ));
     await tester.pumpWidget(
-        _harness(height: height, title: 'Intraday Community'));
+      MaterialApp(
+        home: Builder(
+          builder: (context) {
+            height = SearchTopBar.heightFor(context, hasTitle: true);
+            return const SizedBox();
+          },
+        ),
+      ),
+    );
+    await tester.pumpWidget(
+      _harness(height: height, title: 'Intraday Community'),
+    );
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
     expect(height, greaterThan(SearchTopBar.baseHeight));
@@ -64,17 +69,22 @@ void main() {
   testWidgets('and still fits at a large system font scale', (tester) async {
     const scale = 1.8;
     late double height;
-    await tester.pumpWidget(MaterialApp(
-      home: MediaQuery(
-        data: const MediaQueryData(textScaler: TextScaler.linear(scale)),
-        child: Builder(builder: (context) {
-          height = SearchTopBar.heightFor(context, hasTitle: true);
-          return const SizedBox();
-        }),
+    await tester.pumpWidget(
+      MaterialApp(
+        home: MediaQuery(
+          data: const MediaQueryData(textScaler: TextScaler.linear(scale)),
+          child: Builder(
+            builder: (context) {
+              height = SearchTopBar.heightFor(context, hasTitle: true);
+              return const SizedBox();
+            },
+          ),
+        ),
       ),
-    ));
-    await tester.pumpWidget(_harness(
-        height: height, title: 'Intraday Community', textScale: scale));
+    );
+    await tester.pumpWidget(
+      _harness(height: height, title: 'Intraday Community', textScale: scale),
+    );
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
   });
@@ -90,17 +100,23 @@ void main() {
 
   testWidgets('a community bar drops it', (tester) async {
     late double height;
-    await tester.pumpWidget(MaterialApp(
-      home: Builder(builder: (context) {
-        height = SearchTopBar.heightFor(context, hasTitle: true);
-        return const SizedBox();
-      }),
-    ));
-    await tester.pumpWidget(_harness(
-      height: height,
-      title: 'Intraday Community',
-      showNotifications: false,
-    ));
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Builder(
+          builder: (context) {
+            height = SearchTopBar.heightFor(context, hasTitle: true);
+            return const SizedBox();
+          },
+        ),
+      ),
+    );
+    await tester.pumpWidget(
+      _harness(
+        height: height,
+        title: 'Intraday Community',
+        showNotifications: false,
+      ),
+    );
     await tester.pumpAndSettle();
     expect(find.byType(SvgPicture), findsNothing);
     expect(find.text('Intraday Community'), findsOneWidget);
@@ -109,10 +125,12 @@ void main() {
 
   // Regression: the title row was added without raising toolbarHeight, which
   // overflowed the bar by ~30px on the community screen.
-  testWidgets('a titled bar at the default height DOES overflow',
-      (tester) async {
-    await tester.pumpWidget(_harness(
-        height: SearchTopBar.baseHeight, title: 'Intraday Community'));
+  testWidgets('a titled bar at the default height DOES overflow', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _harness(height: SearchTopBar.baseHeight, title: 'Intraday Community'),
+    );
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNotNull);
   });

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:finskool/src/domain/model/community/community_access.dart';
 import 'package:finskool/src/domain/model/community/community_model.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
+
 import 'profile_icons.dart';
 import 'profile_menu_row.dart';
 
@@ -32,7 +33,10 @@ class SubscriptionRow extends StatelessWidget {
 
     return ProfileMenuRow(
       icon: Icon(
-          community.planStyle.isTier ? ProfileIcons.education : ProfileIcons.chart),
+        community.planStyle.isTier
+            ? ProfileIcons.education
+            : ProfileIcons.chart,
+      ),
       title: community.name,
       subtitle: community.subscriptionStatusLabel,
       subtitleColor: renew ? context.profileType.statusExpiring.color : null,
@@ -52,7 +56,10 @@ class _RenewPill extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: 6),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.md,
+          vertical: 6,
+        ),
         decoration: BoxDecoration(
           color: AppPalette.announcementGreen,
           borderRadius: BorderRadius.circular(AppRadii.pill),
@@ -60,13 +67,19 @@ class _RenewPill extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('Renew',
-                style: context.profileType.rowSubtitle.copyWith(
-                    color: Theme.of(context).colorScheme.onPrimary,
-                    fontWeight: FontWeight.w600)),
+            Text(
+              'Renew',
+              style: context.profileType.rowSubtitle.copyWith(
+                color: Theme.of(context).colorScheme.onPrimary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
             const SizedBox(width: 2),
-            Icon(Icons.chevron_right_rounded,
-                size: 14, color: Theme.of(context).colorScheme.onPrimary),
+            Icon(
+              Icons.chevron_right_rounded,
+              size: 14,
+              color: Theme.of(context).colorScheme.onPrimary,
+            ),
           ],
         ),
       ),

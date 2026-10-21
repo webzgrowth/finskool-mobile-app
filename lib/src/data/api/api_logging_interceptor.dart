@@ -20,20 +20,26 @@ class ApiLoggingInterceptor extends Interceptor {
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    logger.debug('→ ${options.method} ${options.uri}  ${_redact(options.data)}');
+    logger.debug(
+      '→ ${options.method} ${options.uri}  ${_redact(options.data)}',
+    );
     handler.next(options);
   }
 
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
-    logger.debug('← ${response.statusCode} ${response.requestOptions.uri}  '
-        '${_redact(response.data)}');
+    logger.debug(
+      '← ${response.statusCode} ${response.requestOptions.uri}  '
+      '${_redact(response.data)}',
+    );
     handler.next(response);
   }
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
-    logger.error('✗ ${err.type.name} ${err.requestOptions.uri}  ${err.message}');
+    logger.error(
+      '✗ ${err.type.name} ${err.requestOptions.uri}  ${err.message}',
+    );
     handler.next(err);
   }
 

@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
+import 'package:finskool/src/comman/exception.dart';
 import 'package:finskool/src/data/api/api.dart';
 import 'package:finskool/src/data/api/api_envelope.dart';
 import 'package:finskool/src/data/api/api_logging_interceptor.dart';
@@ -27,22 +28,30 @@ class ApiClient {
         // failure collapses into one generic message.
         validateStatus: (status) => status != null && status < 500,
       ),
-    )..interceptors.addAll([
-        SessionInterceptor(),
-        ApiLoggingInterceptor(),
-      ]);
+    )..interceptors.addAll([SessionInterceptor(), ApiLoggingInterceptor()]);
   }
 
   late final Dio _dio;
 
-  Future<Map<String, dynamic>?> post(String path, {Object? body}) async =>
-      _asMap(await _dio.post<dynamic>(path, data: body));
+  /// [headers] exists for `Idempotency-Key`, which `POST /mobile/tickets`
+  /// requires: one per form submission, **reused on retry**, so a timeout or
+  /// a double tap can't raise two tickets.
+  Future<Map<String, dynamic>?> post(
+    String path, {
+    Object? body,
+    Map<String, String>? headers,
+  }) async => _asMap(
+    await _dio.post<dynamic>(
+      path,
+      data: body,
+      options: headers == null ? null : Options(headers: headers),
+    ),
+  );
 
   Future<Map<String, dynamic>?> get(
     String path, {
     Map<String, dynamic>? query,
-  }) async =>
-      _asMap(await _dio.get<dynamic>(path, queryParameters: query));
+  }) async => _asMap(await _dio.get<dynamic>(path, queryParameters: query));
 
   Future<Map<String, dynamic>?> put(String path, {Object? body}) async =>
       _asMap(await _dio.put<dynamic>(path, data: body));
@@ -56,8 +65,38 @@ class ApiClient {
   Future<List<dynamic>?> getList(
     String path, {
     Map<String, dynamic>? query,
-  }) async =>
-      _asList(await _dio.get<dynamic>(path, queryParameters: query));
+  }) async => _asList(await _dio.get<dynamic>(path, queryParameters: query));
+
+  /// PUTs raw bytes to a **presigned storage URL**, outside this API.
+  ///
+  /// It deliberately uses its own `Dio`, not [_dio]: the URL is absolute
+  /// (so the base URL is wrong), the body is raw bytes rather than the
+  /// `{success, data}` envelope (so the unwrapping is wrong), and — the part
+  /// that matters — `SessionInterceptor` would attach our `mobile_session_id`
+  /// cookie, **sending the app's credential to a third-party host**. The
+  /// link is valid about 5 minutes, so presign immediately before uploading.
+  static Future<void> putBytes(
+    String uploadUrl,
+    List<int> bytes, {
+    required String contentType,
+  }) async {
+    final response = await Dio().put<dynamic>(
+      uploadUrl,
+      data: Stream.fromIterable([bytes]),
+      options: Options(
+        headers: {
+          Headers.contentTypeHeader: contentType,
+          Headers.contentLengthHeader: bytes.length,
+        },
+        // Storage answers 200/204 with no body; anything else is a failure
+        // we want as an exception rather than a silent success.
+        validateStatus: (status) => status != null && status < 300,
+      ),
+    );
+    if (response.statusCode == null) {
+      throw ApiException('The upload did not complete. Please try again.');
+    }
+  }
 
   /// Returns the `data` object on success, throws `ApiException` otherwise.
   /// Endpoints such as `/logout` and `/select-community` legitimately answer

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:finskool/src/domain/model/reaction_type.dart';
+
 import 'reaction_icons.dart';
 
 /// Renders one reaction at [size], preferring the illustrated art exported
@@ -41,18 +42,17 @@ class ReactionGlyph extends StatelessWidget {
         (final String s, _) => SvgPicture.asset(s, fit: BoxFit.contain),
         (_, final String p) => Image.asset(p, fit: BoxFit.contain),
         _ => Transform.translate(
-            offset: Offset(0, size * _emojiInkRise),
-            child: FittedBox(
-              fit: BoxFit.contain,
-              // See ReactionPickerRow: `inherit: false` keeps the theme's
-              // custom font family from turning ❤ monochrome.
-              child: Text(
-                reaction.emoji,
-                style:
-                    const TextStyle(inherit: false, fontSize: 24, height: 1.0),
-              ),
+          offset: Offset(0, size * _emojiInkRise),
+          child: FittedBox(
+            fit: BoxFit.contain,
+            // See ReactionPickerRow: `inherit: false` keeps the theme's
+            // custom font family from turning ❤ monochrome.
+            child: Text(
+              reaction.emoji,
+              style: const TextStyle(inherit: false, fontSize: 24, height: 1.0),
             ),
           ),
+        ),
       },
     );
   }

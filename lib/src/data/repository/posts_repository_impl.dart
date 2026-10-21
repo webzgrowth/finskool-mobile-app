@@ -22,30 +22,30 @@ class PostsRepositoryImpl implements PostsRepository {
     String? communityId,
     String? date,
     String order = 'desc',
-  }) =>
-      handleErrors(() => _remote.getPosts(
-            page: page,
-            pageSize: pageSize,
-            communityId: communityId,
-            date: date,
-            order: order,
-          ));
+  }) => handleErrors(
+    () => _remote.getPosts(
+      page: page,
+      pageSize: pageSize,
+      communityId: communityId,
+      date: date,
+      order: order,
+    ),
+  );
 
   @override
   Future<Either<Failure, PostReactionsPageModel>> getPostReactions(
     String postId, {
     int page = 1,
     int pageSize = 50,
-  }) =>
-      handleErrors(
-          () => _remote.getPostReactions(postId, page: page, pageSize: pageSize));
+  }) => handleErrors(
+    () => _remote.getPostReactions(postId, page: page, pageSize: pageSize),
+  );
 
   @override
   Future<Either<Failure, ReactionSummaryModel>> react({
     required String postId,
     required ReactionType reaction,
-  }) =>
-      handleErrors(() => _remote.react(postId: postId, reaction: reaction));
+  }) => handleErrors(() => _remote.react(postId: postId, reaction: reaction));
 
   @override
   Future<Either<Failure, ReactionSummaryModel>> removeReaction(String postId) =>

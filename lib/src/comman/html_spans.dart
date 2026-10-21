@@ -20,14 +20,18 @@ List<TextSpan> htmlSpans(String html, TextStyle base, TextStyle bold) {
 
   void flush() {
     if (buffer.isEmpty) return;
-    spans.add(TextSpan(
-      text: buffer.toString(),
-      style: depthBold > 0
-          ? (depthItalic > 0 ? bold.copyWith(fontStyle: FontStyle.italic) : bold)
-          : (depthItalic > 0
-              ? base.copyWith(fontStyle: FontStyle.italic)
-              : base),
-    ));
+    spans.add(
+      TextSpan(
+        text: buffer.toString(),
+        style: depthBold > 0
+            ? (depthItalic > 0
+                  ? bold.copyWith(fontStyle: FontStyle.italic)
+                  : bold)
+            : (depthItalic > 0
+                  ? base.copyWith(fontStyle: FontStyle.italic)
+                  : base),
+      ),
+    );
     buffer.clear();
   }
 
@@ -73,7 +77,8 @@ List<TextSpan> htmlSpans(String html, TextStyle base, TextStyle bold) {
   if (spans.isNotEmpty) {
     final last = spans.removeLast();
     final trimmed = last.text!.trimRight();
-    if (trimmed.isNotEmpty) spans.add(TextSpan(text: trimmed, style: last.style));
+    if (trimmed.isNotEmpty)
+      spans.add(TextSpan(text: trimmed, style: last.style));
   }
   return spans;
 }

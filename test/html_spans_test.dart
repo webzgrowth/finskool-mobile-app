@@ -20,11 +20,19 @@ void main() {
   });
 
   test('bold and italic runs carry their style', () {
-    final spans = bodySpans('<p>a <strong>b</strong> <em>c</em></p>', base, bold);
-    expect(spans.firstWhere((s) => s.text == 'b').style!.fontWeight,
-        FontWeight.w700);
-    expect(spans.firstWhere((s) => s.text == 'c').style!.fontStyle,
-        FontStyle.italic);
+    final spans = bodySpans(
+      '<p>a <strong>b</strong> <em>c</em></p>',
+      base,
+      bold,
+    );
+    expect(
+      spans.firstWhere((s) => s.text == 'b').style!.fontWeight,
+      FontWeight.w700,
+    );
+    expect(
+      spans.firstWhere((s) => s.text == 'c').style!.fontStyle,
+      FontStyle.italic,
+    );
   });
 
   test('lists get bullets, br breaks a single line', () {
@@ -33,8 +41,10 @@ void main() {
   });
 
   test('entities are unescaped', () {
-    expect(render('<p>Tata&nbsp;&amp;&nbsp;Sons &#8377;100</p>'),
-        'Tata & Sons ₹100');
+    expect(
+      render('<p>Tata&nbsp;&amp;&nbsp;Sons &#8377;100</p>'),
+      'Tata & Sons ₹100',
+    );
   });
 
   test('markdown still renders when no HTML is present', () {
@@ -45,7 +55,9 @@ void main() {
 
   test('inline img srcs are extracted, in all quoting styles', () {
     expect(
-      htmlImageUrls('<p>x</p><img src="a.png"/><IMG SRC=\'b.png\'><img src=c.png>'),
+      htmlImageUrls(
+        '<p>x</p><img src="a.png"/><IMG SRC=\'b.png\'><img src=c.png>',
+      ),
       ['a.png', 'b.png', 'c.png'],
     );
     expect(htmlImageUrls('<p>no pictures</p>'), isEmpty);

@@ -27,9 +27,11 @@ class _CountryPickerSheetState extends State<_CountryPickerSheet> {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
     final results = CountryCodes.all
-        .where((c) =>
-            c.name.toLowerCase().contains(_query.toLowerCase()) ||
-            c.dialCode.contains(_query))
+        .where(
+          (c) =>
+              c.name.toLowerCase().contains(_query.toLowerCase()) ||
+              c.dialCode.contains(_query),
+        )
         .toList();
 
     return Container(
@@ -67,15 +69,15 @@ class _CountryPickerSheetState extends State<_CountryPickerSheet> {
             Expanded(
               child: ListView.separated(
                 itemCount: results.length,
-                separatorBuilder: (_, _) => Divider(
-                  height: 1,
-                  color: cs.outlineVariant,
-                ),
+                separatorBuilder: (_, _) =>
+                    Divider(height: 1, color: cs.outlineVariant),
                 itemBuilder: (context, index) {
                   final country = results[index];
                   return ListTile(
-                    leading: Text(country.flag,
-                        style: const TextStyle(fontSize: 22)),
+                    leading: Text(
+                      country.flag,
+                      style: const TextStyle(fontSize: 22),
+                    ),
                     title: Text(country.name, style: tt.bodyLarge),
                     trailing: Text(country.dialCode, style: tt.titleSmall),
                     onTap: () => Navigator.of(context).pop(country),

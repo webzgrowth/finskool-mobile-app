@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:finskool/src/comman/rich_text_spans.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
+
 import 'benefit_check.dart';
 
 /// The "What You Get" dropdown on a locked community card (the designer
@@ -46,21 +47,31 @@ class _WhatYouGetPanelState extends State<WhatYouGetPanel> {
             onTap: () => setState(() => _expanded = !_expanded),
             child: Padding(
               padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.md, vertical: AppSpacing.sm),
+                horizontal: AppSpacing.md,
+                vertical: AppSpacing.sm,
+              ),
               child: Row(
                 children: [
                   // Exact 17x16 mark from Figma (`921:21494`).
-                  Image.asset('assets/icons/what_you_get.png',
-                      height: 16, width: 17),
+                  Image.asset(
+                    'assets/icons/what_you_get.png',
+                    height: 16,
+                    width: 17,
+                  ),
                   const SizedBox(width: AppSpacing.sm),
-                  Text('What You Get',
-                      style: type.planLabel.copyWith(color: cs.secondary)),
+                  Text(
+                    'What You Get',
+                    style: type.planLabel.copyWith(color: cs.secondary),
+                  ),
                   const Spacer(),
                   AnimatedRotation(
                     turns: _expanded ? 0.5 : 0,
                     duration: const Duration(milliseconds: 180),
-                    child: Icon(Icons.keyboard_arrow_down_rounded,
-                        size: 18, color: cs.secondary),
+                    child: Icon(
+                      Icons.keyboard_arrow_down_rounded,
+                      size: 18,
+                      color: cs.secondary,
+                    ),
                   ),
                 ],
               ),
@@ -70,7 +81,11 @@ class _WhatYouGetPanelState extends State<WhatYouGetPanel> {
             firstChild: const SizedBox(width: double.infinity),
             secondChild: Padding(
               padding: const EdgeInsets.fromLTRB(
-                  AppSpacing.md, 0, AppSpacing.md, AppSpacing.md),
+                AppSpacing.md,
+                0,
+                AppSpacing.md,
+                AppSpacing.md,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -86,10 +101,15 @@ class _WhatYouGetPanelState extends State<WhatYouGetPanel> {
                           ),
                           const SizedBox(width: AppSpacing.sm),
                           Expanded(
-                            child: Text.rich(TextSpan(
-                              children: boldSpans(benefit, type.benefit,
-                                  type.benefitBold),
-                            )),
+                            child: Text.rich(
+                              TextSpan(
+                                children: boldSpans(
+                                  benefit,
+                                  type.benefit,
+                                  type.benefitBold,
+                                ),
+                              ),
+                            ),
                           ),
                         ],
                       ),

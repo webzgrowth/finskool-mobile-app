@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:finskool/src/comman/widgets/user_avatar.dart';
 import 'package:finskool/src/domain/model/auth/user_model.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
+
 import 'profile_icons.dart';
 
 /// The teal grid-star hero — background image, avatar, camera badge.
@@ -38,13 +39,12 @@ class ProfileHeroBanner extends StatelessWidget {
   static const double avatarRadius = 53.5;
   static const double heroHeight = 150;
 
-  static double height(BuildContext context) =>
-      heroHeight + avatarRadius;
+  static double height(BuildContext context) => heroHeight + avatarRadius;
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final topInset =0;
+    final topInset = 0;
 
     // Same treatment as `SearchTopBar`: the image bleeds behind the status
     // bar (no `SafeArea` here — see `ProfileScreen`), so the status-bar
@@ -62,8 +62,9 @@ class ProfileHeroBanner extends StatelessWidget {
               width: double.infinity,
               height: topInset + heroHeight,
               decoration: const BoxDecoration(
-                borderRadius:
-                    BorderRadius.vertical(bottom: Radius.circular(AppRadii.lg)),
+                borderRadius: BorderRadius.vertical(
+                  bottom: Radius.circular(AppRadii.lg),
+                ),
                 image: DecorationImage(
                   image: AssetImage('assets/images/auth_header_bg.png'),
                   fit: BoxFit.cover,
@@ -94,8 +95,11 @@ class ProfileHeroBanner extends StatelessWidget {
                           shape: BoxShape.circle,
                           border: Border.all(color: cs.surface, width: 2),
                         ),
-                        child: Icon(ProfileIcons.camera,
-                            size: 13, color: cs.onPrimary),
+                        child: Icon(
+                          ProfileIcons.camera,
+                          size: 13,
+                          color: cs.onPrimary,
+                        ),
                       ),
                     ),
                   ],

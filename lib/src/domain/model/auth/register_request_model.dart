@@ -23,14 +23,13 @@ class RegisterRequestModel {
     required String email,
     required String password,
     required String confirmPassword,
-  }) =>
-      RegisterRequestModel(
-        fullName: '$firstName $lastName'.trim(),
-        phone: '$countryCode$phonenumber'.replaceAll(' ', ''),
-        email: email.trim(),
-        password: password,
-        confirmPassword: confirmPassword,
-      );
+  }) => RegisterRequestModel(
+    fullName: '$firstName $lastName'.trim(),
+    phone: '$countryCode$phonenumber'.replaceAll(' ', ''),
+    email: email.trim(),
+    password: password,
+    confirmPassword: confirmPassword,
+  );
 
   final String fullName;
   final String phone;
@@ -39,10 +38,10 @@ class RegisterRequestModel {
   final String confirmPassword;
 
   Map<String, dynamic> toJson() => {
-        'fullName': fullName,
-        'phone': phone,
-        'email': email,
-        'password': password,
-        'confirmPassword': confirmPassword,
-      };
+    'fullName': fullName,
+    'phone': phone,
+    'email': email,
+    'password': password,
+    'confirmPassword': confirmPassword,
+  };
 }

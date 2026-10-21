@@ -63,10 +63,10 @@ class GridVRule extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-        width: 1,
-        margin: const EdgeInsets.symmetric(horizontal: 6),
-        color: AppPalette.subscriptionDivider,
-      );
+    width: 1,
+    margin: const EdgeInsets.symmetric(horizontal: 6),
+    color: AppPalette.subscriptionDivider,
+  );
 }
 
 /// The 1px rule between two rows of a details grid.
@@ -75,8 +75,8 @@ class GridHRule extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-        height: 1,
-        margin: const EdgeInsets.symmetric(vertical: 10),
-        color: AppPalette.subscriptionDivider,
-      );
+    height: 1,
+    margin: const EdgeInsets.symmetric(vertical: 10),
+    color: AppPalette.subscriptionDivider,
+  );
 }

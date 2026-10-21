@@ -8,8 +8,11 @@ void main() {
     // The exact timestamp from the live feed payload. It showed as
     // "8:27 AM" before this fix; 08:27 UTC is 13:57 IST.
     final posted = DateTime.parse('2026-10-04T08:27:11.567Z');
-    expect(DateFormat('h:mm a').format(posted), '8:27 AM',
-        reason: 'formatting the raw parse prints UTC — this was the bug');
+    expect(
+      DateFormat('h:mm a').format(posted),
+      '8:27 AM',
+      reason: 'formatting the raw parse prints UTC — this was the bug',
+    );
     expect(formatIst(posted, 'h:mm a'), '1:57 PM');
   });
 

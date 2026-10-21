@@ -1,4 +1,5 @@
 import 'package:finskool/src/comman/enum.dart';
+
 import 'compliance_bloc.dart';
 
 /// PAN is five letters, four digits, then a letter — `ABCDE1234F`.

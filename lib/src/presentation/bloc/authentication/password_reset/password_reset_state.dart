@@ -33,15 +33,15 @@ sealed class PasswordResetState with _$PasswordResetState {
   }) = _PasswordResetState;
 
   factory PasswordResetState.initial() => const PasswordResetState(
-        state: RequestState.empty,
-        message: '',
-        step: PasswordResetStep.none,
-        email: '',
-        code: '',
-        resendSeconds: 0,
-        newPassword: '',
-        confirmPassword: '',
-        obscureNewPassword: true,
-        obscureConfirmPassword: true,
-      );
+    state: RequestState.empty,
+    message: '',
+    step: PasswordResetStep.none,
+    email: '',
+    code: '',
+    resendSeconds: 0,
+    newPassword: '',
+    confirmPassword: '',
+    obscureNewPassword: true,
+    obscureConfirmPassword: true,
+  );
 }

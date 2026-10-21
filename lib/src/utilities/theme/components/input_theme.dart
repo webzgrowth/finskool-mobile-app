@@ -16,10 +16,7 @@ InputDecorationTheme buildInputTheme(ColorScheme cs, TextTheme tt) =>
       filled: true,
       fillColor: cs.surface,
       isDense: false,
-      contentPadding: const EdgeInsets.symmetric(
-        horizontal: 16,
-        vertical: 16,
-      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       hintStyle: tt.bodyLarge?.copyWith(color: cs.onSurfaceVariant),
       labelStyle: tt.bodyLarge?.copyWith(color: cs.onSurfaceVariant),
       floatingLabelStyle: tt.bodyMedium?.copyWith(color: cs.primary),

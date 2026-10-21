@@ -44,7 +44,12 @@ class ReadonlyValueField extends StatelessWidget {
             onTap: onTap,
             child: Text(
               actionLabel,
-              style: inter(size: 12, weight: 700, height: 1.4, color: cs.primary),
+              style: inter(
+                size: 12,
+                weight: 700,
+                height: 1.4,
+                color: cs.primary,
+              ),
             ),
           ),
         ],

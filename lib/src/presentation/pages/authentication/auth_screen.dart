@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:finskool/src/comman/routes.dart';
 import 'package:finskool/src/presentation/bloc/authentication/login_form/login_form_bloc.dart';
 import 'package:finskool/src/presentation/bloc/authentication/sing_up_form/sign_up_form_bloc.dart';
+
 import 'widgets/auth_header_for_tab.dart';
 import 'widgets/auth_tab_switch.dart';
 import 'widgets/auth_card.dart';
@@ -82,8 +83,7 @@ class _AuthScreenState extends State<AuthScreen> {
                         duration: const Duration(milliseconds: 260),
                         switchInCurve: Curves.easeOut,
                         switchOutCurve: Curves.easeIn,
-                        transitionBuilder: (child, animation) =>
-                            FadeTransition(
+                        transitionBuilder: (child, animation) => FadeTransition(
                           opacity: animation,
                           child: SlideTransition(
                             position: Tween(

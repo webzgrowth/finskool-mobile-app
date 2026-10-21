@@ -53,49 +53,131 @@ class ProfileTypography extends ThemeExtension<ProfileTypography> {
   final TextStyle noticeBody;
 
   static final ProfileTypography light = ProfileTypography(
-    name: manrope(size: 20, weight: 700, height: 1.3, color: AppPalette.badgeTeal),
-    contact:
-        inter(size: 12, weight: 400, height: 1.35, color: AppPalette.postMeta),
-    memberSince:
-        inter(size: 11, weight: 500, height: 1.3, color: AppPalette.postMeta),
-    sectionTitle:
-        inter(size: 16, weight: 600, height: 1.3, color: AppPalette.postTitle),
-    rowTitle:
-        inter(size: 14, weight: 600, height: 1.3, color: AppPalette.postTitle),
-    rowSubtitle:
-        inter(size: 11, weight: 400, height: 1.3, color: AppPalette.postMeta),
+    name: manrope(
+      size: 20,
+      weight: 700,
+      height: 1.3,
+      color: AppPalette.badgeTeal,
+    ),
+    contact: inter(
+      size: 12,
+      weight: 400,
+      height: 1.35,
+      color: AppPalette.postMeta,
+    ),
+    memberSince: inter(
+      size: 11,
+      weight: 500,
+      height: 1.3,
+      color: AppPalette.postMeta,
+    ),
+    sectionTitle: inter(
+      size: 16,
+      weight: 600,
+      height: 1.3,
+      color: AppPalette.postTitle,
+    ),
+    rowTitle: inter(
+      size: 14,
+      weight: 600,
+      height: 1.3,
+      color: AppPalette.postTitle,
+    ),
+    rowSubtitle: inter(
+      size: 11,
+      weight: 400,
+      height: 1.3,
+      color: AppPalette.postMeta,
+    ),
     badge: inter(size: 11, weight: 700, height: 1.2, color: AppPalette.white),
-    statusActive:
-        inter(size: 11, weight: 400, height: 1.3, color: AppPalette.postMeta),
+    statusActive: inter(
+      size: 11,
+      weight: 400,
+      height: 1.3,
+      color: AppPalette.postMeta,
+    ),
     statusExpiring: inter(
-        size: 11, weight: 500, height: 1.3, color: AppPalette.notificationDot),
+      size: 11,
+      weight: 500,
+      height: 1.3,
+      color: AppPalette.notificationDot,
+    ),
     noticeTitle: inter(
-        size: 13, weight: 700, height: 1.35, color: AppPalette.noticeAmber),
+      size: 13,
+      weight: 700,
+      height: 1.35,
+      color: AppPalette.noticeAmber,
+    ),
     noticeBody: inter(
-        size: 12.5, weight: 400, height: 1.45, color: AppPalette.noticeAmber),
+      size: 12.5,
+      weight: 400,
+      height: 1.45,
+      color: AppPalette.noticeAmber,
+    ),
   );
 
   static final ProfileTypography dark = ProfileTypography(
-    name: manrope(size: 20, weight: 700, height: 1.3, color: AppPalette.teal400),
+    name: manrope(
+      size: 20,
+      weight: 700,
+      height: 1.3,
+      color: AppPalette.teal400,
+    ),
     contact: inter(
-        size: 12, weight: 400, height: 1.35, color: AppPalette.darkOnSurfaceMuted),
+      size: 12,
+      weight: 400,
+      height: 1.35,
+      color: AppPalette.darkOnSurfaceMuted,
+    ),
     memberSince: inter(
-        size: 11, weight: 500, height: 1.3, color: AppPalette.darkOnSurfaceMuted),
+      size: 11,
+      weight: 500,
+      height: 1.3,
+      color: AppPalette.darkOnSurfaceMuted,
+    ),
     sectionTitle: inter(
-        size: 16, weight: 600, height: 1.3, color: AppPalette.darkOnSurface),
+      size: 16,
+      weight: 600,
+      height: 1.3,
+      color: AppPalette.darkOnSurface,
+    ),
     rowTitle: inter(
-        size: 14, weight: 600, height: 1.3, color: AppPalette.darkOnSurface),
+      size: 14,
+      weight: 600,
+      height: 1.3,
+      color: AppPalette.darkOnSurface,
+    ),
     rowSubtitle: inter(
-        size: 11, weight: 400, height: 1.3, color: AppPalette.darkOnSurfaceMuted),
+      size: 11,
+      weight: 400,
+      height: 1.3,
+      color: AppPalette.darkOnSurfaceMuted,
+    ),
     badge: inter(size: 11, weight: 700, height: 1.2, color: AppPalette.white),
     statusActive: inter(
-        size: 11, weight: 400, height: 1.3, color: AppPalette.darkOnSurfaceMuted),
+      size: 11,
+      weight: 400,
+      height: 1.3,
+      color: AppPalette.darkOnSurfaceMuted,
+    ),
     statusExpiring: inter(
-        size: 11, weight: 500, height: 1.3, color: AppPalette.notificationDot),
+      size: 11,
+      weight: 500,
+      height: 1.3,
+      color: AppPalette.notificationDot,
+    ),
     noticeTitle: inter(
-        size: 13, weight: 700, height: 1.35, color: AppPalette.noticeAmber),
+      size: 13,
+      weight: 700,
+      height: 1.35,
+      color: AppPalette.noticeAmber,
+    ),
     noticeBody: inter(
-        size: 12.5, weight: 400, height: 1.45, color: AppPalette.noticeAmber),
+      size: 12.5,
+      weight: 400,
+      height: 1.45,
+      color: AppPalette.noticeAmber,
+    ),
   );
 
   static ProfileTypography of(Brightness brightness) =>
@@ -114,20 +196,19 @@ class ProfileTypography extends ThemeExtension<ProfileTypography> {
     TextStyle? statusExpiring,
     TextStyle? noticeTitle,
     TextStyle? noticeBody,
-  }) =>
-      ProfileTypography(
-        name: name ?? this.name,
-        contact: contact ?? this.contact,
-        memberSince: memberSince ?? this.memberSince,
-        sectionTitle: sectionTitle ?? this.sectionTitle,
-        rowTitle: rowTitle ?? this.rowTitle,
-        rowSubtitle: rowSubtitle ?? this.rowSubtitle,
-        badge: badge ?? this.badge,
-        statusActive: statusActive ?? this.statusActive,
-        statusExpiring: statusExpiring ?? this.statusExpiring,
-        noticeTitle: noticeTitle ?? this.noticeTitle,
-        noticeBody: noticeBody ?? this.noticeBody,
-      );
+  }) => ProfileTypography(
+    name: name ?? this.name,
+    contact: contact ?? this.contact,
+    memberSince: memberSince ?? this.memberSince,
+    sectionTitle: sectionTitle ?? this.sectionTitle,
+    rowTitle: rowTitle ?? this.rowTitle,
+    rowSubtitle: rowSubtitle ?? this.rowSubtitle,
+    badge: badge ?? this.badge,
+    statusActive: statusActive ?? this.statusActive,
+    statusExpiring: statusExpiring ?? this.statusExpiring,
+    noticeTitle: noticeTitle ?? this.noticeTitle,
+    noticeBody: noticeBody ?? this.noticeBody,
+  );
 
   @override
   ProfileTypography lerp(ThemeExtension<ProfileTypography>? other, double t) {

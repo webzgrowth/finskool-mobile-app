@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:finskool/src/domain/model/feed_post_model.dart';
 import 'package:finskool/src/presentation/bloc/feed/posts/feed_bloc.dart';
+
 import 'feed_post_card.dart';
 import 'feed_status_slivers.dart';
 
@@ -19,7 +20,7 @@ List<Widget> feedBodySlivers(
   if (state.posts.isEmpty) {
     if (state.state.isLoading || state.state.isEmpty) {
       return const [
-        SliverFillRemaining(child: Center(child: CircularProgressIndicator()))
+        SliverFillRemaining(child: Center(child: CircularProgressIndicator())),
       ];
     }
     if (state.state.isError) {
@@ -28,9 +29,9 @@ List<Widget> feedBodySlivers(
           message: state.message,
           // Retry the feed we were actually on. Without the id, a failed
           // community feed would retry as the *free* community's.
-          onRetry: () => context
-              .read<FeedBloc>()
-              .add(FeedEvent.loadFeed(communityId: state.communityId)),
+          onRetry: () => context.read<FeedBloc>().add(
+            FeedEvent.loadFeed(communityId: state.communityId),
+          ),
         ),
       ];
     }
@@ -54,9 +55,11 @@ List<Widget> feedBodySlivers(
 List<FeedPostModel> _filtered(FeedState state, String query) {
   if (query.isEmpty) return state.posts;
   return state.posts
-      .where((p) =>
-          p.title.toLowerCase().contains(query) ||
-          p.body.toLowerCase().contains(query) ||
-          p.hashtags.any((h) => h.toLowerCase().contains(query)))
+      .where(
+        (p) =>
+            p.title.toLowerCase().contains(query) ||
+            p.body.toLowerCase().contains(query) ||
+            p.hashtags.any((h) => h.toLowerCase().contains(query)),
+      )
       .toList();
 }

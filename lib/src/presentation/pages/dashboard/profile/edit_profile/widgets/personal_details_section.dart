@@ -98,8 +98,11 @@ class _HeaderAction extends StatelessWidget {
         width: 26,
         alignment: Alignment.center,
         decoration: BoxDecoration(color: cs.surface, shape: BoxShape.circle),
-        child: const Icon(Icons.edit_outlined,
-            size: 14, color: AppPalette.primary),
+        child: const Icon(
+          Icons.edit_outlined,
+          size: 14,
+          color: AppPalette.primary,
+        ),
       ),
     );
   }

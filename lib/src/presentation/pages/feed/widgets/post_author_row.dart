@@ -54,8 +54,7 @@ class PostAuthorRow extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(name, style: context.feedType.authorName),
-            Text(_timeLabel,
-                style: context.feedType.timestamp),
+            Text(_timeLabel, style: context.feedType.timestamp),
           ],
         ),
       ],

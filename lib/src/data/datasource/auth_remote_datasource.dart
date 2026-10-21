@@ -40,7 +40,9 @@ class AuthRemoteDatasource {
   /// On success the `mobile_session_id` cookie arrives in the response
   /// headers and `SessionInterceptor` persists it — nothing to read here.
   Future<AuthSessionModel> login(LoginRequestModel request) async {
-    debugPrint('=======login request: ${request.toJson()}'); // TODO: remove this debug print
+    debugPrint(
+      '=======login request: ${request.toJson()}',
+    ); // TODO: remove this debug print
     final data = await _client.post(Api.login, body: request.toJson());
 
     debugPrint('=======login response: $data'); // TODO: remove this debug print

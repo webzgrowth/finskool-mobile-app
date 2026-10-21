@@ -93,6 +93,7 @@ class SessionInterceptor extends Interceptor {
 
   bool _isExpired(String header) {
     final lower = header.toLowerCase();
-    return lower.contains('max-age=0') || lower.contains('expires=thu, 01 jan 1970');
+    return lower.contains('max-age=0') ||
+        lower.contains('expires=thu, 01 jan 1970');
   }
 }

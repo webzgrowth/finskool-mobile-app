@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:finskool/src/comman/routes.dart';
 import 'package:finskool/src/presentation/bloc/authentication/authenticator_watcher/authenticator_watcher_bloc.dart';
 import 'package:finskool/src/presentation/bloc/dashboard/bottom_nav/bottom_nav_bloc.dart';
+import 'package:finskool/src/presentation/bloc/tickets/unread/tickets_unread_bloc.dart';
 import 'package:finskool/src/presentation/pages/feed/feed_screen.dart';
 import 'package:finskool/src/presentation/pages/communities/communities_screen.dart';
 
@@ -45,7 +46,19 @@ class _DashboardShellScreenState extends State<DashboardShellScreen> {
       // `SessionExpiry` reports it), and every tab is behind this widget.
       listener: (context, state) {
         state.mapOrNull<void>(
+          // A confirmed session is what the tickets socket needs. Done here,
+          // not in `initState`, because `authCheckRequest` is asynchronous:
+          // connecting before it resolves would race a dead cookie.
+          authenticated: (_) => context.read<TicketsUnreadBloc>().add(
+            const TicketsUnreadEvent.started(),
+          ),
           unauthenticated: (_) {
+            // Close the socket with the session — it authenticated once, at
+            // upgrade, so it would otherwise keep streaming this account's
+            // events into whoever signs in next.
+            context.read<TicketsUnreadBloc>().add(
+              const TicketsUnreadEvent.stopped(),
+            );
             // Back to Feed before leaving. BottomNavBloc is a singleton, so the
             // index would otherwise still point at whatever tab the user was on
             // when the next login opens the shell.

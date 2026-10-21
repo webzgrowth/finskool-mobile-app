@@ -25,14 +25,14 @@ sealed class EditProfileState with _$EditProfileState {
   }) = _EditProfileState;
 
   factory EditProfileState.initial() => EditProfileState(
-        state: RequestState.empty,
-        message: '',
-        name: '',
-        email: '',
-        phone: '',
-        country: CountryCodes.all.first,
-        isEditing: false,
-      );
+    state: RequestState.empty,
+    message: '',
+    name: '',
+    email: '',
+    phone: '',
+    country: CountryCodes.all.first,
+    isEditing: false,
+  );
 
   const EditProfileState._();
 

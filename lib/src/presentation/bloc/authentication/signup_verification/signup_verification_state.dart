@@ -29,16 +29,16 @@ sealed class SignupVerificationState with _$SignupVerificationState {
   }) = _SignupVerificationState;
 
   factory SignupVerificationState.initial() => const SignupVerificationState(
-        state: RequestState.empty,
-        message: '',
-        phoneDisplay: '',
-        email: '',
-        isFromSocial: false,
-        phoneCode: '',
-        phoneResendSeconds: 0,
-        emailCode: '',
-        emailResendSeconds: 0,
-      );
+    state: RequestState.empty,
+    message: '',
+    phoneDisplay: '',
+    email: '',
+    isFromSocial: false,
+    phoneCode: '',
+    phoneResendSeconds: 0,
+    emailCode: '',
+    emailResendSeconds: 0,
+  );
 
   const SignupVerificationState._();
 

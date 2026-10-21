@@ -6,6 +6,7 @@ import 'package:finskool/src/utilities/theme/theme.dart';
 import 'package:finskool/src/presentation/bloc/feed/posts/feed_bloc.dart';
 import 'package:finskool/src/presentation/bloc/feed/filter/feed_filter_bloc.dart';
 import 'package:finskool/src/comman/widgets/search_top_bar.dart';
+
 import 'feed_body_slivers.dart';
 
 /// The feed itself — top bar, post list, pull-to-refresh, infinite scroll
@@ -72,7 +73,8 @@ class _FeedListViewState extends State<FeedListView> {
     // `maxScrollExtent - 600` goes *negative* on any feed shorter than 600px,
     // so `pixels < trigger` was false from `pixels: 0` onward and loadMore
     // fired on every scroll tick, in both directions.
-    final trigger = position.maxScrollExtent -
+    final trigger =
+        position.maxScrollExtent -
         math.min(_loadMoreThreshold, position.maxScrollExtent / 2);
     if (position.pixels < trigger) return;
 
@@ -101,8 +103,9 @@ class _FeedListViewState extends State<FeedListView> {
           current.message.isNotEmpty &&
           current.message != previous.message &&
           current.posts.isNotEmpty,
-      listener: (context, state) => ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(state.message))),
+      listener: (context, state) =>
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text(state.message))),
       child: BlocBuilder<FeedFilterBloc, FeedFilterState>(
         builder: (context, filterState) {
           final query = filterState.query.trim();
@@ -123,7 +126,8 @@ class _FeedListViewState extends State<FeedListView> {
                   ),
                   ...feedBodySlivers(context, feedState, query),
                   const SliverToBoxAdapter(
-                      child: SizedBox(height: AppSpacing.lg)),
+                    child: SizedBox(height: AppSpacing.lg),
+                  ),
                 ],
               ),
             ),

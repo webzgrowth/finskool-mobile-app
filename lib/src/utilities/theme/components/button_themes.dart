@@ -10,20 +10,22 @@ RoundedRectangleBorder _shape() =>
 
 /// Filled primary CTA. Uses the brand teal; see CLAUDE.md on contrast if you
 /// need a stronger fill (`cs.secondary` reaches 11:1 against white).
-ElevatedButtonThemeData buildElevatedButtonTheme(ColorScheme cs, TextTheme tt) =>
-    ElevatedButtonThemeData(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: cs.primary,
-        foregroundColor: cs.onPrimary,
-        disabledBackgroundColor: cs.onSurface.withValues(alpha: 0.12),
-        disabledForegroundColor: cs.onSurface.withValues(alpha: 0.38),
-        elevation: 0,
-        minimumSize: _minSize,
-        padding: _pad,
-        shape: _shape(),
-        textStyle: tt.titleMedium,
-      ),
-    );
+ElevatedButtonThemeData buildElevatedButtonTheme(
+  ColorScheme cs,
+  TextTheme tt,
+) => ElevatedButtonThemeData(
+  style: ElevatedButton.styleFrom(
+    backgroundColor: cs.primary,
+    foregroundColor: cs.onPrimary,
+    disabledBackgroundColor: cs.onSurface.withValues(alpha: 0.12),
+    disabledForegroundColor: cs.onSurface.withValues(alpha: 0.38),
+    elevation: 0,
+    minimumSize: _minSize,
+    padding: _pad,
+    shape: _shape(),
+    textStyle: tt.titleMedium,
+  ),
+);
 
 FilledButtonThemeData buildFilledButtonTheme(ColorScheme cs, TextTheme tt) =>
     FilledButtonThemeData(
@@ -47,15 +49,17 @@ TextButtonThemeData buildTextButtonTheme(ColorScheme cs, TextTheme tt) =>
       ),
     );
 
-OutlinedButtonThemeData buildOutlinedButtonTheme(ColorScheme cs, TextTheme tt) =>
-    OutlinedButtonThemeData(
-      style: OutlinedButton.styleFrom(
-        foregroundColor: cs.primary,
-        backgroundColor: Colors.transparent,
-        minimumSize: _minSize,
-        padding: _pad,
-        shape: _shape(),
-        side: BorderSide(color: cs.primary),
-        textStyle: tt.titleMedium,
-      ),
-    );
+OutlinedButtonThemeData buildOutlinedButtonTheme(
+  ColorScheme cs,
+  TextTheme tt,
+) => OutlinedButtonThemeData(
+  style: OutlinedButton.styleFrom(
+    foregroundColor: cs.primary,
+    backgroundColor: Colors.transparent,
+    minimumSize: _minSize,
+    padding: _pad,
+    shape: _shape(),
+    side: BorderSide(color: cs.primary),
+    textStyle: tt.titleMedium,
+  ),
+);

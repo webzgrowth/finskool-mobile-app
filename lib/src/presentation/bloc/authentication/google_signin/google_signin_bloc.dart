@@ -16,43 +16,59 @@ class GoogleSigninBloc extends Bloc<GoogleSigninEvent, GoogleSigninState> {
   }
 
   Future<void> _onEvent(
-      GoogleSigninEvent event, Emitter<GoogleSigninState> emit) async {
-    await event.map(signin: (e) async {
-      emit(state.copyWith(requestState: RequestState.loading));
-      try {
-        final googleUser = await _handleGoogleSignIn();
-        if (googleUser == null) {
-          emit(state.copyWith(
+    GoogleSigninEvent event,
+    Emitter<GoogleSigninState> emit,
+  ) async {
+    await event.map(
+      signin: (e) async {
+        emit(state.copyWith(requestState: RequestState.loading));
+        try {
+          final googleUser = await _handleGoogleSignIn();
+          if (googleUser == null) {
+            emit(
+              state.copyWith(
+                requestState: RequestState.error,
+                message: 'Google Sign-In failed',
+              ),
+            );
+            return;
+          }
+
+          final email = googleUser.email;
+
+          final isAlreadyUser = await _checkIfUserAlreadyRegistered(email);
+          if (isAlreadyUser) {
+            emit(
+              state.copyWith(
+                requestState: RequestState.loaded,
+                authFlow: AuthFlow.UserExist,
+                email: email,
+              ),
+            );
+          } else {
+            // await _signUpNewUser(googleUser, user.user?.uid);
+
+            emit(
+              state.copyWith(
+                requestState: RequestState.loaded,
+                authFlow: AuthFlow.UserNotExist,
+                email: email,
+              ),
+            );
+          }
+        } catch (e) {
+          emit(
+            state.copyWith(
               requestState: RequestState.error,
-              message: 'Google Sign-In failed'));
-          return;
+              message: e.toString(),
+            ),
+          );
         }
-
-        final email = googleUser.email;
-
-        final isAlreadyUser = await _checkIfUserAlreadyRegistered(email);
-        if (isAlreadyUser) {
-          emit(state.copyWith(
-            requestState: RequestState.loaded,
-            authFlow: AuthFlow.UserExist,
-            email: email,
-          ));
-        } else {
-          // await _signUpNewUser(googleUser, user.user?.uid);
-
-          emit(state.copyWith(
-            requestState: RequestState.loaded,
-            authFlow: AuthFlow.UserNotExist,
-            email: email,
-          ));
-        }
-      } catch (e) {
-        emit(state.copyWith(
-            requestState: RequestState.error, message: e.toString()));
-      }
-    }, initial: (_Initial value) {
-      emit(GoogleSigninState.initial());
-    });
+      },
+      initial: (_Initial value) {
+        emit(GoogleSigninState.initial());
+      },
+    );
   }
 
   Future<GoogleSignInAccount?> _handleGoogleSignIn() async {
@@ -69,7 +85,9 @@ class GoogleSigninBloc extends Bloc<GoogleSigninEvent, GoogleSigninState> {
   }
 
   Future<void> _signUpNewUser(
-      GoogleSignInAccount googleUser, String? uid) async {
+    GoogleSignInAccount googleUser,
+    String? uid,
+  ) async {
     final nameParts = googleUser.displayName?.split(" ") ?? [];
     final firstName = nameParts.isNotEmpty ? nameParts[0] : "";
     final lastName = nameParts.length > 1 ? nameParts[1] : "";

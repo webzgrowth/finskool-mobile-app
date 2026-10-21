@@ -23,21 +23,19 @@ class PasswordResetRepositoryImpl implements PasswordResetRepository {
   Future<Either<Failure, ResetCypherModel>> verifyResetCode({
     required String email,
     required String otp,
-  }) =>
-      handleErrors(() => _remote.verifyResetOtp(email: email, otp: otp));
+  }) => handleErrors(() => _remote.verifyResetOtp(email: email, otp: otp));
 
   @override
   Future<Either<Failure, Unit>> resetPassword({
     required String cypher,
     required String newPassword,
     required String confirmNewPassword,
-  }) =>
-      handleErrors(() async {
-        await _remote.resetPassword(
-          cypher: cypher,
-          newPassword: newPassword,
-          confirmNewPassword: confirmNewPassword,
-        );
-        return unit;
-      });
+  }) => handleErrors(() async {
+    await _remote.resetPassword(
+      cypher: cypher,
+      newPassword: newPassword,
+      confirmNewPassword: confirmNewPassword,
+    );
+    return unit;
+  });
 }

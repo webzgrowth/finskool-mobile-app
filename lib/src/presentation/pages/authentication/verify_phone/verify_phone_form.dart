@@ -6,6 +6,7 @@ import 'package:finskool/src/utilities/theme/theme.dart';
 import 'package:finskool/src/presentation/bloc/authentication/signup_verification/signup_verification_bloc.dart';
 import 'package:finskool/src/presentation/bloc/authentication/sing_up_form/sign_up_form_bloc.dart';
 import 'package:finskool/src/presentation/bloc/authentication/login_form/login_form_bloc.dart';
+
 import '../widgets/auth_field_icons.dart';
 import '../widgets/auth_form_listener.dart';
 import '../widgets/auth_submit_button.dart';
@@ -31,63 +32,72 @@ class VerifyPhoneForm extends StatelessWidget {
       message: (s) => s.message,
       onSuccess: _onVerified,
       child: BlocBuilder<SignupVerificationBloc, SignupVerificationState>(
-      builder: (context, state) {
-        final boldSpan =
-            inter(size: 14, weight: 600, height: 1.3, color: cs.onSurface);
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Align(
-              alignment: Alignment.centerLeft,
-              child: BackArrowButton(onTap: () => context.pop()),
-            ),
-            const SizedBox(height: AppSpacing.lg),
-            Text.rich(
-              TextSpan(style: tt.bodyLarge?.copyWith(height: 1.3), children: [
-                const TextSpan(text: 'A '),
-                TextSpan(text: '6-digit code', style: boldSpan),
-                const TextSpan(text: ' has been sent to your '),
-                TextSpan(text: 'WhatsApp number', style: boldSpan),
-              ]),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: AppSpacing.xl),
-            ReadonlyValueField(
-              iconAsset: AuthFieldIcons.phone,
-              value: state.phoneDisplay,
-              actionLabel: 'Change',
-              onTap: () => context.pop(),
-            ),
-            const SizedBox(height: AppSpacing.lg),
-            const EnterCodeLabel(),
-            const SizedBox(height: AppSpacing.sm),
-            OtpBoxes(
-              onChanged: (v) =>
-                  bloc.add(SignupVerificationEvent.phoneCodeChanged(v)),
-            ),
-            if (state.phoneCodeError != null) ...[
-              const SizedBox(height: AppSpacing.xs),
-              Text(state.phoneCodeError!,
-                  style: tt.bodySmall?.copyWith(color: cs.error)),
+        builder: (context, state) {
+          final boldSpan = inter(
+            size: 14,
+            weight: 600,
+            height: 1.3,
+            color: cs.onSurface,
+          );
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Align(
+                alignment: Alignment.centerLeft,
+                child: BackArrowButton(onTap: () => context.pop()),
+              ),
+              const SizedBox(height: AppSpacing.lg),
+              Text.rich(
+                TextSpan(
+                  style: tt.bodyLarge?.copyWith(height: 1.3),
+                  children: [
+                    const TextSpan(text: 'A '),
+                    TextSpan(text: '6-digit code', style: boldSpan),
+                    const TextSpan(text: ' has been sent to your '),
+                    TextSpan(text: 'WhatsApp number', style: boldSpan),
+                  ],
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: AppSpacing.xl),
+              ReadonlyValueField(
+                iconAsset: AuthFieldIcons.phone,
+                value: state.phoneDisplay,
+                actionLabel: 'Change',
+                onTap: () => context.pop(),
+              ),
+              const SizedBox(height: AppSpacing.lg),
+              const EnterCodeLabel(),
+              const SizedBox(height: AppSpacing.sm),
+              OtpBoxes(
+                onChanged: (v) =>
+                    bloc.add(SignupVerificationEvent.phoneCodeChanged(v)),
+              ),
+              if (state.phoneCodeError != null) ...[
+                const SizedBox(height: AppSpacing.xs),
+                Text(
+                  state.phoneCodeError!,
+                  style: tt.bodySmall?.copyWith(color: cs.error),
+                ),
+              ],
+              const SizedBox(height: AppSpacing.md),
+              ResendCodeRow(
+                secondsRemaining: state.phoneResendSeconds,
+                onResend: () =>
+                    bloc.add(const SignupVerificationEvent.resendPhoneCode()),
+              ),
+              const SizedBox(height: AppSpacing.xl),
+              AuthSubmitButton(
+                label: 'Verify & Continue',
+                loading: state.state.isLoading,
+                onPressed: () =>
+                    bloc.add(const SignupVerificationEvent.verifyPhoneCode()),
+              ),
+              const SizedBox(height: AppSpacing.lg),
+              const PrivacyFooterNote(),
             ],
-            const SizedBox(height: AppSpacing.md),
-            ResendCodeRow(
-              secondsRemaining: state.phoneResendSeconds,
-              onResend: () =>
-                  bloc.add(const SignupVerificationEvent.resendPhoneCode()),
-            ),
-            const SizedBox(height: AppSpacing.xl),
-            AuthSubmitButton(
-              label: 'Verify & Continue',
-              loading: state.state.isLoading,
-              onPressed: () =>
-                  bloc.add(const SignupVerificationEvent.verifyPhoneCode()),
-            ),
-            const SizedBox(height: AppSpacing.lg),
-            const PrivacyFooterNote(),
-          ],
-        );
-      },
+          );
+        },
       ),
     );
   }
@@ -102,11 +112,11 @@ class VerifyPhoneForm extends StatelessWidget {
     if (state.isBackedByApi) {
       final signUp = context.read<SignUpFormBloc>().state;
       context.read<LoginFormBloc>().add(
-            LoginFormEvent.loginWith(
-              email: signUp.email,
-              password: signUp.password,
-            ),
-          );
+        LoginFormEvent.loginWith(
+          email: signUp.email,
+          password: signUp.password,
+        ),
+      );
     }
     context.push(AppRoutes.SIGNUP_SUCCESS_ROUTE_PATH);
   }

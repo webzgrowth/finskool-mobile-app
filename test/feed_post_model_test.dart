@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:finskool/src/domain/model/feed_post_model.dart';
 import 'package:finskool/src/domain/model/post_media_model.dart';
@@ -38,9 +39,11 @@ const _raw = '''
 }
 ''';
 
-FeedPostModel _parse([Map<String, dynamic>? overrides]) => FeedPostModel.fromJson(
-      {...jsonDecode(_raw) as Map<String, dynamic>, ...?overrides},
-    );
+FeedPostModel _parse([Map<String, dynamic>? overrides]) =>
+    FeedPostModel.fromJson({
+      ...jsonDecode(_raw) as Map<String, dynamic>,
+      ...?overrides,
+    });
 
 void main() {
   test('the videos array becomes a playable embed with its poster', () {
@@ -48,10 +51,14 @@ void main() {
     expect(media, hasLength(1));
     expect(media.single.type, PostMediaType.youtubeEmbed);
     expect(media.single.isEmbed, isTrue);
-    expect(media.single.embedUrl,
-        'https://www.youtube-nocookie.com/embed/THaYrj9YiQM');
-    expect(media.single.posterUrl,
-        'https://i.ytimg.com/vi/THaYrj9YiQM/hqdefault.jpg');
+    expect(
+      media.single.embedUrl,
+      'https://www.youtube-nocookie.com/embed/THaYrj9YiQM',
+    );
+    expect(
+      media.single.posterUrl,
+      'https://i.ytimg.com/vi/THaYrj9YiQM/hqdefault.jpg',
+    );
     expect(media.single.title, startsWith('I Proved Why'));
   });
 
@@ -127,15 +134,18 @@ void main() {
     expect(post.media.single.videoId, 'zzzzzzzzzzz');
   });
 
-  test('instagram and unknown kinds carry no videoId, so they stay WebView', () {
-    final post = _parse({
-      'videos': [
-        {'kind': 'instagram', 'url': 'https://www.instagram.com/p/ABC/'},
-        {'kind': 'vimeo', 'url': 'https://vimeo.com/1'},
-      ],
-    });
-    expect(post.media.map((m) => m.videoId), everyElement(isNull));
-  });
+  test(
+    'instagram and unknown kinds carry no videoId, so they stay WebView',
+    () {
+      final post = _parse({
+        'videos': [
+          {'kind': 'instagram', 'url': 'https://www.instagram.com/p/ABC/'},
+          {'kind': 'vimeo', 'url': 'https://vimeo.com/1'},
+        ],
+      });
+      expect(post.media.map((m) => m.videoId), everyElement(isNull));
+    },
+  );
 
   test('a post with no videos key at all still parses', () {
     final json = jsonDecode(_raw) as Map<String, dynamic>..remove('videos');

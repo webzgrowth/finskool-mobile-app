@@ -16,6 +16,5 @@ class GetPostReactions {
     String postId, {
     int page = 1,
     int pageSize = 50,
-  }) =>
-      _repository.getPostReactions(postId, page: page, pageSize: pageSize);
+  }) => _repository.getPostReactions(postId, page: page, pageSize: pageSize);
 }

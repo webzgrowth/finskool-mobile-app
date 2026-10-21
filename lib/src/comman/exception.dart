@@ -24,12 +24,7 @@ class CacheException implements Exception {
 /// [errors] carries the per-field map from a `422` validation response,
 /// e.g. `{"email": ["Invalid email address"]}`.
 class ApiException implements Exception {
-  ApiException(
-    this.message, {
-    this.code,
-    this.errors,
-    this.statusCode,
-  });
+  ApiException(this.message, {this.code, this.errors, this.statusCode});
 
   final String message;
   final String? code;

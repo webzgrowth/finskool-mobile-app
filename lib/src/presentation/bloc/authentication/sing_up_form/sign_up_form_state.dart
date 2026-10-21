@@ -31,17 +31,17 @@ sealed class SignUpFormState with _$SignUpFormState {
   }) = _SignUpFormState;
 
   factory SignUpFormState.initial() => const SignUpFormState(
-        state: RequestState.empty,
-        message: '',
-        email: '',
-        firstName: "",
-        lastName: "",
-        countryCode: "+91",
-        phonenumber: "",
-        password: "",
-        confirmPassword: "",
-        obscurePassword: true,
-        obscureConfirmPassword: true,
-        isFromSocial: false,
-      );
+    state: RequestState.empty,
+    message: '',
+    email: '',
+    firstName: "",
+    lastName: "",
+    countryCode: "+91",
+    phonenumber: "",
+    password: "",
+    confirmPassword: "",
+    obscurePassword: true,
+    obscureConfirmPassword: true,
+    isFromSocial: false,
+  );
 }

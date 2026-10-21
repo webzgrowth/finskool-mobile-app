@@ -32,17 +32,19 @@ void main() {
     reset = PasswordResetRepositoryImpl(PasswordResetRemoteDatasource(client));
   });
 
-  test('bad credentials surface the server message, not a generic one',
-      () async {
-    final result = await auth.login(
-      email: 'no-such-user-check@example.com',
-      password: 'WrongPass123!',
-    );
-    final failure = result.fold((l) => l, (r) => null);
-    expect(failure, isA<ServerFailure>());
-    expect(failure!.message, contains('Invalid email or password'));
-    expect(auth.hasSession, isFalse, reason: 'no cookie on a failed login');
-  });
+  test(
+    'bad credentials surface the server message, not a generic one',
+    () async {
+      final result = await auth.login(
+        email: 'no-such-user-check@example.com',
+        password: 'WrongPass123!',
+      );
+      final failure = result.fold((l) => l, (r) => null);
+      expect(failure, isA<ServerFailure>());
+      expect(failure!.message, contains('Invalid email or password'));
+      expect(auth.hasSession, isFalse, reason: 'no cookie on a failed login');
+    },
+  );
 
   test('422 becomes a ValidationFailure with per-field messages', () async {
     final result = await auth.login(email: 'not-an-email', password: '');
@@ -61,15 +63,15 @@ void main() {
 
   test('forgot-password succeeds even for an unknown email', () async {
     final result = await reset.sendResetCode('no-such-user-check@example.com');
-    expect(result.isRight(), isTrue,
-        reason: 'documented anti-enumeration behaviour');
+    expect(
+      result.isRight(),
+      isTrue,
+      reason: 'documented anti-enumeration behaviour',
+    );
   });
 
   test('no session cookie is stored anywhere along the way', () async {
     await auth.login(email: 'a@b.com', password: 'x');
-    expect(
-      SharedPreferenceHelper().getdata(StorageKeys.sessionCookie),
-      isNull,
-    );
+    expect(SharedPreferenceHelper().getdata(StorageKeys.sessionCookie), isNull);
   });
 }

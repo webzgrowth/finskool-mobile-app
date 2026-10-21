@@ -52,15 +52,17 @@ class _EmbedPlayerState extends State<EmbedPlayer> {
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setBackgroundColor(Colors.black)
       ..setUserAgent(_userAgent)
-      ..setNavigationDelegate(NavigationDelegate(
-        onPageFinished: (_) => _settle(failed: false),
-        // Surfaced rather than swallowed: a silently blank frame is
-        // indistinguishable from a post that's simply slow.
-        onWebResourceError: (error) {
-          if (error.isForMainFrame ?? true) _settle(failed: true);
-        },
-        onHttpError: (_) => _settle(failed: true),
-      ))
+      ..setNavigationDelegate(
+        NavigationDelegate(
+          onPageFinished: (_) => _settle(failed: false),
+          // Surfaced rather than swallowed: a silently blank frame is
+          // indistinguishable from a post that's simply slow.
+          onWebResourceError: (error) {
+            if (error.isForMainFrame ?? true) _settle(failed: true);
+          },
+          onHttpError: (_) => _settle(failed: true),
+        ),
+      )
       ..loadRequest(Uri.parse(target.src));
 
     // Android's equivalent of the WebKit params above: without it the first
@@ -99,7 +101,9 @@ class _EmbedPlayerState extends State<EmbedPlayer> {
                 height: 22,
                 width: 22,
                 child: CircularProgressIndicator(
-                    strokeWidth: 2, color: Colors.white54),
+                  strokeWidth: 2,
+                  color: Colors.white54,
+                ),
               ),
             ),
           ),

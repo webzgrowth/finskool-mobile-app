@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -12,8 +13,12 @@ import 'package:permission_handler/permission_handler.dart';
 class CommonAssets {
   static String defaultImage = "assets/logo/logo.png";
 
-  static Widget getAssetsSvgImage(String imagePath,
-      {double height = 40, double width = 40, Color? color}) {
+  static Widget getAssetsSvgImage(
+    String imagePath, {
+    double height = 40,
+    double width = 40,
+    Color? color,
+  }) {
     return SvgPicture.asset(
       imagePath,
       height: height,
@@ -23,12 +28,13 @@ class CommonAssets {
     );
   }
 
-  static Widget getAssetsImage(
-      {String imagePath = "",
-      double height = 40,
-      double width = 40,
-      BoxFit fit = BoxFit.cover,
-      Color? color}) {
+  static Widget getAssetsImage({
+    String imagePath = "",
+    double height = 40,
+    double width = 40,
+    BoxFit fit = BoxFit.cover,
+    Color? color,
+  }) {
     return Image.asset(
       imagePath.isEmpty ? defaultImage : imagePath,
       height: height,
@@ -38,11 +44,13 @@ class CommonAssets {
     );
   }
 
-  static Widget getNetworkImage(String imageUrl,
-      {String defaultImage = "assets/logo/logo.png",
-      double height = 90,
-      double width = 90,
-      BoxFit fit = BoxFit.cover}) {
+  static Widget getNetworkImage(
+    String imageUrl, {
+    String defaultImage = "assets/logo/logo.png",
+    double height = 90,
+    double width = 90,
+    BoxFit fit = BoxFit.cover,
+  }) {
     return imageUrl.isNotEmpty
         ? CachedNetworkImage(
             imageUrl: imageUrl,
@@ -52,8 +60,8 @@ class CommonAssets {
             filterQuality: FilterQuality.medium,
             errorWidget:
                 (BuildContext context, String exception, dynamic stackTrace) {
-              return getAssetsImage(height: height, width: width);
-            },
+                  return getAssetsImage(height: height, width: width);
+                },
           )
         : getAssetsImage(height: height, width: width);
   }
@@ -84,12 +92,13 @@ class CommonAssets {
     );
   }
 
-  static Decoration containerDecoration1(
-      {required BuildContext context,
-      double borderRadius = 20,
-      Color? bgColor,
-      bool isShadow = false,
-      BoxBorder? borderstyle}) {
+  static Decoration containerDecoration1({
+    required BuildContext context,
+    double borderRadius = 20,
+    Color? bgColor,
+    bool isShadow = false,
+    BoxBorder? borderstyle,
+  }) {
     return BoxDecoration(
       color: bgColor ?? Theme.of(context).scaffoldBackgroundColor,
       borderRadius: BorderRadius.circular(borderRadius),
@@ -106,8 +115,9 @@ class CommonAssets {
     );
   }
 
-  static BoxDecoration containerDecorationwithShadow(
-      {required BuildContext context}) {
+  static BoxDecoration containerDecorationwithShadow({
+    required BuildContext context,
+  }) {
     var brightness = MediaQuery.of(context).platformBrightness;
     bool isDarkMode = brightness == Brightness.dark;
     return BoxDecoration(
@@ -128,7 +138,9 @@ class CommonAssets {
 
   static Decoration containerGreyDecoration() {
     return BoxDecoration(
-        color: const Color(0xffF2F4F5), borderRadius: BorderRadius.circular(8));
+      color: const Color(0xffF2F4F5),
+      borderRadius: BorderRadius.circular(8),
+    );
   }
 
   static List<String> monthList = [
@@ -163,7 +175,7 @@ class CommonAssets {
       "September",
       "October",
       "November",
-      "December"
+      "December",
     ];
 
     // Extract day, month, and year from the DateTime object
@@ -247,8 +259,11 @@ class CommonAssets {
 //       ));
 // }
 
-void getMultipleMediaFile(
-    {Function(List<XFile>)? onCallBack, int? isNumber, context}) async {
+void getMultipleMediaFile({
+  Function(List<XFile>)? onCallBack,
+  int? isNumber,
+  context,
+}) async {
   final ImagePicker picker = ImagePicker();
   List<XFile>? imageFiles;
   imageFiles = await picker.pickMultiImage(
@@ -362,104 +377,93 @@ void getMultipleMediaFile(
 
 showDialogCameraPermission({String? subTitle, required BuildContext context}) {
   showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return CupertinoAlertDialog(
-          title: const SizedBox(
-            // width: 300,
-            child: Padding(
+    context: context,
+    builder: (BuildContext context) {
+      return CupertinoAlertDialog(
+        title: const SizedBox(
+          // width: 300,
+          child: Padding(
+            padding: EdgeInsets.all(8.0),
+            child: Column(children: [Text('Allow Camera access')]),
+          ),
+        ),
+        content: Text(
+          subTitle ?? 'If you want to use the QR code scanner, click on the below button to go to the app setting and allow camera access to',
+        ),
+        actions: <Widget>[
+          CupertinoDialogAction(
+            child: const Padding(
               padding: EdgeInsets.all(8.0),
-              child: Column(
-                children: [
-                  Text(
-                    'Allow Camera access',
-                  ),
-                ],
-              ),
+              child: Text('Cancel'),
             ),
+            onPressed: () {
+              context.pop();
+            },
           ),
-          content: Text(
-            subTitle ??
-                'If you want to use the QR code scanner, click on the below button to go to the app setting and allow camera access to',
+          CupertinoDialogAction(
+            child: const Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text('Go to Setting'),
+            ),
+            onPressed: () {
+              context.pop();
+              openAppSettings();
+            },
           ),
-          actions: <Widget>[
-            CupertinoDialogAction(
-              child: const Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Text('Cancel'),
-              ),
-              onPressed: () {
-                context.pop();
-              },
-            ),
-            CupertinoDialogAction(
-              child: const Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Text('Go to Setting'),
-              ),
-              onPressed: () {
-                context.pop();
-                openAppSettings();
-              },
-            ),
-          ],
-        );
-      });
+        ],
+      );
+    },
+  );
 }
 
 showDialogGalleryPermission({String? subTitle, required BuildContext context}) {
   showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return CupertinoAlertDialog(
-          title: const SizedBox(
-            // width: 300,
-            child: Padding(
+    context: context,
+    builder: (BuildContext context) {
+      return CupertinoAlertDialog(
+        title: const SizedBox(
+          // width: 300,
+          child: Padding(
+            padding: EdgeInsets.all(8.0),
+            child: Column(children: [Text('Allow Gallery access')]),
+          ),
+        ),
+        content: Text(
+          subTitle ?? "If you want to use the Upload Photo, click on the below button to go to the app setting and allow Photo Gallery access to",
+        ),
+        actions: <Widget>[
+          CupertinoDialogAction(
+            child: const Padding(
               padding: EdgeInsets.all(8.0),
-              child: Column(
-                children: [
-                  Text(
-                    'Allow Gallery access',
-                  ),
-                ],
-              ),
+              child: Text('Cancel'),
             ),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
           ),
-          content: Text(
-            subTitle ??
-                "If you want to use the Upload Photo, click on the below button to go to the app setting and allow Photo Gallery access to",
+          CupertinoDialogAction(
+            child: const Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text('Go to Setting'),
+            ),
+            onPressed: () {
+              Navigator.of(context).pop();
+              openAppSettings();
+            },
           ),
-          actions: <Widget>[
-            CupertinoDialogAction(
-              child: const Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Text('Cancel'),
-              ),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            CupertinoDialogAction(
-              child: const Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Text('Go to Setting'),
-              ),
-              onPressed: () {
-                Navigator.of(context).pop();
-                openAppSettings();
-              },
-            ),
-          ],
-        );
-      });
+        ],
+      );
+    },
+  );
 }
 
 PermissionStatus? status;
 
-permission(
-    {required Future<PermissionStatus> status,
-    required Function onTap,
-    required Function onTapShowDialog}) async {
+permission({
+  required Future<PermissionStatus> status,
+  required Function onTap,
+  required Function onTapShowDialog,
+}) async {
   if ((await status) == PermissionStatus.granted) {
     onTap();
     if (kDebugMode) {
@@ -478,13 +482,18 @@ permission(
     onTap();
     if (kDebugMode) {
       print(
-          'isLimited Selected ${(await status) == PermissionStatus.limited},');
+        'isLimited Selected ${(await status) == PermissionStatus.limited},',
+      );
     }
   }
 }
 
-void getMediaFile(bool isGallery,
-    {Function(XFile)? onCallBack, int? isNumber, context}) async {
+void getMediaFile(
+  bool isGallery, {
+  Function(XFile)? onCallBack,
+  int? isNumber,
+  context,
+}) async {
   final ImagePicker picker = ImagePicker();
   XFile? imageFile;
   if (isGallery) {

@@ -14,6 +14,5 @@ class VerifyResetCode {
   Future<Either<Failure, ResetCypherModel>> execute({
     required String email,
     required String otp,
-  }) =>
-      _repository.verifyResetCode(email: email, otp: otp);
+  }) => _repository.verifyResetCode(email: email, otp: otp);
 }

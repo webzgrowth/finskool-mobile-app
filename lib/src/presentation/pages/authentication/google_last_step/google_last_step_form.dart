@@ -5,6 +5,7 @@ import 'package:finskool/src/comman/routes.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
 import 'package:finskool/src/presentation/bloc/authentication/sing_up_form/sign_up_form_bloc.dart';
 import 'package:finskool/src/presentation/bloc/authentication/signup_verification/signup_verification_bloc.dart';
+
 import '../widgets/back_arrow_button.dart';
 import '../widgets/phone_field.dart';
 import '../widgets/member_hint_card.dart';
@@ -46,20 +47,26 @@ class GoogleLastStepForm extends StatelessWidget {
             const MemberHintCard(),
             const SizedBox(height: AppSpacing.lg),
             Text.rich(
-              TextSpan(style: Theme.of(context).textTheme.bodySmall, children: [
-                const TextSpan(text: "We'll send a "),
-                TextSpan(
-                  text: '6-digit code',
-                  style: inter(
+              TextSpan(
+                style: Theme.of(context).textTheme.bodySmall,
+                children: [
+                  const TextSpan(text: "We'll send a "),
+                  TextSpan(
+                    text: '6-digit code',
+                    style: inter(
                       size: 10,
                       weight: 700,
                       height: 1.6,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant),
-                ),
-                const TextSpan(
-                    text: ' to this number on WhatsApp number to confirm '
-                        "it's yours."),
-              ]),
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  const TextSpan(
+                    text:
+                        ' to this number on WhatsApp number to confirm '
+                        "it's yours.",
+                  ),
+                ],
+              ),
             ),
             const SizedBox(height: AppSpacing.xl),
             AuthSubmitButton(
@@ -77,7 +84,9 @@ class GoogleLastStepForm extends StatelessWidget {
                     isFromSocial: true,
                   ),
                 );
-                verificationBloc.add(const SignupVerificationEvent.sendPhoneCode());
+                verificationBloc.add(
+                  const SignupVerificationEvent.sendPhoneCode(),
+                );
                 context.push(AppRoutes.VERIFY_PHONE_ROUTE_PATH);
               },
             ),

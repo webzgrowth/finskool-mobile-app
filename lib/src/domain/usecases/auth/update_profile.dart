@@ -16,6 +16,5 @@ class UpdateProfile {
     required String name,
     required String email,
     required String phone,
-  }) =>
-      _repository.updateProfile(name: name, email: email, phone: phone);
+  }) => _repository.updateProfile(name: name, email: email, phone: phone);
 }

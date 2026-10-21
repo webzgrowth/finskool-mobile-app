@@ -2,6 +2,7 @@ import 'package:finskool/src/comman/enum.dart';
 import 'package:finskool/src/comman/failure.dart';
 import 'package:finskool/src/comman/validators.dart';
 import 'package:finskool/src/comman/country_codes.dart';
+
 import 'sign_up_form_bloc.dart';
 
 /// Field-level validation for [SignUpFormState], kept out of the bloc file
@@ -11,8 +12,10 @@ extension SignUpFormValidation on SignUpFormState {
     final fullNameError = Validators.required(firstName, 'Full name');
     final emailErr = Validators.email(email);
     final expectedDigits = CountryCodes.byDialCode(countryCode).digits;
-    final phoneErr =
-        Validators.phone(phonenumber, expectedDigits: expectedDigits);
+    final phoneErr = Validators.phone(
+      phonenumber,
+      expectedDigits: expectedDigits,
+    );
     final passwordErr = Validators.password(password);
     final confirmErr = Validators.confirmPassword(password, confirmPassword);
     final hasError = [

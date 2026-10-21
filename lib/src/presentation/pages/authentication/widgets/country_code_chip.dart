@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:finskool/src/comman/country_codes.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
+
 import 'country_picker_sheet.dart';
 
 /// The tappable flag + dial-code segment of [PhoneField]. Opens
@@ -33,8 +34,10 @@ class CountryCodeChip extends StatelessWidget {
           children: [
             Text(country.flag, style: const TextStyle(fontSize: 14)),
             const SizedBox(width: 2),
-            Text(country.dialCode,
-                style: tt.labelSmall?.copyWith(color: cs.onPrimary)),
+            Text(
+              country.dialCode,
+              style: tt.labelSmall?.copyWith(color: cs.onPrimary),
+            ),
             Icon(Icons.arrow_drop_down, size: 14, color: cs.onPrimary),
           ],
         ),

@@ -1,10 +1,12 @@
 import 'dart:async';
+
 import 'package:bloc/bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:finskool/src/comman/enum.dart';
 import 'package:finskool/src/domain/usecases/auth/resend_otp.dart';
 import 'package:finskool/src/domain/usecases/auth/verify_otp.dart';
 import 'package:injectable/injectable.dart';
+
 import 'signup_verification_validation.dart';
 
 part 'signup_verification_event.dart';
@@ -29,7 +31,7 @@ const _resendWindowSeconds = 24;
 class SignupVerificationBloc
     extends Bloc<SignupVerificationEvent, SignupVerificationState> {
   SignupVerificationBloc(this._verifyOtp, this._resendOtp)
-      : super(SignupVerificationState.initial()) {
+    : super(SignupVerificationState.initial()) {
     on<SignupVerificationEvent>((event, emit) async {
       await event.map(
         initial: (_Initial value) async {
@@ -37,39 +39,41 @@ class SignupVerificationBloc
           _emailTimer?.cancel();
           emit(SignupVerificationState.initial());
         },
-        prefill: (_Prefill value) async => emit(state.copyWith(
-          phoneDisplay: value.phoneDisplay,
-          email: value.email,
-          isFromSocial: value.isFromSocial,
-          userId: value.userId,
-        )),
+        prefill: (_Prefill value) async => emit(
+          state.copyWith(
+            phoneDisplay: value.phoneDisplay,
+            email: value.email,
+            isFromSocial: value.isFromSocial,
+            userId: value.userId,
+          ),
+        ),
         // `/register` already sent the code, so arriving here only starts the
         // resend countdown — there's nothing left to send.
         sendPhoneCode: (_SendPhoneCode value) async => _startPhoneTimer(emit),
-        phoneCodeChanged: (_PhoneCodeChanged value) async => emit(
-          state.copyWith(phoneCode: value.code, phoneCodeError: null),
-        ),
+        phoneCodeChanged: (_PhoneCodeChanged value) async =>
+            emit(state.copyWith(phoneCode: value.code, phoneCodeError: null)),
         verifyPhoneCode: (_VerifyPhoneCode value) => _verifyPhone(emit),
         resendPhoneCode: (_ResendPhoneCode value) => _resendPhone(emit),
         phoneTick: (_PhoneTick value) async {
           if (state.phoneResendSeconds > 0) {
-            emit(state.copyWith(
-                phoneResendSeconds: state.phoneResendSeconds - 1));
+            emit(
+              state.copyWith(phoneResendSeconds: state.phoneResendSeconds - 1),
+            );
           } else {
             _phoneTimer?.cancel();
           }
         },
-        emailCodeChanged: (_EmailCodeChanged value) async => emit(
-          state.copyWith(emailCode: value.code, emailCodeError: null),
-        ),
+        emailCodeChanged: (_EmailCodeChanged value) async =>
+            emit(state.copyWith(emailCode: value.code, emailCodeError: null)),
         verifyEmailCode: (_VerifyEmailCode value) async =>
             emit(state.validatedEmailCode()),
         resendEmailCode: (_ResendEmailCode value) async =>
             _startEmailTimer(emit),
         emailTick: (_EmailTick value) async {
           if (state.emailResendSeconds > 0) {
-            emit(state.copyWith(
-                emailResendSeconds: state.emailResendSeconds - 1));
+            emit(
+              state.copyWith(emailResendSeconds: state.emailResendSeconds - 1),
+            );
           } else {
             _emailTimer?.cancel();
           }
@@ -95,10 +99,12 @@ class SignupVerificationBloc
       userId: state.userId!,
       otp: state.phoneCode,
     );
-    emit(result.fold(
-      (failure) => state.withFailure(failure, onPhone: true),
-      (_) => state.copyWith(state: RequestState.loaded, message: ''),
-    ));
+    emit(
+      result.fold(
+        (failure) => state.withFailure(failure, onPhone: true),
+        (_) => state.copyWith(state: RequestState.loaded, message: ''),
+      ),
+    );
   }
 
   Future<void> _resendPhone(Emitter<SignupVerificationState> emit) async {

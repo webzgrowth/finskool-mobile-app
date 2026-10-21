@@ -31,15 +31,18 @@ class PostsRemoteDatasource {
     String? date,
     String order = 'desc',
   }) async {
-    final data = await _client.get(Api.posts, query: {
-      'page': page,
-      'pageSize': pageSize,
-      'order': order,
-      // Omitted entirely rather than sent as null/'' — an empty communityId
-      // is a 422, not "the free community".
-      'communityId': ?communityId,
-      'date': ?date,
-    });
+    final data = await _client.get(
+      Api.posts,
+      query: {
+        'page': page,
+        'pageSize': pageSize,
+        'order': order,
+        // Omitted entirely rather than sent as null/'' — an empty communityId
+        // is a 422, not "the free community".
+        'communityId': ?communityId,
+        'date': ?date,
+      },
+    );
     final payload = _require(data, Api.posts);
     _logPosts(payload);
     return PostPageModel.fromJson(payload);
@@ -57,18 +60,22 @@ class PostsRemoteDatasource {
   void _logPosts(Map<String, dynamic> payload) {
     if (!kDebugMode) return;
     final posts = (payload['posts'] as List?) ?? const [];
-    _dump('═══ feed: ${posts.length} post(s) on page ${payload['page']}'
-        '/${payload['totalPages']}, ${payload['total']} total ═══');
+    _dump(
+      '═══ feed: ${posts.length} post(s) on page ${payload['page']}'
+      '/${payload['totalPages']}, ${payload['total']} total ═══',
+    );
 
     var index = 0;
     for (final row in posts.whereType<Map<String, dynamic>>()) {
       index++;
       final content = row['content'] as String? ?? '';
-      _dump('─── post $index/${posts.length} ───\n'
-          'keys       : ${row.keys.toList()}\n'
-          'imageUrls  : ${row['imageUrls']}\n'
-          'inline img : ${htmlImageUrls(content)}\n'
-          '${_pretty(row)}');
+      _dump(
+        '─── post $index/${posts.length} ───\n'
+        'keys       : ${row.keys.toList()}\n'
+        'imageUrls  : ${row['imageUrls']}\n'
+        'inline img : ${htmlImageUrls(content)}\n'
+        '${_pretty(row)}',
+      );
     }
   }
 
@@ -95,10 +102,10 @@ class PostsRemoteDatasource {
     int pageSize = 50,
   }) async {
     final path = Api.postReactions(postId);
-    final data = await _client.get(path, query: {
-      'page': page,
-      'pageSize': pageSize,
-    });
+    final data = await _client.get(
+      path,
+      query: {'page': page, 'pageSize': pageSize},
+    );
     return PostReactionsPageModel.fromJson(_require(data, path));
   }
 

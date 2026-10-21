@@ -11,6 +11,7 @@ import 'package:finskool/src/presentation/bloc/communities/compliance/compliance
 import 'package:finskool/src/presentation/bloc/communities/filter/community_filter_bloc.dart';
 import 'package:finskool/src/presentation/bloc/communities/list/communities_bloc.dart';
 import 'package:finskool/src/presentation/bloc/communities/purchase/community_purchase_bloc.dart';
+
 import 'widgets/community_card.dart';
 
 /// The Communities tab: a searchable catalog of communities, subscribed
@@ -31,8 +32,8 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
   void initState() {
     super.initState();
     context.read<CommunitiesBloc>().add(
-          const CommunitiesEvent.loadCommunities(),
-        );
+      const CommunitiesEvent.loadCommunities(),
+    );
   }
 
   /// Subscribed → open it. Priced → start a purchase. No public price →
@@ -47,8 +48,8 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
       case CommunityAccess.locked:
         if (plan == null) return;
         context.read<CommunityPurchaseBloc>().add(
-              CommunityPurchaseEvent.started(community: community, plan: plan),
-            );
+          CommunityPurchaseEvent.started(community: community, plan: plan),
+        );
         context.read<ComplianceBloc>().add(const ComplianceEvent.initial());
         context.push(AppRoutes.COMMUNITY_PAYMENT_SUCCESS_ROUTE_PATH);
     }
@@ -94,8 +95,10 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
                       SliverFillRemaining(
                         hasScrollBody: false,
                         child: Center(
-                          child: Text('No communities match that search.',
-                              style: context.communityType.description),
+                          child: Text(
+                            'No communities match that search.',
+                            style: context.communityType.description,
+                          ),
                         ),
                       )
                     else
@@ -107,7 +110,8 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
                         ),
                       ),
                     const SliverToBoxAdapter(
-                        child: SizedBox(height: AppSpacing.lg)),
+                      child: SizedBox(height: AppSpacing.lg),
+                    ),
                   ],
                 );
               },
@@ -125,11 +129,13 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
     final all = state.pinnedFirst;
     if (query.isEmpty) return all;
     return all
-        .where((c) =>
-            c.name.toLowerCase().contains(query) ||
-            (c.category?.toLowerCase().contains(query) ?? false) ||
-            (c.description?.toLowerCase().contains(query) ?? false) ||
-            c.tags.any((t) => t.toLowerCase().contains(query)))
+        .where(
+          (c) =>
+              c.name.toLowerCase().contains(query) ||
+              (c.category?.toLowerCase().contains(query) ?? false) ||
+              (c.description?.toLowerCase().contains(query) ?? false) ||
+              c.tags.any((t) => t.toLowerCase().contains(query)),
+        )
         .toList();
   }
 }

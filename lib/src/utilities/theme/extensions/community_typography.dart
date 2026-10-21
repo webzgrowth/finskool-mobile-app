@@ -49,68 +49,172 @@ class CommunityTypography extends ThemeExtension<CommunityTypography> {
   static final CommunityTypography light = CommunityTypography(
     // Inter 500 · 10 · #1A1A1A
     category: inter(
-        size: 10, weight: 500, height: 1.2, color: AppPalette.communityCategory),
+      size: 10,
+      weight: 500,
+      height: 1.2,
+      color: AppPalette.communityCategory,
+    ),
     // Manrope 700 · 18 · 22.75px · #108B8B
-    title:
-        manrope(size: 18, weight: 700, height: 1.264, color: AppPalette.badgeTeal),
+    title: manrope(
+      size: 18,
+      weight: 700,
+      height: 1.264,
+      color: AppPalette.badgeTeal,
+    ),
     // Inter 500 · 10 · #37C000
     announcement: inter(
-        size: 10, weight: 500, height: 1.2, color: AppPalette.announcementGreen),
+      size: 10,
+      weight: 500,
+      height: 1.2,
+      color: AppPalette.announcementGreen,
+    ),
     // Inter 400 · 12 · 16.373px · #000000
-    description:
-        inter(size: 12, weight: 400, height: 1.364, color: AppPalette.postTitle),
-    descriptionBold:
-        inter(size: 12, weight: 700, height: 1.364, color: AppPalette.postTitle),
+    description: inter(
+      size: 12,
+      weight: 400,
+      height: 1.364,
+      color: AppPalette.postTitle,
+    ),
+    descriptionBold: inter(
+      size: 12,
+      weight: 700,
+      height: 1.364,
+      color: AppPalette.postTitle,
+    ),
     // Inter 400 · 10 · 12.642px · #108B8B
-    tagChip:
-        inter(size: 10, weight: 400, height: 1.264, color: AppPalette.badgeTeal),
+    tagChip: inter(
+      size: 10,
+      weight: 400,
+      height: 1.264,
+      color: AppPalette.badgeTeal,
+    ),
     // Inter 600 · 14 · 19.929px · white, tracking 0.2657
-    cta: inter(size: 14, weight: 600, height: 1.423, color: AppPalette.white)
-        .copyWith(letterSpacing: 0.2657),
+    cta: inter(
+      size: 14,
+      weight: 600,
+      height: 1.423,
+      color: AppPalette.white,
+    ).copyWith(letterSpacing: 0.2657),
     // Inter 600 · 10 · 12.642px · white
-    memberCount:
-        inter(size: 10, weight: 600, height: 1.264, color: AppPalette.white),
+    memberCount: inter(
+      size: 10,
+      weight: 600,
+      height: 1.264,
+      color: AppPalette.white,
+    ),
     // Teal, not near-black: the headline price is the same #108B8B as the
     // community title.
-    price:
-        manrope(size: 18, weight: 700, height: 1.264, color: AppPalette.badgeTeal),
-    pricePeriod:
-        inter(size: 12, weight: 400, height: 1.364, color: AppPalette.postMeta),
-    planLabel:
-        inter(size: 12, weight: 600, height: 1.3, color: AppPalette.postTitle),
-    benefit:
-        inter(size: 11, weight: 400, height: 1.45, color: AppPalette.postBody),
-    benefitBold:
-        inter(size: 11, weight: 700, height: 1.45, color: AppPalette.postTitle),
+    price: manrope(
+      size: 18,
+      weight: 700,
+      height: 1.264,
+      color: AppPalette.badgeTeal,
+    ),
+    pricePeriod: inter(
+      size: 12,
+      weight: 400,
+      height: 1.364,
+      color: AppPalette.postMeta,
+    ),
+    planLabel: inter(
+      size: 12,
+      weight: 600,
+      height: 1.3,
+      color: AppPalette.postTitle,
+    ),
+    benefit: inter(
+      size: 11,
+      weight: 400,
+      height: 1.45,
+      color: AppPalette.postBody,
+    ),
+    benefitBold: inter(
+      size: 11,
+      weight: 700,
+      height: 1.45,
+      color: AppPalette.postTitle,
+    ),
   );
 
   static final CommunityTypography dark = CommunityTypography(
     category: inter(
-        size: 10, weight: 500, height: 1.2, color: AppPalette.darkOnSurfaceMuted),
-    title:
-        manrope(size: 18, weight: 700, height: 1.264, color: AppPalette.teal400),
+      size: 10,
+      weight: 500,
+      height: 1.2,
+      color: AppPalette.darkOnSurfaceMuted,
+    ),
+    title: manrope(
+      size: 18,
+      weight: 700,
+      height: 1.264,
+      color: AppPalette.teal400,
+    ),
     announcement: inter(
-        size: 10, weight: 500, height: 1.2, color: AppPalette.announcementGreen),
+      size: 10,
+      weight: 500,
+      height: 1.2,
+      color: AppPalette.announcementGreen,
+    ),
     description: inter(
-        size: 12, weight: 400, height: 1.364, color: AppPalette.darkOnSurface),
+      size: 12,
+      weight: 400,
+      height: 1.364,
+      color: AppPalette.darkOnSurface,
+    ),
     descriptionBold: inter(
-        size: 12, weight: 700, height: 1.364, color: AppPalette.darkOnSurface),
-    tagChip:
-        inter(size: 10, weight: 400, height: 1.264, color: AppPalette.teal400),
-    cta: inter(size: 14, weight: 600, height: 1.423, color: AppPalette.white)
-        .copyWith(letterSpacing: 0.2657),
-    memberCount:
-        inter(size: 10, weight: 600, height: 1.264, color: AppPalette.white),
+      size: 12,
+      weight: 700,
+      height: 1.364,
+      color: AppPalette.darkOnSurface,
+    ),
+    tagChip: inter(
+      size: 10,
+      weight: 400,
+      height: 1.264,
+      color: AppPalette.teal400,
+    ),
+    cta: inter(
+      size: 14,
+      weight: 600,
+      height: 1.423,
+      color: AppPalette.white,
+    ).copyWith(letterSpacing: 0.2657),
+    memberCount: inter(
+      size: 10,
+      weight: 600,
+      height: 1.264,
+      color: AppPalette.white,
+    ),
     price: manrope(
-        size: 18, weight: 700, height: 1.264, color: AppPalette.darkOnSurface),
+      size: 18,
+      weight: 700,
+      height: 1.264,
+      color: AppPalette.darkOnSurface,
+    ),
     pricePeriod: inter(
-        size: 12, weight: 400, height: 1.364, color: AppPalette.darkOnSurfaceMuted),
+      size: 12,
+      weight: 400,
+      height: 1.364,
+      color: AppPalette.darkOnSurfaceMuted,
+    ),
     planLabel: inter(
-        size: 12, weight: 600, height: 1.3, color: AppPalette.darkOnSurface),
+      size: 12,
+      weight: 600,
+      height: 1.3,
+      color: AppPalette.darkOnSurface,
+    ),
     benefit: inter(
-        size: 11, weight: 400, height: 1.45, color: AppPalette.darkOnSurfaceMuted),
+      size: 11,
+      weight: 400,
+      height: 1.45,
+      color: AppPalette.darkOnSurfaceMuted,
+    ),
     benefitBold: inter(
-        size: 11, weight: 700, height: 1.45, color: AppPalette.darkOnSurface),
+      size: 11,
+      weight: 700,
+      height: 1.45,
+      color: AppPalette.darkOnSurface,
+    ),
   );
 
   static CommunityTypography of(Brightness brightness) =>
@@ -131,33 +235,38 @@ class CommunityTypography extends ThemeExtension<CommunityTypography> {
     TextStyle? planLabel,
     TextStyle? benefit,
     TextStyle? benefitBold,
-  }) =>
-      CommunityTypography(
-        category: category ?? this.category,
-        title: title ?? this.title,
-        announcement: announcement ?? this.announcement,
-        description: description ?? this.description,
-        descriptionBold: descriptionBold ?? this.descriptionBold,
-        tagChip: tagChip ?? this.tagChip,
-        cta: cta ?? this.cta,
-        memberCount: memberCount ?? this.memberCount,
-        price: price ?? this.price,
-        pricePeriod: pricePeriod ?? this.pricePeriod,
-        planLabel: planLabel ?? this.planLabel,
-        benefit: benefit ?? this.benefit,
-        benefitBold: benefitBold ?? this.benefitBold,
-      );
+  }) => CommunityTypography(
+    category: category ?? this.category,
+    title: title ?? this.title,
+    announcement: announcement ?? this.announcement,
+    description: description ?? this.description,
+    descriptionBold: descriptionBold ?? this.descriptionBold,
+    tagChip: tagChip ?? this.tagChip,
+    cta: cta ?? this.cta,
+    memberCount: memberCount ?? this.memberCount,
+    price: price ?? this.price,
+    pricePeriod: pricePeriod ?? this.pricePeriod,
+    planLabel: planLabel ?? this.planLabel,
+    benefit: benefit ?? this.benefit,
+    benefitBold: benefitBold ?? this.benefitBold,
+  );
 
   @override
-  CommunityTypography lerp(ThemeExtension<CommunityTypography>? other, double t) {
+  CommunityTypography lerp(
+    ThemeExtension<CommunityTypography>? other,
+    double t,
+  ) {
     if (other is! CommunityTypography) return this;
     return CommunityTypography(
       category: TextStyle.lerp(category, other.category, t)!,
       title: TextStyle.lerp(title, other.title, t)!,
       announcement: TextStyle.lerp(announcement, other.announcement, t)!,
       description: TextStyle.lerp(description, other.description, t)!,
-      descriptionBold:
-          TextStyle.lerp(descriptionBold, other.descriptionBold, t)!,
+      descriptionBold: TextStyle.lerp(
+        descriptionBold,
+        other.descriptionBold,
+        t,
+      )!,
       tagChip: TextStyle.lerp(tagChip, other.tagChip, t)!,
       cta: TextStyle.lerp(cta, other.cta, t)!,
       memberCount: TextStyle.lerp(memberCount, other.memberCount, t)!,

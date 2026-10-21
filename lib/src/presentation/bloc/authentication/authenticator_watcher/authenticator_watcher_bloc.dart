@@ -65,15 +65,17 @@ class AuthenticatorWatcherBloc
           emit(const AuthenticatorWatcherState.unauthenticated());
         },
         notificationsToggled: (value) async {
-          final result =
-              await _setPostNotificationsEnabled.execute(value.enabled);
+          final result = await _setPostNotificationsEnabled.execute(
+            value.enabled,
+          );
           result.fold(
             // A failed toggle shouldn't disturb whatever's on screen —
             // there's no signed-in user to update, which shouldn't happen
             // from a screen that's only reachable while authenticated.
-            (failure) =>
-                logger.warning('Could not update notification pref: '
-                    '${failure.message}'),
+            (failure) => logger.warning(
+              'Could not update notification pref: '
+              '${failure.message}',
+            ),
             (updated) =>
                 emit(AuthenticatorWatcherState.authenticated(user: updated)),
           );
@@ -98,8 +100,8 @@ class AuthenticatorWatcherBloc
     emit(const AuthenticatorWatcherState.authenticating());
 
     final result = await _refreshSession.execute();
-    emit(result.fold(
-      (failure) {
+    emit(
+      result.fold((failure) {
         // `hasSession` is re-read, not remembered: SessionInterceptor clears
         // the cookie on a 401 while this call is in flight, so an empty one
         // here means the server rejected us. Anything else is a bad network,
@@ -109,10 +111,10 @@ class AuthenticatorWatcherBloc
         }
         logger.warning('Could not refresh session: ${failure.message}');
         return AuthenticatorWatcherState.authenticated(
-            user: _authStatus.cachedUser);
-      },
-      (user) => AuthenticatorWatcherState.authenticated(user: user),
-    ));
+          user: _authStatus.cachedUser,
+        );
+      }, (user) => AuthenticatorWatcherState.authenticated(user: user)),
+    );
   }
 
   @override

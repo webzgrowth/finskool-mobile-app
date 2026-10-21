@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+
 import 'widgets/auth_tab_switch.dart';
 
 /// Lets a form deep in the tree (e.g. the "Sign up" footer link) trigger

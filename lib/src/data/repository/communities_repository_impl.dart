@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'package:dartz/dartz.dart';
 import 'package:injectable/injectable.dart';
 import 'package:finskool/src/comman/error_handler.dart';
@@ -54,31 +55,33 @@ class CommunitiesRepositoryImpl implements CommunitiesRepository {
         final merged = catalog.map((community) {
           final subscription = mine[community.id];
           if (subscription != null) {
-            return _withDemoReceipt(community.copyWith(
-              access: CommunityAccess.subscribed,
-              subscribedUntil: subscription.subscribedUntil,
-            ));
+            return _withDemoReceipt(
+              community.copyWith(
+                access: CommunityAccess.subscribed,
+                subscribedUntil: subscription.subscribedUntil,
+              ),
+            );
           }
           // A purchase made in-app, before any payment endpoint exists.
           return unlocked.contains(community.id)
               ? _withDemoReceipt(
-                  community.copyWith(access: CommunityAccess.subscribed))
+                  community.copyWith(access: CommunityAccess.subscribed),
+                )
               : community;
         }).toList();
 
         final seen = catalog.map((c) => c.id).toSet();
-        return [
-          ...merged,
-          ...mine.values.where((c) => !seen.contains(c.id)),
-        ];
+        return [...merged, ...mine.values.where((c) => !seen.contains(c.id))];
       });
 
   @override
   Future<Either<Failure, Unit>> unlockCommunity(String communityId) =>
       handleErrors(() async {
         final ids = _unlockedIds()..add(communityId);
-        await SharedPreferenceHelper()
-            .storedata(StorageKeys.unlockedCommunityIds, jsonEncode(ids.toList()));
+        await SharedPreferenceHelper().storedata(
+          StorageKeys.unlockedCommunityIds,
+          jsonEncode(ids.toList()),
+        );
         return unit;
       });
 
@@ -92,37 +95,43 @@ class CommunitiesRepositoryImpl implements CommunitiesRepository {
 
   @override
   Future<Either<Failure, Unit>> submitCompliance(
-          ComplianceDetailsModel details) =>
-      handleErrors(() async {
-        // Deliberately storing only the flag, never the PAN.
-        await SharedPreferenceHelper()
-            .storeBool(StorageKeys.complianceCompleted, true);
-        return unit;
-      });
+    ComplianceDetailsModel details,
+  ) => handleErrors(() async {
+    // Deliberately storing only the flag, never the PAN.
+    await SharedPreferenceHelper().storeBool(
+      StorageKeys.complianceCompleted,
+      true,
+    );
+    return unit;
+  });
 
   @override
   bool get isComplianceCompleted =>
-      SharedPreferenceHelper().getBool(StorageKeys.complianceCompleted) ?? false;
+      SharedPreferenceHelper().getBool(StorageKeys.complianceCompleted) ??
+      false;
 
   /// Attaches a stand-in purchase receipt so Subscription Detail renders its
   /// Plan and Transaction cards. No endpoint describes a past purchase, so
   /// without this those two sections are simply absent — see
   /// [DemoSubscriptionDatasource], which is temporary.
   CommunityModel _withDemoReceipt(CommunityModel community) {
-    final info = community.subscriptionInfo ??
+    final info =
+        community.subscriptionInfo ??
         DemoSubscriptionDatasource.forCommunity(community);
     // The Welcome Kit has no endpoint either — see
     // `WelcomeKitDemoDatasource`, which returns null for a community the
     // design doesn't cover rather than showing another one's figures.
-    final kit = community.welcomeKit ??
+    final kit =
+        community.welcomeKit ??
         WelcomeKitDemoDatasource.forSlug(community.slug);
     if (info == null && kit == null) return community;
     return community.copyWith(subscriptionInfo: info, welcomeKit: kit);
   }
 
   Set<String> _unlockedIds() {
-    final raw =
-        SharedPreferenceHelper().getdata(StorageKeys.unlockedCommunityIds);
+    final raw = SharedPreferenceHelper().getdata(
+      StorageKeys.unlockedCommunityIds,
+    );
     if (raw == null || raw.isEmpty) return <String>{};
     try {
       return (jsonDecode(raw) as List).map((e) => e.toString()).toSet();

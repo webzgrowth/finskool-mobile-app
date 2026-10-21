@@ -42,8 +42,18 @@ class _AutoRenewToggleState extends State<AutoRenewToggle> {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: _on
-              ? [knob, const SizedBox(width: 5), label, const SizedBox(width: 4)]
-              : [const SizedBox(width: 4), label, const SizedBox(width: 5), knob],
+              ? [
+                  knob,
+                  const SizedBox(width: 5),
+                  label,
+                  const SizedBox(width: 4),
+                ]
+              : [
+                  const SizedBox(width: 4),
+                  label,
+                  const SizedBox(width: 5),
+                  knob,
+                ],
         ),
       ),
     );
@@ -55,11 +65,11 @@ class _Knob extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-        height: 13,
-        width: 13,
-        decoration: const BoxDecoration(
-          color: AppPalette.white,
-          shape: BoxShape.circle,
-        ),
-      );
+    height: 13,
+    width: 13,
+    decoration: const BoxDecoration(
+      color: AppPalette.white,
+      shape: BoxShape.circle,
+    ),
+  );
 }

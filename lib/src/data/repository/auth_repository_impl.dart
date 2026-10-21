@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'package:dartz/dartz.dart';
 import 'package:injectable/injectable.dart';
 import 'package:finskool/src/comman/error_handler.dart';
@@ -23,18 +24,17 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<Either<Failure, RegisterResultModel>> register(
-          RegisterRequestModel request) =>
-      handleErrors(() => _remote.register(request));
+    RegisterRequestModel request,
+  ) => handleErrors(() => _remote.register(request));
 
   @override
   Future<Either<Failure, Unit>> verifyOtp({
     required String userId,
     required String otp,
-  }) =>
-      handleErrors(() async {
-        await _remote.verifyOtp(userId: userId, otp: otp);
-        return unit;
-      });
+  }) => handleErrors(() async {
+    await _remote.verifyOtp(userId: userId, otp: otp);
+    return unit;
+  });
 
   @override
   Future<Either<Failure, Unit>> resendOtp(String userId) =>
@@ -47,45 +47,45 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<Failure, AuthSessionModel>> login({
     required String email,
     required String password,
-  }) =>
-      handleErrors(() async {
-        final session = await _remote.login(
-          LoginRequestModel(
-            email: email,
-            password: password,
-            deviceType: LoginRequestModel.currentDeviceType,
-          ),
-        );
-        // The session cookie itself was already captured by
-        // SessionInterceptor; cache the user so splash can restore offline.
-        await _cacheUser(session.user);
-        await _autoSelectCommunity(session);
-        return session;
-      });
+  }) => handleErrors(() async {
+    final session = await _remote.login(
+      LoginRequestModel(
+        email: email,
+        password: password,
+        deviceType: LoginRequestModel.currentDeviceType,
+      ),
+    );
+    // The session cookie itself was already captured by
+    // SessionInterceptor; cache the user so splash can restore offline.
+    await _cacheUser(session.user);
+    await _autoSelectCommunity(session);
+    return session;
+  });
 
   @override
   Future<Either<Failure, Unit>> logout() => handleErrors(() async {
-        await _remote.logout();
-        await _clearSession();
-        return unit;
-      });
+    await _remote.logout();
+    await _clearSession();
+    return unit;
+  });
 
   @override
   Future<Either<Failure, Unit>> selectCommunity(String communityId) =>
       handleErrors(() async {
         await _remote.selectCommunity(communityId);
-        await SharedPreferenceHelper()
-            .storedata(StorageKeys.selectedCommunityId, communityId);
+        await SharedPreferenceHelper().storedata(
+          StorageKeys.selectedCommunityId,
+          communityId,
+        );
         return unit;
       });
 
   @override
-  Future<Either<Failure, UserModel>> refreshSession() =>
-      handleErrors(() async {
-        final user = await _remote.getMe();
-        await _cacheUser(user);
-        return user;
-      });
+  Future<Either<Failure, UserModel>> refreshSession() => handleErrors(() async {
+    final user = await _remote.getMe();
+    await _cacheUser(user);
+    return user;
+  });
 
   @override
   bool get hasSession {
@@ -107,39 +107,38 @@ class AuthRepositoryImpl implements AuthRepository {
     }
   }
 
-  Future<void> _cacheUser(UserModel user) => SharedPreferenceHelper()
-      .storedata(StorageKeys.cachedUser, jsonEncode(user.toJson()));
+  Future<void> _cacheUser(UserModel user) => SharedPreferenceHelper().storedata(
+    StorageKeys.cachedUser,
+    jsonEncode(user.toJson()),
+  );
 
   @override
   Future<Either<Failure, UserModel>> setPostNotificationsEnabled(
-          bool enabled) =>
-      handleErrors(() async {
-        final current = cachedUser;
-        if (current == null) {
-          throw CacheException('No signed-in user to update.');
-        }
-        final updated =
-            current.copyWith(postNotificationsEnabled: enabled);
-        await _cacheUser(updated);
-        return updated;
-      });
+    bool enabled,
+  ) => handleErrors(() async {
+    final current = cachedUser;
+    if (current == null) {
+      throw CacheException('No signed-in user to update.');
+    }
+    final updated = current.copyWith(postNotificationsEnabled: enabled);
+    await _cacheUser(updated);
+    return updated;
+  });
 
   @override
   Future<Either<Failure, UserModel>> updateProfile({
     required String name,
     required String email,
     required String phone,
-  }) =>
-      handleErrors(() async {
-        final current = cachedUser;
-        if (current == null) {
-          throw CacheException('No signed-in user to update.');
-        }
-        final updated =
-            current.copyWith(name: name, email: email, phone: phone);
-        await _cacheUser(updated);
-        return updated;
-      });
+  }) => handleErrors(() async {
+    final current = cachedUser;
+    if (current == null) {
+      throw CacheException('No signed-in user to update.');
+    }
+    final updated = current.copyWith(name: name, email: email, phone: phone);
+    await _cacheUser(updated);
+    return updated;
+  });
 
   /// One community means it's already selected, per the API doc. More than
   /// one needs a user choice, which has no UI yet — until then the backend
@@ -149,8 +148,10 @@ class AuthRepositoryImpl implements AuthRepository {
     if (community == null) return;
     try {
       await _remote.selectCommunity(community.id);
-      await SharedPreferenceHelper()
-          .storedata(StorageKeys.selectedCommunityId, community.id);
+      await SharedPreferenceHelper().storedata(
+        StorageKeys.selectedCommunityId,
+        community.id,
+      );
     } catch (e) {
       // Best-effort: a failed auto-select must not fail the login.
       logger.warning('Could not auto-select community ${community.id}: $e');

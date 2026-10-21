@@ -27,7 +27,10 @@ class _FeedFilterSheet extends StatelessWidget {
     final bloc = context.read<FeedFilterBloc>();
     return Container(
       padding: const EdgeInsets.all(AppSpacing.lg),
-      decoration: BoxDecoration(color: cs.surface, borderRadius: AppRadii.sheet),
+      decoration: BoxDecoration(
+        color: cs.surface,
+        borderRadius: AppRadii.sheet,
+      ),
       child: SafeArea(
         top: false,
         child: BlocBuilder<FeedFilterBloc, FeedFilterState>(

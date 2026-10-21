@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:bloc/bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:finskool/src/comman/enum.dart';
@@ -6,6 +7,7 @@ import 'package:finskool/src/domain/usecases/password_reset/reset_password.dart'
 import 'package:finskool/src/domain/usecases/password_reset/send_reset_code.dart';
 import 'package:finskool/src/domain/usecases/password_reset/verify_reset_code.dart';
 import 'package:injectable/injectable.dart';
+
 import 'password_reset_validation.dart';
 
 part 'password_reset_event.dart';
@@ -50,17 +52,24 @@ class PasswordResetBloc extends Bloc<PasswordResetEvent, PasswordResetState> {
         changeEmail: (_ChangeEmail value) async =>
             emit(state.copyWith(code: '', codeError: null)),
         newPasswordChanged: (_NewPasswordChanged value) async => emit(
-            state.copyWith(newPassword: value.value, newPasswordError: null)),
+          state.copyWith(newPassword: value.value, newPasswordError: null),
+        ),
         confirmPasswordChanged: (_ConfirmPasswordChanged value) async => emit(
-            state.copyWith(
-                confirmPassword: value.value, confirmPasswordError: null)),
+          state.copyWith(
+            confirmPassword: value.value,
+            confirmPasswordError: null,
+          ),
+        ),
         toggleNewPasswordVisibility:
             (_ToggleNewPasswordVisibility value) async => emit(
-                state.copyWith(obscureNewPassword: !state.obscureNewPassword)),
+              state.copyWith(obscureNewPassword: !state.obscureNewPassword),
+            ),
         toggleConfirmPasswordVisibility:
-            (_ToggleConfirmPasswordVisibility value) async => emit(state
-                .copyWith(
-                    obscureConfirmPassword: !state.obscureConfirmPassword)),
+            (_ToggleConfirmPasswordVisibility value) async => emit(
+              state.copyWith(
+                obscureConfirmPassword: !state.obscureConfirmPassword,
+              ),
+            ),
         updatePassword: (_UpdatePassword value) => _update(emit),
       );
     });
@@ -73,26 +82,32 @@ class PasswordResetBloc extends Bloc<PasswordResetEvent, PasswordResetState> {
   /// Step 1. Note the API answers 200 whether or not the email exists — a
   /// deliberate anti-enumeration measure — so success here proves nothing was
   /// rejected, not that a mail went out.
-  Future<void> _send(Emitter<PasswordResetState> emit, {required bool resend}) async {
+  Future<void> _send(
+    Emitter<PasswordResetState> emit, {
+    required bool resend,
+  }) async {
     final validated = state.validatedEmail();
     if (validated.emailError != null) {
       emit(validated);
       return;
     }
 
-    emit(state.copyWith(
-        state: RequestState.loading, message: '', errorCode: null));
+    emit(
+      state.copyWith(state: RequestState.loading, message: '', errorCode: null),
+    );
     final result = await _sendResetCode.execute(state.email);
     result.fold(
       (failure) => emit(state.withFailure(failure, field: ResetField.email)),
       (_) {
-        emit(state.copyWith(
-          state: RequestState.loaded,
-          message: '',
-          // A resend isn't a step transition — the user is already on the
-          // code screen, and re-emitting `codeSent` would push a duplicate.
-          step: resend ? state.step : PasswordResetStep.codeSent,
-        ));
+        emit(
+          state.copyWith(
+            state: RequestState.loaded,
+            message: '',
+            // A resend isn't a step transition — the user is already on the
+            // code screen, and re-emitting `codeSent` would push a duplicate.
+            step: resend ? state.step : PasswordResetStep.codeSent,
+          ),
+        );
         _startResendTimer(emit);
       },
     );
@@ -106,19 +121,24 @@ class PasswordResetBloc extends Bloc<PasswordResetEvent, PasswordResetState> {
       return;
     }
 
-    emit(state.copyWith(
-        state: RequestState.loading, message: '', errorCode: null));
-    final result =
-        await _verifyResetCode.execute(email: state.email, otp: state.code);
-    emit(result.fold(
-      (failure) => state.withFailure(failure, field: ResetField.code),
-      (verified) => state.copyWith(
-        state: RequestState.loaded,
-        message: '',
-        cypher: verified.cypher,
-        step: PasswordResetStep.codeVerified,
+    emit(
+      state.copyWith(state: RequestState.loading, message: '', errorCode: null),
+    );
+    final result = await _verifyResetCode.execute(
+      email: state.email,
+      otp: state.code,
+    );
+    emit(
+      result.fold(
+        (failure) => state.withFailure(failure, field: ResetField.code),
+        (verified) => state.copyWith(
+          state: RequestState.loaded,
+          message: '',
+          cypher: verified.cypher,
+          step: PasswordResetStep.codeVerified,
+        ),
       ),
-    ));
+    );
   }
 
   /// Step 3. The cypher is spent by this call even on failure, so a failure
@@ -134,32 +154,37 @@ class PasswordResetBloc extends Bloc<PasswordResetEvent, PasswordResetState> {
 
     final cypher = state.cypher;
     if (cypher == null || cypher.isEmpty) {
-      emit(state.copyWith(
-        state: RequestState.error,
-        message: 'Your reset code has expired. Please request a new one.',
-        errorCode: 'RESET_TOKEN_INVALID',
-      ));
+      emit(
+        state.copyWith(
+          state: RequestState.error,
+          message: 'Your reset code has expired. Please request a new one.',
+          errorCode: 'RESET_TOKEN_INVALID',
+        ),
+      );
       return;
     }
 
-    emit(state.copyWith(
-        state: RequestState.loading, message: '', errorCode: null));
+    emit(
+      state.copyWith(state: RequestState.loading, message: '', errorCode: null),
+    );
     final result = await _resetPassword.execute(
       cypher: cypher,
       newPassword: state.newPassword,
       confirmNewPassword: state.confirmPassword,
     );
-    emit(result.fold(
-      (failure) => state
-          .withFailure(failure, field: ResetField.newPassword)
-          .copyWith(cypher: null),
-      (_) => state.copyWith(
-        state: RequestState.loaded,
-        message: '',
-        cypher: null,
-        step: PasswordResetStep.passwordUpdated,
+    emit(
+      result.fold(
+        (failure) => state
+            .withFailure(failure, field: ResetField.newPassword)
+            .copyWith(cypher: null),
+        (_) => state.copyWith(
+          state: RequestState.loaded,
+          message: '',
+          cypher: null,
+          step: PasswordResetStep.passwordUpdated,
+        ),
       ),
-    ));
+    );
   }
 
   Timer? _timer;

@@ -24,7 +24,8 @@ class WelcomeKitDemoDatasource {
 
   static const _disclaimer = WelcomeKitNotice(
     tone: NoticeTone.info,
-    body: 'Please ensure that you **understand the trading** process and '
+    body:
+        'Please ensure that you **understand the trading** process and '
         'associated risks before participating in any trade.',
   );
 
@@ -34,23 +35,27 @@ class WelcomeKitDemoDatasource {
   ];
 
   static const _intraday = WelcomeKit(
-    watchIntro: '**Welcome to the Intraday Community!** Both videos cover the '
+    watchIntro:
+        '**Welcome to the Intraday Community!** Both videos cover the '
         'full trading process, capital allocation, and how to follow the '
         'recommendations.',
     videos: [
       WelcomeKitVideo(
-        title: 'Launching Finskool21 Intraday Community | Happy Independence '
+        title:
+            'Launching Finskool21 Intraday Community | Happy Independence '
             'Day',
       ),
       WelcomeKitVideo(
-        title: 'Intraday Community | Addressing Queries | Capital Allocation, '
+        title:
+            'Intraday Community | Addressing Queries | Capital Allocation, '
             'How To Buy | Detailed explanation',
       ),
     ],
     capital: CapitalAllocation(
       amount: '₹50,000',
       caption: 'Minimum recommended capital',
-      description: 'Deploy the **full amount** on each recommended trade '
+      description:
+          'Deploy the **full amount** on each recommended trade '
           'rather than splitting it across positions.',
       stats: [
         WelcomeKitStat(value: '3', label: 'Recommendations per week'),
@@ -63,13 +68,15 @@ class WelcomeKitDemoDatasource {
       WelcomeKitNotice(
         tone: NoticeTone.warning,
         title: '~70% indicative accuracy',
-        body: 'Actual market **performance may vary**. No level of accuracy '
+        body:
+            'Actual market **performance may vary**. No level of accuracy '
             'or return is guaranteed.',
       ),
       WelcomeKitNotice(
         tone: NoticeTone.danger,
         title: 'This is a high-risk strategy',
-        body: 'Intraday trading involves a **high level of market risk** and '
+        body:
+            'Intraday trading involves a **high level of market risk** and '
             'is not suitable for investors uncomfortable with short-term '
             'fluctuations or potential losses.',
       ),
@@ -88,7 +95,8 @@ class WelcomeKitDemoDatasource {
   /// below is invented and must be replaced before this is shown to
   /// anyone outside the team.
   static const _academy = WelcomeKit(
-    watchIntro: '**Welcome to Finskool21 Academy!** Start with the orientation '
+    watchIntro:
+        '**Welcome to Finskool21 Academy!** Start with the orientation '
         'video — it walks through the syllabus, how modules unlock, and how '
         'to join the live doubt-clearing sessions.',
     videos: [
@@ -99,7 +107,8 @@ class WelcomeKitDemoDatasource {
       statsHeading: 'Programme at a glance',
       amount: '₹15,000',
       caption: 'One-time course fee',
-      description: 'Covers **lifetime access** to every module in your tier, '
+      description:
+          'Covers **lifetime access** to every module in your tier, '
           'including future updates to the syllabus.',
       stats: [
         WelcomeKitStat(value: '12', label: 'Modules in this tier'),
@@ -113,22 +122,24 @@ class WelcomeKitDemoDatasource {
   );
 
   static const _investor = WelcomeKit(
-    watchIntro: '**Welcome to the Investor Community!** The video covers the '
+    watchIntro:
+        '**Welcome to the Investor Community!** The video covers the '
         'complete trading process, capital allocation, and how to follow the '
         'Investor Community recommendations.',
-    videos: [
-      WelcomeKitVideo(title: 'Investors Community - Welcome Video'),
-    ],
+    videos: [WelcomeKitVideo(title: 'Investors Community - Welcome Video')],
     capital: CapitalAllocation(
       amount: '₹8,00,000',
       caption: 'Recommended capital',
-      description: 'The recommended capital for the Investor Community is '
+      description:
+          'The recommended capital for the Investor Community is '
           '₹8,00,000, in which we provide trades with an **average target of '
           '15%–20%**.',
       stats: [
         WelcomeKitStat(value: '15%–20%', label: 'Average target per trade'),
         WelcomeKitStat(
-            value: '10%', label: 'Recommended capital allocation per trade'),
+          value: '10%',
+          label: 'Recommended capital allocation per trade',
+        ),
         WelcomeKitStat(value: '3 Months', label: 'Average holding period'),
         WelcomeKitStat(value: '3', label: 'Trades per month'),
         WelcomeKitStat(value: '~10', label: 'Trade positions over 3 months'),

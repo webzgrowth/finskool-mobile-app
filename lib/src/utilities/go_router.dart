@@ -19,6 +19,11 @@ import 'package:finskool/src/presentation/pages/dashboard/profile/widgets/profil
 import 'package:finskool/src/presentation/pages/dashboard/profile/edit_profile/edit_profile_screen.dart';
 import 'package:finskool/src/presentation/pages/communities/subscription_detail/subscription_detail_screen.dart';
 import 'package:finskool/src/domain/model/community/community_model.dart';
+import 'package:finskool/src/domain/model/ticket/ticket_model.dart';
+import 'package:finskool/src/presentation/pages/tickets/detail/ticket_detail_screen.dart';
+import 'package:finskool/src/presentation/pages/tickets/form/raise_ticket_screen.dart';
+import 'package:finskool/src/presentation/pages/tickets/list/tickets_screen.dart';
+import 'package:finskool/src/presentation/pages/tickets/submitted/ticket_submitted_screen.dart';
 
 GoRouter routerinit = GoRouter(
   routes: <RouteBase>[
@@ -186,9 +191,27 @@ GoRouter routerinit = GoRouter(
     GoRoute(
       name: AppRoutes.SUPPORT_TICKETS_ROUTE_NAME,
       path: AppRoutes.SUPPORT_TICKETS_ROUTE_PATH,
-      builder: (BuildContext context, GoRouterState state) {
-        return const ProfilePlaceholderScreen(title: 'My tickets');
-      },
+      builder: (BuildContext context, GoRouterState state) =>
+          const TicketsScreen(),
+    ),
+    // `new` and `submitted` before `:id`, or go_router reads them as ids.
+    GoRoute(
+      name: AppRoutes.TICKET_NEW_ROUTE_NAME,
+      path: AppRoutes.TICKET_NEW_ROUTE_PATH,
+      builder: (BuildContext context, GoRouterState state) =>
+          const RaiseTicketScreen(),
+    ),
+    GoRoute(
+      name: AppRoutes.TICKET_SUBMITTED_ROUTE_NAME,
+      path: AppRoutes.TICKET_SUBMITTED_ROUTE_PATH,
+      builder: (BuildContext context, GoRouterState state) =>
+          TicketSubmittedScreen(ticket: state.extra! as TicketModel),
+    ),
+    GoRoute(
+      name: AppRoutes.TICKET_DETAIL_ROUTE_NAME,
+      path: AppRoutes.TICKET_DETAIL_ROUTE_PATH,
+      builder: (BuildContext context, GoRouterState state) =>
+          TicketDetailScreen(ticketId: state.pathParameters['id']!),
     ),
     GoRoute(
       name: AppRoutes.HELP_SUPPORT_ROUTE_NAME,

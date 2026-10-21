@@ -67,9 +67,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         // Blocs don't talk to each other — the widget layer refreshes the
         // Profile tab's header, which reads the same cached user this save
         // just rewrote.
-        context
-            .read<AuthenticatorWatcherBloc>()
-            .add(const AuthenticatorWatcherEvent.authCheckRequest());
+        context.read<AuthenticatorWatcherBloc>().add(
+          const AuthenticatorWatcherEvent.authCheckRequest(),
+        );
       },
       child: BlocListener<EditProfileBloc, EditProfileState>(
         // Push bloc values into the controllers only while not editing —

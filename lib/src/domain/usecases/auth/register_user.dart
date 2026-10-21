@@ -13,6 +13,6 @@ class RegisterUser {
   final AuthRepository _repository;
 
   Future<Either<Failure, RegisterResultModel>> execute(
-          RegisterRequestModel request) =>
-      _repository.register(request);
+    RegisterRequestModel request,
+  ) => _repository.register(request);
 }

@@ -41,11 +41,9 @@ PopupMenuThemeData buildPopupMenuTheme(ColorScheme cs, TextTheme tt) =>
     );
 
 DrawerThemeData buildDrawerTheme(ColorScheme cs) => DrawerThemeData(
-      backgroundColor: cs.surface,
-      surfaceTintColor: Colors.transparent,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.horizontal(
-          right: Radius.circular(AppRadii.xl),
-        ),
-      ),
-    );
+  backgroundColor: cs.surface,
+  surfaceTintColor: Colors.transparent,
+  shape: const RoundedRectangleBorder(
+    borderRadius: BorderRadius.horizontal(right: Radius.circular(AppRadii.xl)),
+  ),
+);

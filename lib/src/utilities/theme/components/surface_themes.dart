@@ -3,13 +3,13 @@ import 'package:flutter/material.dart';
 import '../tokens/app_radii.dart';
 
 CardThemeData buildCardTheme(ColorScheme cs) => CardThemeData(
-      color: cs.surface,
-      surfaceTintColor: Colors.transparent,
-      shadowColor: cs.shadow.withValues(alpha: 0.06),
-      elevation: 0,
-      margin: EdgeInsets.zero,
-      shape: RoundedRectangleBorder(borderRadius: AppRadii.large),
-    );
+  color: cs.surface,
+  surfaceTintColor: Colors.transparent,
+  shadowColor: cs.shadow.withValues(alpha: 0.06),
+  elevation: 0,
+  margin: EdgeInsets.zero,
+  shape: RoundedRectangleBorder(borderRadius: AppRadii.large),
+);
 
 DialogThemeData buildDialogTheme(ColorScheme cs, TextTheme tt) =>
     DialogThemeData(
@@ -31,11 +31,8 @@ BottomSheetThemeData buildBottomSheetTheme(ColorScheme cs) =>
       shape: RoundedRectangleBorder(borderRadius: AppRadii.sheet),
     );
 
-DividerThemeData buildDividerTheme(ColorScheme cs) => DividerThemeData(
-      color: cs.outlineVariant,
-      thickness: 1,
-      space: 1,
-    );
+DividerThemeData buildDividerTheme(ColorScheme cs) =>
+    DividerThemeData(color: cs.outlineVariant, thickness: 1, space: 1);
 
 ListTileThemeData buildListTileTheme(ColorScheme cs, TextTheme tt) =>
     ListTileThemeData(

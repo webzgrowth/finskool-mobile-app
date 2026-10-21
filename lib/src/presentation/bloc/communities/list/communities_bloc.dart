@@ -18,17 +18,23 @@ part 'communities_bloc.freezed.dart';
 /// CLAUDE.md's "Bloc granularity" rule.
 @singleton
 class CommunitiesBloc extends Bloc<CommunitiesEvent, CommunitiesState> {
-  CommunitiesBloc(this._getCommunities, this._unlockCommunity,
-      this._requestPricing)
-      : super(CommunitiesState.initial()) {
+  CommunitiesBloc(
+    this._getCommunities,
+    this._unlockCommunity,
+    this._requestPricing,
+  ) : super(CommunitiesState.initial()) {
     on<CommunitiesEvent>((event, emit) async {
       await event.map(
         loadCommunities: (_) => _load(emit),
         unlockCommunity: (value) async {
           final result = await _unlockCommunity.execute(value.communityId);
           await result.fold(
-            (failure) async => emit(state.copyWith(
-                state: RequestState.error, message: failure.message)),
+            (failure) async => emit(
+              state.copyWith(
+                state: RequestState.error,
+                message: failure.message,
+              ),
+            ),
             // Reload rather than patch in place: the repository is the one
             // that knows how unlocks are persisted.
             (_) => _load(emit),
@@ -37,14 +43,18 @@ class CommunitiesBloc extends Bloc<CommunitiesEvent, CommunitiesState> {
         requestPricing: (value) async {
           emit(state.copyWith(state: RequestState.loading, message: ''));
           final result = await _requestPricing.execute(value.communityId);
-          emit(result.fold(
-            (failure) => state.copyWith(
-                state: RequestState.error, message: failure.message),
-            (_) => state.copyWith(
-              state: RequestState.loaded,
-              message: 'We\'ve sent your request. Our team will be in touch.',
+          emit(
+            result.fold(
+              (failure) => state.copyWith(
+                state: RequestState.error,
+                message: failure.message,
+              ),
+              (_) => state.copyWith(
+                state: RequestState.loaded,
+                message: 'We\'ve sent your request. Our team will be in touch.',
+              ),
             ),
-          ));
+          );
         },
       );
     });
@@ -57,14 +67,16 @@ class CommunitiesBloc extends Bloc<CommunitiesEvent, CommunitiesState> {
   Future<void> _load(Emitter<CommunitiesState> emit) async {
     emit(state.copyWith(state: RequestState.loading, message: ''));
     final result = await _getCommunities.execute();
-    emit(result.fold(
-      (failure) =>
-          state.copyWith(state: RequestState.error, message: failure.message),
-      (communities) => state.copyWith(
-        state: RequestState.loaded,
-        communities: communities,
-        message: '',
+    emit(
+      result.fold(
+        (failure) =>
+            state.copyWith(state: RequestState.error, message: failure.message),
+        (communities) => state.copyWith(
+          state: RequestState.loaded,
+          communities: communities,
+          message: '',
+        ),
       ),
-    ));
+    );
   }
 }

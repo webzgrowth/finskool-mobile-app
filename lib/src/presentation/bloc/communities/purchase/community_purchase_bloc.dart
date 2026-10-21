@@ -23,7 +23,7 @@ part 'community_purchase_bloc.freezed.dart';
 class CommunityPurchaseBloc
     extends Bloc<CommunityPurchaseEvent, CommunityPurchaseState> {
   CommunityPurchaseBloc(this._complianceStatus)
-      : super(CommunityPurchaseState.initial()) {
+    : super(CommunityPurchaseState.initial()) {
     on<CommunityPurchaseEvent>((event, emit) {
       event.map(
         started: (value) => emit(

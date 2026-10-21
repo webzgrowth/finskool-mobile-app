@@ -9,7 +9,8 @@ import 'package:finskool/src/domain/model/auth/user_model.dart';
 /// `data/repository/auth_repository_impl.dart`.
 abstract class AuthRepository {
   Future<Either<Failure, RegisterResultModel>> register(
-      RegisterRequestModel request);
+    RegisterRequestModel request,
+  );
 
   Future<Either<Failure, Unit>> verifyOtp({
     required String userId,

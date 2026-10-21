@@ -6,6 +6,7 @@ import 'package:finskool/src/utilities/theme/theme.dart';
 import 'package:finskool/src/domain/model/community/community_access.dart';
 import 'package:finskool/src/domain/model/community/community_model.dart';
 import 'package:finskool/src/presentation/bloc/authentication/authenticator_watcher/authenticator_watcher_bloc.dart';
+import 'package:finskool/src/presentation/bloc/tickets/unread/tickets_unread_bloc.dart';
 import 'package:finskool/src/presentation/bloc/communities/compliance/compliance_bloc.dart';
 import 'package:finskool/src/presentation/bloc/communities/list/communities_bloc.dart';
 import 'package:finskool/src/presentation/bloc/communities/purchase/community_purchase_bloc.dart';
@@ -121,10 +122,15 @@ class ProfileScreen extends StatelessWidget {
                       icon: const Icon(ProfileIcons.tickets),
                       title: 'My tickets',
                       subtitle: 'Track your queries',
-                      // Decorative mock count, same treatment as the Feed's
-                      // "01:11" duration badge — not a ticketing domain
-                      // model for one badge number.
-                      trailing: const _CountBadge(count: 4),
+                      // The real unread-reply count, kept live by the socket
+                      // through `TicketsUnreadBloc`. Hidden at zero rather
+                      // than drawing an empty "0" disc.
+                      trailing:
+                          BlocBuilder<TicketsUnreadBloc, TicketsUnreadState>(
+                            builder: (context, state) => state.count > 0
+                                ? _CountBadge(count: state.count)
+                                : const SizedBox.shrink(),
+                          ),
                       onTap: () =>
                           context.push(AppRoutes.SUPPORT_TICKETS_ROUTE_PATH),
                     ),

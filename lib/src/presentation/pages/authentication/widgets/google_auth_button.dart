@@ -38,7 +38,11 @@ class GoogleAuthButton extends StatelessWidget {
           : Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                SvgPicture.asset('assets/icons/google.svg', height: 18, width: 18),
+                SvgPicture.asset(
+                  'assets/icons/google.svg',
+                  height: 18,
+                  width: 18,
+                ),
                 const SizedBox(width: AppSpacing.sm),
                 Text(label, style: tt.titleSmall),
               ],

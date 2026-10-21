@@ -15,7 +15,7 @@ class ComplianceDetailsModel {
   final String panNumber;
 
   Map<String, dynamic> toJson() => {
-        'dateOfBirth': dateOfBirth,
-        'panNumber': panNumber,
-      };
+    'dateOfBirth': dateOfBirth,
+    'panNumber': panNumber,
+  };
 }

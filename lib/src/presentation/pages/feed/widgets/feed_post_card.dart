@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:finskool/src/comman/rich_text_spans.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
 import 'package:finskool/src/domain/model/feed_post_model.dart';
+
 import 'post_author_row.dart';
 import 'post_media_carousel.dart';
 import 'post_reaction_bar.dart';
@@ -17,7 +18,10 @@ class FeedPostCard extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     return Container(
       margin: const EdgeInsets.only(
-          left: AppSpacing.lg, right: AppSpacing.lg, bottom: AppSpacing.lg),
+        left: AppSpacing.lg,
+        right: AppSpacing.lg,
+        bottom: AppSpacing.lg,
+      ),
       padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
         color: cs.surface,
@@ -44,13 +48,15 @@ class FeedPostCard extends StatelessWidget {
           const SizedBox(height: AppSpacing.xs),
           // `content` is HTML from the admin composer (the spec says
           // Markdown; it isn't) — bodySpans sniffs and renders either.
-          Text.rich(TextSpan(
-            children: bodySpans(
-              post.body,
-              context.feedType.body,
-              context.feedType.bodyBold,
+          Text.rich(
+            TextSpan(
+              children: bodySpans(
+                post.body,
+                context.feedType.body,
+                context.feedType.bodyBold,
+              ),
             ),
-          )),
+          ),
           const SizedBox(height: AppSpacing.md),
           PostMediaCarousel(media: post.media),
           const SizedBox(height: AppSpacing.md),

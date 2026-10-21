@@ -72,9 +72,7 @@ class _PlanRow extends StatelessWidget {
             height: 40,
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
             decoration: BoxDecoration(
-              color: selected
-                  ? accent.withValues(alpha: 0.08)
-                  : cs.surface,
+              color: selected ? accent.withValues(alpha: 0.08) : cs.surface,
               borderRadius: AppRadii.small,
               border: Border.all(
                 color: selected ? accent : AppPalette.tabDivider,
@@ -92,14 +90,16 @@ class _PlanRow extends StatelessWidget {
                     plan.label,
                     overflow: TextOverflow.ellipsis,
                     style: type.planLabel.copyWith(
-                        color: selected ? accent : AppPalette.postMeta),
+                      color: selected ? accent : AppPalette.postMeta,
+                    ),
                   ),
                 ),
                 const SizedBox(width: AppSpacing.xs),
                 Text(
                   plan.priceLabel,
-                  style: type.planLabel
-                      .copyWith(color: selected ? accent : null),
+                  style: type.planLabel.copyWith(
+                    color: selected ? accent : null,
+                  ),
                 ),
               ],
             ),
@@ -109,16 +109,17 @@ class _PlanRow extends StatelessWidget {
               top: -9,
               right: 8,
               child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                 decoration: BoxDecoration(
                   // The flag picks up the row's state: teal on the selected
                   // plan, slate on the others.
                   color: selected ? accent : AppPalette.postMeta,
                   borderRadius: BorderRadius.circular(AppRadii.pill),
                 ),
-                child: Text(plan.saveLabel!,
-                    style: type.memberCount.copyWith(fontSize: 9)),
+                child: Text(
+                  plan.saveLabel!,
+                  style: type.memberCount.copyWith(fontSize: 9),
+                ),
               ),
             ),
         ],

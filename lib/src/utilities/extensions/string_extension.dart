@@ -5,11 +5,10 @@ extension StringExtension on String {
       length < this.length ? substring(0, length) : this;
 }
 
-
 /// capitalize the first letter of the string
 extension Capitalize on String {
   /// capitalize the first letter of the string
-  String get capitalize  {
+  String get capitalize {
     return "${this[0].toUpperCase()}${this.substring(1)}";
   }
 }

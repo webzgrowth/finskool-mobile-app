@@ -13,6 +13,7 @@ import 'extensions/community_typography.dart';
 import 'extensions/feed_typography.dart';
 import 'extensions/profile_typography.dart';
 import 'extensions/subscription_detail_typography.dart';
+import 'extensions/ticket_typography.dart';
 import 'text/app_text_theme.dart';
 import 'tokens/app_typography.dart';
 
@@ -43,6 +44,7 @@ class AppTheme {
         CommunityTypography.of(cs.brightness),
         ProfileTypography.of(cs.brightness),
         SubscriptionDetailTypography.of(cs.brightness),
+        TicketTypography.of(cs.brightness),
       ],
       appBarTheme: buildAppBarTheme(cs, tt),
       iconTheme: buildIconTheme(cs),

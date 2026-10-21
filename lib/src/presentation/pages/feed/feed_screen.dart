@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:finskool/src/presentation/bloc/feed/posts/feed_bloc.dart';
+
 import 'widgets/feed_list_view.dart';
 import 'widgets/feed_top_bar.dart';
 

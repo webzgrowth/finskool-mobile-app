@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show FilteringTextInputFormatter;
 import 'package:finskool/src/comman/country_codes.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
+
 import 'field_label.dart';
 import 'auth_field_icons.dart';
 import 'country_code_chip.dart';
@@ -45,7 +46,10 @@ class PhoneField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const FieldLabel(iconAsset: AuthFieldIcons.phone, label: 'Phone Number'),
+        const FieldLabel(
+          iconAsset: AuthFieldIcons.phone,
+          label: 'Phone Number',
+        ),
         const SizedBox(height: AppSpacing.sm),
         SizedBox(
           height: _fieldHeight,

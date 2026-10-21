@@ -70,17 +70,21 @@ class EditProfileBloc extends Bloc<EditProfileEvent, EditProfileState> {
     // Validate on submit, not per keystroke.
     final nameError = Validators.required(state.name, 'Full name');
     final emailError = Validators.email(state.email);
-    final phoneError =
-        Validators.phone(state.phone, expectedDigits: state.country.digits);
+    final phoneError = Validators.phone(
+      state.phone,
+      expectedDigits: state.country.digits,
+    );
 
     if (nameError != null || emailError != null || phoneError != null) {
-      emit(state.copyWith(
-        state: RequestState.error,
-        message: '',
-        nameError: nameError,
-        emailError: emailError,
-        phoneError: phoneError,
-      ));
+      emit(
+        state.copyWith(
+          state: RequestState.error,
+          message: '',
+          nameError: nameError,
+          emailError: emailError,
+          phoneError: phoneError,
+        ),
+      );
       return;
     }
 
@@ -93,18 +97,19 @@ class EditProfileBloc extends Bloc<EditProfileEvent, EditProfileState> {
     );
 
     result.fold(
-      (failure) => emit(state.copyWith(
-        state: RequestState.error,
-        message: failure.message,
-      )),
+      (failure) => emit(
+        state.copyWith(state: RequestState.error, message: failure.message),
+      ),
       // Re-anchor on the saved user, or `isDirty` would keep comparing
       // against the pre-save values and report unsaved changes forever.
-      (updated) => emit(state.copyWith(
-        state: RequestState.loaded,
-        message: 'Profile updated.',
-        isEditing: false,
-        user: updated,
-      )),
+      (updated) => emit(
+        state.copyWith(
+          state: RequestState.loaded,
+          message: 'Profile updated.',
+          isEditing: false,
+          user: updated,
+        ),
+      ),
     );
   }
 }

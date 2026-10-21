@@ -2,13 +2,17 @@ import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 
 class CommonFunctions {
-  static double getHeight(
-      {required BuildContext context, required double height}) {
+  static double getHeight({
+    required BuildContext context,
+    required double height,
+  }) {
     return MediaQuery.of(context).size.height * height;
   }
 
-  static double getWidth(
-      {required BuildContext context, required double width}) {
+  static double getWidth({
+    required BuildContext context,
+    required double width,
+  }) {
     return MediaQuery.of(context).size.width * width;
   }
 

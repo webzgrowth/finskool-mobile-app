@@ -43,15 +43,28 @@ class _MemberSincePill extends StatelessWidget {
   final DateTime since;
 
   static const _months = [
-    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
   ];
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: 6),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.md,
+        vertical: 6,
+      ),
       decoration: BoxDecoration(
         color: AppPalette.secondary,
         borderRadius: BorderRadius.circular(AppRadii.pill),
@@ -62,12 +75,17 @@ class _MemberSincePill extends StatelessWidget {
           Container(
             height: 6,
             width: 6,
-            decoration: BoxDecoration(color: cs.onPrimary, shape: BoxShape.circle),
+            decoration: BoxDecoration(
+              color: cs.onPrimary,
+              shape: BoxShape.circle,
+            ),
           ),
           const SizedBox(width: AppSpacing.xs),
           Text(
             'Member since ${_months[since.month - 1]} ${since.year}',
-            style: context.profileType.memberSince.copyWith(color: cs.onPrimary),
+            style: context.profileType.memberSince.copyWith(
+              color: cs.onPrimary,
+            ),
           ),
         ],
       ),

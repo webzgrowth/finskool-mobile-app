@@ -18,7 +18,9 @@ List<TextSpan> boldSpans(String text, TextStyle base, TextStyle bold) {
 
   for (final match in pattern.allMatches(text)) {
     if (match.start > index) {
-      spans.add(TextSpan(text: text.substring(index, match.start), style: base));
+      spans.add(
+        TextSpan(text: text.substring(index, match.start), style: base),
+      );
     }
     spans.add(TextSpan(text: match.group(1), style: bold));
     index = match.end;
@@ -36,7 +38,7 @@ List<TextSpan> boldSpans(String text, TextStyle base, TextStyle bold) {
 /// rendering the other's markup as literal text.
 List<TextSpan> bodySpans(String text, TextStyle base, TextStyle bold) =>
     _htmlTag.hasMatch(text)
-        ? htmlSpans(text, base, bold)
-        : boldSpans(text, base, bold);
+    ? htmlSpans(text, base, bold)
+    : boldSpans(text, base, bold);
 
 final _htmlTag = RegExp(r'<\s*/?\s*[a-zA-Z][^>]*>');

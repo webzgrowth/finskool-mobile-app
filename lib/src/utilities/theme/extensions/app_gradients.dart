@@ -97,19 +97,18 @@ class AppGradients extends ThemeExtension<AppGradients> {
     Color? badgeAngry,
     Color? pickerSurface,
     Color? pickerBorder,
-  }) =>
-      AppGradients(
-        brand: brand ?? this.brand,
-        feedBase: feedBase ?? this.feedBase,
-        feedCard: feedCard ?? this.feedCard,
-        badgeLike: badgeLike ?? this.badgeLike,
-        badgeLove: badgeLove ?? this.badgeLove,
-        badgeHaha: badgeHaha ?? this.badgeHaha,
-        badgeWow: badgeWow ?? this.badgeWow,
-        badgeAngry: badgeAngry ?? this.badgeAngry,
-        pickerSurface: pickerSurface ?? this.pickerSurface,
-        pickerBorder: pickerBorder ?? this.pickerBorder,
-      );
+  }) => AppGradients(
+    brand: brand ?? this.brand,
+    feedBase: feedBase ?? this.feedBase,
+    feedCard: feedCard ?? this.feedCard,
+    badgeLike: badgeLike ?? this.badgeLike,
+    badgeLove: badgeLove ?? this.badgeLove,
+    badgeHaha: badgeHaha ?? this.badgeHaha,
+    badgeWow: badgeWow ?? this.badgeWow,
+    badgeAngry: badgeAngry ?? this.badgeAngry,
+    pickerSurface: pickerSurface ?? this.pickerSurface,
+    pickerBorder: pickerBorder ?? this.pickerBorder,
+  );
 
   @override
   AppGradients lerp(ThemeExtension<AppGradients>? other, double t) {

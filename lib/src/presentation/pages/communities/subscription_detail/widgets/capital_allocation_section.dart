@@ -36,10 +36,15 @@ class CapitalAllocationSection extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(capital.caption, style: type.capitalCaption),
                 const SizedBox(height: AppSpacing.xs),
-                Text.rich(TextSpan(
-                  children: bodySpans(
-                      capital.description, type.kitBody, type.kitBodyBold),
-                )),
+                Text.rich(
+                  TextSpan(
+                    children: bodySpans(
+                      capital.description,
+                      type.kitBody,
+                      type.kitBodyBold,
+                    ),
+                  ),
+                ),
               ],
             ),
           ),

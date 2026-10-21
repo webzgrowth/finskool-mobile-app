@@ -5,17 +5,18 @@ import 'package:finskool/src/domain/model/community/community_model.dart';
 
 void main() {
   test('a receipt is derived from the real plan and expiry', () {
-    final community = CommunityModel.fromCatalogJson({
-      'id': 'c1',
-      'name': 'Swing Alpha',
-      'slug': 'swing-alpha',
-      'plans': [
-        {'id': 'p3', 'name': '3 Month', 'durationMonths': 3, 'price': 3900},
-      ],
-    }).copyWith(
-      access: CommunityAccess.subscribed,
-      subscribedUntil: DateTime(2026, 7, 1),
-    );
+    final community =
+        CommunityModel.fromCatalogJson({
+          'id': 'c1',
+          'name': 'Swing Alpha',
+          'slug': 'swing-alpha',
+          'plans': [
+            {'id': 'p3', 'name': '3 Month', 'durationMonths': 3, 'price': 3900},
+          ],
+        }).copyWith(
+          access: CommunityAccess.subscribed,
+          subscribedUntil: DateTime(2026, 7, 1),
+        );
 
     final info = DemoSubscriptionDatasource.forCommunity(community)!;
     expect(info.plan.price, 3900);
@@ -53,9 +54,14 @@ void main() {
 
   test('transaction ids are stable, so they do not shuffle on navigation', () {
     final c = CommunityModel.fromMembershipJson({
-      'id': 'abc', 'name': 'X', 'slug': 'x', 'expiresAt': '2030-01-01',
+      'id': 'abc',
+      'name': 'X',
+      'slug': 'x',
+      'expiresAt': '2030-01-01',
     });
-    expect(DemoSubscriptionDatasource.forCommunity(c)!.transactionId,
-        DemoSubscriptionDatasource.forCommunity(c)!.transactionId);
+    expect(
+      DemoSubscriptionDatasource.forCommunity(c)!.transactionId,
+      DemoSubscriptionDatasource.forCommunity(c)!.transactionId,
+    );
   });
 }

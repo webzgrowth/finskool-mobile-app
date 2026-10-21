@@ -34,8 +34,11 @@ class PaymentSuccessScreen extends StatelessWidget {
         body: Center(
           child: Padding(
             padding: AppSpacing.screen,
-            child: Text('No payment in progress.',
-                textAlign: TextAlign.center, style: type.description),
+            child: Text(
+              'No payment in progress.',
+              textAlign: TextAlign.center,
+              style: type.description,
+            ),
           ),
         ),
       );
@@ -55,8 +58,10 @@ class PaymentSuccessScreen extends StatelessWidget {
               const Spacer(flex: 2),
               const SuccessAnimation(size: 160),
               const SizedBox(height: AppSpacing.xl),
-              Text(state.plan!.priceLabel,
-                  style: type.price.copyWith(fontSize: 28)),
+              Text(
+                state.plan!.priceLabel,
+                style: type.price.copyWith(fontSize: 28),
+              ),
               const SizedBox(height: AppSpacing.md),
               Text(
                 'Your payment has been successfully processed. '
@@ -65,8 +70,10 @@ class PaymentSuccessScreen extends StatelessWidget {
                 style: type.description,
               ),
               const Spacer(),
-              Text(formatIst(paidAt, 'd MMMM yyyy h:mm a'),
-                  style: type.pricePeriod),
+              Text(
+                formatIst(paidAt, 'd MMMM yyyy h:mm a'),
+                style: type.pricePeriod,
+              ),
               const SizedBox(height: 2),
               Text(
                 '${state.paymentMethod} transaction ID: ${state.transactionId}',
@@ -99,11 +106,13 @@ class _ContinueButton extends StatelessWidget {
             return;
           }
           // Compliance already done — unlock now and go back to the list.
-          final community =
-              context.read<CommunityPurchaseBloc>().state.community!;
-          context
-              .read<CommunitiesBloc>()
-              .add(CommunitiesEvent.unlockCommunity(community.id));
+          final community = context
+              .read<CommunityPurchaseBloc>()
+              .state
+              .community!;
+          context.read<CommunitiesBloc>().add(
+            CommunitiesEvent.unlockCommunity(community.id),
+          );
           context.go(AppRoutes.DASHBOARD_ROUTE_PATH);
         },
         child: Row(
