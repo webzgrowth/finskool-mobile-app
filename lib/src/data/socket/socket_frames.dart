@@ -76,15 +76,24 @@ class SocketError implements Exception {
 /// carry the services module's `service.*` traffic later without renaming
 /// anything.
 class SocketEvent {
-  const SocketEvent({required this.event, required this.data, this.ticketId});
+  const SocketEvent({
+    required this.event,
+    required this.data,
+    this.ticketId,
+    this.requestId,
+  });
 
   final String event;
   final String? ticketId;
+
+  /// The services module's equivalent of [ticketId].
+  final String? requestId;
   final Map<String, dynamic> data;
 
   factory SocketEvent.fromJson(Map<String, dynamic> json) => SocketEvent(
     event: json['event'] as String? ?? '',
     ticketId: json['ticketId'] as String?,
+    requestId: json['requestId'] as String?,
     data: json['data'] as Map<String, dynamic>? ?? const {},
   );
 }

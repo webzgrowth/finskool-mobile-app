@@ -2,23 +2,30 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:finskool/src/comman/routes.dart';
-import 'package:finskool/src/comman/widgets/animated_indexed_stack.dart';
 import 'package:finskool/src/presentation/bloc/authentication/authenticator_watcher/authenticator_watcher_bloc.dart';
 import 'package:finskool/src/presentation/bloc/dashboard/bottom_nav/bottom_nav_bloc.dart';
 import 'package:finskool/src/presentation/bloc/tickets/unread/tickets_unread_bloc.dart';
 import 'package:finskool/src/presentation/pages/feed/feed_screen.dart';
 import 'package:finskool/src/presentation/pages/communities/communities_screen.dart';
+import 'package:finskool/src/presentation/pages/services/services_screen.dart';
+import 'package:finskool/src/presentation/bloc/services/unread/services_unread_bloc.dart';
 
-import 'performance/performance_screen.dart';
 import 'profile/profile_screen.dart';
 import 'widgets/app_bottom_nav_bar.dart';
 
-/// Hosts the 4 bottom-nav tabs behind an [AnimatedIndexedStack] (an
-/// `IndexedStack` that fades the incoming tab in) — kept as a flat
+/// Hosts the 4 bottom-nav tabs behind a plain [IndexedStack] — kept as a flat
 /// widget switch (not a go_router `StatefulShellRoute`) since the router
 /// elsewhere in this app is flat too; revisit only if deep-linking to a
 /// specific tab becomes a requirement. `IndexedStack` (not a plain
 /// conditional) is what keeps Feed's scroll position across tab switches.
+///
+/// **No fade/slide on the switch itself** — every major app (WhatsApp,
+/// Instagram, Spotify) swaps bottom-nav tab bodies instantly. An
+/// `IndexedStack` only *paints* the selected child, so animating a fade-in
+/// doesn't cross-fade old-tab-into-new-tab; it reveals the new tab over the
+/// bare `Scaffold` background underneath, and since each tab's own background
+/// colour differs, that read as a flash no matter how short the animation
+/// was. An instant swap is both the fix and the platform convention.
 class DashboardShellScreen extends StatefulWidget {
   const DashboardShellScreen({super.key});
 
@@ -51,15 +58,23 @@ class _DashboardShellScreenState extends State<DashboardShellScreen> {
           // A confirmed session is what the tickets socket needs. Done here,
           // not in `initState`, because `authCheckRequest` is asynchronous:
           // connecting before it resolves would race a dead cookie.
-          authenticated: (_) => context.read<TicketsUnreadBloc>().add(
-            const TicketsUnreadEvent.started(),
-          ),
+          authenticated: (_) {
+            context.read<TicketsUnreadBloc>().add(
+              const TicketsUnreadEvent.started(),
+            );
+            context.read<ServicesUnreadBloc>().add(
+              const ServicesUnreadEvent.started(),
+            );
+          },
           unauthenticated: (_) {
             // Close the socket with the session — it authenticated once, at
             // upgrade, so it would otherwise keep streaming this account's
             // events into whoever signs in next.
             context.read<TicketsUnreadBloc>().add(
               const TicketsUnreadEvent.stopped(),
+            );
+            context.read<ServicesUnreadBloc>().add(
+              const ServicesUnreadEvent.stopped(),
             );
             // Back to Feed before leaving. BottomNavBloc is a singleton, so the
             // index would otherwise still point at whatever tab the user was on
@@ -72,12 +87,12 @@ class _DashboardShellScreenState extends State<DashboardShellScreen> {
       child: BlocBuilder<BottomNavBloc, BottomNavState>(
         builder: (context, state) {
           return Scaffold(
-            body: AnimatedIndexedStack(
+            body: IndexedStack(
               index: state.selectedIndex,
               children: const [
                 FeedScreen(),
                 CommunitiesScreen(),
-                PerformanceScreen(),
+                ServicesScreen(),
                 ProfileScreen(),
               ],
             ),

@@ -1,4 +1,16 @@
 {
   "git.autoRepositoryDetection": "openEditors",
-  "java.configuration.updateBuildConfiguration": "interactive"
+  "java.configuration.updateBuildConfiguration": "interactive",
+  // The Java extension imports android/ as a Gradle project, and injects
+  // its own bundled JRE as JAVA_HOME into every integrated terminal it
+  // opens — that JRE is stripped down for running the language server and
+  // has no jlink, so any Gradle build launched from inside VS Code (the
+  // Run button, or this project's integrated terminal) fails with
+  // "jlink executable ... does not exist". This pins JAVA_HOME back to a
+  // real JDK (Android Studio's bundled JBR) for every terminal VS Code
+  // opens in this workspace, so the extension's injection is overridden
+  // rather than needing `./gradlew --stop` after every build.
+  "terminal.integrated.env.osx": {
+    "JAVA_HOME": "/Applications/Android Studio.app/Contents/jbr/Contents/Home"
+  }
 }

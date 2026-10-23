@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 
-/// No design provided yet — simple placeholder wired into the bottom-nav
-/// shell so the tab exists and can be filled in later.
+/// A community's performance. Pushed from the community card's "Performance"
+/// button — it used to be a bottom-bar tab. No design provided yet, so it is a
+/// placeholder with a way back.
 class PerformanceScreen extends StatelessWidget {
-  const PerformanceScreen({super.key});
+  const PerformanceScreen({super.key, this.communityName});
+
+  final String? communityName;
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(child: Text('Performance — coming soon')),
+    return Scaffold(
+      appBar: AppBar(title: Text(communityName ?? 'Performance')),
+      body: const Center(child: Text('Performance — coming soon')),
     );
   }
 }

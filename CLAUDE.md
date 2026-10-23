@@ -369,13 +369,13 @@ This app ships on both platforms and a range of screen sizes, so:
 ## Feed / Dashboard
 
 `pages/dashboard/dashboard_shell_screen.dart` hosts the 4 bottom-nav tabs
-(Feed / Communities / Performance / Profile) behind an `IndexedStack`
+(Feed / Communities / Services / Profile) behind an `IndexedStack`
 driven by `BottomNavBloc` — a flat widget switch, not a go_router
 `StatefulShellRoute` (the router elsewhere in this app is flat too;
 revisit only if deep-linking to a specific tab becomes a requirement).
 `IndexedStack` (not a plain conditional) is what keeps Feed's scroll
 position across tab switches. Feed and Communities are fully built;
-Performance is an intentional bare placeholder pending design, and Profile
+Performance is no longer a tab (see "Services"), and Profile
 is a stub with a real logout (see Known gaps).
 
 Three singleton blocs back the Feed tab (see "Bloc granularity" above for
@@ -1344,6 +1344,55 @@ screenshot showed *that* icons exist (dark-teal circular discs, white
 glyphs) and confirmed their color/shape, but not the actual glyphs
 themselves; `profile_icons.dart` records the exact source node id for
 each so exporting and swapping is mechanical.
+
+## Services
+
+The **Services** tab (`pages/services/`) replaced Performance in the bottom bar.
+It lists what the support team can quote for (`GET /mobile/services/catalog`),
+each with **Enquire now**. Flow: enquire → a *service request* (`SR-12`) is
+created → member and admin chat → admin sends a **quote** → member pays through
+Razorpay → request is `paid` → admin closes it → member rates once.
+Contract: `service_module.md`.
+
+**Performance moved to the community card** — an outlined 124x42 button beside
+the CTA (`PerformanceButton`), pushing `/community/:id/performance`
+(`PerformanceScreen`, still a placeholder).
+
+Layers follow the usual chain: `services_remote_datasource` →
+`ServicesRepository` → 16 usecases in `domain/usecases/services/`. Chat, history
+and mark-read are **socket-only** over the *same* `TicketsSocket` as tickets
+(actions `service.message.send`, `service.history.get`, `service.read`; events
+`service.created|message|updated|read`, which carry a top-level `requestId`).
+One connection, one 30-frames/10s budget — don't open a second socket.
+
+Blocs, one per responsibility (`bloc/services/`): `ServicesCatalogBloc`,
+`ServicesFilterBloc`, `ServicesUnreadBloc` (all `@singleton`; the shell starts
+and stops unread with the session) and the route-scoped `@injectable`
+`ServiceEnquiryBloc`, `ServiceRequestsBloc`, `ServiceChatBloc`,
+`ServicePaymentBloc`.
+
+* **Enquire is immediate.** The card creates the request with a standard
+  `needs` line and an `Idempotency-Key` per service; `409
+  SERVICE_REQUEST_ALREADY_OPEN` finds the open one and the dialog says so.
+* **Quotes live in the bloc, not the message.** A quote message carries only
+  `quoteId`; `ServiceChatState.quotes` holds the live status (superseded,
+  expired, paid, cancelled), so a card updates without a refetch. Only an
+  `active` quote on an open request shows **Pay**.
+* **Payment**: billing sheet (name, GST state from `/gst-states`, optional
+  GSTIN/address) → `/pay` → Razorpay Checkout (`razorpay_flutter`, driven from
+  the widget layer in `RazorpayCheckout`) → `/payments/verify`. **Trust the
+  server, not Checkout**: success only means "ask the server"; a failed verify
+  keeps the proof and offers Retry, since money may have moved. Order `amount`
+  is in **paise**; every other amount is rupees.
+* Cancel is only before paying; the rating card is a single **Submit rating**
+  and only for a `closed` + `completed` request (same call as tickets).
+* The Services bell opens **My requests** (`/services/requests`).
+
+**Not in Figma** (built from the ticket chrome, flag for the designer): My
+requests list, the chat/quote card, the billing sheet and the payment states.
+**Figma fields with no API backing are omitted**: category line, price chips,
+"What You Get". **Deviation:** the submitted dialog's "View in My Tickets"
+reads "View request" — a service request is not a support ticket.
 
 ## Support tickets
 

@@ -15,13 +15,26 @@ import 'package:finskool/src/presentation/bloc/tickets/chat/ticket_chat_bloc.dar
 Future<void> openTicketAttachment(
   BuildContext context,
   TicketAttachmentModel attachment,
+) => openAttachment(
+  context,
+  attachment,
+  (id, result) => context.read<TicketChatBloc>().add(
+    TicketChatEvent.attachmentOpened(id, result),
+  ),
+);
+
+/// The shared body: [request] asks whichever bloc owns the conversation for
+/// a fresh link and completes the handed-in completer with it.
+Future<void> openAttachment(
+  BuildContext context,
+  TicketAttachmentModel attachment,
+  void Function(String id, Completer<String?> result) request,
 ) async {
   if (attachment.id.startsWith('local-')) return;
 
-  final bloc = context.read<TicketChatBloc>();
   final messenger = ScaffoldMessenger.of(context);
   final fresh = Completer<String?>();
-  bloc.add(TicketChatEvent.attachmentOpened(attachment.id, fresh));
+  request(attachment.id, fresh);
 
   final url = await fresh.future;
   if (url == null) return; // the bloc already surfaced why

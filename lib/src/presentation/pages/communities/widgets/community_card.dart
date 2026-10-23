@@ -9,6 +9,7 @@ import 'announcement_tag.dart';
 import 'community_cover.dart';
 import 'community_cta_button.dart';
 import 'community_tag_chip.dart';
+import 'performance_button.dart';
 import 'plan_selector.dart';
 import 'price_block.dart';
 import 'what_you_get_panel.dart';
@@ -26,6 +27,7 @@ class CommunityCard extends StatefulWidget {
     super.key,
     required this.community,
     required this.onCta,
+    this.onPerformance,
   });
 
   final CommunityModel community;
@@ -33,6 +35,9 @@ class CommunityCard extends StatefulWidget {
   /// Fires with the chosen plan, or null when the community isn't priced
   /// (subscribed → enter, pricing-on-request → enquire).
   final void Function(CommunityPlanModel? plan) onCta;
+
+  /// Opens the community's performance. Null hides the button.
+  final VoidCallback? onPerformance;
 
   @override
   State<CommunityCard> createState() => _CommunityCardState();
@@ -149,10 +154,22 @@ class _CommunityCardState extends State<CommunityCard> {
                     ),
                   ],
                   const SizedBox(height: AppSpacing.lg),
-                  CommunityCtaButton(
-                    label: community.ctaLabel,
-                    leadingLock: community.access.isLocked,
-                    onPressed: () => widget.onCta(showPricing ? _plan : null),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: CommunityCtaButton(
+                          label: community.ctaLabel,
+                          leadingLock: community.access.isLocked,
+                          onPressed: () =>
+                              widget.onCta(showPricing ? _plan : null),
+                        ),
+                      ),
+                      if (widget.onPerformance != null &&
+                          community.access.isSubscribed) ...[
+                        const SizedBox(width: 10),
+                        PerformanceButton(onPressed: widget.onPerformance!),
+                      ],
+                    ],
                   ),
                 ],
               ),

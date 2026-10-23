@@ -21,6 +21,8 @@ import 'package:finskool/src/data/datasource/posts_remote_datasource.dart'
     as _i45;
 import 'package:finskool/src/data/datasource/reaction_type_catalog.dart'
     as _i867;
+import 'package:finskool/src/data/datasource/services_remote_datasource.dart'
+    as _i645;
 import 'package:finskool/src/data/datasource/tickets_remote_datasource.dart'
     as _i559;
 import 'package:finskool/src/data/repository/auth_repository_impl.dart'
@@ -31,6 +33,8 @@ import 'package:finskool/src/data/repository/password_reset_repository_impl.dart
     as _i880;
 import 'package:finskool/src/data/repository/posts_repository_impl.dart'
     as _i1039;
+import 'package:finskool/src/data/repository/services_repository_impl.dart'
+    as _i93;
 import 'package:finskool/src/data/repository/tickets_repository_impl.dart'
     as _i745;
 import 'package:finskool/src/data/socket/tickets_socket.dart' as _i916;
@@ -40,6 +44,8 @@ import 'package:finskool/src/domain/repository/communities_repository.dart'
 import 'package:finskool/src/domain/repository/password_reset_repository.dart'
     as _i901;
 import 'package:finskool/src/domain/repository/posts_repository.dart' as _i365;
+import 'package:finskool/src/domain/repository/services_repository.dart'
+    as _i954;
 import 'package:finskool/src/domain/repository/tickets_repository.dart'
     as _i343;
 import 'package:finskool/src/domain/usecases/auth/get_auth_status.dart'
@@ -78,6 +84,38 @@ import 'package:finskool/src/domain/usecases/password_reset/send_reset_code.dart
     as _i402;
 import 'package:finskool/src/domain/usecases/password_reset/verify_reset_code.dart'
     as _i528;
+import 'package:finskool/src/domain/usecases/services/cancel_service_request.dart'
+    as _i281;
+import 'package:finskool/src/domain/usecases/services/create_service_request.dart'
+    as _i234;
+import 'package:finskool/src/domain/usecases/services/get_gst_states.dart'
+    as _i983;
+import 'package:finskool/src/domain/usecases/services/get_service_catalog.dart'
+    as _i497;
+import 'package:finskool/src/domain/usecases/services/get_service_history.dart'
+    as _i1025;
+import 'package:finskool/src/domain/usecases/services/get_service_invoice.dart'
+    as _i606;
+import 'package:finskool/src/domain/usecases/services/get_service_request.dart'
+    as _i566;
+import 'package:finskool/src/domain/usecases/services/get_service_requests.dart'
+    as _i710;
+import 'package:finskool/src/domain/usecases/services/get_service_unread_count.dart'
+    as _i706;
+import 'package:finskool/src/domain/usecases/services/mark_service_read.dart'
+    as _i533;
+import 'package:finskool/src/domain/usecases/services/rate_service.dart'
+    as _i1003;
+import 'package:finskool/src/domain/usecases/services/refresh_service_attachment_url.dart'
+    as _i71;
+import 'package:finskool/src/domain/usecases/services/send_service_message.dart'
+    as _i801;
+import 'package:finskool/src/domain/usecases/services/start_service_payment.dart'
+    as _i961;
+import 'package:finskool/src/domain/usecases/services/upload_service_attachment.dart'
+    as _i450;
+import 'package:finskool/src/domain/usecases/services/verify_service_payment.dart'
+    as _i868;
 import 'package:finskool/src/domain/usecases/tickets/create_ticket.dart'
     as _i325;
 import 'package:finskool/src/domain/usecases/tickets/get_ticket.dart' as _i39;
@@ -125,6 +163,20 @@ import 'package:finskool/src/presentation/bloc/feed/posts/feed_bloc.dart'
     as _i2;
 import 'package:finskool/src/presentation/bloc/profile/edit_profile/edit_profile_bloc.dart'
     as _i1036;
+import 'package:finskool/src/presentation/bloc/services/catalog/services_catalog_bloc.dart'
+    as _i508;
+import 'package:finskool/src/presentation/bloc/services/chat/service_chat_bloc.dart'
+    as _i698;
+import 'package:finskool/src/presentation/bloc/services/enquiry/service_enquiry_bloc.dart'
+    as _i969;
+import 'package:finskool/src/presentation/bloc/services/filter/services_filter_bloc.dart'
+    as _i348;
+import 'package:finskool/src/presentation/bloc/services/payment/service_payment_bloc.dart'
+    as _i507;
+import 'package:finskool/src/presentation/bloc/services/requests/service_requests_bloc.dart'
+    as _i36;
+import 'package:finskool/src/presentation/bloc/services/unread/services_unread_bloc.dart'
+    as _i90;
 import 'package:finskool/src/presentation/bloc/tickets/chat/ticket_chat_bloc.dart'
     as _i50;
 import 'package:finskool/src/presentation/bloc/tickets/form/ticket_form_bloc.dart'
@@ -147,6 +199,7 @@ extension GetItInjectableX on _i174.GetIt {
     gh.singleton<_i747.GoogleSigninBloc>(() => _i747.GoogleSigninBloc());
     gh.singleton<_i0.CommunityFilterBloc>(() => _i0.CommunityFilterBloc());
     gh.singleton<_i64.BottomNavBloc>(() => _i64.BottomNavBloc());
+    gh.singleton<_i348.ServicesFilterBloc>(() => _i348.ServicesFilterBloc());
     gh.lazySingleton<_i373.ApiClient>(() => _i373.ApiClient());
     gh.lazySingleton<_i916.TicketsSocket>(() => _i916.TicketsSocket());
     gh.lazySingleton<_i10.AuthRemoteDatasource>(
@@ -168,6 +221,12 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i45.PostsRemoteDatasource(
         gh<_i373.ApiClient>(),
         gh<_i867.ReactionTypeCatalog>(),
+      ),
+    );
+    gh.lazySingleton<_i645.ServicesRemoteDatasource>(
+      () => _i645.ServicesRemoteDatasource(
+        gh<_i373.ApiClient>(),
+        gh<_i559.TicketsRemoteDatasource>(),
       ),
     );
     gh.lazySingleton<_i122.CommunitiesRepository>(
@@ -221,6 +280,12 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i402.SendResetCode>(),
         gh<_i528.VerifyResetCode>(),
         gh<_i360.ResetPassword>(),
+      ),
+    );
+    gh.lazySingleton<_i954.ServicesRepository>(
+      () => _i93.ServicesRepositoryImpl(
+        gh<_i645.ServicesRemoteDatasource>(),
+        gh<_i916.TicketsSocket>(),
       ),
     );
     gh.lazySingleton<_i325.CreateTicket>(
@@ -329,6 +394,54 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i605.SetPostNotificationsEnabled>(),
       ),
     );
+    gh.lazySingleton<_i281.CancelServiceRequest>(
+      () => _i281.CancelServiceRequest(gh<_i954.ServicesRepository>()),
+    );
+    gh.lazySingleton<_i234.CreateServiceRequest>(
+      () => _i234.CreateServiceRequest(gh<_i954.ServicesRepository>()),
+    );
+    gh.lazySingleton<_i983.GetGstStates>(
+      () => _i983.GetGstStates(gh<_i954.ServicesRepository>()),
+    );
+    gh.lazySingleton<_i497.GetServiceCatalog>(
+      () => _i497.GetServiceCatalog(gh<_i954.ServicesRepository>()),
+    );
+    gh.lazySingleton<_i1025.GetServiceHistory>(
+      () => _i1025.GetServiceHistory(gh<_i954.ServicesRepository>()),
+    );
+    gh.lazySingleton<_i606.GetServiceInvoice>(
+      () => _i606.GetServiceInvoice(gh<_i954.ServicesRepository>()),
+    );
+    gh.lazySingleton<_i566.GetServiceRequest>(
+      () => _i566.GetServiceRequest(gh<_i954.ServicesRepository>()),
+    );
+    gh.lazySingleton<_i710.GetServiceRequests>(
+      () => _i710.GetServiceRequests(gh<_i954.ServicesRepository>()),
+    );
+    gh.lazySingleton<_i706.GetServiceUnreadCount>(
+      () => _i706.GetServiceUnreadCount(gh<_i954.ServicesRepository>()),
+    );
+    gh.lazySingleton<_i533.MarkServiceRead>(
+      () => _i533.MarkServiceRead(gh<_i954.ServicesRepository>()),
+    );
+    gh.lazySingleton<_i1003.RateService>(
+      () => _i1003.RateService(gh<_i954.ServicesRepository>()),
+    );
+    gh.lazySingleton<_i71.RefreshServiceAttachmentUrl>(
+      () => _i71.RefreshServiceAttachmentUrl(gh<_i954.ServicesRepository>()),
+    );
+    gh.lazySingleton<_i801.SendServiceMessage>(
+      () => _i801.SendServiceMessage(gh<_i954.ServicesRepository>()),
+    );
+    gh.lazySingleton<_i961.StartServicePayment>(
+      () => _i961.StartServicePayment(gh<_i954.ServicesRepository>()),
+    );
+    gh.lazySingleton<_i450.UploadServiceAttachment>(
+      () => _i450.UploadServiceAttachment(gh<_i954.ServicesRepository>()),
+    );
+    gh.lazySingleton<_i868.VerifyServicePayment>(
+      () => _i868.VerifyServicePayment(gh<_i954.ServicesRepository>()),
+    );
     gh.factory<_i374.TicketsListBloc>(
       () => _i374.TicketsListBloc(
         gh<_i578.GetTickets>(),
@@ -337,6 +450,13 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.singleton<_i251.SignUpFormBloc>(
       () => _i251.SignUpFormBloc(gh<_i119.RegisterUser>()),
+    );
+    gh.factory<_i507.ServicePaymentBloc>(
+      () => _i507.ServicePaymentBloc(
+        gh<_i983.GetGstStates>(),
+        gh<_i961.StartServicePayment>(),
+        gh<_i868.VerifyServicePayment>(),
+      ),
     );
     gh.singleton<_i967.ComplianceBloc>(
       () => _i967.ComplianceBloc(gh<_i510.SubmitCompliance>()),
@@ -347,6 +467,12 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i970.GetPostReactions>(),
         gh<_i644.ReactToPost>(),
         gh<_i757.RemoveReaction>(),
+      ),
+    );
+    gh.factory<_i36.ServiceRequestsBloc>(
+      () => _i36.ServiceRequestsBloc(
+        gh<_i710.GetServiceRequests>(),
+        gh<_i916.TicketsSocket>(),
       ),
     );
     gh.singleton<_i1036.EditProfileBloc>(
@@ -370,8 +496,37 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i775.ResendOtp>(),
       ),
     );
+    gh.factory<_i969.ServiceEnquiryBloc>(
+      () => _i969.ServiceEnquiryBloc(
+        gh<_i234.CreateServiceRequest>(),
+        gh<_i710.GetServiceRequests>(),
+      ),
+    );
     gh.singleton<_i598.LoginFormBloc>(
       () => _i598.LoginFormBloc(gh<_i379.LoginUser>()),
+    );
+    gh.singleton<_i508.ServicesCatalogBloc>(
+      () => _i508.ServicesCatalogBloc(gh<_i497.GetServiceCatalog>()),
+    );
+    gh.factory<_i698.ServiceChatBloc>(
+      () => _i698.ServiceChatBloc(
+        gh<_i566.GetServiceRequest>(),
+        gh<_i1025.GetServiceHistory>(),
+        gh<_i801.SendServiceMessage>(),
+        gh<_i533.MarkServiceRead>(),
+        gh<_i281.CancelServiceRequest>(),
+        gh<_i1003.RateService>(),
+        gh<_i450.UploadServiceAttachment>(),
+        gh<_i71.RefreshServiceAttachmentUrl>(),
+        gh<_i606.GetServiceInvoice>(),
+        gh<_i916.TicketsSocket>(),
+      ),
+    );
+    gh.singleton<_i90.ServicesUnreadBloc>(
+      () => _i90.ServicesUnreadBloc(
+        gh<_i706.GetServiceUnreadCount>(),
+        gh<_i916.TicketsSocket>(),
+      ),
     );
     return this;
   }

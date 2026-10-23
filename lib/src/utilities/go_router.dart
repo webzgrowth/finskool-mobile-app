@@ -14,6 +14,9 @@ import 'package:finskool/src/presentation/pages/authentication/google_last_step/
 import 'package:finskool/src/presentation/pages/authentication/signup_success/signup_success_screen.dart';
 import 'package:finskool/src/presentation/pages/dashboard/dashboard_shell_screen.dart';
 import 'package:finskool/src/presentation/pages/communities/detail/community_detail_screen.dart';
+import 'package:finskool/src/presentation/pages/dashboard/performance/performance_screen.dart';
+import 'package:finskool/src/presentation/pages/services/chat/service_chat_screen.dart';
+import 'package:finskool/src/presentation/pages/services/requests/service_requests_screen.dart';
 import 'package:finskool/src/presentation/pages/communities/payment_success/payment_success_screen.dart';
 import 'package:finskool/src/presentation/pages/communities/compliance/compliance_screen.dart';
 import 'package:finskool/src/presentation/pages/dashboard/profile/widgets/profile_placeholder_screen.dart';
@@ -123,6 +126,12 @@ GoRouter routerinit = GoRouter(
     // matches in declaration order, and `payment-success` would otherwise
     // be captured as an `:id`.
     GoRoute(
+      name: AppRoutes.COMMUNITY_PERFORMANCE_ROUTE_NAME,
+      path: AppRoutes.COMMUNITY_PERFORMANCE_ROUTE_PATH,
+      builder: (BuildContext context, GoRouterState state) =>
+          const PerformanceScreen(),
+    ),
+    GoRoute(
       name: AppRoutes.SUBSCRIPTION_DETAIL_ROUTE_NAME,
       path: AppRoutes.SUBSCRIPTION_DETAIL_ROUTE_PATH,
       builder: (BuildContext context, GoRouterState state) {
@@ -210,6 +219,21 @@ GoRouter routerinit = GoRouter(
       path: AppRoutes.TICKET_DETAIL_ROUTE_PATH,
       builder: (BuildContext context, GoRouterState state) =>
           TicketDetailScreen(ticketId: state.pathParameters['id']!),
+    ),
+
+    ///  ********************* Services Routes ****************************
+    // `requests` is a literal, so it goes before the `:id` path.
+    GoRoute(
+      name: AppRoutes.SERVICE_REQUESTS_ROUTE_NAME,
+      path: AppRoutes.SERVICE_REQUESTS_ROUTE_PATH,
+      builder: (BuildContext context, GoRouterState state) =>
+          const ServiceRequestsScreen(),
+    ),
+    GoRoute(
+      name: AppRoutes.SERVICE_CHAT_ROUTE_NAME,
+      path: AppRoutes.SERVICE_CHAT_ROUTE_PATH,
+      builder: (BuildContext context, GoRouterState state) =>
+          ServiceChatScreen(requestId: state.pathParameters['id']!),
     ),
     GoRoute(
       name: AppRoutes.HELP_SUPPORT_ROUTE_NAME,

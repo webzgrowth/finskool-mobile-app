@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:finskool/src/comman/widgets/skeleton.dart';
 import 'package:finskool/src/domain/model/feed_post_model.dart';
 import 'package:finskool/src/presentation/bloc/feed/posts/feed_bloc.dart';
 
 import 'feed_post_card.dart';
+import 'feed_post_card_skeleton.dart';
 import 'feed_status_slivers.dart';
 
 /// The feed's list-or-status slivers, split out of `feed_screen.dart` so that
@@ -20,7 +22,17 @@ List<Widget> feedBodySlivers(
   if (state.posts.isEmpty) {
     if (state.state.isLoading || state.state.isEmpty) {
       return const [
-        SliverFillRemaining(child: Center(child: CircularProgressIndicator())),
+        SliverToBoxAdapter(
+          child: Shimmer(
+            child: Column(
+              children: [
+                FeedPostCardSkeleton(),
+                FeedPostCardSkeleton(),
+                FeedPostCardSkeleton(),
+              ],
+            ),
+          ),
+        ),
       ];
     }
     if (state.state.isError) {

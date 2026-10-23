@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
-import 'package:finskool/src/comman/routes.dart';
 import 'package:finskool/src/presentation/bloc/authentication/login_form/login_form_bloc.dart';
 import 'package:finskool/src/presentation/bloc/authentication/sing_up_form/sign_up_form_bloc.dart';
 
@@ -47,15 +45,18 @@ class _AuthScreenState extends State<AuthScreen> {
     }
   }
 
+  // Deliberately **not** `context.go`/`context.replace`: `/login` and
+  // `/signup` each build a fresh `AuthScreen` through `fadeThroughPage`
+  // (420ms), so routing here stacked that whole-screen transition on top of
+  // the in-place crossfade below — the double animation read as a flash, and
+  // a tap during the route's own transition could land on a widget already
+  // mid-dispose, which is why it sometimes took two taps. `AuthTabScope`'s
+  // own doc comment already says the point of this path is to switch
+  // "instead of navigating"; this was the one place still doing both.
   void _select(AuthTab tab) {
     if (tab == _tab) return;
     setState(() => _tab = tab);
     _resetTab(tab);
-    context.replace(
-      tab == AuthTab.login
-          ? AppRoutes.LOGIN_ROUTE_PATH
-          : AppRoutes.SIGNUP_ROUTE_PATH,
-    );
   }
 
   @override

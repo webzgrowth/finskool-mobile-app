@@ -22,6 +22,7 @@ class SearchTopBar extends StatelessWidget {
     required this.onQueryChanged,
     this.onFilterTap,
     this.notificationCount,
+    this.onNotificationsTap,
     this.onBack,
     this.title,
     this.showNotifications = true,
@@ -33,6 +34,10 @@ class SearchTopBar extends StatelessWidget {
 
   /// Shown as a red count on the bell. Null or 0 draws the bell bare.
   final int? notificationCount;
+
+  /// Makes the bell tappable (Services opens "My requests"). Null leaves it
+  /// decorative, as on the other tabs.
+  final VoidCallback? onNotificationsTap;
 
   /// A back arrow and screen title above the search field, for a *pushed*
   /// feed (a single community). The two tabs pass neither.
@@ -144,7 +149,10 @@ class SearchTopBar extends StatelessWidget {
                 ),
                 if (showNotifications) ...[
                   const SizedBox(width: 25),
-                  _NotificationBell(count: notificationCount),
+                  _NotificationBell(
+                    count: notificationCount,
+                    onTap: onNotificationsTap,
+                  ),
                 ],
               ],
             ),
@@ -291,14 +299,15 @@ class _Glass extends StatelessWidget {
 }
 
 class _NotificationBell extends StatelessWidget {
-  const _NotificationBell({this.count});
+  const _NotificationBell({this.count, this.onTap});
 
   final int? count;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final showCount = count != null && count! > 0;
-    return Container(
+    final bell = Container(
       height: 29.17,
       width: 29.17,
       decoration: const BoxDecoration(
@@ -336,6 +345,13 @@ class _NotificationBell extends StatelessWidget {
         ],
       ),
     );
+    return onTap == null
+        ? bell
+        : GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: onTap,
+            child: bell,
+          );
   }
 }
 

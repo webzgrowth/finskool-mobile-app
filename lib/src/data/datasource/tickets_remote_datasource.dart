@@ -115,18 +115,22 @@ class TicketsRemoteDatasource {
   ///
   /// Presigning happens **here, immediately before the upload**, not when
   /// the form opens: the link is only valid for 5 minutes.
+  ///
+  /// [presignPath] defaults to the tickets endpoint; the services module has
+  /// its own, with identical behaviour and a different folder server-side.
   Future<TicketUploadModel> uploadAttachment(
     File file, {
     String? fileName,
+    String presignPath = Api.ticketPresign,
   }) async {
     fileName ??= file.uri.pathSegments.last;
     final bytes = await file.readAsBytes();
 
     final data = await _client.post(
-      Api.ticketPresign,
+      presignPath,
       body: {'fileName': fileName, 'sizeBytes': bytes.length},
     );
-    final presigned = _require(data, Api.ticketPresign);
+    final presigned = _require(data, presignPath);
     final uploadUrl = presigned['uploadUrl'] as String?;
     final objectKey = presigned['objectKey'] as String?;
     if (uploadUrl == null || objectKey == null) {

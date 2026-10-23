@@ -281,4 +281,10 @@ class AppPalette {
   static const Color errorDark = Color(0xFFF2B8B5);
   static const Color success = Color(0xFF2E7D5B);
   static const Color warning = Color(0xFFB26A00);
+
+  // Skeleton loading (see `comman/widgets/skeleton.dart`) — a neutral,
+  // slightly-warm grey rather than the brand teal, so a loading screen
+  // doesn't read as "tinted" before any real content has painted.
+  static const Color skeletonBase = Color(0xFFE9E9EC);
+  static const Color skeletonHighlight = Color(0xFFF7F7F9);
 }

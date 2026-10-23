@@ -9,6 +9,9 @@ import 'package:finskool/src/presentation/pages/tickets/widgets/ticket_header.da
 import 'package:finskool/src/presentation/pages/tickets/widgets/ticket_sheet_page.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
 
+import 'package:finskool/src/comman/widgets/skeleton.dart';
+import 'package:finskool/src/presentation/pages/tickets/widgets/ticket_card_skeleton.dart';
+
 import 'widgets/tickets_empty_view.dart';
 import 'widgets/tickets_list_body.dart';
 
@@ -89,7 +92,20 @@ class _TicketsView extends StatelessWidget {
 
   Widget _body(BuildContext context, TicketsListState state, bool empty) {
     if (state.state.isLoading || state.state.isEmpty) {
-      return const Center(child: CircularProgressIndicator());
+      return const Shimmer(
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(20, 19, 20, 0),
+          child: Column(
+            children: [
+              TicketCardSkeleton(),
+              SizedBox(height: 12),
+              TicketCardSkeleton(),
+              SizedBox(height: 12),
+              TicketCardSkeleton(),
+            ],
+          ),
+        ),
+      );
     }
     if (state.state.isError) {
       return _Retry(

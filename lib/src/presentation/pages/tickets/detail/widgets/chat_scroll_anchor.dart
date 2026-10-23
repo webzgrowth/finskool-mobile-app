@@ -1,5 +1,16 @@
 import 'package:flutter/widgets.dart';
+import 'package:finskool/src/domain/model/ticket/ticket_message_model.dart';
+import 'package:finskool/src/presentation/bloc/services/chat/service_chat_bloc.dart';
 import 'package:finskool/src/presentation/bloc/tickets/chat/ticket_chat_bloc.dart';
+
+/// What the anchor needs from a chat's state — so tickets and service
+/// requests, whose states differ, share one scroll behaviour.
+class ChatSnapshot {
+  const ChatSnapshot(this.messages, this.isLoadingEarlier);
+
+  final List<TicketMessageModel> messages;
+  final bool isLoadingEarlier;
+}
 
 /// Keeps a chat list where the member expects it as messages come and go.
 ///
@@ -14,7 +25,7 @@ class ChatScrollAnchor {
   final ScrollController controller;
   final bool Function() isMounted;
 
-  TicketChatState? _last;
+  ChatSnapshot? _last;
 
   /// `maxScrollExtent` when an "earlier messages" fetch began.
   double _extentBeforePrepend = 0;
@@ -26,7 +37,13 @@ class ChatScrollAnchor {
         if (isMounted() && controller.hasClients) action();
       });
 
-  void onState(TicketChatState s) {
+  void onState(TicketChatState s) =>
+      onSnapshot(ChatSnapshot(s.messages, s.isLoadingEarlier));
+
+  void onServiceState(ServiceChatState s) =>
+      onSnapshot(ChatSnapshot(s.messages, s.isLoadingEarlier));
+
+  void onSnapshot(ChatSnapshot s) {
     final last = _last;
     _last = s;
     if (last == null) return;

@@ -57,7 +57,19 @@ class AppRoutes {
   static const String PROFILE_ROUTE_NAME = "Profile";
   static const String PROFILE_ROUTE_PATH = "/profile";
 
+  // Services routes. The literal `requests` path is registered before any
+  // parameterised one.
+  static const String SERVICE_REQUESTS_ROUTE_NAME = "service-requests";
+  static const String SERVICE_REQUESTS_ROUTE_PATH = "/services/requests";
+  static const String SERVICE_CHAT_ROUTE_NAME = "service-chat";
+  static const String SERVICE_CHAT_ROUTE_PATH = "/services/requests/:id";
+  static String serviceChat(String id) => "/services/requests/$id";
+
   // Community routes
+  static const String COMMUNITY_PERFORMANCE_ROUTE_NAME =
+      "community-performance";
+  static const String COMMUNITY_PERFORMANCE_ROUTE_PATH =
+      "/community/:id/performance";
   static const String COMMUNITY_DETAIL_ROUTE_NAME = "community-detail";
   static const String COMMUNITY_DETAIL_ROUTE_PATH = "/community/:id";
 

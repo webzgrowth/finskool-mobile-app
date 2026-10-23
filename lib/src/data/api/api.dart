@@ -101,6 +101,29 @@ class Api {
   static String ticketAttachmentUrl(String ticketId, String attachmentId) =>
       '/mobile/tickets/$ticketId/attachments/$attachmentId/url';
 
+  ///  =================================================================
+  ///  ************************** Services *****************************
+  ///  =================================================================
+
+  /// A request is "SR-12": the member asks, chats, gets a quote, pays through
+  /// Razorpay and later rates. Chat is socket-only, like tickets.
+  static const String services = '/mobile/services';
+  static const String serviceCatalog = '/mobile/services/catalog';
+  static const String serviceUnreadCount = '/mobile/services/unread-count';
+  static const String serviceGstStates = '/mobile/services/gst-states';
+  static const String servicePresign = '/mobile/services/attachments/presign';
+
+  static String service(String id) => '/mobile/services/$id';
+  static String serviceCancel(String id) => '/mobile/services/$id/cancel';
+  static String serviceRating(String id) => '/mobile/services/$id/rating';
+  static String serviceInvoice(String id) => '/mobile/services/$id/invoice';
+  static String serviceVerify(String id) =>
+      '/mobile/services/$id/payments/verify';
+  static String servicePay(String id, String quoteId) =>
+      '/mobile/services/$id/quotes/$quoteId/pay';
+  static String serviceAttachmentUrl(String id, String attachmentId) =>
+      '/mobile/services/$id/attachments/$attachmentId/url';
+
   /// The chat socket. **Not under `/api/v1`** — it hangs off the host root,
   /// so it is derived from [baseUrl]'s origin rather than appended to it,
   /// and the scheme has to become `ws`/`wss`.

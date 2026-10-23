@@ -12,12 +12,16 @@ import 'package:finskool/src/presentation/bloc/authentication/signup_verificatio
 import 'package:finskool/src/presentation/bloc/dashboard/bottom_nav/bottom_nav_bloc.dart';
 import 'package:finskool/src/presentation/bloc/feed/posts/feed_bloc.dart';
 import 'package:finskool/src/presentation/bloc/feed/filter/feed_filter_bloc.dart';
+import 'package:finskool/src/presentation/bloc/services/catalog/services_catalog_bloc.dart';
+import 'package:finskool/src/presentation/bloc/services/filter/services_filter_bloc.dart';
+import 'package:finskool/src/presentation/bloc/services/unread/services_unread_bloc.dart';
 import 'package:finskool/src/presentation/bloc/tickets/unread/tickets_unread_bloc.dart';
 import 'package:finskool/src/presentation/bloc/communities/list/communities_bloc.dart';
 import 'package:finskool/src/presentation/bloc/communities/filter/community_filter_bloc.dart';
 import 'package:finskool/src/presentation/bloc/communities/purchase/community_purchase_bloc.dart';
 import 'package:finskool/src/presentation/bloc/communities/compliance/compliance_bloc.dart';
 import 'package:finskool/src/presentation/bloc/profile/edit_profile/edit_profile_bloc.dart';
+import 'package:finskool/src/comman/widgets/ui_scaler.dart';
 import 'package:finskool/src/utilities/app_bloc_observer.dart';
 import 'package:finskool/src/utilities/go_router.dart';
 import 'package:finskool/src/utilities/logger.dart';
@@ -73,6 +77,9 @@ class MyApp extends StatelessWidget {
         // outside the tickets screens. The list, form and chat blocs are
         // route-scoped instead.
         BlocProvider(create: (_) => locator<TicketsUnreadBloc>()),
+        BlocProvider(create: (_) => locator<ServicesCatalogBloc>()),
+        BlocProvider(create: (_) => locator<ServicesFilterBloc>()),
+        BlocProvider(create: (_) => locator<ServicesUnreadBloc>()),
         // communities
         BlocProvider(create: (_) => locator<CommunitiesBloc>()),
         BlocProvider(create: (_) => locator<CommunityFilterBloc>()),
@@ -86,6 +93,9 @@ class MyApp extends StatelessWidget {
         theme: AppTheme.light,
         darkTheme: AppTheme.dark,
         themeMode: ThemeMode.light,
+        // Uniformly bumps icon/text sizes on a device wider than Figma's
+        // 393pt frame (most 6.6"+ Android phones) — see `UiScaler`.
+        builder: (context, child) => UiScaler(child: child!),
         routerConfig: routerinit,
       ),
     );

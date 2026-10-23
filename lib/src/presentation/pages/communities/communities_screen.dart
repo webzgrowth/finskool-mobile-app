@@ -12,7 +12,10 @@ import 'package:finskool/src/presentation/bloc/communities/filter/community_filt
 import 'package:finskool/src/presentation/bloc/communities/list/communities_bloc.dart';
 import 'package:finskool/src/presentation/bloc/communities/purchase/community_purchase_bloc.dart';
 
+import 'package:finskool/src/comman/widgets/skeleton.dart';
+
 import 'widgets/community_card.dart';
+import 'widgets/community_card_skeleton.dart';
 
 /// The Communities tab: a searchable catalog of communities, subscribed
 /// ones pinned to the top.
@@ -90,8 +93,15 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
                     // Figma: the first card sits 20 under the bar.
                     const SliverToBoxAdapter(child: SizedBox(height: 20)),
                     if (state.state.isLoading || state.state.isEmpty)
-                      const SliverFillRemaining(
-                        child: Center(child: CircularProgressIndicator()),
+                      const SliverToBoxAdapter(
+                        child: Shimmer(
+                          child: Column(
+                            children: [
+                              CommunityCardSkeleton(),
+                              CommunityCardSkeleton(),
+                            ],
+                          ),
+                        ),
                       )
                     else if (communities.isEmpty)
                       SliverFillRemaining(
@@ -109,6 +119,9 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
                         itemBuilder: (context, i) => CommunityCard(
                           community: communities[i],
                           onCta: (plan) => _onCta(communities[i], plan),
+                          onPerformance: () => context.push(
+                            '/community/${communities[i].id}/performance',
+                          ),
                         ),
                       ),
                     const SliverToBoxAdapter(child: SizedBox(height: 20)),
@@ -126,7 +139,11 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
     final query = rawQuery.trim().toLowerCase();
     // `pinnedFirst` keeps subscribed communities at the top, per the
     // designer's note on the canvas.
-    final all = state.pinnedFirst;
+    // Communities that only offer "request pricing" are handled in the
+    // Services tab, so they don't appear here.
+    final all = state.pinnedFirst
+        .where((c) => c.access != CommunityAccess.pricingOnRequest)
+        .toList();
     if (query.isEmpty) return all;
     return all
         .where(

@@ -10,7 +10,7 @@ import 'package:finskool/src/utilities/theme/theme.dart';
 
 import 'nav_bar_item.dart';
 
-/// The 4-tab dashboard bottom bar, driven entirely by [BottomNavBloc].
+/// The 4-tab dashboard bottom bar (Feed, Communities, Services, Profile), driven entirely by [BottomNavBloc].
 ///
 /// The three glyphs are Figma's own exports from `iPhone 16 - 12`
 /// (`element-3`, the people group and the trend arrow — the last is named
@@ -22,9 +22,9 @@ class AppBottomNavBar extends StatelessWidget {
   static const _glyphs = [
     'assets/icons/nav_feed.svg',
     'assets/icons/nav_communities.svg',
-    'assets/icons/nav_performance.svg',
+    'assets/icons/nav_services.svg',
   ];
-  static const _labels = ['Feed', 'Communities', 'Performance', 'Profile'];
+  static const _labels = ['Feed', 'Communities', 'Services', 'Profile'];
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +51,7 @@ class AppBottomNavBar extends StatelessWidget {
             bottom: MediaQuery.paddingOf(context).bottom,
           ),
           // Figma spaces the four tabs with space-between inside a 42 / 29px
-          // gutter — not four equal columns — so Communities and Performance
+          // gutter — not four equal columns — so Communities and Services
           // (the wide labels) sit closer together than Feed and Profile do.
           child: LayoutBuilder(
             builder: (context, box) => Padding(
