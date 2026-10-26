@@ -1,6 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:finskool/injections/injection.dart';
+import 'package:finskool/src/data/push/push_route.dart';
+import 'package:finskool/src/data/push/push_service.dart';
 import 'package:finskool/src/comman/routes.dart';
 import 'package:finskool/src/presentation/bloc/authentication/authenticator_watcher/authenticator_watcher_bloc.dart';
 import 'package:finskool/src/presentation/bloc/dashboard/bottom_nav/bottom_nav_bloc.dart';
@@ -34,9 +39,26 @@ class DashboardShellScreen extends StatefulWidget {
 }
 
 class _DashboardShellScreenState extends State<DashboardShellScreen> {
+  StreamSubscription<Map<String, dynamic>>? _pushTaps;
+
+  /// Opens the screen a tapped notification points at. The dashboard is where
+  /// we already are, so an unknown `type` simply does nothing.
+  void _openPush(Map<String, dynamic> data) {
+    final route = routeForPush(data);
+    if (!mounted || route == AppRoutes.DASHBOARD_ROUTE_PATH) return;
+    context.push(route);
+  }
+
+  @override
+  void dispose() {
+    _pushTaps?.cancel();
+    super.dispose();
+  }
+
   @override
   void initState() {
     super.initState();
+    _pushTaps = locator<PushService>().taps.listen(_openPush);
     // Re-resolve the session on entry. Logging in only updates LoginFormBloc,
     // so without this the watcher would still say "unauthenticated" and the
     // Profile tab would show nobody. Doing it here covers every route into
@@ -65,6 +87,15 @@ class _DashboardShellScreenState extends State<DashboardShellScreen> {
             context.read<ServicesUnreadBloc>().add(
               const ServicesUnreadEvent.started(),
             );
+            final push = locator<PushService>()..register();
+            // A tap that cold-started the app waited for sign-in to be
+            // confirmed; collect it now that there is a session to open it in.
+            final pending = push.takePending();
+            if (pending != null) {
+              WidgetsBinding.instance.addPostFrameCallback(
+                (_) => _openPush(pending),
+              );
+            }
           },
           unauthenticated: (_) {
             // Close the socket with the session — it authenticated once, at
@@ -76,6 +107,7 @@ class _DashboardShellScreenState extends State<DashboardShellScreen> {
             context.read<ServicesUnreadBloc>().add(
               const ServicesUnreadEvent.stopped(),
             );
+            locator<PushService>().reset();
             // Back to Feed before leaving. BottomNavBloc is a singleton, so the
             // index would otherwise still point at whatever tab the user was on
             // when the next login opens the shell.

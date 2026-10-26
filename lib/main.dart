@@ -22,6 +22,7 @@ import 'package:finskool/src/presentation/bloc/communities/purchase/community_pu
 import 'package:finskool/src/presentation/bloc/communities/compliance/compliance_bloc.dart';
 import 'package:finskool/src/presentation/bloc/profile/edit_profile/edit_profile_bloc.dart';
 import 'package:finskool/src/comman/widgets/ui_scaler.dart';
+import 'package:finskool/src/data/push/push_service.dart';
 import 'package:finskool/src/utilities/app_bloc_observer.dart';
 import 'package:finskool/src/utilities/go_router.dart';
 import 'package:finskool/src/utilities/logger.dart';
@@ -43,6 +44,7 @@ void main() async {
       // during construction would hit an uninitialised SharedPreferences.
       await SharedPreferenceHelper().init();
       configureDependencies();
+      await locator<PushService>().init();
       runApp(const MyApp());
     }, logger.logZoneError),
     // `debug` rather than the default `info`, or `ApiLoggingInterceptor`'s

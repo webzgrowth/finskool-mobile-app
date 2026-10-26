@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "546100684047",
+    "project_id": "finskool21-82075",
+    "storage_bucket": "finskool21-82075.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:546100684047:android:901d4c090e0f8b6ae90a7a",
+        "android_client_info": {
+          "package_name": "com.finskool21.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBUulPoIoKXca1RZtn5z79WoCeh829MO6Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

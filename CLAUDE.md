@@ -1742,6 +1742,45 @@ plate/ink pairs, hand-mapped for Figma's stocks and hashed for any other.
 `build/figma_perf/full.png`; offsets were checked numerically against the
 frame (e.g. "Total Trades" at y 507.5, list title at 648).
 
+## Push notifications (FCM)
+
+`data/push/push_service.dart` (`PushService`, `@lazySingleton`). `main()` calls
+`init()` (Firebase, the background handler, a local-notification channel and the
+foreground banner — neither platform draws one while the app is open); the
+shell calls `register()` on `authenticated` (permission → FCM token →
+`PUT /mobile/push-token {token, platform}`, plus `onTokenRefresh`; `DELETE` when the OS permission is denied) and `reset()` on
+`unauthenticated`. **It never throws**: with Firebase misconfigured, permission
+denied, or **iOS without an APNs key** the app carries on and only logs.
+Backend setup is in `firbase.md` (one device per member; a new token replaces the old).
+
+* **Classic token, deliberately.** `getToken`/`onTokenRefresh` are marked
+  deprecated in favour of `register()` + `onRegistered`, but those return a
+  Firebase *Installation ID*. The backend sends through FCM v1 to the
+  registration token, so the deprecated API is kept (with an `ignore`).
+* **`firebase_core ^4` / `firebase_messaging ^16`, not the 5/17 line.** iOS
+  builds with Swift Package Manager, and firebase-ios-sdk 13 (needs
+  `gtm-session-fetcher` ≥4) cannot resolve beside `google_sign_in_ios`
+  (`googlesignin-ios` 9 needs <4). Re-try the newer line when google_sign_in
+  moves to GoogleSignIn 10 — or when it is dropped.
+* Android: the `google-services` Gradle plugin, `POST_NOTIFICATIONS`, and
+  **core-library desugaring** (required by flutter_local_notifications).
+* iOS: `GoogleService-Info.plist` is in `ios/Runner/`. **Not done yet** (needs
+  a paid Apple account): the Push Notifications + Background Modes capabilities
+  and the APNs `.p8` key uploaded to Firebase. Until then iPhones get no push.
+* **Tap routing** is `data/push/push_route.dart` (`routeForPush`, pinned by
+  `test/push_route_test.dart`): `ticket`→ticket chat, `service`→service chat,
+  `post`/`subscription`→`/community/<communityId ?? id>`, anything unknown →
+  dashboard (no-op). A tap that **cold-starts** the app is held in
+  `PushService.takePending()` until the shell sees `authenticated`; the shell
+  also listens to `taps` while mounted. Foreground banners carry the same
+  `data` as their local-notification payload, so they route identically.
+* **Not built yet** (all in `push_notifcation.md`): the in-app notification
+  inbox (`/notifications`, §7), its live socket `/ws/notifications` (§7b — one
+  socket, 4401 = stop, refetch on reconnect), and the master switch
+  `GET/PATCH /mobile/push-settings` (§4; the Profile toggle is still the local
+  `postNotificationsEnabled`). Until the socket exists, the foreground banner
+  is the only in-app signal.
+
 ## Success animation
 
 `comman/widgets/success_animation.dart` (`SuccessAnimation`) is the one

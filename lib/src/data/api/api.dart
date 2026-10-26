@@ -33,6 +33,10 @@ class Api {
   static const String logout = '/auth/mobile/logout';
   static const String selectCommunity = '/auth/mobile/select-community';
 
+  /// Registers this device's FCM token against the session. One device per
+  /// member: a new token replaces the old.
+  static const String pushToken = '/mobile/push-token';
+
   ///  =================================================================
   ///  ********************** Forgot password **************************
   ///  =================================================================

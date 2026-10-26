@@ -25,6 +25,7 @@ import 'package:finskool/src/data/datasource/services_remote_datasource.dart'
     as _i645;
 import 'package:finskool/src/data/datasource/tickets_remote_datasource.dart'
     as _i559;
+import 'package:finskool/src/data/push/push_service.dart' as _i548;
 import 'package:finskool/src/data/repository/auth_repository_impl.dart'
     as _i141;
 import 'package:finskool/src/data/repository/communities_repository_impl.dart'
@@ -257,6 +258,9 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i880.PasswordResetRepositoryImpl(
         gh<_i44.PasswordResetRemoteDatasource>(),
       ),
+    );
+    gh.lazySingleton<_i548.PushService>(
+      () => _i548.PushService(gh<_i373.ApiClient>()),
     );
     gh.lazySingleton<_i360.ResetPassword>(
       () => _i360.ResetPassword(gh<_i901.PasswordResetRepository>()),
