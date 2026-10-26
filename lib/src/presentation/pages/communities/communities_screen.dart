@@ -121,6 +121,7 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
                           onCta: (plan) => _onCta(communities[i], plan),
                           onPerformance: () => context.push(
                             '/community/${communities[i].id}/performance',
+                            extra: communities[i].name,
                           ),
                         ),
                       ),

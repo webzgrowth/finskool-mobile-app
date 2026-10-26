@@ -299,6 +299,42 @@ class AppPalette {
   static const Color infoDisclaimerInk = Color(0xFF8A5300);
   static const Color infoDisclaimerBody = Color(0xFF8A6A3A);
 
+  // Performance screen (Final page `1554:6103`). The ink is `cardTitle`
+  // (#153D3A), loss red is `ticketRed`, the page is `feedBase` and the buy tag
+  // `infoVerifiedPlate` — all reused rather than duplicated.
+  static const Color perfProfit = Color(0xFF2E7D32);
+  static const Color perfMuted = Color(0xFF7A8A86);
+  static const Color perfLabel = Color(0xFF4F5B58);
+  static const Color perfHint = Color(0xFFA3AEAA);
+  static const Color perfTrack = Color(0xFFEEF2F1);
+  static const Color perfChip = Color(0xFFF1F5F4);
+  static const Color perfBorder = Color(0xFFE3ECEA);
+  static const Color perfRowRule = Color(0xFFF0F3F2);
+  static const Color perfDetail = Color(0xFFF6F8F7);
+  static const Color perfDetailRule = Color(0xFFE8EDEB);
+  static const Color perfNoteDisc = Color(0xFFDCE8E6);
+  static const Color perfCountPill = Color(0xFFC1F26E);
+  static const Color perfSellPlate = Color(0xFFFFF4E5);
+  static const Color perfShadow = Color(0x0D0F3D3B);
+
+  // Stock-logo tiles: a pale plate with a same-hue ink and a 12% hairline.
+  static const Color logoRedInk = Color(0xFFC2413B);
+  static const Color logoRedPlate = Color(0xFFFDECEC);
+  static const Color logoPurpleInk = Color(0xFF8A47A8);
+  static const Color logoPurplePlate = Color(0xFFF3EAF8);
+  static const Color logoIndigoInk = Color(0xFF5B4FC4);
+  static const Color logoIndigoPlate = Color(0xFFEDEBFF);
+  static const Color logoAmberInk = Color(0xFFB26A00);
+  static const Color logoAmberPlate = Color(0xFFFFF4E5);
+  static const Color logoGreenInk = Color(0xFF3E8A2C);
+  static const Color logoGreenPlate = Color(0xFFEAF6E5);
+  static const Color logoOrangeInk = Color(0xFFC7612A);
+  static const Color logoOrangePlate = Color(0xFFFFF0E8);
+  static const Color logoTealInk = Color(0xFF108B8B);
+  static const Color logoTealPlate = Color(0xFFE6F2F0);
+  static const Color logoBlueInk = Color(0xFF2F6BD8);
+  static const Color logoBluePlate = Color(0xFFE8F1FF);
+
   // Skeleton loading (see `comman/widgets/skeleton.dart`) — a neutral,
   // slightly-warm grey rather than the brand teal, so a loading screen
   // doesn't read as "tinted" before any real content has painted.

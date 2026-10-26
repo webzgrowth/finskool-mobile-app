@@ -1513,7 +1513,7 @@ Contract: `service_module.md`.
 
 **Performance moved to the community card** — an outlined 124x42 button beside
 the CTA (`PerformanceButton`), pushing `/community/:id/performance`
-(`PerformanceScreen`, still a placeholder).
+(`PerformanceScreen` — see "Performance").
 
 Layers follow the usual chain: `services_remote_datasource` →
 `ServicesRepository` → 16 usecases in `domain/usecases/services/`. Chat, history
@@ -1707,6 +1707,40 @@ stays attached to the *first* one, and every call answers "plugin not
 connected" — or worse, answers from the other session's file. Check
 `lsof -iTCP:1994 -sTCP:LISTEN` and make sure the file open in Figma is the one
 you mean (`get_metadata` returns its name).
+
+## Performance
+
+`pages/dashboard/performance/` — Final page `1554:6103`, pushed from the
+community card's Performance button (the route passes the community name in
+`extra`). Header, "Overall P/L" card (headline, gross/charges bars, capital),
+"Trades" donut card, the assumptions note, then a trade list whose rows expand
+(local `State`, not a bloc) into Entry / Exit / P/L / P&L / Charges / Net P&L.
+
+**All data is placeholder.** There is no performance endpoint (checked in the
+spec). `PerformanceDemoDatasource` → `PerformanceRepositoryImpl` →
+`PerformanceReport`, sync like the Profile info screens; becomes a
+`Future<Either>` + bloc when a backend exists. Stock names, dates, sides, net
+P&L and return % are transcribed from Figma; **only trade #1's entry/exit is
+drawn there**, so every other trade's entry price is invented and its
+exit/per-share derived (5X margin on ₹50,000 ⇒ `250000 / entry` shares).
+Figma's own rows sum to -184, not its headline -186, so the headline totals
+are stated, not summed. Delete the datasource when a real source lands.
+Everything else — overall P/L, win/loss shares, bar fractions — is **derived in
+`PerformanceReport`**, so a real feed only supplies the raw figures.
+
+Design notes worth keeping: styles live in `PerformanceTypography`
+(`context.performanceType`) and the `AppPalette` "Performance screen" block;
+the header subtitle is Nunito in Figma (not bundled → Inter). The header
+raster `assets/images/performance_header_bg.png` was cut from Figma's own
+render and **cleaned** — the status-bar row interpolated and the back
+button/title block patched from a grid-period-shifted clean region — so no
+text is baked in; regenerate it the same way if the design changes. The donut
+is a `CustomPainter` (`TradeDonut`). Stock-logo tones are eight pale
+plate/ink pairs, hand-mapped for Figma's stocks and hashed for any other.
+`test/performance_goldens_test.dart` (tag `golden`) writes
+`build/performance_goldens/performance.png` beside Figma's export in
+`build/figma_perf/full.png`; offsets were checked numerically against the
+frame (e.g. "Total Trades" at y 507.5, list title at 648).
 
 ## Success animation
 

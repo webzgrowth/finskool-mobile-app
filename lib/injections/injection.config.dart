@@ -31,6 +31,8 @@ import 'package:finskool/src/data/repository/communities_repository_impl.dart'
     as _i494;
 import 'package:finskool/src/data/repository/password_reset_repository_impl.dart'
     as _i880;
+import 'package:finskool/src/data/repository/performance_repository_impl.dart'
+    as _i679;
 import 'package:finskool/src/data/repository/posts_repository_impl.dart'
     as _i1039;
 import 'package:finskool/src/data/repository/profile_info_repository_impl.dart'
@@ -45,6 +47,8 @@ import 'package:finskool/src/domain/repository/communities_repository.dart'
     as _i122;
 import 'package:finskool/src/domain/repository/password_reset_repository.dart'
     as _i901;
+import 'package:finskool/src/domain/repository/performance_repository.dart'
+    as _i686;
 import 'package:finskool/src/domain/repository/posts_repository.dart' as _i365;
 import 'package:finskool/src/domain/repository/profile_info_repository.dart'
     as _i82;
@@ -213,6 +217,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i916.TicketsSocket>(() => _i916.TicketsSocket());
     gh.lazySingleton<_i82.ProfileInfoRepository>(
       () => _i671.ProfileInfoRepositoryImpl(),
+    );
+    gh.lazySingleton<_i686.PerformanceRepository>(
+      () => _i679.PerformanceRepositoryImpl(),
     );
     gh.lazySingleton<_i10.AuthRemoteDatasource>(
       () => _i10.AuthRemoteDatasource(gh<_i373.ApiClient>()),

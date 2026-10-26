@@ -125,41 +125,41 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, UserModel>> updateAvatar(String? sourcePath) =>
-      handleErrors(() async {
-        final current = cachedUser;
-        if (current == null) {
-          throw CacheException('No signed-in user to update.');
-        }
-        final prefs = SharedPreferenceHelper();
-        final key = StorageKeys.avatarLocalPath(current.id);
-        final previous = prefs.getdata(key);
+  Future<Either<Failure, UserModel>> updateAvatar(
+    String? sourcePath,
+  ) => handleErrors(() async {
+    final current = cachedUser;
+    if (current == null) {
+      throw CacheException('No signed-in user to update.');
+    }
+    final prefs = SharedPreferenceHelper();
+    final key = StorageKeys.avatarLocalPath(current.id);
+    final previous = prefs.getdata(key);
 
-        String? stored;
-        if (sourcePath != null) {
-          // image_picker's file is a cache copy the OS may purge; keep our
-          // own. A fresh name each time, so `FileImage` can't serve the old
-          // picture from its cache under an unchanged path.
-          final docs = await getApplicationDocumentsDirectory();
-          final dir = await Directory('${docs.path}/avatars').create(
-            recursive: true,
-          );
-          stored =
-              '${dir.path}/${current.id}_${DateTime.now().millisecondsSinceEpoch}.jpg';
-          await File(sourcePath).copy(stored);
-          await prefs.storedata(key, stored);
-        } else {
-          await prefs.remove(key);
-        }
-        if (previous != null && previous != stored) {
-          try {
-            await File(previous).delete();
-          } catch (_) {} // already gone is fine
-        }
-        return stored == null
-            ? current.copyWith(clearAvatarLocalPath: true)
-            : current.copyWith(avatarLocalPath: stored);
-      });
+    String? stored;
+    if (sourcePath != null) {
+      // image_picker's file is a cache copy the OS may purge; keep our
+      // own. A fresh name each time, so `FileImage` can't serve the old
+      // picture from its cache under an unchanged path.
+      final docs = await getApplicationDocumentsDirectory();
+      final dir = await Directory('${docs.path}/avatars')
+          .create(recursive: true);
+      stored =
+          '${dir.path}/${current.id}_${DateTime.now().millisecondsSinceEpoch}.jpg';
+      await File(sourcePath).copy(stored);
+      await prefs.storedata(key, stored);
+    } else {
+      await prefs.remove(key);
+    }
+    if (previous != null && previous != stored) {
+      try {
+        await File(previous).delete();
+      } catch (_) {} // already gone is fine
+    }
+    return stored == null
+        ? current.copyWith(clearAvatarLocalPath: true)
+        : current.copyWith(avatarLocalPath: stored);
+  });
 
   Future<void> _cacheUser(UserModel user) => SharedPreferenceHelper().storedata(
     StorageKeys.cachedUser,

@@ -15,6 +15,7 @@ import 'extensions/info_typography.dart';
 import '../page_transitions.dart';
 import 'extensions/nav_typography.dart';
 import 'extensions/top_bar_typography.dart';
+import 'extensions/performance_typography.dart';
 import 'extensions/profile_typography.dart';
 import 'extensions/subscription_detail_typography.dart';
 import 'extensions/ticket_typography.dart';
@@ -49,6 +50,7 @@ class AppTheme {
         CommunityTypography.of(cs.brightness),
         ProfileTypography.of(cs.brightness),
         InfoTypography.of(cs.brightness),
+        PerformanceTypography.of(cs.brightness),
         NavTypography.of(cs.brightness),
         TopBarTypography.of(cs.brightness),
         SubscriptionDetailTypography.of(cs.brightness),

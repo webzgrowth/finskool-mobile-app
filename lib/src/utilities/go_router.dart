@@ -132,7 +132,7 @@ GoRouter routerinit = GoRouter(
       name: AppRoutes.COMMUNITY_PERFORMANCE_ROUTE_NAME,
       path: AppRoutes.COMMUNITY_PERFORMANCE_ROUTE_PATH,
       builder: (BuildContext context, GoRouterState state) =>
-          const PerformanceScreen(),
+          PerformanceScreen(communityName: state.extra as String?),
     ),
     GoRoute(
       name: AppRoutes.SUBSCRIPTION_DETAIL_ROUTE_NAME,

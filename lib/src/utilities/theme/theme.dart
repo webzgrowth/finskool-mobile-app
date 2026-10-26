@@ -10,6 +10,7 @@ export 'extensions/feed_typography.dart';
 export 'extensions/info_typography.dart';
 export 'extensions/nav_typography.dart';
 export 'extensions/top_bar_typography.dart';
+export 'extensions/performance_typography.dart';
 export 'extensions/profile_typography.dart';
 export 'extensions/subscription_detail_typography.dart';
 export 'extensions/ticket_typography.dart';
