@@ -16,9 +16,21 @@ import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 /// problem now, and brings real controls, scrubbing and fullscreen with it.
 /// `EmbedPlayer` is still the renderer for Instagram and anything else.
 class YoutubeEmbedPlayer extends StatefulWidget {
-  const YoutubeEmbedPlayer({super.key, required this.videoId});
+  const YoutubeEmbedPlayer({
+    super.key,
+    required this.videoId,
+    required this.aspectRatio,
+  });
 
   final String videoId;
+
+  /// Must match the box the carousel actually gives this widget (332:171,
+  /// via `PostMediaModel.aspectRatio` — **not** a bare 16:9). The player
+  /// package sizes its video surface from this value on the assumption it
+  /// owns the whole box; a mismatch doesn't letterbox, it overflows the
+  /// bottom of a box that's already fixed by the carousel's own
+  /// `AspectRatio` ancestor — which a hardcoded 16/9 here did, every time.
+  final double aspectRatio;
 
   @override
   State<YoutubeEmbedPlayer> createState() => _YoutubeEmbedPlayerState();
@@ -27,6 +39,17 @@ class YoutubeEmbedPlayer extends StatefulWidget {
 class _YoutubeEmbedPlayerState extends State<YoutubeEmbedPlayer> {
   late YoutubePlayerController _controller = _build();
 
+  // `youtube_player_flutter` v10's own controls overlay has no volume
+  // control at all — not a button we failed to wire up, there's genuinely
+  // none in the package (checked its `ControlsOverlay`/`BottomBar`/
+  // `PlaybackControls` source: play/pause, skip, fullscreen, a seek bar, no
+  // mute). `YoutubePlayerParams.showControls` is also silently ignored on
+  // mobile — the package always hides YouTube's own native controls in
+  // favour of its own — so there was never a route to sound at all. This
+  // button, driven straight off the controller's own `mute()`/`unMute()`,
+  // is the fix.
+  bool _muted = true;
+
   YoutubePlayerController _build() => YoutubePlayerController.fromVideoId(
     videoId: widget.videoId,
     // Autoplays because `LazyEmbed` only builds this widget once the post
@@ -34,10 +57,9 @@ class _YoutubeEmbedPlayerState extends State<YoutubeEmbedPlayer> {
     // viewer can't see, so this can't start a video off in the distance.
     autoPlay: true,
     params: const YoutubePlayerParams(
-      // **Muted, and it has to be.** Webviews refuse unmuted autoplay,
-      // and the refusal is silent, so it would read as a broken player.
-      // It also matches every other feed: video starts silent, sound is
-      // a deliberate tap on the player's own control.
+      // **Muted, and it has to be.** Webviews refuse unmuted autoplay, and
+      // the refusal is silent, so it would read as a broken player. Sound
+      // is then a deliberate tap on `_MuteButton` below.
       mute: true,
       showControls: true,
       showFullscreenButton: true,
@@ -61,6 +83,7 @@ class _YoutubeEmbedPlayerState extends State<YoutubeEmbedPlayer> {
     if (old.videoId == widget.videoId) return;
     _controller.close();
     _controller = _build();
+    _muted = true;
   }
 
   @override
@@ -69,13 +92,59 @@ class _YoutubeEmbedPlayerState extends State<YoutubeEmbedPlayer> {
     super.dispose();
   }
 
+  void _toggleMute() {
+    setState(() => _muted = !_muted);
+    if (_muted) {
+      _controller.mute();
+    } else {
+      _controller.unMute();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return YoutubePlayer(
-      controller: _controller,
-      // The carousel already sizes the box; this keeps the surface filling it
-      // rather than letterboxing inside its own 16:9.
-      aspectRatio: 16 / 9,
+    // The real overflow fix is the **ratio** (`widget.aspectRatio` is now
+    // 16:9, not the 332:171 that squeezed the package's controls `Column`
+    // ~3px too tall for its box — see `PostMediaModel.aspectRatio`). `ClipRect`
+    // stays as cheap insurance: it clips any sub-pixel paint from a mid-swipe
+    // `AnimatedSize` frame, though it can't suppress a Flex *assertion*, which
+    // is why it alone never fixed this.
+    return ClipRect(
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          YoutubePlayer(
+            controller: _controller,
+            aspectRatio: widget.aspectRatio,
+            // Default is true: a vertical drag on the player toggles
+            // fullscreen, which swallows the very gesture the feed needs to
+            // scroll past a YouTube card — "it won't scroll over the video".
+            // Fullscreen is still one tap on the player's own button.
+            enableFullScreenOnVerticalDrag: false,
+          ),
+          Positioned(
+            right: 8,
+            bottom: 8,
+            child: GestureDetector(
+              onTap: _toggleMute,
+              behavior: HitTestBehavior.opaque,
+              child: Container(
+                height: 28,
+                width: 28,
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.45),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  _muted ? Icons.volume_off_rounded : Icons.volume_up_rounded,
+                  color: Colors.white,
+                  size: 16,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

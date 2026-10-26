@@ -33,6 +33,8 @@ import 'package:finskool/src/data/repository/password_reset_repository_impl.dart
     as _i880;
 import 'package:finskool/src/data/repository/posts_repository_impl.dart'
     as _i1039;
+import 'package:finskool/src/data/repository/profile_info_repository_impl.dart'
+    as _i671;
 import 'package:finskool/src/data/repository/services_repository_impl.dart'
     as _i93;
 import 'package:finskool/src/data/repository/tickets_repository_impl.dart'
@@ -44,6 +46,8 @@ import 'package:finskool/src/domain/repository/communities_repository.dart'
 import 'package:finskool/src/domain/repository/password_reset_repository.dart'
     as _i901;
 import 'package:finskool/src/domain/repository/posts_repository.dart' as _i365;
+import 'package:finskool/src/domain/repository/profile_info_repository.dart'
+    as _i82;
 import 'package:finskool/src/domain/repository/services_repository.dart'
     as _i954;
 import 'package:finskool/src/domain/repository/tickets_repository.dart'
@@ -53,19 +57,22 @@ import 'package:finskool/src/domain/usecases/auth/get_auth_status.dart'
 import 'package:finskool/src/domain/usecases/auth/login_user.dart' as _i379;
 import 'package:finskool/src/domain/usecases/auth/logout_user.dart' as _i320;
 import 'package:finskool/src/domain/usecases/auth/refresh_session.dart'
-    as _i671;
+    as _i672;
 import 'package:finskool/src/domain/usecases/auth/register_user.dart' as _i119;
 import 'package:finskool/src/domain/usecases/auth/resend_otp.dart' as _i775;
 import 'package:finskool/src/domain/usecases/auth/select_community.dart'
     as _i284;
 import 'package:finskool/src/domain/usecases/auth/set_post_notifications_enabled.dart'
     as _i605;
+import 'package:finskool/src/domain/usecases/auth/update_avatar.dart' as _i95;
 import 'package:finskool/src/domain/usecases/auth/update_profile.dart' as _i690;
 import 'package:finskool/src/domain/usecases/auth/verify_otp.dart' as _i583;
 import 'package:finskool/src/domain/usecases/community/get_communities.dart'
     as _i229;
 import 'package:finskool/src/domain/usecases/community/get_compliance_status.dart'
     as _i599;
+import 'package:finskool/src/domain/usecases/community/get_welcome_kit.dart'
+    as _i969;
 import 'package:finskool/src/domain/usecases/community/request_pricing.dart'
     as _i999;
 import 'package:finskool/src/domain/usecases/community/submit_compliance.dart'
@@ -155,6 +162,8 @@ import 'package:finskool/src/presentation/bloc/communities/list/communities_bloc
     as _i541;
 import 'package:finskool/src/presentation/bloc/communities/purchase/community_purchase_bloc.dart'
     as _i506;
+import 'package:finskool/src/presentation/bloc/communities/welcome_kit/welcome_kit_bloc.dart'
+    as _i168;
 import 'package:finskool/src/presentation/bloc/dashboard/bottom_nav/bottom_nav_bloc.dart'
     as _i64;
 import 'package:finskool/src/presentation/bloc/feed/filter/feed_filter_bloc.dart'
@@ -168,7 +177,7 @@ import 'package:finskool/src/presentation/bloc/services/catalog/services_catalog
 import 'package:finskool/src/presentation/bloc/services/chat/service_chat_bloc.dart'
     as _i698;
 import 'package:finskool/src/presentation/bloc/services/enquiry/service_enquiry_bloc.dart'
-    as _i969;
+    as _i971;
 import 'package:finskool/src/presentation/bloc/services/filter/services_filter_bloc.dart'
     as _i348;
 import 'package:finskool/src/presentation/bloc/services/payment/service_payment_bloc.dart'
@@ -202,6 +211,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.singleton<_i348.ServicesFilterBloc>(() => _i348.ServicesFilterBloc());
     gh.lazySingleton<_i373.ApiClient>(() => _i373.ApiClient());
     gh.lazySingleton<_i916.TicketsSocket>(() => _i916.TicketsSocket());
+    gh.lazySingleton<_i82.ProfileInfoRepository>(
+      () => _i671.ProfileInfoRepositoryImpl(),
+    );
     gh.lazySingleton<_i10.AuthRemoteDatasource>(
       () => _i10.AuthRemoteDatasource(gh<_i373.ApiClient>()),
     );
@@ -265,6 +277,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i599.GetComplianceStatus>(
       () => _i599.GetComplianceStatus(gh<_i122.CommunitiesRepository>()),
+    );
+    gh.lazySingleton<_i969.GetWelcomeKit>(
+      () => _i969.GetWelcomeKit(gh<_i122.CommunitiesRepository>()),
     );
     gh.lazySingleton<_i999.RequestPricing>(
       () => _i999.RequestPricing(gh<_i122.CommunitiesRepository>()),
@@ -362,8 +377,8 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i320.LogoutUser>(
       () => _i320.LogoutUser(gh<_i505.AuthRepository>()),
     );
-    gh.lazySingleton<_i671.RefreshSession>(
-      () => _i671.RefreshSession(gh<_i505.AuthRepository>()),
+    gh.lazySingleton<_i672.RefreshSession>(
+      () => _i672.RefreshSession(gh<_i505.AuthRepository>()),
     );
     gh.lazySingleton<_i119.RegisterUser>(
       () => _i119.RegisterUser(gh<_i505.AuthRepository>()),
@@ -377,6 +392,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i605.SetPostNotificationsEnabled>(
       () => _i605.SetPostNotificationsEnabled(gh<_i505.AuthRepository>()),
     );
+    gh.lazySingleton<_i95.UpdateAvatar>(
+      () => _i95.UpdateAvatar(gh<_i505.AuthRepository>()),
+    );
     gh.lazySingleton<_i690.UpdateProfile>(
       () => _i690.UpdateProfile(gh<_i505.AuthRepository>()),
     );
@@ -389,7 +407,7 @@ extension GetItInjectableX on _i174.GetIt {
     gh.singleton<_i821.AuthenticatorWatcherBloc>(
       () => _i821.AuthenticatorWatcherBloc(
         gh<_i741.GetAuthStatus>(),
-        gh<_i671.RefreshSession>(),
+        gh<_i672.RefreshSession>(),
         gh<_i320.LogoutUser>(),
         gh<_i605.SetPostNotificationsEnabled>(),
       ),
@@ -451,6 +469,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.singleton<_i251.SignUpFormBloc>(
       () => _i251.SignUpFormBloc(gh<_i119.RegisterUser>()),
     );
+    gh.factory<_i168.WelcomeKitBloc>(
+      () => _i168.WelcomeKitBloc(gh<_i969.GetWelcomeKit>()),
+    );
     gh.factory<_i507.ServicePaymentBloc>(
       () => _i507.ServicePaymentBloc(
         gh<_i983.GetGstStates>(),
@@ -476,7 +497,10 @@ extension GetItInjectableX on _i174.GetIt {
       ),
     );
     gh.singleton<_i1036.EditProfileBloc>(
-      () => _i1036.EditProfileBloc(gh<_i690.UpdateProfile>()),
+      () => _i1036.EditProfileBloc(
+        gh<_i690.UpdateProfile>(),
+        gh<_i95.UpdateAvatar>(),
+      ),
     );
     gh.factory<_i50.TicketChatBloc>(
       () => _i50.TicketChatBloc(
@@ -496,8 +520,8 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i775.ResendOtp>(),
       ),
     );
-    gh.factory<_i969.ServiceEnquiryBloc>(
-      () => _i969.ServiceEnquiryBloc(
+    gh.factory<_i971.ServiceEnquiryBloc>(
+      () => _i971.ServiceEnquiryBloc(
         gh<_i234.CreateServiceRequest>(),
         gh<_i710.GetServiceRequests>(),
       ),

@@ -1,7 +1,6 @@
 import 'package:finskool/src/domain/model/community/community_access.dart';
 import 'package:finskool/src/domain/model/community/community_plan_model.dart';
 import 'package:finskool/src/domain/model/community/subscription_info.dart';
-import 'package:finskool/src/domain/model/community/welcome_kit.dart';
 
 /// A community, in both the shapes the app sees it.
 ///
@@ -34,7 +33,6 @@ class CommunityModel {
     this.benefits = const [],
     this.subscribedUntil,
     this.subscriptionInfo,
-    this.welcomeKit,
   });
 
   final String id;
@@ -70,12 +68,6 @@ class CommunityModel {
   /// Plan, transaction and auto-renew details for the Subscription Detail
   /// screen. Only set on subscribed communities with known purchase data.
   final SubscriptionInfo? subscriptionInfo;
-
-  /// Onboarding material for the Subscription Detail screen. Never present
-  /// in any payload — no endpoint describes it — so it is attached by
-  /// `WelcomeKitDemoDatasource` and is null for a community the design
-  /// doesn't cover, which hides the section.
-  final WelcomeKit? welcomeKit;
 
   /// Renewal is nudged inside this window — Figma's mockup shows "Expires
   /// in 7 days" with a Renew pill on the community that's close, and a
@@ -138,7 +130,6 @@ class CommunityModel {
     int? newAnnouncements,
     DateTime? subscribedUntil,
     SubscriptionInfo? subscriptionInfo,
-    WelcomeKit? welcomeKit,
   }) => CommunityModel(
     id: id,
     name: name,

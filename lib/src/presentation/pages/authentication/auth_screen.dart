@@ -66,40 +66,52 @@ class _AuthScreenState extends State<AuthScreen> {
       child: AuthTabScope(
         onSwitchTab: _select,
         child: Scaffold(
-          body: SingleChildScrollView(
-            // Cap the content width so this stays comfortable on tablets
-            // and wide Android devices instead of stretching edge-to-edge.
-            child: Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 480),
-                child: Column(
-                  children: [
-                    AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 260),
-                      child: authHeaderForTab(_tab),
-                    ),
-                    AuthCard(
-                      tabs: AuthTabSwitch(selected: _tab, onChanged: _select),
-                      child: AnimatedSwitcher(
+          // `SingleChildScrollView` already doesn't scroll when the form
+          // fits the viewport — its max scroll extent is 0 there, same as a
+          // fixed screen — and it still scrolls properly when it genuinely
+          // doesn't fit (a short device, the keyboard open, or larger text).
+          // What made it *feel* scrollable either way was Android's stretch
+          // overscroll effect, which rubber-bands the whole screen on any
+          // drag even with nothing to scroll to; `ScrollConfiguration` here
+          // turns off only that visual indicator, not scrolling itself.
+          body: ScrollConfiguration(
+            behavior: const _NoOverscrollBehavior(),
+            child: SingleChildScrollView(
+              // Cap the content width so this stays comfortable on tablets
+              // and wide Android devices instead of stretching edge-to-edge.
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 480),
+                  child: Column(
+                    children: [
+                      AnimatedSwitcher(
                         duration: const Duration(milliseconds: 260),
-                        switchInCurve: Curves.easeOut,
-                        switchOutCurve: Curves.easeIn,
-                        transitionBuilder: (child, animation) => FadeTransition(
-                          opacity: animation,
-                          child: SlideTransition(
-                            position: Tween(
-                              begin: const Offset(0, 0.03),
-                              end: Offset.zero,
-                            ).animate(animation),
-                            child: child,
-                          ),
-                        ),
-                        child: isLogin
-                            ? const LoginForm(key: ValueKey('login-form'))
-                            : const SignUpForm(key: ValueKey('signup-form')),
+                        child: authHeaderForTab(_tab),
                       ),
-                    ),
-                  ],
+                      AuthCard(
+                        tabs: AuthTabSwitch(selected: _tab, onChanged: _select),
+                        child: AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 260),
+                          switchInCurve: Curves.easeOut,
+                          switchOutCurve: Curves.easeIn,
+                          transitionBuilder: (child, animation) =>
+                              FadeTransition(
+                                opacity: animation,
+                                child: SlideTransition(
+                                  position: Tween(
+                                    begin: const Offset(0, 0.03),
+                                    end: Offset.zero,
+                                  ).animate(animation),
+                                  child: child,
+                                ),
+                              ),
+                          child: isLogin
+                              ? const LoginForm(key: ValueKey('login-form'))
+                              : const SignUpForm(key: ValueKey('signup-form')),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -108,4 +120,18 @@ class _AuthScreenState extends State<AuthScreen> {
       ),
     );
   }
+}
+
+/// Only suppresses the overscroll glow/stretch indicator — physics are left
+/// at the platform default, so a screen that genuinely overflows (a short
+/// device, the keyboard open, larger system text) still scrolls normally.
+class _NoOverscrollBehavior extends MaterialScrollBehavior {
+  const _NoOverscrollBehavior();
+
+  @override
+  Widget buildOverscrollIndicator(
+    BuildContext context,
+    Widget child,
+    ScrollableDetails details,
+  ) => child;
 }

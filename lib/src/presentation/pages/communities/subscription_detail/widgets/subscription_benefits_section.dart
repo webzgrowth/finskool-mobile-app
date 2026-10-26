@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:finskool/src/comman/rich_text_spans.dart';
+import 'package:finskool/src/comman/markdown_text.dart';
 import 'package:finskool/src/comman/widgets/teal_section_card.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
 
@@ -42,7 +42,7 @@ class SubscriptionBenefitsSection extends StatelessWidget {
                 Expanded(
                   child: Text.rich(
                     TextSpan(
-                      children: boldSpans(
+                      children: markdownSpans(
                         benefits[i],
                         type.benefit,
                         type.benefitBold,

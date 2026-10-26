@@ -2,6 +2,7 @@ import 'package:dartz/dartz.dart';
 import 'package:finskool/src/comman/failure.dart';
 import 'package:finskool/src/domain/model/community/community_model.dart';
 import 'package:finskool/src/domain/model/community/compliance_details_model.dart';
+import 'package:finskool/src/domain/model/community/welcome_kit.dart';
 
 /// The contract the presentation layer depends on. Implemented by
 /// `data/repository/communities_repository_impl.dart`, which is currently
@@ -22,6 +23,11 @@ abstract class CommunitiesRepository {
   Future<Either<Failure, Unit>> submitCompliance(
     ComplianceDetailsModel details,
   );
+
+  /// The community's welcome kit. `Right(null)` means there is nothing to
+  /// show (none published, or not entitled) — distinct from a `Left`, which
+  /// is a real failure worth a retry.
+  Future<Either<Failure, WelcomeKit?>> getWelcomeKit(String communityId);
 
   /// Whether compliance has already been completed, so the purchase flow
   /// can skip straight past it.

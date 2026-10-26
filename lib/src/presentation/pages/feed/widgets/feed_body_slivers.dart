@@ -57,7 +57,15 @@ List<Widget> feedBodySlivers(
   return [
     SliverList.builder(
       itemCount: posts.length,
-      itemBuilder: (context, i) => FeedPostCard(post: posts[i]),
+      // A stable key per post, not per list position. Without it Flutter
+      // reuses the Element (and `PostReactionBar`'s State — its live
+      // `_picker` overlay entry and button `RenderBox` included) at the same
+      // *index* across rebuilds, even once a different post occupies that
+      // slot — a pull-to-refresh or a new post arriving bumps position 0
+      // the most of any slot, which is exactly why the long-press reaction
+      // picker read as "works, then doesn't" specifically on the first card.
+      itemBuilder: (context, i) =>
+          FeedPostCard(key: ValueKey(posts[i].id), post: posts[i]),
     ),
     if (state.isLoadingMore) const FeedLoadMoreFooter(),
   ];

@@ -59,4 +59,10 @@ abstract class AuthRepository {
     required String email,
     required String phone,
   });
+
+  /// Sets (or, with a null [sourcePath], removes) the profile photo picked on
+  /// this device. Local-only like the rest of Edit Profile — the API has no
+  /// avatar upload — so the file is copied into app storage and only its path
+  /// is remembered, per user. Returns the user carrying that path.
+  Future<Either<Failure, UserModel>> updateAvatar(String? sourcePath);
 }

@@ -14,6 +14,11 @@ class StorageKeys {
   /// session without a round-trip.
   static const String cachedUser = 'cached_user';
 
+  /// Prefix of the per-user key holding the path of the profile photo picked
+  /// on this device — `avatar_local_path_<userId>`. Local-only: the API has no
+  /// avatar upload. See `UserModel.avatarLocalPath`.
+  static String avatarLocalPath(String userId) => 'avatar_local_path_$userId';
+
   /// The community whose feed/recommendations we're scoped to.
   static const String selectedCommunityId = 'selected_community_id';
 

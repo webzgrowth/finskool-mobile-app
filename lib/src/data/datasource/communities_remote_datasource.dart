@@ -6,6 +6,7 @@ import 'package:finskool/src/comman/exception.dart';
 import 'package:finskool/src/data/api/api.dart';
 import 'package:finskool/src/data/api/api_client.dart';
 import 'package:finskool/src/domain/model/community/community_model.dart';
+import 'package:finskool/src/domain/model/community/welcome_kit.dart';
 
 /// The Communities tab's two halves.
 ///
@@ -57,6 +58,25 @@ class CommunitiesRemoteDatasource {
         .whereType<Map<String, dynamic>>()
         .map(CommunityModel.fromMembershipJson)
         .toList();
+  }
+
+  /// The community's welcome kit, or **null when there isn't one to show**.
+  ///
+  /// 404 (the admin hasn't published a kit, or this is the free community)
+  /// and 403 (no active subscription — an expired one, say) are ordinary
+  /// states for a "My Subscription" row, not failures: the section is simply
+  /// absent, rather than a red error on an otherwise fine screen. Anything
+  /// else still throws, for the repository's `handleErrors` to map.
+  Future<WelcomeKit?> getWelcomeKit(String communityId) async {
+    try {
+      final data = await _client.get(Api.communityWelcomeKit(communityId));
+      if (data == null) return null;
+      final kit = WelcomeKit.fromJson(data);
+      return kit.isEmpty ? null : kit;
+    } on ApiException catch (e) {
+      if (e.statusCode == 404 || e.statusCode == 403) return null;
+      rethrow;
+    }
   }
 }
 

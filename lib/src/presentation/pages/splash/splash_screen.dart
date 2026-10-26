@@ -4,7 +4,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:finskool/src/comman/routes.dart';
 import 'package:finskool/src/presentation/bloc/authentication/authenticator_watcher/authenticator_watcher_bloc.dart';
-import 'package:finskool/src/utilities/theme/theme.dart';
+
+import 'widgets/splash_logo.dart';
+import 'widgets/splash_ripple.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -14,19 +16,52 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller = AnimationController(
+    with TickerProviderStateMixin {
+  // Plays once: the logo's pop-in, and the light-sweep near its tail end.
+  late final AnimationController _entrance = AnimationController(
     vsync: this,
-    duration: const Duration(milliseconds: 600),
+    duration: const Duration(milliseconds: 900),
   )..forward();
+
+  // Loops for as long as the splash is on screen: the ripples and the
+  // logo's breathing glow. Entirely separate from `_entrance` — these two
+  // don't share a timeline, so the loop doesn't restart or stutter once
+  // the entrance finishes.
+  late final AnimationController _pulse = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 1800),
+  )..repeat();
+
   late final Animation<double> _fade = CurvedAnimation(
-    parent: _controller,
-    curve: Curves.easeOut,
+    parent: _entrance,
+    curve: const Interval(0, 0.5, curve: Curves.easeOut),
   );
-  late final Animation<double> _scale = Tween(
-    begin: 0.9,
-    end: 1.0,
-  ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutBack));
+
+  // A slight overshoot past 1.0 before settling — reads as a soft "pop"
+  // rather than a flat scale-up.
+  late final Animation<double> _scale = TweenSequence([
+    TweenSequenceItem(
+      weight: 65,
+      tween: Tween(
+        begin: 0.5,
+        end: 1.08,
+      ).chain(CurveTween(curve: Curves.easeOutCubic)),
+    ),
+    TweenSequenceItem(
+      weight: 35,
+      tween: Tween(
+        begin: 1.08,
+        end: 1.0,
+      ).chain(CurveTween(curve: Curves.easeOut)),
+    ),
+  ]).animate(_entrance);
+
+  // Runs only across the entrance's last 40% — the sweep crosses the logo
+  // right as it finishes settling, not while it's still popping in.
+  late final Animation<double> _sweep = CurvedAnimation(
+    parent: _entrance,
+    curve: const Interval(0.6, 1.0, curve: Curves.easeInOut),
+  );
 
   @override
   void initState() {
@@ -38,14 +73,16 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   void dispose() {
-    _controller.dispose();
+    _entrance.dispose();
+    _pulse.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     // The check itself is a local prefs read, so hold the splash briefly
-    // rather than flashing it for a single frame.
+    // rather than flashing it for a single frame — long enough here to let
+    // the entrance animation actually finish playing before it's gone.
     return BlocListener<AuthenticatorWatcherBloc, AuthenticatorWatcherState>(
       listener: (context, state) async {
         final destination = state.maybeMap(
@@ -54,7 +91,7 @@ class _SplashScreenState extends State<SplashScreen>
           orElse: () => null,
         );
         if (destination == null) return;
-        await Future<void>.delayed(const Duration(milliseconds: 800));
+        await Future<void>.delayed(const Duration(milliseconds: 1500));
         if (context.mounted) context.go(destination);
       },
       child: AnnotatedRegion<SystemUiOverlayStyle>(
@@ -74,35 +111,18 @@ class _SplashScreenState extends State<SplashScreen>
               ),
             ),
             child: Center(
-              child: FadeTransition(
-                opacity: _fade,
-                child: ScaleTransition(
-                  scale: _scale,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        height: 96,
-                        width: 96,
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                        ),
-                        clipBehavior: Clip.antiAlias,
-                        child: Image.asset(
-                          'assets/images/logo.png',
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                      const SizedBox(height: AppSpacing.lg),
-                      Text(
-                        'Finskool',
-                        style: Theme.of(context).textTheme.headlineLarge
-                            ?.copyWith(color: Colors.white),
-                      ),
-                    ],
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  SplashRipples(pulse: _pulse),
+                  FadeTransition(
+                    opacity: _fade,
+                    child: ScaleTransition(
+                      scale: _scale,
+                      child: SplashLogo(glow: _pulse, sweep: _sweep),
+                    ),
                   ),
-                ),
+                ],
               ),
             ),
           ),

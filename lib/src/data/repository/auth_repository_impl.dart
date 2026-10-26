@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:dartz/dartz.dart';
 import 'package:injectable/injectable.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:finskool/src/comman/error_handler.dart';
 import 'package:finskool/src/comman/exception.dart';
 import 'package:finskool/src/comman/failure.dart';
@@ -84,7 +86,7 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<Failure, UserModel>> refreshSession() => handleErrors(() async {
     final user = await _remote.getMe();
     await _cacheUser(user);
-    return user;
+    return _withLocalAvatar(user);
   });
 
   @override
@@ -98,7 +100,9 @@ class AuthRepositoryImpl implements AuthRepository {
     final raw = SharedPreferenceHelper().getdata(StorageKeys.cachedUser);
     if (raw == null || raw.isEmpty) return null;
     try {
-      return UserModel.fromJson(jsonDecode(raw) as Map<String, dynamic>);
+      return _withLocalAvatar(
+        UserModel.fromJson(jsonDecode(raw) as Map<String, dynamic>),
+      );
     } catch (e) {
       // A shape change between app versions shouldn't wedge the splash
       // screen — treat an unreadable cache as "no cached user".
@@ -106,6 +110,56 @@ class AuthRepositoryImpl implements AuthRepository {
       return null;
     }
   }
+
+  /// Re-attaches the photo picked on this device. It lives under its own
+  /// prefs key rather than in the cached-user JSON because `refreshSession`
+  /// replaces that JSON with the server's user — which has no idea about it —
+  /// on every refresh. A file the OS has since removed is dropped here, so
+  /// callers never hold a path that can't be read.
+  UserModel _withLocalAvatar(UserModel user) {
+    final path = SharedPreferenceHelper().getdata(
+      StorageKeys.avatarLocalPath(user.id),
+    );
+    if (path == null || path.isEmpty || !File(path).existsSync()) return user;
+    return user.copyWith(avatarLocalPath: path);
+  }
+
+  @override
+  Future<Either<Failure, UserModel>> updateAvatar(String? sourcePath) =>
+      handleErrors(() async {
+        final current = cachedUser;
+        if (current == null) {
+          throw CacheException('No signed-in user to update.');
+        }
+        final prefs = SharedPreferenceHelper();
+        final key = StorageKeys.avatarLocalPath(current.id);
+        final previous = prefs.getdata(key);
+
+        String? stored;
+        if (sourcePath != null) {
+          // image_picker's file is a cache copy the OS may purge; keep our
+          // own. A fresh name each time, so `FileImage` can't serve the old
+          // picture from its cache under an unchanged path.
+          final docs = await getApplicationDocumentsDirectory();
+          final dir = await Directory('${docs.path}/avatars').create(
+            recursive: true,
+          );
+          stored =
+              '${dir.path}/${current.id}_${DateTime.now().millisecondsSinceEpoch}.jpg';
+          await File(sourcePath).copy(stored);
+          await prefs.storedata(key, stored);
+        } else {
+          await prefs.remove(key);
+        }
+        if (previous != null && previous != stored) {
+          try {
+            await File(previous).delete();
+          } catch (_) {} // already gone is fine
+        }
+        return stored == null
+            ? current.copyWith(clearAvatarLocalPath: true)
+            : current.copyWith(avatarLocalPath: stored);
+      });
 
   Future<void> _cacheUser(UserModel user) => SharedPreferenceHelper().storedata(
     StorageKeys.cachedUser,
@@ -161,6 +215,18 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<void> _clearSession() async {
     final prefs = SharedPreferenceHelper();
     await prefs.remove(StorageKeys.sessionCookie);
+    // The photo is personal data on a possibly shared phone: drop it with the
+    // session rather than showing it to whoever signs in next.
+    final userId = cachedUser?.id;
+    final photo = userId == null
+        ? null
+        : prefs.getdata(StorageKeys.avatarLocalPath(userId));
+    if (userId != null) await prefs.remove(StorageKeys.avatarLocalPath(userId));
+    if (photo != null) {
+      try {
+        await File(photo).delete();
+      } catch (_) {}
+    }
     await prefs.remove(StorageKeys.cachedUser);
     await prefs.remove(StorageKeys.selectedCommunityId);
   }

@@ -15,6 +15,9 @@ import 'package:finskool/src/presentation/pages/authentication/signup_success/si
 import 'package:finskool/src/presentation/pages/dashboard/dashboard_shell_screen.dart';
 import 'package:finskool/src/presentation/pages/communities/detail/community_detail_screen.dart';
 import 'package:finskool/src/presentation/pages/dashboard/performance/performance_screen.dart';
+import 'package:finskool/src/presentation/pages/dashboard/profile/info/about_sebi_screen.dart';
+import 'package:finskool/src/presentation/pages/dashboard/profile/info/help_support_screen.dart';
+import 'package:finskool/src/presentation/pages/dashboard/profile/info/terms_privacy_screen.dart';
 import 'package:finskool/src/presentation/pages/services/chat/service_chat_screen.dart';
 import 'package:finskool/src/presentation/pages/services/requests/service_requests_screen.dart';
 import 'package:finskool/src/presentation/pages/communities/payment_success/payment_success_screen.dart';
@@ -172,8 +175,9 @@ GoRouter routerinit = GoRouter(
     ///  =================================================================
     ///  ********************** Profile Routes ******************************
     ///  =================================================================
-    // Every one of these is a `ProfilePlaceholderScreen` — Figma draws the
-    // menu row but not what's behind it. See CLAUDE.md "Profile".
+    // About & SEBI, Terms & privacy and Help & support are real screens
+    // (`profile/info/`); the rest are still a `ProfilePlaceholderScreen` —
+    // Figma draws the menu row but not what's behind it. See CLAUDE.md "Profile".
     GoRoute(
       name: AppRoutes.EDIT_PROFILE_ROUTE_NAME,
       path: AppRoutes.EDIT_PROFILE_ROUTE_PATH,
@@ -185,7 +189,7 @@ GoRouter routerinit = GoRouter(
       name: AppRoutes.ABOUT_SEBI_ROUTE_NAME,
       path: AppRoutes.ABOUT_SEBI_ROUTE_PATH,
       builder: (BuildContext context, GoRouterState state) {
-        return const ProfilePlaceholderScreen(title: 'About & SEBI info');
+        return const AboutSebiScreen();
       },
     ),
     GoRoute(
@@ -239,7 +243,7 @@ GoRouter routerinit = GoRouter(
       name: AppRoutes.HELP_SUPPORT_ROUTE_NAME,
       path: AppRoutes.HELP_SUPPORT_ROUTE_PATH,
       builder: (BuildContext context, GoRouterState state) {
-        return const ProfilePlaceholderScreen(title: 'Help & support');
+        return const HelpSupportScreen();
       },
     ),
     GoRoute(
@@ -268,9 +272,12 @@ GoRouter routerinit = GoRouter(
     GoRoute(
       name: AppRoutes.TERMS_PRIVACY_ROUTE_NAME,
       path: AppRoutes.TERMS_PRIVACY_ROUTE_PATH,
-      builder: (BuildContext context, GoRouterState state) {
-        return const ProfilePlaceholderScreen(title: 'Terms & privacy policy');
-      },
+      // `?tab=privacy` opens on the Privacy policy tab — the About screen's
+      // "Privacy policy" row uses it.
+      builder: (BuildContext context, GoRouterState state) =>
+          TermsPrivacyScreen(
+            initialTab: state.uri.queryParameters['tab'] == 'privacy' ? 1 : 0,
+          ),
     ),
 
     ///  =================================================================

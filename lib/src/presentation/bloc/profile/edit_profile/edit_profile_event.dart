@@ -22,4 +22,10 @@ class EditProfileEvent with _$EditProfileEvent {
   const factory EditProfileEvent.discardChanges() = _DiscardChanges;
 
   const factory EditProfileEvent.submit() = _Submit;
+
+  /// A photo chosen from the camera or gallery. Applied immediately — it's
+  /// not part of the Save/Discard form.
+  const factory EditProfileEvent.avatarPicked(String path) = _AvatarPicked;
+
+  const factory EditProfileEvent.avatarRemoved() = _AvatarRemoved;
 }

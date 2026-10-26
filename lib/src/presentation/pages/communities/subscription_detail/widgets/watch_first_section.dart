@@ -1,7 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:finskool/src/comman/rich_text_spans.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:finskool/src/comman/markdown_text.dart';
 import 'package:finskool/src/comman/widgets/teal_section_card.dart';
 import 'package:finskool/src/domain/model/community/welcome_kit.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
@@ -10,13 +11,9 @@ import 'package:finskool/src/utilities/theme/theme.dart';
 /// video: a 93x52 thumbnail (r5, teal hairline, soft shadow, YouTube mark in
 /// the middle) beside a 10px title. Rows are 74 tall, 5 apart.
 class WatchFirstSection extends StatelessWidget {
-  const WatchFirstSection({
-    super.key,
-    required this.intro,
-    required this.videos,
-  });
+  const WatchFirstSection({super.key, required this.videos, this.intro});
 
-  final String intro;
+  final String? intro;
   final List<WelcomeKitVideo> videos;
 
   @override
@@ -28,15 +25,17 @@ class WatchFirstSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text.rich(
-            TextSpan(
-              children: bodySpans(intro, type.kitBody, type.kitBodyBold),
+          if (intro != null && intro!.isNotEmpty) ...[
+            Text.rich(
+              TextSpan(
+                children: markdownSpans(intro!, type.kitBody, type.kitBodyBold),
+              ),
             ),
-          ),
-          const SizedBox(height: 8),
+            const SizedBox(height: 8),
+          ],
           for (var i = 0; i < videos.length; i++) ...[
             if (i > 0) const SizedBox(height: 5),
-            _VideoRow(video: videos[i]),
+            _VideoRow(video: videos[i], number: i + 1),
           ],
         ],
       ),
@@ -45,55 +44,81 @@ class WatchFirstSection extends StatelessWidget {
 }
 
 class _VideoRow extends StatelessWidget {
-  const _VideoRow({required this.video});
+  const _VideoRow({required this.video, required this.number});
 
   final WelcomeKitVideo video;
+
+  /// 1-based, for the fallback title — the API sends no video title.
+  final int number;
+
+  Future<void> _open(BuildContext context) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final opened = await launchUrl(
+      Uri.parse(video.url),
+      mode: LaunchMode.externalApplication,
+    );
+    if (!opened) {
+      messenger.showSnackBar(
+        const SnackBar(content: Text('Could not open that video.')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final type = context.subscriptionType;
-    return Container(
-      height: 74,
-      padding: const EdgeInsets.fromLTRB(11, 10, 11, 10),
-      decoration: BoxDecoration(
-        color: AppPalette.white,
-        borderRadius: BorderRadius.circular(10.74),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 93,
-            height: 52,
-            clipBehavior: Clip.antiAlias,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(5),
-              border: Border.all(color: AppPalette.badgeTeal, width: 0.5),
-              boxShadow: const [
-                BoxShadow(
-                  color: Color(0x1A000000),
-                  blurRadius: 10,
-                  offset: Offset(0, 2),
-                ),
-              ],
+    return GestureDetector(
+      onTap: () => _open(context),
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        height: 74,
+        padding: const EdgeInsets.fromLTRB(11, 10, 11, 10),
+        decoration: BoxDecoration(
+          color: AppPalette.white,
+          borderRadius: BorderRadius.circular(10.74),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 93,
+              height: 52,
+              clipBehavior: Clip.antiAlias,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(5),
+                border: Border.all(color: AppPalette.badgeTeal, width: 0.5),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Color(0x1A000000),
+                    blurRadius: 10,
+                    offset: Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  _Thumbnail(url: video.thumbnailUrl),
+                  Center(
+                    child: SvgPicture.asset('assets/icons/sub_youtube.svg'),
+                  ),
+                ],
+              ),
             ),
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                _Thumbnail(url: video.thumbnailUrl),
-                Center(child: SvgPicture.asset('assets/icons/sub_youtube.svg')),
-              ],
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                video.title ?? 'Watch video $number',
+                style: type.kitVideoTitle,
+              ),
             ),
-          ),
-          const SizedBox(width: 10),
-          Expanded(child: Text(video.title, style: type.kitVideoTitle)),
-        ],
+          ],
+        ),
       ),
     );
   }
 }
 
-/// A dark plate when there's no artwork. `thumbnailUrl` comes from the demo
-/// data until an endpoint supplies it.
+/// A dark plate when there's no artwork (the API's `thumbnailUrl` is nullable).
 class _Thumbnail extends StatelessWidget {
   const _Thumbnail({required this.url});
 

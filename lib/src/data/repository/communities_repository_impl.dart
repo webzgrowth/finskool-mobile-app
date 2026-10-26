@@ -7,10 +7,10 @@ import 'package:finskool/src/comman/failure.dart';
 import 'package:finskool/src/comman/storage_keys.dart';
 import 'package:finskool/src/data/datasource/communities_remote_datasource.dart';
 import 'package:finskool/src/data/datasource/demo_subscription_datasource.dart';
-import 'package:finskool/src/data/datasource/welcome_kit_demo_datasource.dart';
 import 'package:finskool/src/domain/model/community/community_access.dart';
 import 'package:finskool/src/domain/model/community/community_model.dart';
 import 'package:finskool/src/domain/model/community/compliance_details_model.dart';
+import 'package:finskool/src/domain/model/community/welcome_kit.dart';
 import 'package:finskool/src/domain/repository/communities_repository.dart';
 import 'package:finskool/src/utilities/logger.dart';
 import 'package:finskool/src/utilities/shared_pref_helper.dart';
@@ -75,6 +75,10 @@ class CommunitiesRepositoryImpl implements CommunitiesRepository {
       });
 
   @override
+  Future<Either<Failure, WelcomeKit?>> getWelcomeKit(String communityId) =>
+      handleErrors(() => _remote.getWelcomeKit(communityId));
+
+  @override
   Future<Either<Failure, Unit>> unlockCommunity(String communityId) =>
       handleErrors(() async {
         final ids = _unlockedIds()..add(communityId);
@@ -118,14 +122,8 @@ class CommunitiesRepositoryImpl implements CommunitiesRepository {
     final info =
         community.subscriptionInfo ??
         DemoSubscriptionDatasource.forCommunity(community);
-    // The Welcome Kit has no endpoint either — see
-    // `WelcomeKitDemoDatasource`, which returns null for a community the
-    // design doesn't cover rather than showing another one's figures.
-    final kit =
-        community.welcomeKit ??
-        WelcomeKitDemoDatasource.forSlug(community.slug);
-    if (info == null && kit == null) return community;
-    return community.copyWith(subscriptionInfo: info, welcomeKit: kit);
+    if (info == null) return community;
+    return community.copyWith(subscriptionInfo: info);
   }
 
   Set<String> _unlockedIds() {

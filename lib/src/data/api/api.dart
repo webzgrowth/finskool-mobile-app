@@ -57,6 +57,12 @@ class Api {
   /// excluded here and only ever appears via [me].
   static const String communities = '/mobile/communities';
 
+  /// A paid community's welcome kit — mobile-only, and only for a member
+  /// with an active subscription (403 otherwise). 404 when the admin hasn't
+  /// published one yet, and always for the free community.
+  static String communityWelcomeKit(String communityId) =>
+      '/mobile/communities/$communityId/welcome-kit';
+
   ///  =================================================================
   ///  ********************* Posts / reactions *************************
   ///  =================================================================

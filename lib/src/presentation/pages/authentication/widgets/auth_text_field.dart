@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show TextInputFormatter;
 import 'package:finskool/src/utilities/theme/theme.dart';
 
 import 'field_label.dart';
@@ -20,6 +21,7 @@ class AuthTextField extends StatelessWidget {
     this.textCapitalization = TextCapitalization.none,
     this.controller,
     this.enabled = true,
+    this.inputFormatters,
   });
 
   final String label;
@@ -45,6 +47,9 @@ class AuthTextField extends StatelessWidget {
   /// capitals.").
   final TextCapitalization textCapitalization;
 
+  /// e.g. `DateSlashFormatter` on the compliance screen's DOB field.
+  final List<TextInputFormatter>? inputFormatters;
+
   @override
   Widget build(BuildContext context) {
     final tt = Theme.of(context).textTheme;
@@ -61,6 +66,7 @@ class AuthTextField extends StatelessWidget {
           obscureText: obscureText,
           keyboardType: keyboardType,
           textCapitalization: textCapitalization,
+          inputFormatters: inputFormatters,
           style: tt.bodyLarge,
           decoration: InputDecoration(
             hintText: hint,

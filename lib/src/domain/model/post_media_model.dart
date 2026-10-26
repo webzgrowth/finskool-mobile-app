@@ -2,12 +2,35 @@ import 'package:finskool/src/comman/embed_urls.dart';
 
 /// A single item in a [FeedPostModel]'s media carousel.
 ///
-/// Embeds are rendered inline via a WebView (`widgets/embed_player.dart`) —
-/// true in-feed playback, not a tap-to-open-externally thumbnail. Native
-/// uploaded-video playback is still out of scope, so a `kind` this build
-/// doesn't recognise falls back to [videoEmbed] and is handed to the same
-/// WebView rather than being dropped.
-enum PostMediaType { image, youtubeEmbed, instagramEmbed, videoEmbed }
+/// Third-party embeds (Instagram, Vimeo, anything with no raw file URL) are
+/// rendered inline via a WebView (`widgets/embed_player.dart`). A genuine
+/// uploaded video file — [nativeVideo], sniffed by its own URL's extension
+/// (see [looksLikeVideoFile]) rather than trusted to an unconfirmed `kind`
+/// string — plays through `widgets/native_video_player.dart` instead
+/// (`video_player`, a real decoder, not a WebView asked to open a raw media
+/// URL it was never built for). [videoEmbed] is the fallback for a `kind`
+/// this build doesn't otherwise recognise and that doesn't look like a raw
+/// file either — still handed to the WebView rather than being dropped.
+enum PostMediaType {
+  image,
+  youtubeEmbed,
+  instagramEmbed,
+  videoEmbed,
+  nativeVideo,
+}
+
+/// Common raw video containers a server might link to directly. Checked
+/// against the URL's path (query strings and all) rather than its end, since
+/// a signed/CDN URL often has `?token=…` after the extension.
+final _videoFileExtensions = RegExp(
+  r'\.(mp4|mov|m4v|webm|mkv)(\?|$)',
+  caseSensitive: false,
+);
+
+/// True for a URL that points at a raw video file a real decoder can open —
+/// as opposed to an embed *page* (a YouTube/Instagram/Vimeo URL), which a
+/// video decoder can't do anything with.
+bool looksLikeVideoFile(String url) => _videoFileExtensions.hasMatch(url);
 
 class PostMediaModel {
   const PostMediaModel({
@@ -42,12 +65,23 @@ class PostMediaModel {
 
   bool get isEmbed => type != PostMediaType.image;
 
-  /// How tall the carousel should be for this item. Figma draws images and
-  /// video at 332x171 — a hair wider than 16:9 (`605:15442`). Instagram's
-  /// embed is portrait, and forcing it into a landscape box crops the picture
-  /// and the account header off the frame, so it keeps 4:5.
-  double get aspectRatio =>
-      type == PostMediaType.instagramEmbed ? 4 / 5 : 332 / 171;
+  /// How tall the carousel should be for this item (images resolve their own
+  /// ratio — see `_FeedImage` — so this only governs the embed/video types).
+  ///
+  /// * Instagram's embed is portrait; a landscape box crops its picture and
+  ///   account header off, so it keeps 4:5.
+  /// * **YouTube / native / other video is 16:9, not Figma's 332:171.** The
+  ///   332:171 media box (1.94) is a hair *shorter* than 16:9, and the
+  ///   `youtube_player_flutter` controls overlay lays its title bar, spacer
+  ///   and bottom bar in a fixed-height `Column` bounded by this ratio — at
+  ///   1.94 that Column is ~3px too tall for its box and throws a RenderFlex
+  ///   overflow (a `ClipRect` can't suppress a Flex assertion). 16:9 is the
+  ///   video's real ratio anyway and gives the controls the room they need.
+  double get aspectRatio => switch (type) {
+    PostMediaType.instagramEmbed => 4 / 5,
+    PostMediaType.image => 332 / 171, // fallback only, until `_FeedImage` loads
+    _ => 16 / 9,
+  };
 
   /// A still worth rendering, or null when this item has none and the
   /// WebView is the only thing that can show it.
@@ -69,6 +103,8 @@ class PostMediaModel {
         ? PostMediaType.youtubeEmbed
         : host.endsWith('instagram.com')
         ? PostMediaType.instagramEmbed
+        : looksLikeVideoFile(url)
+        ? PostMediaType.nativeVideo
         : PostMediaType.image;
     return PostMediaModel(
       type: type,
@@ -97,16 +133,42 @@ class PostMediaModel {
     if (playable == null) return null;
 
     final kind = (json['kind'] as String?)?.toLowerCase();
+
+    // The raw file URL, if either field carries one. Preferred over
+    // [playable] for a native video: an admin upload's `url` is the real
+    // `.mp4`, while `embedUrl` — if the backend even sets it — would be a
+    // player *page* a decoder can't open, and [playable] prefers `embedUrl`.
+    final rawFile = [url, embedUrl].firstWhere(
+      (u) => u != null && u.isNotEmpty && looksLikeVideoFile(u),
+      orElse: () => null,
+    );
+
+    // A genuine uploaded video, decided by the file itself where possible and
+    // by an upload-ish `kind` only as a fallback (a signed/CDN URL can lack a
+    // recognisable extension). YouTube/Instagram always win first.
+    const nativeKinds = {'upload', 'video', 'file', 'native', 'raw'};
+    final isNative =
+        kind != 'youtube' &&
+        kind != 'instagram' &&
+        (rawFile != null || (kind != null && nativeKinds.contains(kind)));
+
+    final type = kind == 'youtube'
+        ? PostMediaType.youtubeEmbed
+        : kind == 'instagram'
+        ? PostMediaType.instagramEmbed
+        : isNative
+        ? PostMediaType.nativeVideo
+        // A real embed *page* (Vimeo and the like) still goes to the WebView —
+        // better than dropping it for not being on a list.
+        : PostMediaType.videoEmbed;
+
+    // A native video must carry its raw file URL, not a player-page embedUrl.
+    final src = isNative ? (rawFile ?? url ?? playable) : playable;
+
     return PostMediaModel(
-      type: switch (kind) {
-        'youtube' => PostMediaType.youtubeEmbed,
-        'instagram' => PostMediaType.instagramEmbed,
-        // 'upload', 'vimeo', anything new — still a video, still playable in
-        // the WebView. Better than dropping it for not being on a list.
-        _ => PostMediaType.videoEmbed,
-      },
-      imageUrl: playable,
-      embedUrl: playable,
+      type: type,
+      imageUrl: src,
+      embedUrl: src,
       thumbnailUrl: json['thumbnailUrl'] as String?,
       title: json['title'] as String?,
       // `externalId` straight off the payload; the URL parse is only the

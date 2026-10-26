@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:finskool/src/comman/widgets/success_animation.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
 
 /// What the member chose in [EnquirySubmittedDialog].
@@ -53,28 +54,37 @@ class EnquirySubmittedDialog extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Container(
-              height: 80,
-              width: 80,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: AppPalette.badgeTeal.withValues(alpha: 0.12),
-                shape: BoxShape.circle,
-              ),
-              child: Container(
-                height: 56,
-                width: 56,
-                decoration: const BoxDecoration(
-                  color: AppPalette.badgeTeal,
+            // The shared animated tick (CLAUDE.md "Success animation") —
+            // used everywhere else a submission succeeds (password reset,
+            // signup, a community purchase). `existing` isn't a new success,
+            // just an informational "you already have one open", so it
+            // keeps the plain static tick rather than playing the animation
+            // for something that didn't just happen.
+            if (existing)
+              Container(
+                height: 80,
+                width: 80,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: AppPalette.badgeTeal.withValues(alpha: 0.12),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
-                  Icons.check,
-                  color: AppPalette.white,
-                  size: 32,
+                child: Container(
+                  height: 56,
+                  width: 56,
+                  decoration: const BoxDecoration(
+                    color: AppPalette.badgeTeal,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.check,
+                    color: AppPalette.white,
+                    size: 32,
+                  ),
                 ),
-              ),
-            ),
+              )
+            else
+              const SuccessAnimation(size: 110),
             const SizedBox(height: 18),
             Text(
               existing ? 'Already enquired' : 'Enquiry submitted',

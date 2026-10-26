@@ -459,8 +459,16 @@ remount is a fresh page load.
 `YoutubeEmbedPlayer` therefore sets `autoPlay: true` — safe because the
 widget is never built for a card the viewer can't see — and **`mute: true`,
 which is not optional**: webviews refuse unmuted autoplay and the refusal is
-silent, so it would read as a broken player. Sound is a tap on the player's
-own control, as in every other feed.
+silent, so it would read as a broken player. **There is no "tap the
+player's own control" for sound** — `youtube_player_flutter` v10's default
+controls overlay (play/pause, skip, fullscreen, a seek bar) has no volume
+button at all, and `YoutubePlayerParams.showControls` is silently ignored
+on mobile (the package always hides YouTube's own native controls in favour
+of its own). `YoutubeEmbedPlayer` therefore draws its own small speaker
+button, calling the controller's `mute()`/`unMute()` directly — that's the
+one and only route to sound. `NativeVideoPlayer` follows the identical
+pattern (muted `play()` + its own speaker button driving `setVolume`),
+since `video_player` ships with no UI chrome of its own either.
 
 Instagram **cannot be autoplayed** — its embed exposes no play API to drive
 — so its post renders automatically and the video inside still needs a tap.
@@ -482,19 +490,25 @@ in that order — images first, then videos:
 3. **`videos`** — a typed array the OpenAPI spec **does not document** but
    the API does send: `{id, kind, url, embedUrl, externalId, title,
    thumbnailUrl}`. `PostMediaModel.fromVideoJson` parses it. `kind` maps
-   `youtube`/`instagram` onto their types and **anything else onto
-   `videoEmbed`** — an unrecognised kind is still played in the WebView
-   rather than dropped. An entry with neither `embedUrl` nor `url` returns
-   null and is skipped.
+   `youtube`/`instagram` onto their types; anything else falls to
+   `looksLikeVideoFile` on the playable URL — a raw file (`.mp4`/`.mov`/
+   `.m4v`/`.webm`/`.mkv`, query string and all) is `nativeVideo`, an embed
+   *page* (Vimeo and the like) is `videoEmbed` and still goes to the
+   WebView rather than being dropped. An entry with neither `embedUrl` nor
+   `url` returns null and is skipped.
 
 `PostMediaType` is therefore `image` / `youtubeEmbed` / `instagramEmbed` /
-`videoEmbed`. Native uploaded-video playback (`video_player`) is still out
-of scope.
+`videoEmbed` / `nativeVideo`. **A raw video file was previously typed
+`image`** when it arrived via `imageUrls` or an inline `<img>` (source 1/2
+above) rather than the typed `videos` array — `fromUrl` only host-sniffed
+youtube/instagram, so anything else fell through to `image` and rendered as
+a broken `CachedNetworkImage` tile. `looksLikeVideoFile` is checked there
+too now, for the same reason.
 
 ### Embeds play in-app
 
-Two renderers, picked in `PostMediaCarousel._MediaItem` by whether the item
-resolved a `videoId`:
+Three renderers, picked in `PostMediaCarousel._MediaItem` — first by
+whether the item resolved a `videoId`, then by `type == nativeVideo`:
 
 **YouTube → `YoutubeEmbedPlayer`** (`youtube_player_flutter`). It takes the
 **video id**, not a URL — `videos[].externalId` is exactly what
@@ -508,7 +522,30 @@ will not compile. Use `.fromVideoId(videoId:, autoPlay:, params:
 YoutubePlayerParams(...))`, and `close()` the controller in `dispose` **and**
 in `didUpdateWidget` when the id changes — the carousel reuses one element
 per page slot, so without that the previous video keeps playing under the
-next card. `autoPlay` stays false: several cards are on screen at once.
+next card. It is handed `aspectRatio: item.aspectRatio`, which for a video is
+**16:9** (`PostMediaModel.aspectRatio`). It must match the carousel's box, and
+it must be 16:9, not Figma's 332:171 media box: the package's controls overlay
+lays its title bar / spacer / bottom bar in a fixed-height `Column` bounded by
+this ratio, and 332:171 (1.94) is ~3px too short for it — a `RenderFlex
+overflowed by 2.7px` that a `ClipRect` can't suppress (it clips painting, not
+the Flex assertion). 16:9 is the video's real ratio and gives the controls the
+room they need.
+
+**A raw uploaded video file → `NativeVideoPlayer`** (`video_player`). Picked
+by `PostMediaModel.type == nativeVideo`, i.e. `looksLikeVideoFile` matched
+the URL (or an upload-ish `kind`) — never trust an unconfirmed `kind` string
+alone, since nothing else distinguishes "a page a WebView can open" from "a
+file only a decoder can". **It auto-detects the clip's real ratio** and is
+shown **whole**: `video_player` exposes `value.aspectRatio` after
+`initialize()` (unlike the YouTube/Instagram embeds, whose players don't), so
+`NativeVideoPlayer` reports it via `onRatio` to `PostMediaCarousel`, which
+sizes the card to the clip — portrait phone footage included — exactly like
+an image. It then displays with `AspectRatio` + `contain` on a black plate,
+so there's no crop; the 16:9 in `PostMediaModel.aspectRatio` is only the
+fallback until init resolves the true one. `NativeVideoPlayer` also handles
+the two states `video_player` otherwise fails silently on — a load error and
+a 0×0 "successful" decode — with a visible tile instead of the blank white
+that read as "nothing happened".
 
 **Instagram and everything else → `EmbedPlayer`**, a WebView. It
 **loads the embed URL directly** — it does *not* wrap it in an `<iframe>`
@@ -544,11 +581,34 @@ Two more things keep it working, and both are easy to delete by accident:
 
 `test/embed_urls_test.dart` pins every URL shape — still worth keeping for
 Instagram, and because `youtubeVideoId` feeds the real player. `EmbedPlayer`
-has **no `AspectRatio` of its own**: `PostMediaCarousel` sizes each item from
-`PostMediaModel.aspectRatio`, which is Figma's 16:9 except for
-`instagramEmbed`, whose embed is portrait (4:5) and gets its picture and
-account header cropped off in a 16:9 box. The carousel wraps that in an
+has **no `AspectRatio` of its own**: `PostMediaCarousel` sizes each *embed/
+video* item from `PostMediaModel.aspectRatio` (16:9 for video/YouTube,
+`instagramEmbed`'s portrait 4:5; the old 332:171 is now only the image
+fallback — see the YouTube overflow note). The carousel wraps that in an
 `AnimatedSize` so a mixed carousel doesn't snap height mid-swipe.
+
+**Images are sized to the picture, not the other way round.** They are shown
+**whole** — `BoxFit.contain`, never `cover` — because cropping an uploaded
+photo into the video box was literally cutting people's images off. The box
+follows the picture's own ratio: `_FeedImage` resolves the decoded
+width/height (an `ImageStreamListener`), reports it up, and
+`PostMediaCarousel._ratioFor` feeds it to the shared `AspectRatio` (clamped
+to [0.5, 2.0] so one absurd upload can't make a screen-tall card; a neutral
+1:1 until it resolves, so `AnimatedSize` only nudges, never jumps). With the
+box at the picture's own ratio, `contain` fills it exactly, so there's no
+letterboxing in the common case. `PostMediaModel.aspectRatio` is now only the
+fallback/known-ratio for the non-image types.
+
+**Resolved ratios are cached app-wide (`comman/media_ratio_cache.dart`).** An
+image or native video only learns its true shape after it decodes, and the
+card is sized from that. Held only in the carousel's `State`, it was lost every
+time the `SliverList` disposed the card off-screen, so scrolling back rebuilt
+it at the fallback (16:9 / 1:1) and then jumped to the real shape — a portrait
+reel is ~2:1 tall — under the user's finger. That repeated resize is what
+looked like the feed "juggling up and down" (diagnosed from a screen recording
+of the simulator). Keyed by media URL; only the first-ever build of a card
+uses the fallback. Don't add an `AnimatedSize` back around the media box
+either — animating the height in a scrolling sliver makes it worse.
 
 **Only source 3 has a poster frame.** `thumbnailUrl` is why
 `PostMediaModel.posterUrl` exists: it returns the thumbnail, or the
@@ -1038,10 +1098,13 @@ different versions of these screens.
   Text styles live in `TopBarTypography` (`context.topBarType`); the hint is
   Poppins in Figma, approximated with Inter. The first card sits 20 below it.
 * **Post card** (`FeedPostCard`): r20, a 0.5dp `#A5D3D3` hairline (Figma's
-  `#108B8B` stroke renders as one device pixel at 2x), 35px avatar, media at
-  **332x171** (not 16:9 — `PostMediaModel.aspectRatio`), 37px thumbnails veiled
-  with white 20%, a 17.8px `#F5F6F9` hashtag pill. `Container(alignment:)`
-  makes that pill fill the Wrap — it uses a width-hugging `Center`.
+  `#108B8B` stroke renders as one device pixel at 2x), 35px avatar, **video/
+  embed** media at 16:9 (`PostMediaModel.aspectRatio`; Figma's 332:171 proved
+  too short for the YouTube controls — see that note) while **images show
+  whole at their own ratio** (see "Images are sized to the picture"), 37px
+  thumbnails veiled with white 20%, a 17.8px `#F5F6F9` hashtag pill.
+  `Container(alignment:)` makes that pill fill the Wrap — it uses a
+  width-hugging `Center`.
 * **Subscription Detail**: same chrome as Edit Profile — `TealSheetScaffold`
   (the ticket hero, sheet 56px under the status bar here, 61 on Edit Profile),
   `TealSectionCard` (the one teal-header/`#F6F6F6` card, shared with tickets),
@@ -1105,20 +1168,58 @@ That interleaving is why it is **two widgets, not one**:
 `WelcomeKitFooter` everything after, with `SubscriptionDetailScreen` owning
 the order. Don't merge them without moving the benefits list too.
 
-It is **content, and entirely unbacked**: no endpoint describes videos,
-capital figures, strategy stats or risk wording.
-`WelcomeKitDemoDatasource` holds it keyed by slug and returns null for a
-community the design doesn't cover — the Academy gets no section rather
-than borrowing Intraday's numbers. Capital guidance and risk copy are
-exactly the kind of thing that gets revised, so **move this to the backend
-before the figures can change**; a shipped build is a bad place to keep
-them.
+**The Welcome Kit is backend-owned — `GET /mobile/communities/{id}/welcome-kit`.**
+Admins author it (Figma's "Create Welcome Kit" admin frames), so each paid
+community has its own. It used to be a design sample keyed by slug
+(`WelcomeKitDemoDatasource`); that matched only communities whose slug
+contained `intraday`/`investor`/`academy`, so **every other subscription
+showed no kit at all** — the bug that prompted the real wiring — and it is
+deleted. The chain is the usual one: `CommunitiesRemoteDatasource.getWelcomeKit`
+→ `CommunitiesRepository.getWelcomeKit` → `GetWelcomeKit` →
+**`WelcomeKitBloc`**, which is `@injectable` (route-scoped on
+`SubscriptionDetailScreen` via `BlocProvider(create:)`, **not** a singleton, so
+one subscription's kit can never show under the next). `SubscriptionDetailView`
+is the screen minus its bloc, public so goldens/tests can supply a ready one.
+
+Contract details that shape the code (all from the OpenAPI spec):
+
+* **404 and 403 are "no kit", not errors.** 404 = nothing published, or the
+  free community; 403 = no active subscription. The datasource returns `null`
+  for both and the section is simply absent. Only a real failure becomes
+  `RequestState.error` and shows the small "Couldn't load" + Retry row.
+* **Every section is optional** (`watchBeforeYouStart`, `capitalAllocation`
+  can each be `null`; lists can be empty) — the model is all-nullable/empty and
+  the widgets render only what exists.
+* **Lists carry `priority`** and are sorted by it client-side too, so a
+  reordered payload can't reorder the screen.
+* **Text fields are raw markdown** (`introMarkdown`, descriptions, notice
+  bodies, `whatYouGet`). `comman/markdown_text.dart` normalises the subset the
+  editor emits (bold stays bold via `boldSpans`; bullets, headings, links and
+  italics collapse to plain text) — **links aren't tappable and italics aren't
+  italic**; reach for a real markdown package if kits start leaning on that.
+* **Notice `type` is `normal`/`warning`** → `NoticeTone.info` (teal "i" card)
+  / `danger` (red triangle). The old amber tone is gone: the API has no such
+  type.
+* **The capital caption is split out of `description`.** The design has a short
+  label ("Recommended capital") above the paragraph, but the API has one
+  `description` field, and admins type the label on its first line. A first
+  line ≤48 chars that isn't a sentence becomes the caption; otherwise the whole
+  text stays the description rather than inventing one.
+* **Videos carry no title** in the documented payload (`url`, `videoId`,
+  `embedUrl`, `thumbnailUrl`), so a row reads "Watch video N" unless the
+  backend sends a `title`. Tapping a row opens `url` externally.
+* **"What You get" comes from the kit** (`whatYouGet`), falling back to the
+  catalog's `community.benefits` when the kit has none.
+
+`WelcomeKitFooter` — the blue "understand the trading process" banner and the
+two-line mission sign-off — is **fixed design copy**, the same under every
+kit in Figma and with no API field, so it lives in the widget, not the model.
 
 Two details worth not "fixing": the stat grid is a `Wrap` of half-width
 tiles rather than a `GridView`, because Investor's **five** stats must
 leave the last tile half-width (the design does this) instead of stretching
-it; and the three notice banners share one widget driven by `NoticeTone`,
-which selects plate, hairline, ink and icon together.
+it; and the notice banners share one widget driven by `NoticeTone`, which
+selects plate, hairline, ink and icon together.
 
 **These colours and sizes came from a screenshot, not Figma** — the Figma
 MCP was unavailable (it authenticates by OAuth, so a pasted PAT can't be
@@ -1275,6 +1376,25 @@ dirty — it explains what *would* happen, which is only useful beforehand,
 and Figma shows it with the number untouched. Nothing implements that
 re-verification flow yet; the copy is a promise the app doesn't keep.
 
+**Prefill is seeded synchronously.** `EditProfileState.fromUser` is a pure
+function; the screen fills its controllers from it in `initState` *and* the
+bloc's `prefill` uses it. A listener alone fails on a revisit (singleton bloc,
+same values, no state change → fresh controllers stay blank). The screen also
+re-prefills when `AuthenticatorWatcherBloc` delivers a user, unless editing.
+`_resolve` no longer emits `authenticating` when a cached user exists, so a
+background `/me` refresh can't null the user mid-screen.
+
+**Profile photo is local-only.** No avatar-upload endpoint exists (don't use
+the ticket presign). The camera badge opens `showPhotoSourceSheet`;
+`changeProfilePhoto` (image_picker, 1024px/q85) dispatches `avatarPicked` /
+`avatarRemoved` → `UpdateAvatar`, which copies the file into app documents and
+stores its path under `StorageKeys.avatarLocalPath(userId)` — a separate key so
+a server refresh of the cached user can't wipe it. `UserModel.avatarLocalPath`
+is re-applied on every read and cleared on logout. iOS needs
+`NSCameraUsageDescription`/`NSPhotoLibraryUsageDescription` (added). Known
+quirk: `refreshSession` overwrites local name/email/phone edits with server
+values.
+
 **The SEBI date of birth and PAN cannot currently be displayed.**
 `submitCompliance` persists only `StorageKeys.complianceCompleted` and
 **discards its `ComplianceDetailsModel` argument entirely** — nothing
@@ -1299,6 +1419,43 @@ of scope until it's added.
 `EDIT_PROFILE_ROUTE_PATH` was fixed from `"edit-profile"` to `"/edit-profile"`
 while wiring it — it was the one route constant missing its leading slash,
 and this is the first time anything actually routes it.
+
+### Info screens: About & SEBI, Terms & privacy, Help & support
+
+`pages/dashboard/profile/info/`. **About & SEBI info** (`1554:8149`) and **Terms
+& privacy policy** (`1554:8682`) are drawn in Figma on the Final page; **Help &
+support is not**, and is built from the same blocks so a designer can restyle it
+without restructuring. Shared chrome is `InfoPage` — the teal hero with the
+title *inside* it, a translucent 34px back button, and a white sheet 84px under
+the status bar (not `TealSheetScaffold`, whose arrow sits on the sheet and
+whose offset is 56–61). Blocks: `InfoPlate` (`#F6F6F6` r16), `InfoRow` (36px
+white icon tile · title · subtitle · chevron), `InfoSectionLabel`, `InfoHairline`.
+Text is `context.infoType` (`InfoTypography`), colours the `AppPalette` "Profile
+info screens" block; the `info_*.svg` glyphs are Figma's own exports.
+
+**All content is placeholder.** There is no endpoint, so
+`ProfileInfoDemoDatasource` supplies it behind `ProfileInfoRepository` (sync,
+read with `locator<…>()`; becomes `Future<Either>` + a bloc when a backend
+exists). The About copy and Terms of use are transcribed from Figma; **the
+Privacy policy text and the Help FAQs are invented and must be replaced with
+approved copy before release** — the legal text especially. Same category as
+`DemoSubscriptionDatasource`: delete it when the real source lands.
+
+* The Terms screen's two tabs (`LegalTabs`) and the FAQ accordion (`FaqList`)
+  are local `State`, not blocs — which tab/row is open is transient UI.
+  `/profile/terms-privacy?tab=privacy` opens on the Privacy tab (the About
+  screen's "Privacy policy" row uses it).
+* Call / email / directions go through `url_launcher` (`openExternal`) and say
+  so in a snackbar when the device can't handle the link. The registration
+  number copies to the clipboard.
+* **Disclosures and Investor charter open `sebi.gov.in`** as a stand-in link.
+
+**Logout** is drawn like the cards around it (a red-tinted 48px plate, red icon
+and label — `LogoutButton`) and asks first: `showLogoutDialog` resolves `true`
+**only** on the explicit "Log out" button; Cancel, a tap outside and system
+back all resolve `false`, so a stray tap can't sign the user out
+(`test/logout_dialog_test.dart`). The Profile screen dispatches
+`AuthenticatorWatcherEvent.signOut()` only after that `true`.
 
 ### Bottom nav — real avatar, not a fourth icon
 

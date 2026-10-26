@@ -49,11 +49,19 @@ class ServiceConversation extends StatelessWidget {
     if (m.isSystem) return SystemPill(m.body ?? '');
     final quote = m.isQuote ? state.quotes[m.quoteId] : null;
     if (quote != null) {
-      return QuoteCard(
-        quote: quote,
-        canPay: !state.isLocked && state.payableQuote?.id == quote.id,
-        paying: payBusy,
-        onPay: () => onPay(quote.id),
+      // Unlike `MessageBubble`, which insets itself from the screen edge via
+      // its own `maxWidth` math, `TicketCard` (what `QuoteCard` is built on)
+      // is `width: double.infinity` with no outer margin of its own — placed
+      // bare in this column it ran edge-to-edge, with only its 14px internal
+      // content padding between the text and the screen edge.
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 14),
+        child: QuoteCard(
+          quote: quote,
+          canPay: !state.isLocked && state.payableQuote?.id == quote.id,
+          paying: payBusy,
+          onPay: () => onPay(quote.id),
+        ),
       );
     }
     return MessageBubble(

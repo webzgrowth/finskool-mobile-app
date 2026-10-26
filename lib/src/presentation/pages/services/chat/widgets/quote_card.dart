@@ -54,7 +54,7 @@ class QuoteCard extends StatelessWidget {
                 Expanded(
                   child: Text(
                     'Quote v${quote.version}',
-                    style: type.cardHeader,
+                    style: type.cardSubject,
                   ),
                 ),
                 Text(
@@ -111,7 +111,11 @@ class _Row extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final type = context.ticketType;
-    final style = strong ? type.cardHeader : type.bubble;
+    // `cardHeader` is white — tuned for a filled teal section header, not a
+    // row on this card's white fill. It was used here by mistake: the "Quote
+    // vN" label and the Total row were rendering invisible white-on-white,
+    // which read as a big blank gap where the total should have been.
+    final style = strong ? type.headerTitle : type.bubble;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2),
       child: Row(

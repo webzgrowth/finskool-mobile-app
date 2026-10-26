@@ -282,6 +282,23 @@ class AppPalette {
   static const Color success = Color(0xFF2E7D5B);
   static const Color warning = Color(0xFFB26A00);
 
+  // Profile info screens — About & SEBI, Terms & privacy, Help & support
+  // (Final page `1554:8149` / `1554:8682`). Neutral greys with a teal-green
+  // ink; the plate itself is `ticketCard` (#F6F6F6), reused rather than
+  // duplicated.
+  static const Color infoInk = Color(0xFF1A2E2C);
+  static const Color infoMuted = Color(0xFF8A8A85);
+  static const Color infoSub = Color(0xFF7D827F);
+  static const Color infoLabel = Color(0xFF8A8F8C);
+  static const Color infoBody = Color(0xFF3F4542);
+  static const Color infoArticle = Color(0xFF4E5451);
+  static const Color infoChipInk = Color(0xFF5F6461);
+  static const Color infoHairline = Color(0xFFE9E9E9);
+  static const Color infoVerifiedPlate = Color(0xFFE6F2F0);
+  static const Color infoDisclaimerPlate = Color(0xFFFFF7EA);
+  static const Color infoDisclaimerInk = Color(0xFF8A5300);
+  static const Color infoDisclaimerBody = Color(0xFF8A6A3A);
+
   // Skeleton loading (see `comman/widgets/skeleton.dart`) — a neutral,
   // slightly-warm grey rather than the brand teal, so a loading screen
   // doesn't read as "tinted" before any real content has painted.

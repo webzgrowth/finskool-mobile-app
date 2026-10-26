@@ -39,39 +39,51 @@ class CommunityCtaButton extends StatelessWidget {
         child: InkWell(
           onTap: loading ? null : onPressed,
           child: Center(
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (leadingLock) ...[
-                  SvgPicture.asset(
-                    'assets/icons/lock_small_icon.svg',
-                    height: 11,
-                    width: 10.6,
-                  ),
-                  const SizedBox(width: AppSpacing.sm),
-                ],
-                Text(label, style: context.communityType.cta),
-                const SizedBox(width: AppSpacing.sm),
-                if (loading)
-                  const SizedBox(
-                    height: 15,
-                    width: 15,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: Colors.white,
-                    ),
-                  )
-                else
-                  SvgPicture.asset(
-                    'assets/icons/arrow_right.svg',
-                    height: 15.07,
-                    width: 15.07,
-                    colorFilter: const ColorFilter.mode(
-                      AppPalette.white,
-                      BlendMode.srcIn,
-                    ),
-                  ),
-              ],
+            // Horizontal content padding plus a shrink-to-fit safety net —
+            // this button now shares its row with `PerformanceButton`
+            // (narrower available width), and the bigger `UiScaler` text
+            // scale means a long label (e.g. "Unlock Subscription") can get
+            // close enough to the button's edges to read as cramped, or
+            // even overflow, without either of these.
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (leadingLock) ...[
+                      SvgPicture.asset(
+                        'assets/icons/lock_small_icon.svg',
+                        height: 11,
+                        width: 10.6,
+                      ),
+                      const SizedBox(width: AppSpacing.sm),
+                    ],
+                    Text(label, style: context.communityType.cta),
+                    const SizedBox(width: AppSpacing.sm),
+                    if (loading)
+                      const SizedBox(
+                        height: 15,
+                        width: 15,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    else
+                      SvgPicture.asset(
+                        'assets/icons/arrow_right.svg',
+                        height: 15.07,
+                        width: 15.07,
+                        colorFilter: const ColorFilter.mode(
+                          AppPalette.white,
+                          BlendMode.srcIn,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
             ),
           ),
         ),

@@ -186,7 +186,7 @@ class _ChatViewState extends State<_ChatView> {
     final showRating = request != null && request.canRate && !_ratingDismissed;
     return TicketSheetPage(
       header: TicketHeader(
-        spec: TicketHeaderSpec.chat,
+        spec: TicketHeaderSpec.serviceChat,
         title: request?.serviceTitle ?? 'Service request',
         subtitle: request == null ? null : '#${request.label}',
         onBack: () => context.pop(),

@@ -30,7 +30,9 @@ void main() {
     expect(rupees(500000), '₹5,00,000');
   });
 
-  testWidgets('an active quote offers Pay; a superseded one does not', (t) async {
+  testWidgets('an active quote offers Pay; a superseded one does not', (
+    t,
+  ) async {
     var paid = 0;
     await t.pumpWidget(
       _host(
@@ -58,7 +60,9 @@ void main() {
     expect(find.text('Replaced by a newer quote'), findsOneWidget);
   });
 
-  testWidgets('service card shows pricing-on-request and Enquire now', (t) async {
+  testWidgets('service card shows pricing-on-request and Enquire now', (
+    t,
+  ) async {
     var tapped = 0;
     await t.pumpWidget(
       _host(

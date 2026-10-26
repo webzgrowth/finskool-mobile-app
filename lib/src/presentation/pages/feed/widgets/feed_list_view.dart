@@ -110,6 +110,14 @@ class _FeedListViewState extends State<FeedListView> {
           return BlocBuilder<FeedBloc, FeedState>(
             builder: (context, feedState) => RefreshIndicator(
               onRefresh: _refresh,
+              // Without this the spinner defaults to near the very top of
+              // the viewport — behind the floating search bar rather than
+              // under it, since this sliver tree has no fixed app bar for
+              // `RefreshIndicator` to measure itself against automatically.
+              // `CommunitiesScreen`/`ServicesScreen` already set this; this
+              // was the one feed-shaped screen that didn't.
+              edgeOffset:
+                  widget.toolbarHeight ?? SearchTopBar.heightFor(context),
               child: CustomScrollView(
                 controller: _controller,
                 slivers: [

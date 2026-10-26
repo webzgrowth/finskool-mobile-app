@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:finskool/src/comman/date_slash_formatter.dart';
 import 'package:finskool/src/comman/routes.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
 import 'package:finskool/src/presentation/bloc/communities/compliance/compliance_bloc.dart';
@@ -43,20 +45,38 @@ class ComplianceForm extends StatelessWidget {
               const SizedBox(height: AppSpacing.xl),
               AuthTextField(
                 label: 'Date of Birth (as per Aadhaar)',
-                hint: 'DD/MM/YY',
+                hint: 'DD/MM/YYYY',
                 iconAsset: AuthFieldIcons.dateNote,
                 errorText: state.dateOfBirthError,
-                keyboardType: TextInputType.datetime,
+                keyboardType: TextInputType.number,
+                // Digits only; `DateSlashFormatter` inserts the `/`s as the
+                // member types rather than asking them to type the
+                // field themselves.
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                  const DateSlashFormatter(),
+                ],
                 onChanged: (v) =>
                     bloc.add(ComplianceEvent.dateOfBirthChanged(v)),
               ),
               const SizedBox(height: AppSpacing.lg),
               AuthTextField(
                 label: 'PAN Number (10 characters)',
-                hint: 'ABCDE1234F',
+                hint: 'AAAPL1234C',
                 iconAsset: AuthFieldIcons.card,
                 errorText: state.panError,
                 textCapitalization: TextCapitalization.characters,
+                // `TextCapitalization.characters` only hints the keyboard —
+                // it doesn't force the characters typed, so a physical
+                // keyboard or a paste could still land lowercase. A PAN is
+                // always 10 characters, exactly, so cap it too.
+                inputFormatters: [
+                  LengthLimitingTextInputFormatter(10),
+                  TextInputFormatter.withFunction(
+                    (oldValue, newValue) =>
+                        newValue.copyWith(text: newValue.text.toUpperCase()),
+                  ),
+                ],
                 onChanged: (v) => bloc.add(ComplianceEvent.panChanged(v)),
               ),
               const SizedBox(height: AppSpacing.sm),

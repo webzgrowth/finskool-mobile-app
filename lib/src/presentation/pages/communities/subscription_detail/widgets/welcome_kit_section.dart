@@ -42,12 +42,17 @@ class WelcomeKitSection extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 11),
-        WatchFirstSection(intro: kit.watchIntro, videos: kit.videos),
-        const SizedBox(height: 16),
-        CapitalAllocationSection(capital: kit.capital),
-        for (final notice in kit.riskNotices) ...[
+        if (kit.hasWatchSection) ...[
+          WatchFirstSection(intro: kit.intro, videos: kit.videos),
           const SizedBox(height: 16),
-          WelcomeKitNoticeCard(notice: notice),
+        ],
+        if (kit.capital != null) ...[
+          CapitalAllocationSection(capital: kit.capital!),
+          const SizedBox(height: 16),
+        ],
+        for (var i = 0; i < kit.notices.length; i++) ...[
+          if (i > 0) const SizedBox(height: 16),
+          WelcomeKitNoticeCard(notice: kit.notices[i]),
         ],
       ],
     );
@@ -56,22 +61,34 @@ class WelcomeKitSection extends StatelessWidget {
 
 /// The run that follows "What You get": the acknowledgment and the centred
 /// teal sign-off.
+///
+/// **Fixed design copy, not kit data** — Figma draws the same "understand the
+/// trading process" banner and mission line under every community's kit, and
+/// the API has no field for either, so they live here rather than in the model.
 class WelcomeKitFooter extends StatelessWidget {
-  const WelcomeKitFooter({super.key, required this.kit});
+  const WelcomeKitFooter({super.key});
 
-  final WelcomeKit kit;
+  static const _disclaimer = WelcomeKitNotice(
+    tone: NoticeTone.info,
+    body:
+        'Please ensure that you **understand the trading** process and '
+        'associated risks before participating in any trade.',
+  );
+
+  static const _mission = [
+    'Saath Mein Seekhenge… Saath Mein Grow Karenge!!',
+    'Our Mission: Har Ghar Ek Smart Investor!!',
+  ];
 
   @override
   Widget build(BuildContext context) {
     final type = context.subscriptionType;
     return Column(
       children: [
-        WelcomeKitNoticeCard(notice: kit.disclaimer),
-        if (kit.mission.isNotEmpty) ...[
-          const SizedBox(height: 13),
-          for (final line in kit.mission)
-            Text(line, style: type.mission, textAlign: TextAlign.center),
-        ],
+        const WelcomeKitNoticeCard(notice: _disclaimer),
+        const SizedBox(height: 13),
+        for (final line in _mission)
+          Text(line, style: type.mission, textAlign: TextAlign.center),
       ],
     );
   }

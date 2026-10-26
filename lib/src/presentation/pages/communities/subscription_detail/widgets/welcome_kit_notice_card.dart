@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:finskool/src/comman/rich_text_spans.dart';
+import 'package:finskool/src/comman/markdown_text.dart';
 import 'package:finskool/src/domain/model/community/welcome_kit.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
 
-/// A Welcome Kit notice. Two shapes, as drawn in the Final design:
+/// A Welcome Kit notice. Two shapes, as drawn in the Final design and as the
+/// API's two notice `type`s:
 ///
-/// * **risk** (`danger`, and `warning` in amber) — a tinted plate with a
+/// * **risk** (`warning` → [NoticeTone.danger]) — a tinted plate with a
 ///   triangle, a Manrope heading and a body, no border;
-/// * **info** — the "Acknowledgment": a `#F6F6F6` plate with a teal hairline,
-///   a teal "i" disc and a single paragraph.
-///
-/// The amber `warning` isn't in the Final frame (its slot is blank there), so
-/// the Intraday kit no longer carries one; the style stays for a kit that does.
+/// * **info** (`normal` → [NoticeTone.info]) — the "Acknowledgment": a
+///   `#F6F6F6` plate with a teal hairline, a teal "i" disc and a paragraph
+///   (with its heading, in bold, when the admin gave one).
 class WelcomeKitNoticeCard extends StatelessWidget {
   const WelcomeKitNoticeCard({super.key, required this.notice});
 
@@ -32,28 +31,19 @@ class _Risk extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final type = context.subscriptionType;
-    final amber = notice.tone == NoticeTone.warning;
-    final ink = amber ? AppPalette.noticeAmber : AppPalette.subRiskInk;
-    final body = amber ? AppPalette.noticeAmber : AppPalette.subRiskBody;
+    const ink = AppPalette.subRiskInk;
+    const body = AppPalette.subRiskBody;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(15, 12, 27, 12),
       decoration: BoxDecoration(
-        color: amber ? AppPalette.noticeAmberSurface : AppPalette.subRiskPlate,
+        color: AppPalette.subRiskPlate,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SvgPicture.asset(
-            'assets/icons/sub_warning.svg',
-            colorFilter: amber
-                ? const ColorFilter.mode(
-                    AppPalette.noticeAmber,
-                    BlendMode.srcIn,
-                  )
-                : null,
-          ),
+          SvgPicture.asset('assets/icons/sub_warning.svg'),
           const SizedBox(width: 9),
           Expanded(
             child: Column(
@@ -68,7 +58,7 @@ class _Risk extends StatelessWidget {
                 ],
                 Text.rich(
                   TextSpan(
-                    children: bodySpans(
+                    children: markdownSpans(
                       notice.body,
                       type.noticeBody.copyWith(color: body),
                       type.noticeBodyBold.copyWith(color: ink),
@@ -134,11 +124,18 @@ class _Acknowledgment extends StatelessWidget {
           Expanded(
             child: Text.rich(
               TextSpan(
-                children: bodySpans(
-                  notice.body,
-                  type.disclaimer,
-                  type.disclaimerBold,
-                ),
+                children: [
+                  if (notice.title != null)
+                    TextSpan(
+                      text: '${notice.title}\n',
+                      style: type.disclaimerBold,
+                    ),
+                  ...markdownSpans(
+                    notice.body,
+                    type.disclaimer,
+                    type.disclaimerBold,
+                  ),
+                ],
               ),
             ),
           ),

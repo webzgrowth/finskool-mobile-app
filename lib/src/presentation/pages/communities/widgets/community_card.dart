@@ -72,109 +72,128 @@ class _CommunityCardState extends State<CommunityCard> {
           ),
         ],
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(5),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            CommunityCover(
-              imageUrl: community.coverImageUrl,
-              memberCount: community.memberCount,
-              communityId: community.id,
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(
-                AppSpacing.md,
-                AppSpacing.sm,
-                AppSpacing.md,
-                AppSpacing.md,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
+      // Clips the ink splash below to the card's own rounded corners — the
+      // box shadow itself is unaffected, since `Container` paints that from
+      // the decoration, outside what this clips.
+      clipBehavior: Clip.antiAlias,
+      child: Material(
+        type: MaterialType.transparency,
+        child: InkWell(
+          // Subscribed only: tapping the card goes straight to the same
+          // place the CTA does ("Enter Community" — `onCta(null)`, same
+          // call the button makes since a subscribed card never shows
+          // pricing). A locked or pricing-on-request card leaves the rest
+          // of its surface inert, so a stray tap can't start a purchase or
+          // fire off a pricing enquiry — only its own buttons can.
+          onTap: community.access.isSubscribed
+              ? () => widget.onCta(null)
+              : null,
+          child: Padding(
+            padding: const EdgeInsets.all(5),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                CommunityCover(
+                  imageUrl: community.coverImageUrl,
+                  memberCount: community.memberCount,
+                  communityId: community.id,
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSpacing.md,
+                    AppSpacing.sm,
+                    AppSpacing.md,
+                    AppSpacing.md,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      if (community.category != null)
-                        Expanded(
-                          child: Text(
-                            community.category!,
-                            style: type.category,
+                      Row(
+                        children: [
+                          if (community.category != null)
+                            Expanded(
+                              child: Text(
+                                community.category!,
+                                style: type.category,
+                              ),
+                            )
+                          else
+                            const Spacer(),
+                          if (community.newAnnouncements > 0)
+                            AnnouncementTag(count: community.newAnnouncements),
+                        ],
+                      ),
+                      const SizedBox(height: AppSpacing.xs),
+                      Text(community.name, style: type.title),
+                      if (community.description != null) ...[
+                        const SizedBox(height: AppSpacing.sm),
+                        // Bold runs come from `**…**` markers — the designer's
+                        // "important words in the description will be bold".
+                        Text.rich(
+                          TextSpan(
+                            children: boldSpans(
+                              community.description!,
+                              type.description,
+                              type.descriptionBold,
+                            ),
                           ),
-                        )
-                      else
-                        const Spacer(),
-                      if (community.newAnnouncements > 0)
-                        AnnouncementTag(count: community.newAnnouncements),
+                        ),
+                      ],
+                      if (community.tags.isNotEmpty) ...[
+                        const SizedBox(height: AppSpacing.md),
+                        Wrap(
+                          spacing: 7,
+                          runSpacing: AppSpacing.sm,
+                          children: [
+                            for (final tag in community.tags)
+                              CommunityTagChip(label: tag),
+                          ],
+                        ),
+                      ],
+                      // Only on communities the user hasn't joined — once
+                      // subscribed the benefits are moot, so Figma drops the
+                      // dropdown from those cards entirely.
+                      if (!community.access.isSubscribed &&
+                          community.benefits.isNotEmpty) ...[
+                        const SizedBox(height: AppSpacing.md),
+                        WhatYouGetPanel(benefits: community.benefits),
+                      ],
+                      if (showPricing) ...[
+                        const SizedBox(height: AppSpacing.md),
+                        if (community.headlinePlan != null)
+                          PriceBlock(plan: community.headlinePlan!),
+                        const SizedBox(height: AppSpacing.md),
+                        PlanSelector(
+                          plans: community.plans,
+                          selectedId: _plan?.id ?? '',
+                          onSelected: (plan) =>
+                              setState(() => _selected = plan),
+                        ),
+                      ],
+                      const SizedBox(height: AppSpacing.lg),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: CommunityCtaButton(
+                              label: community.ctaLabel,
+                              leadingLock: community.access.isLocked,
+                              onPressed: () =>
+                                  widget.onCta(showPricing ? _plan : null),
+                            ),
+                          ),
+                          if (widget.onPerformance != null &&
+                              community.access.isSubscribed) ...[
+                            const SizedBox(width: AppSpacing.md),
+                            PerformanceButton(onPressed: widget.onPerformance!),
+                          ],
+                        ],
+                      ),
                     ],
                   ),
-                  const SizedBox(height: AppSpacing.xs),
-                  Text(community.name, style: type.title),
-                  if (community.description != null) ...[
-                    const SizedBox(height: AppSpacing.sm),
-                    // Bold runs come from `**…**` markers — the designer's
-                    // "important words in the description will be bold".
-                    Text.rich(
-                      TextSpan(
-                        children: boldSpans(
-                          community.description!,
-                          type.description,
-                          type.descriptionBold,
-                        ),
-                      ),
-                    ),
-                  ],
-                  if (community.tags.isNotEmpty) ...[
-                    const SizedBox(height: AppSpacing.md),
-                    Wrap(
-                      spacing: 7,
-                      runSpacing: AppSpacing.sm,
-                      children: [
-                        for (final tag in community.tags)
-                          CommunityTagChip(label: tag),
-                      ],
-                    ),
-                  ],
-                  // Only on communities the user hasn't joined — once
-                  // subscribed the benefits are moot, so Figma drops the
-                  // dropdown from those cards entirely.
-                  if (!community.access.isSubscribed &&
-                      community.benefits.isNotEmpty) ...[
-                    const SizedBox(height: AppSpacing.md),
-                    WhatYouGetPanel(benefits: community.benefits),
-                  ],
-                  if (showPricing) ...[
-                    const SizedBox(height: AppSpacing.md),
-                    if (community.headlinePlan != null)
-                      PriceBlock(plan: community.headlinePlan!),
-                    const SizedBox(height: AppSpacing.md),
-                    PlanSelector(
-                      plans: community.plans,
-                      selectedId: _plan?.id ?? '',
-                      onSelected: (plan) => setState(() => _selected = plan),
-                    ),
-                  ],
-                  const SizedBox(height: AppSpacing.lg),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: CommunityCtaButton(
-                          label: community.ctaLabel,
-                          leadingLock: community.access.isLocked,
-                          onPressed: () =>
-                              widget.onCta(showPricing ? _plan : null),
-                        ),
-                      ),
-                      if (widget.onPerformance != null &&
-                          community.access.isSubscribed) ...[
-                        const SizedBox(width: 10),
-                        PerformanceButton(onPressed: widget.onPerformance!),
-                      ],
-                    ],
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );

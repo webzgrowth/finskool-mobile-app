@@ -97,7 +97,18 @@ class AuthenticatorWatcherBloc
       emit(const AuthenticatorWatcherState.unauthenticated());
       return;
     }
-    emit(const AuthenticatorWatcherState.authenticating());
+    // A refresh is **silent** when there's already a user to show. Emitting
+    // `authenticating` here (it carries no user) blanked the Profile header,
+    // handed Edit Profile a null user — an empty form whenever it opened
+    // mid-refresh, which the shell does on every entry and a save does again —
+    // and flipped the Log out button to "Signing out…" for a mere refresh.
+    // `authenticating` is now only the spinner for a real sign-out/first load.
+    final cached = _authStatus.cachedUser;
+    if (cached == null) {
+      emit(const AuthenticatorWatcherState.authenticating());
+    } else if (state is! _Authenticated) {
+      emit(AuthenticatorWatcherState.authenticated(user: cached));
+    }
 
     final result = await _refreshSession.execute();
     emit(

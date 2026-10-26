@@ -6,6 +6,7 @@ import 'package:finskool/src/comman/widgets/user_avatar.dart';
 import 'package:finskool/src/domain/model/auth/user_model.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
 
+import '../edit_profile/widgets/profile_photo_picker.dart';
 import 'profile_glyphs.dart';
 
 /// The Final page's profile header: the dark teal hero, a white sheet riding
@@ -89,15 +90,23 @@ class ProfileHeader extends StatelessWidget {
                     Positioned(
                       right: 3,
                       bottom: 3,
-                      child: Container(
-                        height: 25,
-                        width: 25,
-                        alignment: Alignment.center,
-                        decoration: const BoxDecoration(
-                          color: AppPalette.reactionRing,
-                          shape: BoxShape.circle,
+                      child: GestureDetector(
+                        onTap: () => changeProfilePhoto(
+                          context,
+                          hasPhoto:
+                              user?.avatarLocalPath != null ||
+                              (user?.avatarUrl?.isNotEmpty ?? false),
                         ),
-                        child: SvgPicture.asset(ProfileGlyphs.camera),
+                        child: Container(
+                          height: 25,
+                          width: 25,
+                          alignment: Alignment.center,
+                          decoration: const BoxDecoration(
+                            color: AppPalette.reactionRing,
+                            shape: BoxShape.circle,
+                          ),
+                          child: SvgPicture.asset(ProfileGlyphs.camera),
+                        ),
                       ),
                     ),
                   ],

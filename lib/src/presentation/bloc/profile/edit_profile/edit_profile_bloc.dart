@@ -5,6 +5,7 @@ import 'package:finskool/src/comman/country_codes.dart';
 import 'package:finskool/src/comman/enum.dart';
 import 'package:finskool/src/comman/validators.dart';
 import 'package:finskool/src/domain/model/auth/user_model.dart';
+import 'package:finskool/src/domain/usecases/auth/update_avatar.dart';
 import 'package:finskool/src/domain/usecases/auth/update_profile.dart';
 
 part 'edit_profile_event.dart';
@@ -21,10 +22,11 @@ part 'edit_profile_bloc.freezed.dart';
 /// talk to each other directly.
 @singleton
 class EditProfileBloc extends Bloc<EditProfileEvent, EditProfileState> {
-  EditProfileBloc(this._updateProfile) : super(EditProfileState.initial()) {
+  EditProfileBloc(this._updateProfile, this._updateAvatar)
+    : super(EditProfileState.initial()) {
     on<EditProfileEvent>((event, emit) async {
       await event.map(
-        prefill: (value) async => emit(_seed(value.user)),
+        prefill: (value) async => emit(EditProfileState.fromUser(value.user)),
         editToggled: (_) async =>
             emit(state.copyWith(isEditing: !state.isEditing)),
         // Each *Changed clears only its own error, so a field the user is
@@ -38,31 +40,40 @@ class EditProfileBloc extends Bloc<EditProfileEvent, EditProfileState> {
             emit(state.copyWith(phone: value.phone, phoneError: null)),
         countryChanged: (value) async =>
             emit(state.copyWith(country: value.country, phoneError: null)),
-        discardChanges: (_) async => emit(_seed(state.user)),
+        discardChanges: (_) async =>
+            emit(EditProfileState.fromUser(state.user)),
         submit: (_) async => _submit(emit),
+        avatarPicked: (value) async => _setAvatar(value.path, emit),
+        avatarRemoved: (_) async => _setAvatar(null, emit),
       );
     });
   }
 
   final UpdateProfile _updateProfile;
+  final UpdateAvatar _updateAvatar;
 
-  EditProfileState _seed(UserModel? user) {
-    final initial = EditProfileState.initial();
-    if (user == null) return initial;
-    final country = CountryCodes.all.firstWhere(
-      (c) => user.phone.startsWith(c.dialCode),
-      orElse: () => initial.country,
-    );
-    return initial.copyWith(
-      user: user,
-      name: user.name,
-      email: user.email,
-      // The cached phone carries its dial code; the field shows only the
-      // national part, since the chip beside it renders the code.
-      phone: user.phone.startsWith(country.dialCode)
-          ? user.phone.substring(country.dialCode.length).trim()
-          : user.phone,
-      country: country,
+  /// Photo changes are applied at once and leave the text fields alone —
+  /// including any the member is mid-way through editing.
+  Future<void> _setAvatar(String? path, Emitter<EditProfileState> emit) async {
+    if (state.avatarBusy) return;
+    emit(state.copyWith(avatarBusy: true));
+    final result = await _updateAvatar.execute(path);
+    result.fold(
+      (failure) => emit(
+        state.copyWith(
+          avatarBusy: false,
+          state: RequestState.error,
+          message: failure.message,
+        ),
+      ),
+      (updated) => emit(
+        state.copyWith(
+          avatarBusy: false,
+          user: updated,
+          state: RequestState.loaded,
+          message: path == null ? 'Photo removed.' : 'Photo updated.',
+        ),
+      ),
     );
   }
 

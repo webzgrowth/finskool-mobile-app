@@ -11,6 +11,7 @@ import 'components/surface_themes.dart';
 import 'extensions/app_gradients.dart';
 import 'extensions/community_typography.dart';
 import 'extensions/feed_typography.dart';
+import 'extensions/info_typography.dart';
 import '../page_transitions.dart';
 import 'extensions/nav_typography.dart';
 import 'extensions/top_bar_typography.dart';
@@ -47,6 +48,7 @@ class AppTheme {
         FeedTypography.of(cs.brightness),
         CommunityTypography.of(cs.brightness),
         ProfileTypography.of(cs.brightness),
+        InfoTypography.of(cs.brightness),
         NavTypography.of(cs.brightness),
         TopBarTypography.of(cs.brightness),
         SubscriptionDetailTypography.of(cs.brightness),

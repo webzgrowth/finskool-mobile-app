@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show HapticFeedback;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
 import 'package:finskool/src/domain/model/feed_post_model.dart';
@@ -53,16 +54,27 @@ class _PostReactionBarState extends State<PostReactionBar> {
       children: [
         GestureDetector(
           key: _buttonKey,
-          onTap: () => current == null
-              ? _react(ReactionType.like)
-              : context.read<FeedBloc>().add(
-                  FeedEvent.removeReaction(postId: widget.post.id),
-                ),
+          onTap: () {
+            HapticFeedback.lightImpact();
+            if (current == null) {
+              _react(ReactionType.like);
+            } else {
+              context.read<FeedBloc>().add(
+                FeedEvent.removeReaction(postId: widget.post.id),
+              );
+            }
+          },
           onLongPressStart: (_) => _picker.show(context, _anchor()),
           onLongPressMoveUpdate: (d) => _picker.updateHover(d.globalPosition),
           onLongPressEnd: (_) {
             final selected = _picker.hide();
-            if (selected != null) _react(selected);
+            if (selected != null) {
+              // A clear "landed" tick, distinct from the lighter scrub ticks
+              // while dragging across the row — this is the one that means
+              // "a reaction was actually sent".
+              HapticFeedback.mediumImpact();
+              _react(selected);
+            }
           },
           // Figma's Like control (`Group 1739329635`) puts the glyph on a
           // 24px `#E4E4E4` disc — restored per the user's reference

@@ -48,6 +48,16 @@ class TicketHeaderSpec {
     height: 39,
   );
 
+  /// A service request's chat. Same shape as [chat], but a shorter box — its
+  /// subtitle is a one-line request label ("#SR-12"), not `chat`'s two-line
+  /// instructional sentence, so `chat`'s height left a dead strip below it.
+  static const serviceChat = TicketHeaderSpec(
+    arrowTop: 15,
+    titleTop: 12,
+    subtitleTop: 35,
+    height: 56,
+  );
+
   final double arrowTop;
   final double titleTop;
   final double subtitleTop;

@@ -37,12 +37,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   void initState() {
     super.initState();
     // The bloc is a singleton, so a previous visit's edits would otherwise
-    // still be in state. Seed from the watcher's cached user.
-    //
-    // The controllers are filled by the listener in `build`, not here:
-    // `add` only queues the event, so reading `state` back on the next
-    // line would return the pre-prefill values.
-    context.read<EditProfileBloc>().add(EditProfileEvent.prefill(_cachedUser));
+    // still be in state. Seed from the watcher's cached user. The controllers
+    // are filled right here from the same pure function: `add` only queues,
+    // and a state-change listener never fires when a revisit re-seeds the
+    // same values — which is what left the fields blank "sometimes".
+    final user = _cachedUser;
+    _fill(EditProfileState.fromUser(user));
+    context.read<EditProfileBloc>().add(EditProfileEvent.prefill(user));
+  }
+
+  void _fill(EditProfileState s) {
+    _name.text = s.name;
+    _email.text = s.email;
+    _phone.text = s.phone;
   }
 
   UserModel? get _cachedUser => context
@@ -71,45 +78,58 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           const AuthenticatorWatcherEvent.authCheckRequest(),
         );
       },
-      child: BlocListener<EditProfileBloc, EditProfileState>(
-        // Push bloc values into the controllers only while not editing —
-        // that covers the prefill landing and a successful save, and never
-        // fights the cursor mid-type (typing happens with isEditing true).
-        listenWhen: (p, c) =>
-            !c.isEditing &&
-            (p.name != c.name || p.email != c.email || p.phone != c.phone),
-        listener: (context, state) {
-          _name.text = state.name;
-          _email.text = state.email;
-          _phone.text = state.phone;
+      child: BlocListener<AuthenticatorWatcherBloc, AuthenticatorWatcherState>(
+        // The session refresh can land after this screen opened (or deliver
+        // the user for the first time); re-seed unless the member is typing.
+        listenWhen: (p, c) => c.mapOrNull(authenticated: (_) => true) ?? false,
+        listener: (context, _) {
+          final bloc = context.read<EditProfileBloc>();
+          final user = _cachedUser;
+          if (bloc.state.isEditing || user == null) return;
+          bloc.add(EditProfileEvent.prefill(user));
         },
-        child: BlocBuilder<EditProfileBloc, EditProfileState>(
-          builder: (context, state) {
-            return TealSheetScaffold(
-              children: [
-                SheetBackArrow(onTap: () => context.pop()),
-                const SizedBox(height: AppSpacing.sm),
-                EditProfileAvatar(user: _cachedUser, name: state.name),
-                const SizedBox(height: AppSpacing.lg),
-                PersonalDetailsSection(
-                  state: state,
-                  nameController: _name,
-                  emailController: _email,
-                  phoneController: _phone,
-                ),
-                const SizedBox(height: AppSpacing.lg),
-                if (state.isEditing) ...[
-                  EditProfileActions(state: state),
-                  const SizedBox(height: AppSpacing.lg),
-                ],
-                const SebiDetailsSection(),
-                if (state.isEditing) ...[
-                  const SizedBox(height: AppSpacing.lg),
-                  const PhoneChangeNotice(),
-                ],
-              ],
-            );
+        child: BlocListener<EditProfileBloc, EditProfileState>(
+          // Push bloc values into the controllers only while not editing —
+          // that covers the prefill landing and a successful save, and never
+          // fights the cursor mid-type (typing happens with isEditing true).
+          listenWhen: (p, c) =>
+              !c.isEditing &&
+              (p.name != c.name || p.email != c.email || p.phone != c.phone),
+          listener: (context, state) {
+            _fill(state);
           },
+          child: BlocBuilder<EditProfileBloc, EditProfileState>(
+            builder: (context, state) {
+              return TealSheetScaffold(
+                children: [
+                  SheetBackArrow(onTap: () => context.pop()),
+                  const SizedBox(height: AppSpacing.sm),
+                  EditProfileAvatar(
+                    user: state.user ?? _cachedUser,
+                    name: state.name,
+                    busy: state.avatarBusy,
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
+                  PersonalDetailsSection(
+                    state: state,
+                    nameController: _name,
+                    emailController: _email,
+                    phoneController: _phone,
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
+                  if (state.isEditing) ...[
+                    EditProfileActions(state: state),
+                    const SizedBox(height: AppSpacing.lg),
+                  ],
+                  const SebiDetailsSection(),
+                  if (state.isEditing) ...[
+                    const SizedBox(height: AppSpacing.lg),
+                    const PhoneChangeNotice(),
+                  ],
+                ],
+              );
+            },
+          ),
         ),
       ),
     );
