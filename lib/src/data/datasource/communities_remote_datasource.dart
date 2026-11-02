@@ -5,6 +5,7 @@ import 'package:injectable/injectable.dart';
 import 'package:finskool/src/comman/exception.dart';
 import 'package:finskool/src/data/api/api.dart';
 import 'package:finskool/src/data/api/api_client.dart';
+import 'package:finskool/src/domain/model/community/checkout_session.dart';
 import 'package:finskool/src/domain/model/community/community_model.dart';
 import 'package:finskool/src/domain/model/community/welcome_kit.dart';
 
@@ -58,6 +59,28 @@ class CommunitiesRemoteDatasource {
         .whereType<Map<String, dynamic>>()
         .map(CommunityModel.fromMembershipJson)
         .toList();
+  }
+
+  /// Starts a checkout for [planId] and returns the page to pay on. The
+  /// server prices it from the plan — the app never sends an amount.
+  ///
+  /// Mobile only; the server answers 429 after 10 starts an hour.
+  Future<CheckoutSession> createCheckoutSession(
+    String communityId,
+    String planId,
+  ) async {
+    final data = await _client.post(
+      Api.checkoutSessions,
+      body: {'communityId': communityId, 'planId': planId},
+    );
+    if (data == null) {
+      throw ApiException('The server returned no checkout.');
+    }
+    final session = CheckoutSession.fromJson(data);
+    if (session.checkoutUrl.isEmpty) {
+      throw ApiException('The server returned no checkout.');
+    }
+    return session;
   }
 
   /// The community's welcome kit, or **null when there isn't one to show**.

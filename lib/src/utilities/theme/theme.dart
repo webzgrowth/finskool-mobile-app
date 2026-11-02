@@ -9,6 +9,7 @@ export 'extensions/community_typography.dart';
 export 'extensions/feed_typography.dart';
 export 'extensions/info_typography.dart';
 export 'extensions/nav_typography.dart';
+export 'extensions/notification_typography.dart';
 export 'extensions/top_bar_typography.dart';
 export 'extensions/performance_typography.dart';
 export 'extensions/profile_typography.dart';

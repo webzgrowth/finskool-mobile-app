@@ -90,12 +90,19 @@ class ServicesRemoteDatasource {
     );
   }
 
+  List<GstState>? _gstStates;
+
+  /// "Cache this list; it rarely changes" — read once per app run.
   Future<List<GstState>> getGstStates() async {
+    final cached = _gstStates;
+    if (cached != null) return cached;
     final rows = await _client.getList(Api.serviceGstStates);
-    return (rows ?? const [])
+    final states = (rows ?? const [])
         .whereType<Map<String, dynamic>>()
         .map(GstState.fromJson)
         .toList();
+    if (states.isNotEmpty) _gstStates = states;
+    return states;
   }
 
   Future<PaymentOrder> startPayment({

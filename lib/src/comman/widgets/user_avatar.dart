@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:finskool/src/comman/initials.dart';
 import 'package:finskool/src/domain/model/auth/user_model.dart';
@@ -21,14 +19,12 @@ class UserAvatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    // The photo picked on this device wins over the server's: it's what the
-    // member just chose, and the API can't be told about it.
-    final local = user?.avatarLocalPath;
-    final ImageProvider? image = local != null
-        ? FileImage(File(local))
-        : user?.avatarUrl == null
+    // Each upload gets a new URL (the server names the file with a fresh id),
+    // so the image cache can never serve the previous picture for the new one.
+    final url = user?.avatarUrl;
+    final ImageProvider? image = (url == null || url.isEmpty)
         ? null
-        : NetworkImage(user!.avatarUrl!);
+        : NetworkImage(url);
     return CircleAvatar(
       radius: radius,
       backgroundColor: cs.primary,

@@ -11,7 +11,6 @@ class UserModel {
     required this.isSuperAdmin,
     required this.postNotificationsEnabled,
     this.avatarUrl,
-    this.avatarLocalPath,
     this.memberSince,
   });
 
@@ -23,13 +22,6 @@ class UserModel {
   final bool isSuperAdmin;
   final bool postNotificationsEnabled;
   final String? avatarUrl;
-
-  /// A photo the member picked on **this device** (Edit Profile). The API has
-  /// no avatar-upload endpoint, so it never leaves the phone and is **not**
-  /// part of [toJson]: `AuthRepositoryImpl` overlays it from its own prefs key
-  /// on every read, which is what lets it survive `refreshSession` rewriting
-  /// the cached user from the server. Preferred over [avatarUrl] when set.
-  final String? avatarLocalPath;
 
   /// Backs the Profile header's "Member since…" pill. Not part of the
   /// login payload today — optional, so its absence just hides the pill
@@ -62,18 +54,16 @@ class UserModel {
     'memberSince': memberSince?.toIso8601String(),
   };
 
-  /// The app writes back [postNotificationsEnabled] (the Profile screen's
-  /// toggle) and the [name]/[email]/[phone] trio (the Edit Profile form).
-  /// Both are local-only — the API has no profile-update endpoint — so
-  /// these only ever reach the prefs cache. See
-  /// `AuthRepository.updateProfile`.
+  /// The app writes back [postNotificationsEnabled] (the post-alerts switch),
+  /// the [name]/[email]/[phone] trio (the Edit Profile form — local-only, the
+  /// API has no profile-update endpoint, see `AuthRepository.updateProfile`)
+  /// and [avatarUrl] (the server's answer to an avatar upload).
   UserModel copyWith({
     bool? postNotificationsEnabled,
     String? name,
     String? email,
     String? phone,
-    String? avatarLocalPath,
-    bool clearAvatarLocalPath = false,
+    String? avatarUrl,
   }) => UserModel(
     id: id,
     name: name ?? this.name,
@@ -83,10 +73,7 @@ class UserModel {
     isSuperAdmin: isSuperAdmin,
     postNotificationsEnabled:
         postNotificationsEnabled ?? this.postNotificationsEnabled,
-    avatarUrl: avatarUrl,
-    avatarLocalPath: clearAvatarLocalPath
-        ? null
-        : (avatarLocalPath ?? this.avatarLocalPath),
+    avatarUrl: avatarUrl ?? this.avatarUrl,
     memberSince: memberSince,
   );
 }

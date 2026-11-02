@@ -20,11 +20,24 @@ class InfoPage extends StatelessWidget {
     required this.title,
     required this.subtitle,
     required this.children,
+    this.controller,
+    this.action,
+    this.onRefresh,
   });
 
   final String title;
   final String subtitle;
   final List<Widget> children;
+
+  /// For a screen that pages as the list nears its end (the notification
+  /// inbox). The static info screens leave it null.
+  final ScrollController? controller;
+
+  /// A text action in the hero's top-right corner ("Mark all read").
+  final Widget? action;
+
+  /// Pull-to-refresh, when the list is live data.
+  final Future<void> Function()? onRefresh;
 
   static const double _sheetBelowStatusBar = 84;
   static const double _radius = 16;
@@ -69,6 +82,8 @@ class InfoPage extends StatelessWidget {
               top: inset + 39,
               child: Text(subtitle, style: type.heroSubtitle),
             ),
+            if (action != null)
+              Positioned(right: 20, top: inset + 22, child: action!),
             Positioned.fill(
               top: sheetTop,
               child: Container(
@@ -82,15 +97,7 @@ class InfoPage extends StatelessWidget {
                 child: Center(
                   child: ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 480),
-                    child: ListView(
-                      padding: EdgeInsets.fromLTRB(
-                        20,
-                        20,
-                        20,
-                        24 + MediaQuery.paddingOf(context).bottom,
-                      ),
-                      children: children,
-                    ),
+                    child: _list(context),
                   ),
                 ),
               ),
@@ -99,6 +106,23 @@ class InfoPage extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Widget _list(BuildContext context) {
+    final list = ListView(
+      controller: controller,
+      physics: onRefresh == null ? null : const AlwaysScrollableScrollPhysics(),
+      padding: EdgeInsets.fromLTRB(
+        20,
+        20,
+        20,
+        24 + MediaQuery.paddingOf(context).bottom,
+      ),
+      children: children,
+    );
+    return onRefresh == null
+        ? list
+        : RefreshIndicator(onRefresh: onRefresh!, child: list);
   }
 }
 

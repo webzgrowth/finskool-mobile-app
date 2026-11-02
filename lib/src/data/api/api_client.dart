@@ -56,6 +56,9 @@ class ApiClient {
   Future<Map<String, dynamic>?> put(String path, {Object? body}) async =>
       _asMap(await _dio.put<dynamic>(path, data: body));
 
+  Future<Map<String, dynamic>?> patch(String path, {Object? body}) async =>
+      _asMap(await _dio.patch<dynamic>(path, data: body));
+
   Future<Map<String, dynamic>?> delete(String path, {Object? body}) async =>
       _asMap(await _dio.delete<dynamic>(path, data: body));
 

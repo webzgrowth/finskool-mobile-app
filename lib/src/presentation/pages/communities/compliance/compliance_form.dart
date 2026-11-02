@@ -105,19 +105,13 @@ class ComplianceForm extends StatelessWidget {
     );
   }
 
-  /// Compliance passed — unlock the community this purchase was for and
-  /// return to the catalog.
+  /// Compliance passed — the purchase is already real (confirmed against the
+  /// server before this screen), so just re-read the catalog and go back.
   ///
   /// The two blocs are combined **here**, in the widget layer, rather than
-  /// calling each other: `CommunityPurchaseBloc` knows what was bought,
-  /// `CommunitiesBloc` owns access. Same pattern as `verify_phone_form`.
+  /// calling each other. Same pattern as `verify_phone_form`.
   void _onSubmitted(BuildContext context, ComplianceState _) {
-    final community = context.read<CommunityPurchaseBloc>().state.community;
-    if (community != null) {
-      context.read<CommunitiesBloc>().add(
-        CommunitiesEvent.unlockCommunity(community.id),
-      );
-    }
+    context.read<CommunitiesBloc>().add(const CommunitiesEvent.refresh());
     context.read<CommunityPurchaseBloc>().add(
       const CommunityPurchaseEvent.cleared(),
     );

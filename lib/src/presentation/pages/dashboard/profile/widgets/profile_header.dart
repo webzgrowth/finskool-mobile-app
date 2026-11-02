@@ -91,12 +91,7 @@ class ProfileHeader extends StatelessWidget {
                       right: 3,
                       bottom: 3,
                       child: GestureDetector(
-                        onTap: () => changeProfilePhoto(
-                          context,
-                          hasPhoto:
-                              user?.avatarLocalPath != null ||
-                              (user?.avatarUrl?.isNotEmpty ?? false),
-                        ),
+                        onTap: () => changeProfilePhoto(context),
                         child: Container(
                           height: 25,
                           width: 25,

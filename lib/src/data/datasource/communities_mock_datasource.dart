@@ -76,7 +76,6 @@ class CommunitiesMockDatasource {
         transactionId: 'PAY-2026-0041872',
         paidOn: DateTime(2026, 1, 1, 11, 42),
         paymentMethod: 'UPI · PayU',
-        autoRenew: true,
       ),
     ),
     CommunityModel(
@@ -251,7 +250,6 @@ class CommunitiesMockDatasource {
         transactionId: 'PAY-2026-0045210',
         paidOn: DateTime(2026, 3, 15, 14, 30),
         paymentMethod: 'Card · HDFC',
-        autoRenew: true,
       ),
     ),
   ];

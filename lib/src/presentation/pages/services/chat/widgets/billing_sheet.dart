@@ -12,10 +12,16 @@ import 'quote_card.dart';
 /// [BillingDetails]. The state drives the GST split on the invoice (CGST +
 /// SGST within the supplier's state, IGST outside), so it is required; GSTIN
 /// and address are optional but validated when given.
+///
+/// [initial] pre-fills from the details last paid with; [errors] is the
+/// server's per-field complaint after a 422 (the sheet is reopened with it,
+/// since the member can only fix a field they can see).
 Future<BillingDetails?> showBillingSheet(
   BuildContext context, {
   required ServiceQuoteModel quote,
   required String initialName,
+  BillingDetails? initial,
+  Map<String, String> errors = const {},
 }) {
   final payment = context.read<ServicePaymentBloc>()
     ..add(const ServicePaymentEvent.statesRequested());
@@ -25,27 +31,43 @@ Future<BillingDetails?> showBillingSheet(
     backgroundColor: Colors.transparent,
     builder: (_) => BlocProvider.value(
       value: payment,
-      child: _BillingSheet(quote: quote, initialName: initialName),
+      child: _BillingSheet(
+        quote: quote,
+        initialName: initialName,
+        initial: initial,
+        errors: errors,
+      ),
     ),
   );
 }
 
 class _BillingSheet extends StatefulWidget {
-  const _BillingSheet({required this.quote, required this.initialName});
+  const _BillingSheet({
+    required this.quote,
+    required this.initialName,
+    required this.initial,
+    required this.errors,
+  });
 
   final ServiceQuoteModel quote;
   final String initialName;
+  final BillingDetails? initial;
+  final Map<String, String> errors;
 
   @override
   State<_BillingSheet> createState() => _BillingSheetState();
 }
 
 class _BillingSheetState extends State<_BillingSheet> {
-  late final _name = TextEditingController(text: widget.initialName);
-  final _gstin = TextEditingController();
-  final _address = TextEditingController();
-  String? _stateCode;
-  Map<String, String> _errors = {};
+  late final _name = TextEditingController(
+    text: widget.initial?.name ?? widget.initialName,
+  );
+  late final _gstin = TextEditingController(text: widget.initial?.gstin ?? '');
+  late final _address = TextEditingController(
+    text: widget.initial?.address ?? '',
+  );
+  late String? _stateCode = widget.initial?.stateCode;
+  late Map<String, String> _errors = {...widget.errors};
 
   @override
   void dispose() {
@@ -60,9 +82,14 @@ class _BillingSheetState extends State<_BillingSheet> {
     if (_name.text.trim().isEmpty) errors['name'] = 'Enter the billing name.';
     if (_stateCode == null) errors['state'] = 'Choose your state.';
     final gstin = _gstin.text.trim().toUpperCase();
-    if (gstin.isNotEmpty &&
-        !RegExp(r'^\d{2}[A-Z]{5}\d{4}[A-Z][A-Z\d]Z[A-Z\d]$').hasMatch(gstin)) {
-      errors['gstin'] = 'Enter a valid 15-character GSTIN.';
+    if (gstin.isNotEmpty) {
+      if (!RegExp(r'^\d{2}[A-Z]{5}\d{4}[A-Z][A-Z\d]Z[A-Z\d]$')
+          .hasMatch(gstin)) {
+        errors['gstin'] = 'Enter a valid 15-character GSTIN.';
+      } else if (_stateCode != null && !gstin.startsWith(_stateCode!)) {
+        // A GSTIN's first two digits *are* its state's GST code.
+        errors['gstin'] = "The GSTIN's first two digits must match the state.";
+      }
     }
     setState(() => _errors = errors);
     if (errors.isNotEmpty) return;
@@ -76,6 +103,14 @@ class _BillingSheetState extends State<_BillingSheet> {
       ),
     );
   }
+
+  /// The limits are enforced; a "0/150" counter on every field is just noise.
+  static Widget? _noCounter(
+    BuildContext _, {
+    required int currentLength,
+    required bool isFocused,
+    required int? maxLength,
+  }) => null;
 
   @override
   Widget build(BuildContext context) {
@@ -114,6 +149,8 @@ class _BillingSheetState extends State<_BillingSheet> {
               TextField(
                 controller: _name,
                 textCapitalization: TextCapitalization.words,
+                maxLength: 150,
+                buildCounter: _noCounter,
                 decoration: InputDecoration(
                   labelText: 'Name',
                   errorText: _errors['name'],
@@ -121,7 +158,12 @@ class _BillingSheetState extends State<_BillingSheet> {
               ),
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
-                initialValue: _stateCode,
+                // Rebuilt when the list arrives, so a remembered state shows
+                // up; a code not in the list would trip the dropdown's assert.
+                key: ValueKey(states.length),
+                initialValue: states.any((s) => s.code == _stateCode)
+                    ? _stateCode
+                    : null,
                 isExpanded: true,
                 hint: Text(loading ? 'Loading states…' : 'State'),
                 decoration: InputDecoration(
@@ -138,6 +180,8 @@ class _BillingSheetState extends State<_BillingSheet> {
               TextField(
                 controller: _gstin,
                 textCapitalization: TextCapitalization.characters,
+                maxLength: 15,
+                buildCounter: _noCounter,
                 decoration: InputDecoration(
                   labelText: 'GSTIN (optional)',
                   errorText: _errors['gstin'],
@@ -147,8 +191,11 @@ class _BillingSheetState extends State<_BillingSheet> {
               TextField(
                 controller: _address,
                 maxLines: 2,
-                decoration: const InputDecoration(
+                maxLength: 300,
+                buildCounter: _noCounter,
+                decoration: InputDecoration(
                   labelText: 'Address (optional)',
+                  errorText: _errors['address'],
                 ),
               ),
               const SizedBox(height: 18),

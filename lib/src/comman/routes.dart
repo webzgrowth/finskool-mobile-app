@@ -65,6 +65,10 @@ class AppRoutes {
   static const String SERVICE_CHAT_ROUTE_PATH = "/services/requests/:id";
   static String serviceChat(String id) => "/services/requests/$id";
 
+  // Notification inbox — the bell, and where an unknown push `type` lands.
+  static const String NOTIFICATIONS_ROUTE_NAME = "notifications";
+  static const String NOTIFICATIONS_ROUTE_PATH = "/notifications";
+
   // Community routes
   static const String COMMUNITY_PERFORMANCE_ROUTE_NAME =
       "community-performance";
@@ -75,6 +79,10 @@ class AppRoutes {
 
   static const String SUBSCRIPTION_DETAIL_ROUTE_NAME = "subscription-detail";
   static const String SUBSCRIPTION_DETAIL_ROUTE_PATH = "/subscription-detail";
+
+  // The web checkout. A literal path, so it must sit before `/community/:id`.
+  static const String COMMUNITY_CHECKOUT_ROUTE_NAME = "community-checkout";
+  static const String COMMUNITY_CHECKOUT_ROUTE_PATH = "/community/checkout";
 
   static const String COMMUNITY_PAYMENT_SUCCESS_ROUTE_NAME =
       "community-payment-success";
@@ -95,9 +103,6 @@ class AppRoutes {
   // doesn't design past the row itself — see `ProfilePlaceholderScreen`.
   static const String ABOUT_SEBI_ROUTE_NAME = "about-sebi";
   static const String ABOUT_SEBI_ROUTE_PATH = "/profile/about-sebi";
-
-  static const String WELCOME_KITS_ROUTE_NAME = "welcome-kits";
-  static const String WELCOME_KITS_ROUTE_PATH = "/profile/welcome-kits";
 
   static const String SUPPORT_TICKETS_ROUTE_NAME = "support-tickets";
   static const String SUPPORT_TICKETS_ROUTE_PATH = "/profile/support-tickets";

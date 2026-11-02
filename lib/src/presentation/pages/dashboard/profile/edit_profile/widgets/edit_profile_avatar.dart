@@ -56,14 +56,7 @@ class EditProfileAvatar extends StatelessWidget {
               right: 2,
               bottom: 4,
               child: GestureDetector(
-                onTap: busy
-                    ? null
-                    : () => changeProfilePhoto(
-                        context,
-                        hasPhoto:
-                            user?.avatarLocalPath != null ||
-                            (user?.avatarUrl?.isNotEmpty ?? false),
-                      ),
+                onTap: busy ? null : () => changeProfilePhoto(context),
                 child: Container(
                   height: 32,
                   width: 32,

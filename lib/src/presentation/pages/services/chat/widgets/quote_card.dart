@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:finskool/src/comman/ist_time.dart';
 import 'package:finskool/src/domain/model/service/service_quote_model.dart';
 import 'package:finskool/src/presentation/pages/tickets/widgets/ticket_button.dart';
+
+import 'quote_countdown.dart';
+
 import 'package:finskool/src/presentation/pages/tickets/widgets/ticket_card.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
 
@@ -81,10 +83,7 @@ class QuoteCard extends StatelessWidget {
             ],
             if (live) ...[
               const SizedBox(height: 8),
-              Text(
-                'Valid until ${formatIst(quote.expiresAt, 'dd MMM, h:mm a')}',
-                style: type.bubbleCaption,
-              ),
+              QuoteCountdown(expiresAt: quote.expiresAt),
               if (canPay) ...[
                 const SizedBox(height: 12),
                 TicketButton(

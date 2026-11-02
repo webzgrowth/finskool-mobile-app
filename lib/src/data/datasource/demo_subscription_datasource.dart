@@ -62,7 +62,6 @@ class DemoSubscriptionDatasource {
       paymentMethod: plan.price == 0
           ? 'Included with your account'
           : 'UPI · PayU',
-      autoRenew: true,
     );
   }
 

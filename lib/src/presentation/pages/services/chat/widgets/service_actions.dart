@@ -1,13 +1,11 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:finskool/src/domain/model/service/service_payment_model.dart';
 import 'package:finskool/src/domain/model/service/service_request_model.dart';
 import 'package:finskool/src/presentation/bloc/services/chat/service_chat_bloc.dart';
 import 'package:finskool/src/presentation/pages/services/widgets/service_status_pill.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
+
+import 'payment_dialogs.dart';
 
 /// The strip above the conversation: the request's status, plus the two
 /// actions a member has outside the chat — **Cancel** (only before paying)
@@ -43,25 +41,6 @@ class ServiceActions extends StatelessWidget {
     if (ok == true) bloc.add(const ServiceChatEvent.cancelled());
   }
 
-  Future<void> _invoice(BuildContext context) async {
-    final messenger = ScaffoldMessenger.of(context);
-    final result = Completer<InvoiceLink?>();
-    context.read<ServiceChatBloc>().add(
-      ServiceChatEvent.invoiceRequested(result),
-    );
-    final link = await result.future;
-    if (link == null) return; // the bloc already said why
-    final opened = await launchUrl(
-      Uri.parse(link.url),
-      mode: LaunchMode.externalApplication,
-    );
-    if (!opened) {
-      messenger.showSnackBar(
-        const SnackBar(content: Text('Could not open the invoice.')),
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final type = context.ticketType;
@@ -83,7 +62,8 @@ class ServiceActions extends StatelessWidget {
             ),
           if (request.invoice != null)
             TextButton(
-              onPressed: () => _invoice(context),
+              onPressed: () =>
+                  downloadInvoice(context, context.read<ServiceChatBloc>()),
               child: Text(
                 'Invoice ${request.invoice!.number}',
                 style: type.buttonGhost.copyWith(color: AppPalette.badgeTeal),

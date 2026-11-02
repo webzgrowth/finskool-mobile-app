@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:finskool/src/comman/routes.dart';
+import 'package:finskool/src/presentation/bloc/notifications/unread/notifications_unread_bloc.dart';
 import 'package:finskool/src/comman/widgets/search_top_bar.dart';
 import 'package:finskool/src/presentation/bloc/feed/filter/feed_filter_bloc.dart';
 
@@ -31,6 +34,9 @@ class FeedTopBar extends StatelessWidget {
       onBack: onBack,
       title: title,
       showNotifications: showNotifications,
+      notificationCount: context.watch<NotificationsUnreadBloc>().state.count,
+      onNotificationsTap: () =>
+          context.push(AppRoutes.NOTIFICATIONS_ROUTE_PATH),
       onQueryChanged: (v) =>
           context.read<FeedFilterBloc>().add(FeedFilterEvent.queryChanged(v)),
       onFilterTap: () => showFeedFilterSheet(context),

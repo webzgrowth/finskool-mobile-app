@@ -8,6 +8,9 @@ import 'package:finskool/src/data/push/push_route.dart';
 import 'package:finskool/src/data/push/push_service.dart';
 import 'package:finskool/src/comman/routes.dart';
 import 'package:finskool/src/presentation/bloc/authentication/authenticator_watcher/authenticator_watcher_bloc.dart';
+import 'package:finskool/src/presentation/bloc/communities/list/communities_bloc.dart';
+import 'package:finskool/src/presentation/bloc/notifications/settings/push_settings_bloc.dart';
+import 'package:finskool/src/presentation/bloc/notifications/unread/notifications_unread_bloc.dart';
 import 'package:finskool/src/presentation/bloc/dashboard/bottom_nav/bottom_nav_bloc.dart';
 import 'package:finskool/src/presentation/bloc/tickets/unread/tickets_unread_bloc.dart';
 import 'package:finskool/src/presentation/pages/feed/feed_screen.dart';
@@ -40,6 +43,7 @@ class DashboardShellScreen extends StatefulWidget {
 
 class _DashboardShellScreenState extends State<DashboardShellScreen> {
   StreamSubscription<Map<String, dynamic>>? _pushTaps;
+  AppLifecycleListener? _lifecycle;
 
   /// Opens the screen a tapped notification points at. The dashboard is where
   /// we already are, so an unknown `type` simply does nothing.
@@ -49,8 +53,23 @@ class _DashboardShellScreenState extends State<DashboardShellScreen> {
     context.push(route);
   }
 
+  /// Back in the foreground: a payment the webhook confirmed while we were
+  /// away (the member paid, then lost network or killed the app) only shows up
+  /// by asking `/auth/mobile/me` again — the payment guide's §10.
+  void _onResume() {
+    if (!mounted) return;
+    context.read<AuthenticatorWatcherBloc>().add(
+      const AuthenticatorWatcherEvent.authCheckRequest(),
+    );
+    context.read<CommunitiesBloc>().add(const CommunitiesEvent.refresh());
+    context.read<NotificationsUnreadBloc>().add(
+      const NotificationsUnreadEvent.refresh(),
+    );
+  }
+
   @override
   void dispose() {
+    _lifecycle?.dispose();
     _pushTaps?.cancel();
     super.dispose();
   }
@@ -59,6 +78,7 @@ class _DashboardShellScreenState extends State<DashboardShellScreen> {
   void initState() {
     super.initState();
     _pushTaps = locator<PushService>().taps.listen(_openPush);
+    _lifecycle = AppLifecycleListener(onResume: _onResume);
     // Re-resolve the session on entry. Logging in only updates LoginFormBloc,
     // so without this the watcher would still say "unauthenticated" and the
     // Profile tab would show nobody. Doing it here covers every route into
@@ -87,6 +107,12 @@ class _DashboardShellScreenState extends State<DashboardShellScreen> {
             context.read<ServicesUnreadBloc>().add(
               const ServicesUnreadEvent.started(),
             );
+            context.read<NotificationsUnreadBloc>().add(
+              const NotificationsUnreadEvent.started(),
+            );
+            context.read<PushSettingsBloc>().add(
+              const PushSettingsEvent.load(),
+            );
             final push = locator<PushService>()..register();
             // A tap that cold-started the app waited for sign-in to be
             // confirmed; collect it now that there is a session to open it in.
@@ -106,6 +132,12 @@ class _DashboardShellScreenState extends State<DashboardShellScreen> {
             );
             context.read<ServicesUnreadBloc>().add(
               const ServicesUnreadEvent.stopped(),
+            );
+            context.read<NotificationsUnreadBloc>().add(
+              const NotificationsUnreadEvent.stopped(),
+            );
+            context.read<PushSettingsBloc>().add(
+              const PushSettingsEvent.reset(),
             );
             locator<PushService>().reset();
             // Back to Feed before leaving. BottomNavBloc is a singleton, so the

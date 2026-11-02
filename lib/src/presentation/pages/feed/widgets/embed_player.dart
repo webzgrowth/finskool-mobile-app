@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart' show Factory;
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_android/webview_flutter_android.dart';
@@ -93,8 +95,62 @@ class _EmbedPlayerState extends State<EmbedPlayer> {
   static const _autoplayScript = '''
 (function () {
   var style = document.createElement('style');
-  style.textContent = 'html,body{background:#F4F4F4 !important}';
+  style.textContent = 'html,body{background:#F4F4F4 !important}' +
+    '#fs-bar{position:fixed;left:8px;right:8px;bottom:8px;z-index:2147483647;' +
+    'display:flex;align-items:center;gap:6px;padding:4px 8px;border-radius:20px;' +
+    'background:rgba(0,0,0,.6);color:#fff;font:600 12px -apple-system,sans-serif;' +
+    'touch-action:manipulation}' +
+    '#fs-bar button{background:none;border:0;color:#fff;font:inherit;' +
+    'min-width:34px;height:30px;padding:0 4px}' +
+    '#fs-bar input{flex:1;min-width:40px;height:24px}';
   document.head.appendChild(style);
+
+  // Our own control bar. Instagram's page lays its own UI over the <video>, so
+  // the native controls were unreachable — no scrubbing, no sound. These are
+  // ordinary buttons *inside* the page, so a tap on one is a real user gesture
+  // and the browser lets the sound come on.
+  function addControls(v) {
+    if (document.getElementById('fs-bar')) return;
+    v.controls = false;
+    var bar = document.createElement('div');
+    bar.id = 'fs-bar';
+    function btn(label, fn) {
+      var b = document.createElement('button');
+      b.textContent = label;
+      b.addEventListener('click', function (e) {
+        e.stopPropagation();
+        fn();
+      });
+      bar.appendChild(b);
+      return b;
+    }
+    btn('\u23EA10', function () { v.currentTime = Math.max(0, v.currentTime - 10); });
+    var play = btn('\u23F8', function () { v.paused ? v.play() : v.pause(); });
+    btn('10\u23E9', function () {
+      v.currentTime = Math.min(v.duration || 1e9, v.currentTime + 10);
+    });
+    var seek = document.createElement('input');
+    seek.type = 'range';
+    seek.min = 0;
+    seek.max = 1000;
+    seek.value = 0;
+    seek.addEventListener('input', function () {
+      if (v.duration) v.currentTime = v.duration * seek.value / 1000;
+    });
+    bar.appendChild(seek);
+    var sound = btn('\uD83D\uDD07', function () {
+      v.muted = !v.muted;
+      if (!v.muted) { v.volume = 1; }
+      sound.textContent = v.muted ? '\uD83D\uDD07' : '\uD83D\uDD0A';
+    });
+    v.addEventListener('timeupdate', function () {
+      if (v.duration) seek.value = Math.round(1000 * v.currentTime / v.duration);
+    });
+    v.addEventListener('play', function () { play.textContent = '\u23F8'; });
+    v.addEventListener('pause', function () { play.textContent = '\u25B6'; });
+    document.body.appendChild(bar);
+  }
+
   function start() {
     var v = document.querySelector('video');
     if (v) {
@@ -103,7 +159,7 @@ class _EmbedPlayerState extends State<EmbedPlayer> {
       v.playsInline = true;
       v.setAttribute('playsinline', '');
       v.loop = true;
-      v.controls = true;
+      addControls(v);
       var p = v.play();
       if (p && p.catch) p.catch(function () {});
       return true;
@@ -139,7 +195,20 @@ class _EmbedPlayerState extends State<EmbedPlayer> {
     return Stack(
       fit: StackFit.expand,
       children: [
-        WebViewWidget(controller: _controller),
+        WebViewWidget(
+          controller: _controller,
+          // Left to the defaults, every horizontal drag on the post went to the
+          // carousel's `PageView` — so the video's scrubber (rewind / forward)
+          // could never be dragged, and a tap could be lost to the scroll
+          // arena. Claim taps and **horizontal** drags for the page; vertical
+          // drags still scroll the feed past it.
+          gestureRecognizers: {
+            Factory<TapGestureRecognizer>(TapGestureRecognizer.new),
+            Factory<HorizontalDragGestureRecognizer>(
+              HorizontalDragGestureRecognizer.new,
+            ),
+          },
+        ),
         if (_loading)
           const ColoredBox(
             color: AppPalette.feedMediaPlate,

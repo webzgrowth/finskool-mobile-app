@@ -46,7 +46,8 @@ sealed class ServiceChatState with _$ServiceChatState {
   /// The quote the member can pay right now, if any.
   ServiceQuoteModel? get payableQuote {
     final q = request?.quote;
-    if (q == null) return null;
+    // Pay is offered only for an `active` quote **on a `quote_sent` request**.
+    if (q == null || request?.status != ServiceStatus.quoteSent) return null;
     final current = quotes[q.id] ?? q;
     return current.isPayable ? current : null;
   }

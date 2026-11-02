@@ -37,6 +37,28 @@ class Api {
   /// member: a new token replaces the old.
   static const String pushToken = '/mobile/push-token';
 
+  /// Notification inbox (`push_notifcation` guide §7). Mobile session cookie.
+  static const String notifications = '/notifications';
+  static const String notificationsUnreadCount = '/notifications/unread-count';
+  static const String notificationsMarkAllRead = '/notifications/mark-all-read';
+  static String notificationRead(String id) => '/notifications/$id/read';
+
+  /// Master switch for **all** pushes (inbox, socket and email unaffected).
+  static const String pushSettings = '/mobile/push-settings';
+
+  /// Profile picture, in three calls: a signed upload link, the bytes to
+  /// storage, then the public URL saved on the account.
+  static const String avatarUploadUrl = '/auth/me/avatar/upload-url';
+  static const String avatar = '/auth/me/avatar';
+
+  /// Controls new posts and recommendations only — and when off the member is
+  /// skipped *entirely* for them (no inbox row either).
+  static const String postNotificationsSetting = '/auth/me/notifications';
+
+  /// Starts a Razorpay checkout and returns the web page to open. The URL
+  /// carries a one-time token — never log or store it.
+  static const String checkoutSessions = '/payments/checkout-sessions';
+
   ///  =================================================================
   ///  ********************** Forgot password **************************
   ///  =================================================================
@@ -151,4 +173,10 @@ class Api {
         )
         .toString();
   }
+
+  /// `/ws/notifications` — a **separate** socket from [socketUrl]: it carries
+  /// every notification (posts, subscriptions, tickets, services) while the app
+  /// is open.
+  static String get notificationsSocketUrl =>
+      Uri.parse(socketUrl).replace(path: '/ws/notifications').toString();
 }

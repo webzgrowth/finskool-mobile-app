@@ -5,7 +5,14 @@ enum PaymentStep {
   creatingOrder,
   awaitingCheckout,
   verifying,
+
+  /// `verify` could not be confirmed (network, after retries). The proof is
+  /// kept; the server may already have it through Razorpay's webhook.
   verifyFailed,
+
+  /// The money arrived but the server could not apply it (the quote was
+  /// replaced or expired while the member paid). Never offer to pay again.
+  underReview,
   done,
 }
 
@@ -29,6 +36,9 @@ sealed class ServicePaymentState with _$ServicePaymentState {
     /// The quote was replaced, expired or already paid while the sheet was
     /// open — the chat should refetch so the card says so.
     required bool staleQuote,
+
+    /// The billing details last used, to pre-fill the sheet.
+    BillingDetails? lastBilling,
     PaymentOrder? order,
     PaymentProof? pendingProof,
 

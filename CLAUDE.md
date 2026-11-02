@@ -470,7 +470,26 @@ one and only route to sound. `NativeVideoPlayer` follows the identical
 pattern (muted `play()` + its own speaker button driving `setVolume`),
 since `video_player` ships with no UI chrome of its own either.
 
-Instagram **cannot be autoplayed** — its embed exposes no play API to drive
+**Sound on YouTube is verified, not assumed.** `_toggleMute` calls `unMute()` +
+`setVolume(100)`, waits ~350 ms, and asks the iframe `isMuted`; if the player
+quietly refused (the call comes from Flutter, not a tap inside the page, which a
+WebView can treat as "no gesture"), it **rebuilds the player unmuted at the same
+second** (`startSeconds`) — a player *created* unmuted does start with sound
+because both platforms are configured not to demand a tap. A silent-mode iPhone
+(ringer switch) still mutes WKWebView audio; that is the OS, not the player.
+
+**Instagram: our own controls, and gestures that reach the page.** Instagram
+lays its own UI over the `<video>`, so the native controls were unreachable, and
+the carousel's `PageView` swallowed every horizontal drag — no scrubbing.
+`EmbedPlayer` now (1) injects a control bar into the page (−10 s, play/pause,
++10 s, a draggable scrubber, mute) — ordinary in-page buttons, so a tap is a real
+user gesture and sound can come on — and (2) gives the `WebViewWidget` **Tap and
+HorizontalDrag** recognizers so those gestures reach the page while vertical
+drags still scroll the feed. Cost: swiping to the next carousel item can't start
+on an Instagram embed. The bar's selectors depend on Instagram's page (`video`,
+`PlayButton`) and may need updating if it changes.
+
+Instagram **cannot be autoplayed unmuted** — its embed exposes no play API to drive
 — so its post renders automatically and the video inside still needs a tap.
 It also has **no poster frame at all** (the API supplies none, and its embed
 URL is not an image), so `_EmbedPoster` falls back to a gradient plate rather
@@ -983,21 +1002,85 @@ the same widget-layer composition `verify_phone_form.dart` uses.
 
 ### Purchase flow
 
-Unlock → payment success → compliance → unlocked. **There is no payment
-gateway**: `CommunityPurchaseBloc` fabricates the transaction so the
-post-payment screens can be built and tested; wire a real gateway in ahead
-of `PaymentSuccessScreen`.
+**Payment is on the web, not in the app** (no in-app purchase). Contract:
+`mobile-community-payment-integration.md`. Tap Buy/Renew →
+`POST /payments/checkout-sessions {communityId, planId}` → the backend returns a
+`checkoutUrl` → the app opens it in a **webview** → the page runs Razorpay and
+reports back → the app **confirms against `GET /auth/mobile/me`**. The app never
+touches Razorpay, a payment signature, or an amount (the server prices from the
+plan). Buy and Renew are the same call; the server adds a renewal after the
+current end date.
 
-Compliance (SEBI DOB + PAN) is required **once**, before the first paid
-community. The flag lives in `StorageKeys.complianceCompleted` because the
-backend has no endpoint for it; `PaymentSuccessScreen` reads
-`CommunityPurchaseBloc.needsCompliance` and skips straight to the unlock on
-later purchases. Only the flag is persisted — **never the PAN**. Move it
-onto `UserModel` when the backend can supply it.
+`CommunityPurchaseBloc` (`@singleton`, it spans catalog → webview → success →
+compliance) is a status machine: `idle → starting → checkout → confirming →
+confirmed | pending` (+ `checking` and `failed`). Events: `started`,
+`paymentReported(PaymentOutcome)`, `checkoutDismissed`, `recheck`, `cleared`.
+Three rules carry the design:
 
-`ComplianceScreen` is drawn on the **auth chrome** (`AuthHeader` +
-`AuthCard`) because that's what Figma does — reusing it keeps the screen
-matched for free.
+* **The page's message is a hint, never proof.** Confirmation polls `/me`
+  (`GetSubscriptionExpiry`, 5 tries 2s apart — `retryDelay` is a static a test
+  can zero) until the community's `expiresAt` is **later than before the
+  purchase** (`previousExpiry`), so a renewal isn't "confirmed" by the old date.
+* **Not seen is `pending`, never `failed`.** The Razorpay webhook can land after
+  the page did and the member may have been charged, so the screen says "if
+  money was deducted your access will be added shortly, you do not need to pay
+  again" and offers *Check again* — never another Buy. `failed` is only for a
+  checkout that could not be *started* (429 after 10/hour, bad plan, network),
+  shown with the server's own message.
+* **A stale result is dropped.** `_generation` is bumped by every purchase and
+  by `cleared`, so a slow poll for an abandoned purchase can't overwrite a new
+  one.
+
+The webview (`pages/communities/checkout/checkout_webview_screen.dart`, routed
+at `/community/checkout` **before** `/community/:id`) has rules that are easy to
+break: the URL carries a **one-time token** — open it exactly as returned, read
+it from the bloc (never a route param, so no router log), **never reload** (a
+load error offers *Close*, not *Retry*), and **never log it**
+(`ApiLoggingInterceptor` redacts the `checkout-sessions` body). The page posts
+`{"type":"payment","status":"paid|closed|error"}` to a JS channel named
+**`ReactNativeWebView`** — the object its script looks for — parsed by
+`PaymentOutcome.parse`, which returns null for anything unknown. `paid`/`error`
+swap the webview for the success screen (`pushReplacement`, so Back never
+returns to a spent link); `closed` is only Razorpay's popup being dismissed and
+keeps the page. Leaving the page without a message does one quiet `/me` look
+(`checkoutDismissed`): found ⇒ success screen, not found ⇒ back to idle.
+Non-web schemes (`upi://`, `gpay://`, `intent://`…) are handed to the system via
+`url_launcher`; Android has a `<queries>` entry for `upi` and iOS lists the UPI
+apps in `LSApplicationQueriesSchemes`. **Not handled:** `window.open` popups for
+some banks' 3-D Secure.
+
+`PurchaseNavigationListener` (`checkout/purchase_flow.dart`) turns status into
+navigation (`checkout` → push the webview, `failed` → snackbar, `checking →
+confirmed` → success screen) and `startPurchase` is the one kickoff shared by
+the Communities tab and Profile → Renew. The listener is stateful only to
+remember the previous status — `confirmed` means two things depending on the
+path. `PaymentSuccessScreen` shows confirming / confirmed (Figma `893:16761`,
+"active until" is the server's date; the mock's transaction id and method are
+gone because the API has none) / pending.
+
+Access is now **real**: the old local "unlock" (`unlockCommunity`, the
+`unlocked_community_ids` replay over the catalog) is deleted — it could mark a
+community subscribed that nobody paid for. `CommunitiesEvent.refresh` re-reads
+the catalog *without* the loading state; it runs after a purchase and when the
+app returns to the foreground (`DashboardShellScreen`'s `AppLifecycleListener`,
+alongside `authCheckRequest` — the guide's §10 safety net for a payment the
+webhook confirmed while the app was away).
+
+Compliance (SEBI DOB + PAN) is still **local** and runs *after* payment, as
+before: `StorageKeys.complianceCompleted`, `needsCompliance` on the bloc.
+`/auth/mobile/me` now returns `panSubmitted`/`dateOfBirth`, and
+`POST /auth/mobile/me/kyc` exists — moving compliance onto those is the
+remaining piece. **Never persist the PAN.**
+
+**Tests** (`test/community_purchase_bloc_test.dart`, `payment_outcome_test.dart`,
+`payment_success_screen_test.dart`, fake repo in `test/support/purchase_fakes.dart`):
+the bloc against a scripted repository (confirm after N polls, renewal needs a
+later date, pending after all tries, recheck, popup-closed no-op, quiet dismiss
+check, stale result dropped), the message parser, and the three success-screen
+states. The webview itself can't run under `flutter_test` — verify it on a
+device with Razorpay test mode, using the guide's §12 checklist.
+Widget tests that drive a bloc must **pump the clock** to advance it (it lives
+in the test's fake-async zone), not `runAsync` — that hangs.
 
 ### Community card details worth keeping
 
@@ -1228,9 +1311,9 @@ used). The `AppPalette` "Welcome Kit" block and the new
 as such; re-verify them when Figma is reachable. Video thumbnails fall back
 to a play glyph on a dark plate, since nothing supplies the artwork.
 
-`AutoRenewToggle` is a green "On" pill with the knob on the left, not a
-Material `Switch`, and is local state: there's no backend field for
-auto-renew yet, same category as the compliance flag.
+**There is no auto-renew.** Figma draws an Auto-renew cell and switch; it was
+removed on request (a plan is renewed by buying it again), along with
+`SubscriptionInfo.autoRenew` and its icon. "Valid till" is a full-width row.
 
 **Every filled surface is `AppPalette.primary`** — section headers, the
 detail icon discs, the card scrim, the Download Invoice button. An earlier
@@ -1266,13 +1349,11 @@ widget layer, same pattern `CommunitiesScreen` already uses:
 `AuthenticatorWatcherBloc` for identity, and `CommunitiesBloc` filtered to
 `access == subscribed` for the My Subscription rows.
 
-**The Notifications toggle lives on `AuthenticatorWatcherBloc`, not a new
-bloc.** It's session/identity state (`UserModel.postNotificationsEnabled`),
-so it's `AuthenticatorWatcherEvent.notificationsToggled(bool)`, handled by
-flipping the field on the cached user via a new `AuthRepository
-.setPostNotificationsEnabled` and re-emitting `authenticated(user: updated)`.
-Local-only — no backend endpoint exists for it yet, same category as the
-compliance flag.
+**Two notification switches** — see "Push notifications": "Notifications" is the
+master push switch (`PushSettingsBloc`); "Post alerts" is
+`UserModel.postNotificationsEnabled`, still on `AuthenticatorWatcherBloc`
+(`notificationsToggled`), which now `PATCH`es `/auth/me/notifications` before
+caching.
 
 **Subscription expiry is mocked on `CommunityModel`.** `subscribedUntil:
 DateTime?` drives two derived getters — `subscriptionStatusLabel` ("Active
@@ -1384,16 +1465,32 @@ re-prefills when `AuthenticatorWatcherBloc` delivers a user, unless editing.
 `_resolve` no longer emits `authenticating` when a cached user exists, so a
 background `/me` refresh can't null the user mid-screen.
 
-**Profile photo is local-only.** No avatar-upload endpoint exists (don't use
-the ticket presign). The camera badge opens `showPhotoSourceSheet`;
-`changeProfilePhoto` (image_picker, 1024px/q85) dispatches `avatarPicked` /
-`avatarRemoved` → `UpdateAvatar`, which copies the file into app documents and
-stores its path under `StorageKeys.avatarLocalPath(userId)` — a separate key so
-a server refresh of the cached user can't wipe it. `UserModel.avatarLocalPath`
-is re-applied on every read and cleared on logout. iOS needs
-`NSCameraUsageDescription`/`NSPhotoLibraryUsageDescription` (added). Known
-quirk: `refreshSession` overwrites local name/email/phone edits with server
-values.
+**The profile photo is a real upload** (`upload_user_profile.md`). The camera
+badge — on Edit Profile and on the Profile header — opens `showPhotoSourceSheet`
+(Camera / Gallery; **there is no "Remove"**: the API can only replace a
+picture). `changeProfilePhoto` picks with `image_picker` at **512px / q85** (the
+guide's size) and dispatches `EditProfileEvent.avatarPicked` → `UpdateAvatar` →
+`AuthRepositoryImpl.updateAvatar`, which does the three calls:
+
+1. `GET /auth/me/avatar/upload-url?filename=me.<ext>` → `uploadUrl` + `publicUrl`;
+2. `PUT` the **raw bytes** to `uploadUrl` via `ApiClient.putBytes` — its own
+   `Dio`, so **no cookie and no `Authorization`** reach the storage host
+   (pinned by `test/avatar_upload_test.dart` against a local server);
+3. `PATCH /auth/me/avatar {avatarUrl: publicUrl}`.
+
+**Step 3 runs only if step 2 succeeded** — a saved URL for a file that never
+uploaded is a broken image on the profile. A failure anywhere is retried from
+step 1 (the link lives ~5 min, so it is always requested just before use). The
+server doesn't validate the file yet, so the repository does, **before any
+request**: JPG/PNG/WebP only, ≤5 MB, and the filename carries the real extension
+(it becomes part of the stored name). From the PATCH response only `avatarUrl`
+is taken (`copyWith(avatarUrl:)`), so it can't overwrite the local-only
+name/email/phone edits or `memberSince`; it is then cached. Each upload gets a
+fresh URL, so `UserAvatar` (now network-only) can never show the old picture
+from the image cache. The earlier on-device-only photo machinery
+(`UserModel.avatarLocalPath`, its prefs key, the documents-directory copy,
+`path_provider`) is **deleted** — don't bring back a local overlay: it would hide
+the server's picture on another device.
 
 **The SEBI date of birth and PAN cannot currently be displayed.**
 `submitCompliance` persists only `StorageKeys.complianceCompleted` and
@@ -1405,8 +1502,8 @@ or wait for a backend compliance endpoint and put them on `UserModel` (what
 the `complianceCompleted` comment anticipates). Don't quietly start storing
 the full PAN.
 
-**Six menu rows have no destination designed** (About &
-SEBI info, Welcome kits, Help & support, Give feedback, Terms &
+**Menu rows with no destination designed** (About &
+SEBI info, Help & support, Give feedback, Terms &
 privacy policy — Edit Profile and My tickets are now built, see above and
 "Support tickets") — routed to one
 shared `ProfilePlaceholderScreen`
@@ -1535,12 +1632,41 @@ and stops unread with the session) and the route-scoped `@injectable`
   `quoteId`; `ServiceChatState.quotes` holds the live status (superseded,
   expired, paid, cancelled), so a card updates without a refetch. Only an
   `active` quote on an open request shows **Pay**.
-* **Payment**: billing sheet (name, GST state from `/gst-states`, optional
-  GSTIN/address) → `/pay` → Razorpay Checkout (`razorpay_flutter`, driven from
-  the widget layer in `RazorpayCheckout`) → `/payments/verify`. **Trust the
-  server, not Checkout**: success only means "ask the server"; a failed verify
-  keeps the proof and offers Retry, since money may have moved. Order `amount`
-  is in **paise**; every other amount is rupees.
+* **Payment** — contract `quote-service.md`. Billing sheet → `POST
+  /:id/quotes/:quoteId/pay` → Razorpay Checkout (`razorpay_flutter`, driven from
+  the widget layer in `RazorpayCheckout`) → `POST /:id/payments/verify`.
+  **Trust the server, not Checkout**; order `amount` is **paise**, everything
+  else rupees, and the amount is never computed or edited in the app.
+  * **Pay is offered only for an `active` quote on a `quote_sent` request**
+    (`ServiceChatState.payableQuote` checks both); the card shows a live
+    countdown (`QuoteCountdown`) but the *status* is always the server's.
+  * **Billing sheet:** name ≤150, state required (from `/gst-states`, cached for
+    the run in the datasource), GSTIN optional — 15 chars, valid pattern **and
+    its first two digits must equal the state's code**, address ≤300. The last
+    details are remembered locally (`StorageKeys.lastBilling`, cleared on
+    logout) and pre-fill the sheet. A **422 reopens the sheet** with each message
+    under its own field, because the sheet closes before `/pay`.
+  * **`verify` decides the screen, not Checkout.** `ServicePaymentBloc._confirm`:
+    network errors are **retried 1s/2s/4s/8s** (it is idempotent), then it keeps
+    the proof and refetches the request (the server usually has it via Razorpay's
+    webhook); a `PAYMENT_SIGNATURE_INVALID` is final — no retry, no proof kept.
+    Only `status == paid` **and** an invoice is `done` (→ the "Payment received"
+    sheet: amount, invoice number, **Download invoice**). Anything else is
+    `underReview` — money arrived but wasn't applied (quote replaced/expired
+    mid-payment) — shown as "We received your payment… you do not need to pay
+    again"; **never offer a second payment**. A "Confirming your payment…" overlay
+    covers `verifying`.
+  * **Invoice:** `GET /:id/invoice` returns a *minutes-long* link, so it is
+    requested on the tap and opened at once (`downloadInvoice`), never cached.
+  * **Checkout options** follow the guide: `order_id` always passed, theme
+    `#108B8B`, `retry {enabled, max_count: 3}`; cancel is `Razorpay
+    .PAYMENT_CANCELLED` (code 2 in this plugin) → quiet idle, not an error.
+  * The chat **refetches the request on foreground** (a payment confirmed while
+    the app was away shows as paid) and the Razorpay proof is **redacted from
+    logs** (`razorpaySignature`, `razorpayPaymentId`).
+  * Tests: `service_payment_bloc_test`, `billing_sheet_test`,
+    `billing_and_countdown_test`. Not covered (needs Razorpay test mode on a
+    device): Checkout itself, UPI intents, killing the app mid-payment.
 * Cancel is only before paying; the rating card is a single **Submit rating**
   and only for a `closed` + `completed` request (same call as tickets).
 * The Services bell opens **My requests** (`/services/requests`).
@@ -1742,44 +1868,122 @@ plate/ink pairs, hand-mapped for Figma's stocks and hashed for any other.
 `build/figma_perf/full.png`; offsets were checked numerically against the
 frame (e.g. "Total Trades" at y 507.5, list title at 648).
 
-## Push notifications (FCM)
+## Push notifications, the inbox and the in-app banner
 
-`data/push/push_service.dart` (`PushService`, `@lazySingleton`). `main()` calls
-`init()` (Firebase, the background handler, a local-notification channel and the
-foreground banner — neither platform draws one while the app is open); the
-shell calls `register()` on `authenticated` (permission → FCM token →
-`PUT /mobile/push-token {token, platform}`, plus `onTokenRefresh`; `DELETE` when the OS permission is denied) and `reset()` on
-`unauthenticated`. **It never throws**: with Firebase misconfigured, permission
-denied, or **iOS without an APNs key** the app carries on and only logs.
-Backend setup is in `firbase.md` (one device per member; a new token replaces the old).
+Contract: `mobile-push-notifications-integration.md` (guide) +
+`push_notifcation.md`. Design: Figma Final page `App Notifications – Push`
+(`1629:2132`) — **it designs only the push itself and the in-app banner; there
+is no inbox screen**. Three pieces work together and the inbox is the source of
+truth (push and socket are nudges):
 
-* **Classic token, deliberately.** `getToken`/`onTokenRefresh` are marked
-  deprecated in favour of `register()` + `onRegistered`, but those return a
-  Firebase *Installation ID*. The backend sends through FCM v1 to the
-  registration token, so the deprecated API is kept (with an `ignore`).
-* **`firebase_core ^4` / `firebase_messaging ^16`, not the 5/17 line.** iOS
-  builds with Swift Package Manager, and firebase-ios-sdk 13 (needs
-  `gtm-session-fetcher` ≥4) cannot resolve beside `google_sign_in_ios`
-  (`googlesignin-ios` 9 needs <4). Re-try the newer line when google_sign_in
-  moves to GoogleSignIn 10 — or when it is dropped.
-* Android: the `google-services` Gradle plugin, `POST_NOTIFICATIONS`, and
-  **core-library desugaring** (required by flutter_local_notifications).
-* iOS: `GoogleService-Info.plist` is in `ios/Runner/`. **Not done yet** (needs
-  a paid Apple account): the Push Notifications + Background Modes capabilities
-  and the APNs `.p8` key uploaded to Firebase. Until then iPhones get no push.
-* **Tap routing** is `data/push/push_route.dart` (`routeForPush`, pinned by
-  `test/push_route_test.dart`): `ticket`→ticket chat, `service`→service chat,
-  `post`/`subscription`→`/community/<communityId ?? id>`, anything unknown →
-  dashboard (no-op). A tap that **cold-starts** the app is held in
-  `PushService.takePending()` until the shell sees `authenticated`; the shell
-  also listens to `taps` while mounted. Foreground banners carry the same
-  `data` as their local-notification payload, so they route identically.
-* **Not built yet** (all in `push_notifcation.md`): the in-app notification
-  inbox (`/notifications`, §7), its live socket `/ws/notifications` (§7b — one
-  socket, 4401 = stop, refetch on reconnect), and the master switch
-  `GET/PATCH /mobile/push-settings` (§4; the Profile toggle is still the local
-  `postNotificationsEnabled`). Until the socket exists, the foreground banner
-  is the only in-app signal.
+| Piece | Where | When |
+|---|---|---|
+| Push (FCM) | `data/push/push_service.dart` | app in background / killed |
+| Live socket `/ws/notifications` | `data/socket/notifications_socket.dart` | app in foreground |
+| Inbox REST `/notifications` | `NotificationsRepository` → `NotificationsInboxBloc` | always |
+
+**`PushService`** (`@lazySingleton`, never throws): `init()` in `main()`
+(Firebase, background handler, the Android channel — `flutter_local_notifications`
+is kept *only* for creating that high-importance channel); the shell's
+`authenticated` listener calls `register()` (permission → FCM token →
+`PUT /mobile/push-token {token, platform}`; `DELETE` if the OS permission is
+denied, `onTokenRefresh` re-sends) and `reset()` on sign-out. Sent on **every**
+sign-in and launch because a login makes a new session with no token. The
+classic `getToken` is kept despite the deprecation: `register()`/`onRegistered`
+return a Firebase *Installation ID*, not the token the backend sends to.
+
+* **One notification, never two (§9).** While the app is open the OS banner is
+  suppressed (iOS presentation options off; FCM draws none on Android) and **no
+  local notification is posted**. The in-app banner is fed by the **socket**;
+  `PushService.foreground` is only the fallback when the socket is down
+  (`InAppBannerHost` checks `NotificationsSocket.isLive`). Don't "restore" a
+  foreground local notification — it would duplicate the socket's.
+* **Tap routing is one function**, `data/push/push_route.dart::routeForPush`, shared
+  by an OS banner, the in-app banner and an inbox row: `ticket`→chat,
+  `service`→chat, `post`→`/community/<communityId|id>`,
+  `subscription`→`/subscription-detail?id=<communityId>`, `feed`/`recommendation`
+  →dashboard, **anything unknown → `/notifications`** (the guide's rule).
+  `/subscription-detail` normally needs the whole `CommunityModel`; with only an
+  id the route's `redirect` looks it up in the loaded `CommunitiesBloc` and
+  falls back to `/community/<id>` if it isn't there (cold start). A tap that
+  **cold-starts** the app waits in `PushService.takePending()` until the shell
+  sees `authenticated`.
+* **Two different `type`s.** The inbox row's own `type` (`ticket-update`,
+  `post`…) is an open set — render from `title`/`message`; routing uses
+  `data.type`. `data` is null on old rows → opens the inbox.
+
+**`NotificationsSocket`** (receive-only, own service — separate from
+`TicketsSocket`): cookie on the upgrade via `IOWebSocketChannel`; **close 4401 =
+session ended, no reconnect** (→ `SessionExpiry`); other closes back off 1s→30s;
+**closed in the background and reopened on return**; **events aren't replayed**,
+so every return to `live` makes both blocs refetch. Frames carry the new row and
+`unreadCount`. Pinned by `test/notifications_socket_test.dart` against a real
+local WebSocket server.
+
+**Blocs (one per responsibility):** `NotificationsUnreadBloc` (`@singleton`:
+the bell badge, owns the socket's start/stop, exposes `incoming` for the
+banner), `NotificationsInboxBloc` (`@injectable`, route-scoped: list, paging,
+mark read — optimistic with rollback — mark all, upsert **by id** from the
+socket so a reaction row re-sent as unread replaces rather than duplicates),
+`PushSettingsBloc` (`@singleton`: the master switch). They never call each
+other; `NotificationsScreen` combines them in the widget layer.
+
+**In-app banner** (`comman/widgets/in_app_banner.dart`, wraps the app in
+`MaterialApp.builder`): Figma "While using the app" — drops from the top, hides
+after 4 s, swipe up to dismiss, tap routes. `NotificationCard` is the Figma card
+(r22, 38px icon, `FINSKOOL21` Inter 600·11 +3%, title Inter 600·14, body 13/18 ≤2
+lines) and is shared with the inbox rows; styles in `NotificationTypography`.
+Figma's per-event action pills ("Pay now", "Renew"…) are **not built** — the
+whole card taps through to the same screen.
+
+**Settings — two different switches, and Figma draws one.** The Profile →
+Settings "Notifications" switch is the **master** push switch
+(`GET/PATCH /mobile/push-settings`; inbox/socket/email unaffected). The second,
+"Post alerts" (`postNotificationsEnabled`, `PATCH /auth/me/notifications`), is
+**not in Figma** but the backend has it and it is destructive-ish — when off the
+member gets *no inbox row either* for posts/recommendations, and they don't
+appear later if it's switched back on. It was previously local-only; it now
+calls the server first and caches only on success.
+
+**The inbox screen is not in Figma.** It is the banner's card stacked on the
+Info screens' hero chrome (`InfoPage`, which gained `controller`/`action`/
+`onRefresh`), reached from the Feed and Communities bells (the Services bell
+still opens My requests). Flag it for the designer. It re-reads on open, on
+pull-to-refresh and on every return to the foreground.
+
+* Android: `google-services` plugin, `POST_NOTIFICATIONS`, default channel meta
+  and **core-library desugaring** (flutter_local_notifications). iOS: the plist
+  is in `ios/Runner/`; **still needs** a paid Apple account for the Push
+  Notifications + Background Modes capabilities and the APNs `.p8` key in
+  Firebase — until then iPhones get no push (the socket and inbox still work).
+* **`firebase_core ^4` / `firebase_messaging ^16`**, not 5/17: iOS builds with
+  Swift Package Manager and firebase-ios-sdk 13 cannot resolve beside
+  `google_sign_in_ios`. Retry the newer line when google_sign_in moves on.
+* Tests: `notifications_blocs_test`, `notifications_socket_test`,
+  `notification_widgets_test`, `relative_time_test`, `push_route_test`
+  (fakes in `test/support/notification_fakes.dart`).
+
+## Screenshot and recording protection
+
+The app shows invoices, P&L and billing details, so capture is blocked, **always
+on** (debug too) with no per-screen exceptions.
+
+* **Android** — `MainActivity` sets `FLAG_SECURE` before the first frame:
+  screenshots are refused, recordings and casting go black, and the recents card
+  is blank.
+* **iOS** has **no API that forbids a screenshot**; `SceneDelegate` uses the
+  banking-app technique — hosting the window's layer inside the container an
+  `isSecureTextEntry` `UITextField` creates, which the system never captures
+  (a screenshot or recording shows black while the app looks normal) — and covers
+  the app-switcher snapshot with a blur while inactive. `blockCapture` is the
+  one switch. **This is a well-known hack that was built but not run on a
+  device**: after any iOS upgrade check that the app still renders and takes
+  touches, and that a screenshot is black.
+* Not the `screen_protector` package: it compiles on iOS but its Kotlin plugin
+  class isn't built under this project's AGP 9 / built-in-Kotlin setup, which
+  broke the Android build.
+* Consequences to know: store screenshots and screen-share demos need the flag
+  off; Flutter golden tests are unaffected (they render offscreen).
 
 ## Success animation
 
@@ -1873,12 +2077,9 @@ Do not treat these as incidental bugs to fix while doing something else:
 - `CommunityDetailScreen` (behind "Enter Community") is a routed
   placeholder — Figma has no design for the inside of a community, and the
   post model has no community field yet. The route works; the body doesn't.
-- Payments are still **not** wired: `/communities/{id}/plans/{planId}/orders`
-  and `/payments/verify` (Razorpay) exist in the spec but
-  `CommunityPurchaseBloc` still fabricates the transaction, and
-  `unlockCommunity`/`requestPricing` remain local-only. A purchase made
-  in-app is replayed over the catalog from prefs until the backend reports it
-  through `/auth/mobile/me`.
+- Payments are wired through the web checkout (see "Purchase flow"); only
+  `requestPricing` and compliance remain local-only. **Not yet verified on a
+  device with real Razorpay test payments.**
 - `SelectCommunity` is only ever called automatically, when login returns
   exactly one community. A user in **two or more** communities never gets to
   choose (the backend falls back to "all my communities merged"); that picker

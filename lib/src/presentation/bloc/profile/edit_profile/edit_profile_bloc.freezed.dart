@@ -56,7 +56,7 @@ extension EditProfileEventPatterns on EditProfileEvent {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _Prefill value)?  prefill,TResult Function( _EditToggled value)?  editToggled,TResult Function( _NameChanged value)?  nameChanged,TResult Function( _EmailChanged value)?  emailChanged,TResult Function( _PhoneChanged value)?  phoneChanged,TResult Function( _CountryChanged value)?  countryChanged,TResult Function( _DiscardChanges value)?  discardChanges,TResult Function( _Submit value)?  submit,TResult Function( _AvatarPicked value)?  avatarPicked,TResult Function( _AvatarRemoved value)?  avatarRemoved,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _Prefill value)?  prefill,TResult Function( _EditToggled value)?  editToggled,TResult Function( _NameChanged value)?  nameChanged,TResult Function( _EmailChanged value)?  emailChanged,TResult Function( _PhoneChanged value)?  phoneChanged,TResult Function( _CountryChanged value)?  countryChanged,TResult Function( _DiscardChanges value)?  discardChanges,TResult Function( _Submit value)?  submit,TResult Function( _AvatarPicked value)?  avatarPicked,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case _Prefill() when prefill != null:
@@ -68,8 +68,7 @@ return phoneChanged(_that);case _CountryChanged() when countryChanged != null:
 return countryChanged(_that);case _DiscardChanges() when discardChanges != null:
 return discardChanges(_that);case _Submit() when submit != null:
 return submit(_that);case _AvatarPicked() when avatarPicked != null:
-return avatarPicked(_that);case _AvatarRemoved() when avatarRemoved != null:
-return avatarRemoved(_that);case _:
+return avatarPicked(_that);case _:
   return orElse();
 
 }
@@ -87,7 +86,7 @@ return avatarRemoved(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _Prefill value)  prefill,required TResult Function( _EditToggled value)  editToggled,required TResult Function( _NameChanged value)  nameChanged,required TResult Function( _EmailChanged value)  emailChanged,required TResult Function( _PhoneChanged value)  phoneChanged,required TResult Function( _CountryChanged value)  countryChanged,required TResult Function( _DiscardChanges value)  discardChanges,required TResult Function( _Submit value)  submit,required TResult Function( _AvatarPicked value)  avatarPicked,required TResult Function( _AvatarRemoved value)  avatarRemoved,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _Prefill value)  prefill,required TResult Function( _EditToggled value)  editToggled,required TResult Function( _NameChanged value)  nameChanged,required TResult Function( _EmailChanged value)  emailChanged,required TResult Function( _PhoneChanged value)  phoneChanged,required TResult Function( _CountryChanged value)  countryChanged,required TResult Function( _DiscardChanges value)  discardChanges,required TResult Function( _Submit value)  submit,required TResult Function( _AvatarPicked value)  avatarPicked,}){
 final _that = this;
 switch (_that) {
 case _Prefill():
@@ -99,8 +98,7 @@ return phoneChanged(_that);case _CountryChanged():
 return countryChanged(_that);case _DiscardChanges():
 return discardChanges(_that);case _Submit():
 return submit(_that);case _AvatarPicked():
-return avatarPicked(_that);case _AvatarRemoved():
-return avatarRemoved(_that);case _:
+return avatarPicked(_that);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -117,7 +115,7 @@ return avatarRemoved(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _Prefill value)?  prefill,TResult? Function( _EditToggled value)?  editToggled,TResult? Function( _NameChanged value)?  nameChanged,TResult? Function( _EmailChanged value)?  emailChanged,TResult? Function( _PhoneChanged value)?  phoneChanged,TResult? Function( _CountryChanged value)?  countryChanged,TResult? Function( _DiscardChanges value)?  discardChanges,TResult? Function( _Submit value)?  submit,TResult? Function( _AvatarPicked value)?  avatarPicked,TResult? Function( _AvatarRemoved value)?  avatarRemoved,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _Prefill value)?  prefill,TResult? Function( _EditToggled value)?  editToggled,TResult? Function( _NameChanged value)?  nameChanged,TResult? Function( _EmailChanged value)?  emailChanged,TResult? Function( _PhoneChanged value)?  phoneChanged,TResult? Function( _CountryChanged value)?  countryChanged,TResult? Function( _DiscardChanges value)?  discardChanges,TResult? Function( _Submit value)?  submit,TResult? Function( _AvatarPicked value)?  avatarPicked,}){
 final _that = this;
 switch (_that) {
 case _Prefill() when prefill != null:
@@ -129,8 +127,7 @@ return phoneChanged(_that);case _CountryChanged() when countryChanged != null:
 return countryChanged(_that);case _DiscardChanges() when discardChanges != null:
 return discardChanges(_that);case _Submit() when submit != null:
 return submit(_that);case _AvatarPicked() when avatarPicked != null:
-return avatarPicked(_that);case _AvatarRemoved() when avatarRemoved != null:
-return avatarRemoved(_that);case _:
+return avatarPicked(_that);case _:
   return null;
 
 }
@@ -147,7 +144,7 @@ return avatarRemoved(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( UserModel? user)?  prefill,TResult Function()?  editToggled,TResult Function( String name)?  nameChanged,TResult Function( String email)?  emailChanged,TResult Function( String phone)?  phoneChanged,TResult Function( Country country)?  countryChanged,TResult Function()?  discardChanges,TResult Function()?  submit,TResult Function( String path)?  avatarPicked,TResult Function()?  avatarRemoved,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( UserModel? user)?  prefill,TResult Function()?  editToggled,TResult Function( String name)?  nameChanged,TResult Function( String email)?  emailChanged,TResult Function( String phone)?  phoneChanged,TResult Function( Country country)?  countryChanged,TResult Function()?  discardChanges,TResult Function()?  submit,TResult Function( String path)?  avatarPicked,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Prefill() when prefill != null:
 return prefill(_that.user);case _EditToggled() when editToggled != null:
@@ -158,8 +155,7 @@ return phoneChanged(_that.phone);case _CountryChanged() when countryChanged != n
 return countryChanged(_that.country);case _DiscardChanges() when discardChanges != null:
 return discardChanges();case _Submit() when submit != null:
 return submit();case _AvatarPicked() when avatarPicked != null:
-return avatarPicked(_that.path);case _AvatarRemoved() when avatarRemoved != null:
-return avatarRemoved();case _:
+return avatarPicked(_that.path);case _:
   return orElse();
 
 }
@@ -177,7 +173,7 @@ return avatarRemoved();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( UserModel? user)  prefill,required TResult Function()  editToggled,required TResult Function( String name)  nameChanged,required TResult Function( String email)  emailChanged,required TResult Function( String phone)  phoneChanged,required TResult Function( Country country)  countryChanged,required TResult Function()  discardChanges,required TResult Function()  submit,required TResult Function( String path)  avatarPicked,required TResult Function()  avatarRemoved,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( UserModel? user)  prefill,required TResult Function()  editToggled,required TResult Function( String name)  nameChanged,required TResult Function( String email)  emailChanged,required TResult Function( String phone)  phoneChanged,required TResult Function( Country country)  countryChanged,required TResult Function()  discardChanges,required TResult Function()  submit,required TResult Function( String path)  avatarPicked,}) {final _that = this;
 switch (_that) {
 case _Prefill():
 return prefill(_that.user);case _EditToggled():
@@ -188,8 +184,7 @@ return phoneChanged(_that.phone);case _CountryChanged():
 return countryChanged(_that.country);case _DiscardChanges():
 return discardChanges();case _Submit():
 return submit();case _AvatarPicked():
-return avatarPicked(_that.path);case _AvatarRemoved():
-return avatarRemoved();case _:
+return avatarPicked(_that.path);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -206,7 +201,7 @@ return avatarRemoved();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( UserModel? user)?  prefill,TResult? Function()?  editToggled,TResult? Function( String name)?  nameChanged,TResult? Function( String email)?  emailChanged,TResult? Function( String phone)?  phoneChanged,TResult? Function( Country country)?  countryChanged,TResult? Function()?  discardChanges,TResult? Function()?  submit,TResult? Function( String path)?  avatarPicked,TResult? Function()?  avatarRemoved,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( UserModel? user)?  prefill,TResult? Function()?  editToggled,TResult? Function( String name)?  nameChanged,TResult? Function( String email)?  emailChanged,TResult? Function( String phone)?  phoneChanged,TResult? Function( Country country)?  countryChanged,TResult? Function()?  discardChanges,TResult? Function()?  submit,TResult? Function( String path)?  avatarPicked,}) {final _that = this;
 switch (_that) {
 case _Prefill() when prefill != null:
 return prefill(_that.user);case _EditToggled() when editToggled != null:
@@ -217,8 +212,7 @@ return phoneChanged(_that.phone);case _CountryChanged() when countryChanged != n
 return countryChanged(_that.country);case _DiscardChanges() when discardChanges != null:
 return discardChanges();case _Submit() when submit != null:
 return submit();case _AvatarPicked() when avatarPicked != null:
-return avatarPicked(_that.path);case _AvatarRemoved() when avatarRemoved != null:
-return avatarRemoved();case _:
+return avatarPicked(_that.path);case _:
   return null;
 
 }
@@ -729,38 +723,6 @@ as String,
 
 
 }
-
-/// @nodoc
-
-
-class _AvatarRemoved implements EditProfileEvent {
-  const _AvatarRemoved();
-  
-
-
-
-
-
-
-@override
-bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _AvatarRemoved);
-}
-
-
-@override
-int get hashCode => runtimeType.hashCode;
-
-@override
-String toString() {
-    return 'EditProfileEvent.avatarRemoved()';
-}
-
-
-}
-
-
-
 
 /// @nodoc
 mixin _$EditProfileState {

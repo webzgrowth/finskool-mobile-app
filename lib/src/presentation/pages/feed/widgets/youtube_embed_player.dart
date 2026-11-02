@@ -50,29 +50,31 @@ class _YoutubeEmbedPlayerState extends State<YoutubeEmbedPlayer> {
   // is the fix.
   bool _muted = true;
 
-  YoutubePlayerController _build() => YoutubePlayerController.fromVideoId(
-    videoId: widget.videoId,
-    // Autoplays because `LazyEmbed` only builds this widget once the post
-    // is actually on screen — it is never constructed for a card the
-    // viewer can't see, so this can't start a video off in the distance.
-    autoPlay: true,
-    params: const YoutubePlayerParams(
-      // **Muted, and it has to be.** Webviews refuse unmuted autoplay, and
-      // the refusal is silent, so it would read as a broken player. Sound
-      // is then a deliberate tap on `_MuteButton` below.
-      mute: true,
-      showControls: true,
-      showFullscreenButton: true,
-      // Keeps playback in the card instead of handing iOS the fullscreen
-      // system player on the first tap.
-      playsInline: true,
-      // youtube-nocookie.com, which is also what the backend's `embedUrl`
-      // uses — no tracking cookie until the viewer actually plays.
-      privacyEnhancedMode: true,
-      strictRelatedVideos: true,
-      enableCaption: false,
-    ),
-  );
+  YoutubePlayerController _build({bool mute = true, double? start}) =>
+      YoutubePlayerController.fromVideoId(
+        videoId: widget.videoId,
+        startSeconds: start,
+        // Autoplays because `LazyEmbed` only builds this widget once the post
+        // is actually on screen — it is never constructed for a card the
+        // viewer can't see, so this can't start a video off in the distance.
+        autoPlay: true,
+        params: YoutubePlayerParams(
+          // **Muted, and it has to be.** Webviews refuse unmuted autoplay, and
+          // the refusal is silent, so it would read as a broken player. Sound
+          // is then a deliberate tap on `_MuteButton` below.
+          mute: mute,
+          showControls: true,
+          showFullscreenButton: true,
+          // Keeps playback in the card instead of handing iOS the fullscreen
+          // system player on the first tap.
+          playsInline: true,
+          // youtube-nocookie.com, which is also what the backend's `embedUrl`
+          // uses — no tracking cookie until the viewer actually plays.
+          privacyEnhancedMode: true,
+          strictRelatedVideos: true,
+          enableCaption: false,
+        ),
+      );
 
   /// The carousel reuses one element per page slot, so swiping can hand this
   /// state a different video. Without this the first video keeps playing
@@ -92,13 +94,34 @@ class _YoutubeEmbedPlayerState extends State<YoutubeEmbedPlayer> {
     super.dispose();
   }
 
-  void _toggleMute() {
-    setState(() => _muted = !_muted);
-    if (_muted) {
-      _controller.mute();
-    } else {
-      _controller.unMute();
+  /// Mute / unmute. Unmuting is the delicate half: the iframe's `unMute()` is
+  /// run from Flutter, not from a tap *inside* the web page, and a WebView may
+  /// treat that as "no user gesture" and quietly leave the video silent — which
+  /// read as "there is no audio". So after asking, it **checks** (`isMuted`) and,
+  /// if the player refused, rebuilds the player unmuted at the same second.
+  /// Both platforms are configured to allow unmuted playback without a tap, so
+  /// a player *created* unmuted does start with sound.
+  Future<void> _toggleMute() async {
+    if (!_muted) {
+      setState(() => _muted = true);
+      await _controller.mute();
+      return;
     }
+    setState(() => _muted = false);
+    final controller = _controller;
+    await controller.unMute();
+    await controller.setVolume(100);
+    await Future<void>.delayed(const Duration(milliseconds: 350));
+    if (!mounted || controller != _controller) return;
+    if (await controller.isMuted) await _reloadUnmuted();
+  }
+
+  Future<void> _reloadUnmuted() async {
+    final at = await _controller.currentTime;
+    if (!mounted) return;
+    final old = _controller;
+    setState(() => _controller = _build(mute: false, start: at));
+    old.close();
   }
 
   @override

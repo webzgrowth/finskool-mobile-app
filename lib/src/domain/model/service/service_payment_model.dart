@@ -18,6 +18,19 @@ class BillingDetails {
     if (gstin != null && gstin!.isNotEmpty) 'gstin': gstin,
     if (address != null && address!.isNotEmpty) 'address': address,
   };
+
+  /// For the locally remembered copy; null if it isn't usable.
+  static BillingDetails? fromJson(Map<String, dynamic> json) {
+    final name = json['name'] as String?;
+    final state = json['stateCode'] as String?;
+    if (name == null || state == null) return null;
+    return BillingDetails(
+      name: name,
+      stateCode: state,
+      gstin: json['gstin'] as String?,
+      address: json['address'] as String?,
+    );
+  }
 }
 
 /// An Indian state / UT and its GST code, for the billing sheet's picker.

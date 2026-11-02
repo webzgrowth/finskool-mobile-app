@@ -21,7 +21,10 @@ import 'package:finskool/src/presentation/bloc/communities/filter/community_filt
 import 'package:finskool/src/presentation/bloc/communities/purchase/community_purchase_bloc.dart';
 import 'package:finskool/src/presentation/bloc/communities/compliance/compliance_bloc.dart';
 import 'package:finskool/src/presentation/bloc/profile/edit_profile/edit_profile_bloc.dart';
+import 'package:finskool/src/comman/widgets/in_app_banner.dart';
 import 'package:finskool/src/comman/widgets/ui_scaler.dart';
+import 'package:finskool/src/presentation/bloc/notifications/settings/push_settings_bloc.dart';
+import 'package:finskool/src/presentation/bloc/notifications/unread/notifications_unread_bloc.dart';
 import 'package:finskool/src/data/push/push_service.dart';
 import 'package:finskool/src/utilities/app_bloc_observer.dart';
 import 'package:finskool/src/utilities/go_router.dart';
@@ -79,6 +82,9 @@ class MyApp extends StatelessWidget {
         // outside the tickets screens. The list, form and chat blocs are
         // route-scoped instead.
         BlocProvider(create: (_) => locator<TicketsUnreadBloc>()),
+        // The inbox badge + live socket, and the master push switch.
+        BlocProvider(create: (_) => locator<NotificationsUnreadBloc>()),
+        BlocProvider(create: (_) => locator<PushSettingsBloc>()),
         BlocProvider(create: (_) => locator<ServicesCatalogBloc>()),
         BlocProvider(create: (_) => locator<ServicesFilterBloc>()),
         BlocProvider(create: (_) => locator<ServicesUnreadBloc>()),
@@ -97,7 +103,8 @@ class MyApp extends StatelessWidget {
         themeMode: ThemeMode.light,
         // Uniformly bumps icon/text sizes on a device wider than Figma's
         // 393pt frame (most 6.6"+ Android phones) — see `UiScaler`.
-        builder: (context, child) => UiScaler(child: child!),
+        builder: (context, child) =>
+            InAppBannerHost(child: UiScaler(child: child!)),
         routerConfig: routerinit,
       ),
     );

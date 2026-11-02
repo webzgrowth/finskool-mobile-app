@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io' show Platform;
 
 import 'package:firebase_core/firebase_core.dart';
@@ -18,8 +17,26 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
 }
 
-/// Push notifications: permission, the device's FCM token, and showing a
-/// banner while the app is open (neither platform does that by itself).
+/// A push that arrived while the app was **open**.
+class ForegroundPush {
+  const ForegroundPush({
+    required this.title,
+    required this.body,
+    required this.data,
+  });
+
+  final String title;
+  final String body;
+  final Map<String, dynamic> data;
+}
+
+/// Push notifications: permission, the device's FCM token, and routing taps.
+///
+/// **No banner is drawn here while the app is open.** The push guide §9 says
+/// the user must see one notification, not the socket's and the push's, so the
+/// OS banner is suppressed in the foreground (iOS presentation options off; on
+/// Android FCM draws none) and the in-app banner takes over, fed by the live
+/// socket — with [foreground] as the fallback when the socket is down.
 ///
 /// **Never throws.** Push is an extra: with Firebase unconfigured, the user
 /// refusing permission, or iOS without an APNs key (no Apple developer
@@ -36,6 +53,7 @@ class PushService {
   static const String channelId = 'finskool_default';
 
   final _local = FlutterLocalNotificationsPlugin();
+  final _foreground = StreamController<ForegroundPush>.broadcast();
   final _taps = StreamController<Map<String, dynamic>>.broadcast();
   StreamSubscription<String>? _refresh;
   bool _ready = false;
@@ -44,6 +62,7 @@ class PushService {
   Map<String, dynamic>? _pending;
 
   Stream<Map<String, dynamic>> get taps => _taps.stream;
+  Stream<ForegroundPush> get foreground => _foreground.stream;
 
   /// A notification tapped while the app was **closed**. It arrives before
   /// anyone is listening (and before sign-in is confirmed), so it waits here
@@ -59,22 +78,12 @@ class PushService {
     try {
       await Firebase.initializeApp();
       FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+      // The local-notifications plugin is only here to create the Android
+      // channel FCM's banners use — high importance, or they don't heads-up.
       await _local.initialize(
         settings: const InitializationSettings(
           android: AndroidInitializationSettings('@mipmap/ic_launcher'),
-          iOS: DarwinInitializationSettings(
-            requestAlertPermission: false,
-            requestBadgePermission: false,
-            requestSoundPermission: false,
-          ),
         ),
-        onDidReceiveNotificationResponse: (r) {
-          final payload = r.payload;
-          if (payload == null || payload.isEmpty) return;
-          try {
-            _taps.add(Map<String, dynamic>.from(jsonDecode(payload) as Map));
-          } catch (_) {}
-        },
       );
       await _local
           .resolvePlatformSpecificImplementation<
@@ -87,7 +96,13 @@ class PushService {
               importance: Importance.high,
             ),
           );
-      FirebaseMessaging.onMessage.listen(_showForeground);
+      await FirebaseMessaging.instance
+          .setForegroundNotificationPresentationOptions(
+            alert: false,
+            badge: false,
+            sound: false,
+          );
+      FirebaseMessaging.onMessage.listen(_onForeground);
       FirebaseMessaging.onMessageOpenedApp.listen((m) => _taps.add(m.data));
       final launch = await FirebaseMessaging.instance.getInitialMessage();
       if (launch != null) _pending = launch.data;
@@ -144,24 +159,13 @@ class PushService {
     }
   }
 
-  Future<void> _showForeground(RemoteMessage message) async {
+  void _onForeground(RemoteMessage message) {
     final n = message.notification;
-    if (n == null) return;
-    await _local.show(
-      id: message.hashCode,
-      title: n.title,
-      body: n.body,
-      // The routing `data`, so tapping this banner opens the same screen a
-      // system banner would.
-      payload: jsonEncode(message.data),
-      notificationDetails: const NotificationDetails(
-        android: AndroidNotificationDetails(
-          channelId,
-          'Finskool21',
-          importance: Importance.high,
-          priority: Priority.high,
-        ),
-        iOS: DarwinNotificationDetails(),
+    _foreground.add(
+      ForegroundPush(
+        title: n?.title ?? '',
+        body: n?.body ?? '',
+        data: message.data,
       ),
     );
   }

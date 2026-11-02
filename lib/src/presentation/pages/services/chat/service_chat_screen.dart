@@ -17,6 +17,7 @@ import 'package:finskool/src/presentation/pages/tickets/widgets/ticket_sheet_pag
 import 'package:finskool/src/utilities/theme/theme.dart';
 
 import 'widgets/billing_sheet.dart';
+import 'widgets/payment_dialogs.dart';
 import 'widgets/razorpay_checkout.dart';
 import 'widgets/service_actions.dart';
 import 'widgets/service_conversation.dart';
@@ -62,6 +63,8 @@ class _ChatViewState extends State<_ChatView> {
   );
   late final RazorpayCheckout _checkout;
   bool _ratingDismissed = false; // transient overlay state, not bloc state
+  String _payingQuoteId = '';
+  late final AppLifecycleListener _lifecycle;
 
   @override
   void initState() {
@@ -73,10 +76,23 @@ class _ChatViewState extends State<_ChatView> {
       onDismissed: () =>
           payment.add(const ServicePaymentEvent.checkoutDismissed()),
     );
+    // Back in the foreground: a payment confirmed while the app was away (or
+    // killed) is only visible by asking the server again. Never ask the member
+    // to pay twice on the strength of stale local state.
+    _lifecycle = AppLifecycleListener(
+      onResume: () {
+        if (mounted) {
+          context.read<ServiceChatBloc>().add(
+            const ServiceChatEvent.refreshed(),
+          );
+        }
+      },
+    );
   }
 
   @override
   void dispose() {
+    _lifecycle.dispose();
     _checkout.dispose();
     _scroll.dispose();
     super.dispose();
@@ -92,15 +108,24 @@ class _ChatViewState extends State<_ChatView> {
         ..hideCurrentSnackBar()
         ..showSnackBar(SnackBar(content: Text(text), action: action));
 
-  Future<void> _pay(String quoteId) async {
+  /// Billing sheet → `/pay`. [errors] reopens the sheet after a 422, with the
+  /// server's per-field messages, since the member can only fix a field they
+  /// can see.
+  Future<void> _pay(
+    String quoteId, {
+    Map<String, String> errors = const {},
+  }) async {
     final chat = context.read<ServiceChatBloc>();
     final payment = context.read<ServicePaymentBloc>();
     final quote = chat.state.quotes[quoteId];
     if (quote == null || !quote.isPayable) return;
+    _payingQuoteId = quoteId;
     final billing = await showBillingSheet(
       context,
       quote: quote,
       initialName: _user?.name ?? '',
+      initial: payment.state.lastBilling,
+      errors: errors,
     );
     if (billing == null) return;
     payment.add(
@@ -128,8 +153,11 @@ class _ChatViewState extends State<_ChatView> {
         }
       case PaymentStep.done:
         final paid = s.paid;
-        if (paid != null) chat.add(ServiceChatEvent.paid(paid));
-        _snack('Payment received. Your invoice is ready.');
+        if (paid == null) break;
+        chat.add(ServiceChatEvent.paid(paid));
+        showPaymentReceivedSheet(context, paid: paid, chat: chat);
+      case PaymentStep.underReview:
+        showUnderReviewDialog(context);
       case PaymentStep.verifyFailed:
         // Money may have moved: keep the proof and let the member re-check.
         final proof = s.pendingProof;
@@ -144,7 +172,11 @@ class _ChatViewState extends State<_ChatView> {
                 ),
         );
       case PaymentStep.idle:
-        if (s.message.isNotEmpty) _snack(s.message);
+        if (s.billingErrors.isNotEmpty && _payingQuoteId.isNotEmpty) {
+          _pay(_payingQuoteId, errors: s.billingErrors);
+        } else if (s.message.isNotEmpty) {
+          _snack(s.message);
+        }
       case PaymentStep.creatingOrder || PaymentStep.verifying:
         break;
     }
@@ -161,7 +193,10 @@ class _ChatViewState extends State<_ChatView> {
   @override
   Widget build(BuildContext context) {
     return BlocListener<ServicePaymentBloc, ServicePaymentState>(
-      listenWhen: (a, b) => a.step != b.step || a.staleQuote != b.staleQuote,
+      listenWhen: (a, b) =>
+          a.step != b.step ||
+          a.staleQuote != b.staleQuote ||
+          a.billingErrors != b.billingErrors,
       listener: _onPayment,
       child: BlocConsumer<ServiceChatBloc, ServiceChatState>(
         listenWhen: (a, b) =>
@@ -182,6 +217,9 @@ class _ChatViewState extends State<_ChatView> {
     final request = state.request;
     final busy = context.select<ServicePaymentBloc, bool>(
       (b) => b.state.step.isBusy,
+    );
+    final confirming = context.select<ServicePaymentBloc, bool>(
+      (b) => b.state.step == PaymentStep.verifying,
     );
     final showRating = request != null && request.canRate && !_ratingDismissed;
     return TicketSheetPage(
@@ -236,6 +274,8 @@ class _ChatViewState extends State<_ChatView> {
                   bloc.add(ServiceChatEvent.attachmentRemoved(id)),
             ),
       overlays: [
+        if (confirming)
+          const Positioned.fill(child: ConfirmingPaymentOverlay()),
         if (showRating)
           RatingPopup(
             submitting: state.rating.isLoading,

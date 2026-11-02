@@ -14,7 +14,12 @@ import 'package:finskool/src/presentation/pages/authentication/google_last_step/
 import 'package:finskool/src/presentation/pages/authentication/signup_success/signup_success_screen.dart';
 import 'package:finskool/src/presentation/pages/dashboard/dashboard_shell_screen.dart';
 import 'package:finskool/src/presentation/pages/communities/detail/community_detail_screen.dart';
+import 'package:finskool/src/presentation/pages/communities/checkout/checkout_webview_screen.dart';
 import 'package:finskool/src/presentation/pages/dashboard/performance/performance_screen.dart';
+import 'package:finskool/src/presentation/pages/notifications/notifications_screen.dart';
+import 'package:finskool/src/presentation/bloc/communities/list/communities_bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:finskool/src/domain/model/community/community_access.dart';
 import 'package:finskool/src/presentation/pages/dashboard/profile/info/about_sebi_screen.dart';
 import 'package:finskool/src/presentation/pages/dashboard/profile/info/help_support_screen.dart';
 import 'package:finskool/src/presentation/pages/dashboard/profile/info/terms_privacy_screen.dart';
@@ -137,11 +142,36 @@ GoRouter routerinit = GoRouter(
     GoRoute(
       name: AppRoutes.SUBSCRIPTION_DETAIL_ROUTE_NAME,
       path: AppRoutes.SUBSCRIPTION_DETAIL_ROUTE_PATH,
-      builder: (BuildContext context, GoRouterState state) {
-        return SubscriptionDetailScreen(
-          community: state.extra! as CommunityModel,
-        );
+      // A tap on a payment/expiry notification has only a community id, not
+      // the model the screen needs. Look it up in the loaded catalog; if it
+      // isn't there (cold start, or not subscribed) fall back to the community
+      // itself rather than a screen with nothing to show.
+      redirect: (BuildContext context, GoRouterState state) {
+        if (state.extra is CommunityModel) return null;
+        final id = state.uri.queryParameters['id'];
+        if (id == null || id.isEmpty) return AppRoutes.DASHBOARD_ROUTE_PATH;
+        return _subscribedCommunity(context, id) == null
+            ? '/community/$id'
+            : null;
       },
+      builder: (BuildContext context, GoRouterState state) {
+        final community =
+            state.extra as CommunityModel? ??
+            _subscribedCommunity(context, state.uri.queryParameters['id']!)!;
+        return SubscriptionDetailScreen(community: community);
+      },
+    ),
+    GoRoute(
+      name: AppRoutes.NOTIFICATIONS_ROUTE_NAME,
+      path: AppRoutes.NOTIFICATIONS_ROUTE_PATH,
+      builder: (BuildContext context, GoRouterState state) =>
+          const NotificationsScreen(),
+    ),
+    GoRoute(
+      name: AppRoutes.COMMUNITY_CHECKOUT_ROUTE_NAME,
+      path: AppRoutes.COMMUNITY_CHECKOUT_ROUTE_PATH,
+      builder: (BuildContext context, GoRouterState state) =>
+          const CheckoutWebViewScreen(),
     ),
     GoRoute(
       name: AppRoutes.COMMUNITY_PAYMENT_SUCCESS_ROUTE_NAME,
@@ -190,13 +220,6 @@ GoRouter routerinit = GoRouter(
       path: AppRoutes.ABOUT_SEBI_ROUTE_PATH,
       builder: (BuildContext context, GoRouterState state) {
         return const AboutSebiScreen();
-      },
-    ),
-    GoRoute(
-      name: AppRoutes.WELCOME_KITS_ROUTE_NAME,
-      path: AppRoutes.WELCOME_KITS_ROUTE_PATH,
-      builder: (BuildContext context, GoRouterState state) {
-        return const ProfilePlaceholderScreen(title: 'Welcome kits');
       },
     ),
     GoRoute(
@@ -291,3 +314,12 @@ GoRouter routerinit = GoRouter(
     ),
   ],
 );
+
+/// The member's own subscription to [id] from the already-loaded catalog, or
+/// null. Used to open My subscription from a notification.
+CommunityModel? _subscribedCommunity(BuildContext context, String id) {
+  for (final c in context.read<CommunitiesBloc>().state.communities) {
+    if (c.id == id && c.access == CommunityAccess.subscribed) return c;
+  }
+  return null;
+}

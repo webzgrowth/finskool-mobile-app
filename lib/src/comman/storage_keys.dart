@@ -14,11 +14,6 @@ class StorageKeys {
   /// session without a round-trip.
   static const String cachedUser = 'cached_user';
 
-  /// Prefix of the per-user key holding the path of the profile photo picked
-  /// on this device — `avatar_local_path_<userId>`. Local-only: the API has no
-  /// avatar upload. See `UserModel.avatarLocalPath`.
-  static String avatarLocalPath(String userId) => 'avatar_local_path_$userId';
-
   /// The community whose feed/recommendations we're scoped to.
   static const String selectedCommunityId = 'selected_community_id';
 
@@ -30,7 +25,8 @@ class StorageKeys {
   /// `UserModel` when it does, so it survives a reinstall.
   static const String complianceCompleted = 'compliance_completed';
 
-  /// Ids of communities unlocked in-app, as a JSON list. Mock-only: the
-  /// real subscription list arrives with the login payload.
-  static const String unlockedCommunityIds = 'unlocked_community_ids';
+  /// The last billing details used to pay a service quote (name, state,
+  /// GSTIN, address), so the sheet is pre-filled next time. Personal data on a
+  /// possibly shared phone: cleared on logout.
+  static const String lastBilling = 'last_billing_details';
 }

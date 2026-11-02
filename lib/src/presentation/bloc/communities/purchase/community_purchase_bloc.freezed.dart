@@ -56,11 +56,14 @@ extension CommunityPurchaseEventPatterns on CommunityPurchaseEvent {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _Started value)?  started,TResult Function( _Cleared value)?  cleared,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _Started value)?  started,TResult Function( _PaymentReported value)?  paymentReported,TResult Function( _CheckoutDismissed value)?  checkoutDismissed,TResult Function( _Recheck value)?  recheck,TResult Function( _Cleared value)?  cleared,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case _Started() when started != null:
-return started(_that);case _Cleared() when cleared != null:
+return started(_that);case _PaymentReported() when paymentReported != null:
+return paymentReported(_that);case _CheckoutDismissed() when checkoutDismissed != null:
+return checkoutDismissed(_that);case _Recheck() when recheck != null:
+return recheck(_that);case _Cleared() when cleared != null:
 return cleared(_that);case _:
   return orElse();
 
@@ -79,11 +82,14 @@ return cleared(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _Started value)  started,required TResult Function( _Cleared value)  cleared,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _Started value)  started,required TResult Function( _PaymentReported value)  paymentReported,required TResult Function( _CheckoutDismissed value)  checkoutDismissed,required TResult Function( _Recheck value)  recheck,required TResult Function( _Cleared value)  cleared,}){
 final _that = this;
 switch (_that) {
 case _Started():
-return started(_that);case _Cleared():
+return started(_that);case _PaymentReported():
+return paymentReported(_that);case _CheckoutDismissed():
+return checkoutDismissed(_that);case _Recheck():
+return recheck(_that);case _Cleared():
 return cleared(_that);case _:
   throw StateError('Unexpected subclass');
 
@@ -101,11 +107,14 @@ return cleared(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _Started value)?  started,TResult? Function( _Cleared value)?  cleared,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _Started value)?  started,TResult? Function( _PaymentReported value)?  paymentReported,TResult? Function( _CheckoutDismissed value)?  checkoutDismissed,TResult? Function( _Recheck value)?  recheck,TResult? Function( _Cleared value)?  cleared,}){
 final _that = this;
 switch (_that) {
 case _Started() when started != null:
-return started(_that);case _Cleared() when cleared != null:
+return started(_that);case _PaymentReported() when paymentReported != null:
+return paymentReported(_that);case _CheckoutDismissed() when checkoutDismissed != null:
+return checkoutDismissed(_that);case _Recheck() when recheck != null:
+return recheck(_that);case _Cleared() when cleared != null:
 return cleared(_that);case _:
   return null;
 
@@ -123,10 +132,13 @@ return cleared(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( CommunityModel community,  CommunityPlanModel plan)?  started,TResult Function()?  cleared,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( CommunityModel community,  CommunityPlanModel plan)?  started,TResult Function( PaymentOutcome outcome)?  paymentReported,TResult Function()?  checkoutDismissed,TResult Function()?  recheck,TResult Function()?  cleared,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Started() when started != null:
-return started(_that.community,_that.plan);case _Cleared() when cleared != null:
+return started(_that.community,_that.plan);case _PaymentReported() when paymentReported != null:
+return paymentReported(_that.outcome);case _CheckoutDismissed() when checkoutDismissed != null:
+return checkoutDismissed();case _Recheck() when recheck != null:
+return recheck();case _Cleared() when cleared != null:
 return cleared();case _:
   return orElse();
 
@@ -145,10 +157,13 @@ return cleared();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( CommunityModel community,  CommunityPlanModel plan)  started,required TResult Function()  cleared,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( CommunityModel community,  CommunityPlanModel plan)  started,required TResult Function( PaymentOutcome outcome)  paymentReported,required TResult Function()  checkoutDismissed,required TResult Function()  recheck,required TResult Function()  cleared,}) {final _that = this;
 switch (_that) {
 case _Started():
-return started(_that.community,_that.plan);case _Cleared():
+return started(_that.community,_that.plan);case _PaymentReported():
+return paymentReported(_that.outcome);case _CheckoutDismissed():
+return checkoutDismissed();case _Recheck():
+return recheck();case _Cleared():
 return cleared();case _:
   throw StateError('Unexpected subclass');
 
@@ -166,10 +181,13 @@ return cleared();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( CommunityModel community,  CommunityPlanModel plan)?  started,TResult? Function()?  cleared,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( CommunityModel community,  CommunityPlanModel plan)?  started,TResult? Function( PaymentOutcome outcome)?  paymentReported,TResult? Function()?  checkoutDismissed,TResult? Function()?  recheck,TResult? Function()?  cleared,}) {final _that = this;
 switch (_that) {
 case _Started() when started != null:
-return started(_that.community,_that.plan);case _Cleared() when cleared != null:
+return started(_that.community,_that.plan);case _PaymentReported() when paymentReported != null:
+return paymentReported(_that.outcome);case _CheckoutDismissed() when checkoutDismissed != null:
+return checkoutDismissed();case _Recheck() when recheck != null:
+return recheck();case _Cleared() when cleared != null:
 return cleared();case _:
   return null;
 
@@ -251,6 +269,138 @@ as CommunityPlanModel,
 /// @nodoc
 
 
+class _PaymentReported implements CommunityPurchaseEvent {
+  const _PaymentReported(this.outcome);
+  
+
+ final  PaymentOutcome outcome;
+
+/// Create a copy of CommunityPurchaseEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$PaymentReportedCopyWith<_PaymentReported> get copyWith => __$PaymentReportedCopyWithImpl<_PaymentReported>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _PaymentReported&&(identical(other.outcome, outcome) || other.outcome == outcome));
+}
+
+
+@override
+int get hashCode {
+    return Object.hash(runtimeType,outcome);
+}
+
+@override
+String toString() {
+    return 'CommunityPurchaseEvent.paymentReported(outcome: $outcome)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$PaymentReportedCopyWith<$Res> implements $CommunityPurchaseEventCopyWith<$Res> {
+  factory _$PaymentReportedCopyWith(_PaymentReported value, $Res Function(_PaymentReported) _then) = __$PaymentReportedCopyWithImpl;
+@useResult
+$Res call({
+ PaymentOutcome outcome
+});
+
+
+
+
+}
+/// @nodoc
+class __$PaymentReportedCopyWithImpl<$Res>
+    implements _$PaymentReportedCopyWith<$Res> {
+  __$PaymentReportedCopyWithImpl(this._self, this._then);
+
+  final _PaymentReported _self;
+  final $Res Function(_PaymentReported) _then;
+
+/// Create a copy of CommunityPurchaseEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? outcome = null,}) {
+  return _then(_PaymentReported(
+null == outcome ? _self.outcome : outcome // ignore: cast_nullable_to_non_nullable
+as PaymentOutcome,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class _CheckoutDismissed implements CommunityPurchaseEvent {
+  const _CheckoutDismissed();
+  
+
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _CheckoutDismissed);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+    return 'CommunityPurchaseEvent.checkoutDismissed()';
+}
+
+
+}
+
+
+
+
+/// @nodoc
+
+
+class _Recheck implements CommunityPurchaseEvent {
+  const _Recheck();
+  
+
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Recheck);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+    return 'CommunityPurchaseEvent.recheck()';
+}
+
+
+}
+
+
+
+
+/// @nodoc
+
+
 class _Cleared implements CommunityPurchaseEvent {
   const _Cleared();
   
@@ -283,7 +433,11 @@ String toString() {
 /// @nodoc
 mixin _$CommunityPurchaseState {
 
- CommunityModel? get community; CommunityPlanModel? get plan; String? get transactionId; DateTime? get paidAt; String? get paymentMethod;
+ CommunityModel? get community; CommunityPlanModel? get plan; PurchaseStatus get status;/// Handed to the webview and nowhere else. Holds a single-use token, so it
+/// is never logged, persisted or put in a route.
+ String? get checkoutUrl; String get message;/// Access end *before* this purchase — a renewal is only confirmed once
+/// `/me` reports a later date than this.
+ DateTime? get previousExpiry; DateTime? get expiresAt; DateTime? get paidAt;
 /// Create a copy of CommunityPurchaseState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -295,20 +449,20 @@ $CommunityPurchaseStateCopyWith<CommunityPurchaseState> get copyWith => _$Commun
 @override
 bool operator ==(Object other) {
   final _this = this as CommunityPurchaseState;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is CommunityPurchaseState&&(identical(other.community, _this.community) || other.community == _this.community)&&(identical(other.plan, _this.plan) || other.plan == _this.plan)&&(identical(other.transactionId, _this.transactionId) || other.transactionId == _this.transactionId)&&(identical(other.paidAt, _this.paidAt) || other.paidAt == _this.paidAt)&&(identical(other.paymentMethod, _this.paymentMethod) || other.paymentMethod == _this.paymentMethod));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CommunityPurchaseState&&(identical(other.community, _this.community) || other.community == _this.community)&&(identical(other.plan, _this.plan) || other.plan == _this.plan)&&(identical(other.status, _this.status) || other.status == _this.status)&&(identical(other.checkoutUrl, _this.checkoutUrl) || other.checkoutUrl == _this.checkoutUrl)&&(identical(other.message, _this.message) || other.message == _this.message)&&(identical(other.previousExpiry, _this.previousExpiry) || other.previousExpiry == _this.previousExpiry)&&(identical(other.expiresAt, _this.expiresAt) || other.expiresAt == _this.expiresAt)&&(identical(other.paidAt, _this.paidAt) || other.paidAt == _this.paidAt));
 }
 
 
 @override
 int get hashCode {
   final _this = this as CommunityPurchaseState;
-  return Object.hash(runtimeType,_this.community,_this.plan,_this.transactionId,_this.paidAt,_this.paymentMethod);
+  return Object.hash(runtimeType,_this.community,_this.plan,_this.status,_this.checkoutUrl,_this.message,_this.previousExpiry,_this.expiresAt,_this.paidAt);
 }
 
 @override
 String toString() {
   final _this = this as CommunityPurchaseState;
-  return 'CommunityPurchaseState(community: ${_this.community}, plan: ${_this.plan}, transactionId: ${_this.transactionId}, paidAt: ${_this.paidAt}, paymentMethod: ${_this.paymentMethod})';
+  return 'CommunityPurchaseState(community: ${_this.community}, plan: ${_this.plan}, status: ${_this.status}, checkoutUrl: ${_this.checkoutUrl}, message: ${_this.message}, previousExpiry: ${_this.previousExpiry}, expiresAt: ${_this.expiresAt}, paidAt: ${_this.paidAt})';
 }
 
 
@@ -319,7 +473,7 @@ abstract mixin class $CommunityPurchaseStateCopyWith<$Res>  {
   factory $CommunityPurchaseStateCopyWith(CommunityPurchaseState value, $Res Function(CommunityPurchaseState) _then) = _$CommunityPurchaseStateCopyWithImpl;
 @useResult
 $Res call({
- CommunityModel? community, CommunityPlanModel? plan, String? transactionId, DateTime? paidAt, String? paymentMethod
+ CommunityModel? community, CommunityPlanModel? plan, PurchaseStatus status, String? checkoutUrl, String message, DateTime? previousExpiry, DateTime? expiresAt, DateTime? paidAt
 });
 
 
@@ -336,14 +490,17 @@ class _$CommunityPurchaseStateCopyWithImpl<$Res>
 
 /// Create a copy of CommunityPurchaseState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? community = freezed,Object? plan = freezed,Object? transactionId = freezed,Object? paidAt = freezed,Object? paymentMethod = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? community = freezed,Object? plan = freezed,Object? status = null,Object? checkoutUrl = freezed,Object? message = null,Object? previousExpiry = freezed,Object? expiresAt = freezed,Object? paidAt = freezed,}) {
   return _then(CommunityPurchaseState(
 community: freezed == community ? _self.community : community // ignore: cast_nullable_to_non_nullable
 as CommunityModel?,plan: freezed == plan ? _self.plan : plan // ignore: cast_nullable_to_non_nullable
-as CommunityPlanModel?,transactionId: freezed == transactionId ? _self.transactionId : transactionId // ignore: cast_nullable_to_non_nullable
-as String?,paidAt: freezed == paidAt ? _self.paidAt : paidAt // ignore: cast_nullable_to_non_nullable
-as DateTime?,paymentMethod: freezed == paymentMethod ? _self.paymentMethod : paymentMethod // ignore: cast_nullable_to_non_nullable
-as String?,
+as CommunityPlanModel?,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as PurchaseStatus,checkoutUrl: freezed == checkoutUrl ? _self.checkoutUrl : checkoutUrl // ignore: cast_nullable_to_non_nullable
+as String?,message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
+as String,previousExpiry: freezed == previousExpiry ? _self.previousExpiry : previousExpiry // ignore: cast_nullable_to_non_nullable
+as DateTime?,expiresAt: freezed == expiresAt ? _self.expiresAt : expiresAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,paidAt: freezed == paidAt ? _self.paidAt : paidAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,
   ));
 }
 
@@ -425,10 +582,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( CommunityModel? community,  CommunityPlanModel? plan,  String? transactionId,  DateTime? paidAt,  String? paymentMethod)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( CommunityModel? community,  CommunityPlanModel? plan,  PurchaseStatus status,  String? checkoutUrl,  String message,  DateTime? previousExpiry,  DateTime? expiresAt,  DateTime? paidAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _CommunityPurchaseState() when $default != null:
-return $default(_that.community,_that.plan,_that.transactionId,_that.paidAt,_that.paymentMethod);case _:
+return $default(_that.community,_that.plan,_that.status,_that.checkoutUrl,_that.message,_that.previousExpiry,_that.expiresAt,_that.paidAt);case _:
   return orElse();
 
 }
@@ -446,10 +603,10 @@ return $default(_that.community,_that.plan,_that.transactionId,_that.paidAt,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( CommunityModel? community,  CommunityPlanModel? plan,  String? transactionId,  DateTime? paidAt,  String? paymentMethod)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( CommunityModel? community,  CommunityPlanModel? plan,  PurchaseStatus status,  String? checkoutUrl,  String message,  DateTime? previousExpiry,  DateTime? expiresAt,  DateTime? paidAt)  $default,) {final _that = this;
 switch (_that) {
 case _CommunityPurchaseState():
-return $default(_that.community,_that.plan,_that.transactionId,_that.paidAt,_that.paymentMethod);}
+return $default(_that.community,_that.plan,_that.status,_that.checkoutUrl,_that.message,_that.previousExpiry,_that.expiresAt,_that.paidAt);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -463,10 +620,10 @@ return $default(_that.community,_that.plan,_that.transactionId,_that.paidAt,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( CommunityModel? community,  CommunityPlanModel? plan,  String? transactionId,  DateTime? paidAt,  String? paymentMethod)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( CommunityModel? community,  CommunityPlanModel? plan,  PurchaseStatus status,  String? checkoutUrl,  String message,  DateTime? previousExpiry,  DateTime? expiresAt,  DateTime? paidAt)?  $default,) {final _that = this;
 switch (_that) {
 case _CommunityPurchaseState() when $default != null:
-return $default(_that.community,_that.plan,_that.transactionId,_that.paidAt,_that.paymentMethod);case _:
+return $default(_that.community,_that.plan,_that.status,_that.checkoutUrl,_that.message,_that.previousExpiry,_that.expiresAt,_that.paidAt);case _:
   return null;
 
 }
@@ -478,14 +635,21 @@ return $default(_that.community,_that.plan,_that.transactionId,_that.paidAt,_tha
 
 
 class _CommunityPurchaseState extends CommunityPurchaseState {
-  const _CommunityPurchaseState({this.community, this.plan, this.transactionId, this.paidAt, this.paymentMethod}): super._();
+  const _CommunityPurchaseState({this.community, this.plan, this.status = PurchaseStatus.idle, this.checkoutUrl, this.message = '', this.previousExpiry, this.expiresAt, this.paidAt}): super._();
   
 
 @override final  CommunityModel? community;
 @override final  CommunityPlanModel? plan;
-@override final  String? transactionId;
+@override@JsonKey() final  PurchaseStatus status;
+/// Handed to the webview and nowhere else. Holds a single-use token, so it
+/// is never logged, persisted or put in a route.
+@override final  String? checkoutUrl;
+@override@JsonKey() final  String message;
+/// Access end *before* this purchase — a renewal is only confirmed once
+/// `/me` reports a later date than this.
+@override final  DateTime? previousExpiry;
+@override final  DateTime? expiresAt;
 @override final  DateTime? paidAt;
-@override final  String? paymentMethod;
 
 /// Create a copy of CommunityPurchaseState
 /// with the given fields replaced by the non-null parameter values.
@@ -497,18 +661,18 @@ _$CommunityPurchaseStateCopyWith<_CommunityPurchaseState> get copyWith => __$Com
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _CommunityPurchaseState&&(identical(other.community, community) || other.community == community)&&(identical(other.plan, plan) || other.plan == plan)&&(identical(other.transactionId, transactionId) || other.transactionId == transactionId)&&(identical(other.paidAt, paidAt) || other.paidAt == paidAt)&&(identical(other.paymentMethod, paymentMethod) || other.paymentMethod == paymentMethod));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _CommunityPurchaseState&&(identical(other.community, community) || other.community == community)&&(identical(other.plan, plan) || other.plan == plan)&&(identical(other.status, status) || other.status == status)&&(identical(other.checkoutUrl, checkoutUrl) || other.checkoutUrl == checkoutUrl)&&(identical(other.message, message) || other.message == message)&&(identical(other.previousExpiry, previousExpiry) || other.previousExpiry == previousExpiry)&&(identical(other.expiresAt, expiresAt) || other.expiresAt == expiresAt)&&(identical(other.paidAt, paidAt) || other.paidAt == paidAt));
 }
 
 
 @override
 int get hashCode {
-    return Object.hash(runtimeType,community,plan,transactionId,paidAt,paymentMethod);
+    return Object.hash(runtimeType,community,plan,status,checkoutUrl,message,previousExpiry,expiresAt,paidAt);
 }
 
 @override
 String toString() {
-    return 'CommunityPurchaseState(community: $community, plan: $plan, transactionId: $transactionId, paidAt: $paidAt, paymentMethod: $paymentMethod)';
+    return 'CommunityPurchaseState(community: $community, plan: $plan, status: $status, checkoutUrl: $checkoutUrl, message: $message, previousExpiry: $previousExpiry, expiresAt: $expiresAt, paidAt: $paidAt)';
 }
 
 
@@ -519,7 +683,7 @@ abstract mixin class _$CommunityPurchaseStateCopyWith<$Res> implements $Communit
   factory _$CommunityPurchaseStateCopyWith(_CommunityPurchaseState value, $Res Function(_CommunityPurchaseState) _then) = __$CommunityPurchaseStateCopyWithImpl;
 @override @useResult
 $Res call({
- CommunityModel? community, CommunityPlanModel? plan, String? transactionId, DateTime? paidAt, String? paymentMethod
+ CommunityModel? community, CommunityPlanModel? plan, PurchaseStatus status, String? checkoutUrl, String message, DateTime? previousExpiry, DateTime? expiresAt, DateTime? paidAt
 });
 
 
@@ -536,14 +700,17 @@ class __$CommunityPurchaseStateCopyWithImpl<$Res>
 
 /// Create a copy of CommunityPurchaseState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? community = freezed,Object? plan = freezed,Object? transactionId = freezed,Object? paidAt = freezed,Object? paymentMethod = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? community = freezed,Object? plan = freezed,Object? status = null,Object? checkoutUrl = freezed,Object? message = null,Object? previousExpiry = freezed,Object? expiresAt = freezed,Object? paidAt = freezed,}) {
   return _then(_CommunityPurchaseState(
 community: freezed == community ? _self.community : community // ignore: cast_nullable_to_non_nullable
 as CommunityModel?,plan: freezed == plan ? _self.plan : plan // ignore: cast_nullable_to_non_nullable
-as CommunityPlanModel?,transactionId: freezed == transactionId ? _self.transactionId : transactionId // ignore: cast_nullable_to_non_nullable
-as String?,paidAt: freezed == paidAt ? _self.paidAt : paidAt // ignore: cast_nullable_to_non_nullable
-as DateTime?,paymentMethod: freezed == paymentMethod ? _self.paymentMethod : paymentMethod // ignore: cast_nullable_to_non_nullable
-as String?,
+as CommunityPlanModel?,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as PurchaseStatus,checkoutUrl: freezed == checkoutUrl ? _self.checkoutUrl : checkoutUrl // ignore: cast_nullable_to_non_nullable
+as String?,message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
+as String,previousExpiry: freezed == previousExpiry ? _self.previousExpiry : previousExpiry // ignore: cast_nullable_to_non_nullable
+as DateTime?,expiresAt: freezed == expiresAt ? _self.expiresAt : expiresAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,paidAt: freezed == paidAt ? _self.paidAt : paidAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,
   ));
 }
 

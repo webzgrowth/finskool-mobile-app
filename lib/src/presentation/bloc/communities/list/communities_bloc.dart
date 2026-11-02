@@ -6,7 +6,6 @@ import 'package:finskool/src/domain/model/community/community_access.dart';
 import 'package:finskool/src/domain/model/community/community_model.dart';
 import 'package:finskool/src/domain/usecases/community/get_communities.dart';
 import 'package:finskool/src/domain/usecases/community/request_pricing.dart';
-import 'package:finskool/src/domain/usecases/community/unlock_community.dart';
 
 part 'communities_event.dart';
 part 'communities_state.dart';
@@ -18,26 +17,23 @@ part 'communities_bloc.freezed.dart';
 /// CLAUDE.md's "Bloc granularity" rule.
 @singleton
 class CommunitiesBloc extends Bloc<CommunitiesEvent, CommunitiesState> {
-  CommunitiesBloc(
-    this._getCommunities,
-    this._unlockCommunity,
-    this._requestPricing,
-  ) : super(CommunitiesState.initial()) {
+  CommunitiesBloc(this._getCommunities, this._requestPricing)
+    : super(CommunitiesState.initial()) {
     on<CommunitiesEvent>((event, emit) async {
       await event.map(
         loadCommunities: (_) => _load(emit),
-        unlockCommunity: (value) async {
-          final result = await _unlockCommunity.execute(value.communityId);
-          await result.fold(
-            (failure) async => emit(
+        refresh: (_) async {
+          final result = await _getCommunities.execute();
+          // A failed background refresh keeps what is already shown.
+          result.fold(
+            (_) {},
+            (communities) => emit(
               state.copyWith(
-                state: RequestState.error,
-                message: failure.message,
+                state: RequestState.loaded,
+                communities: communities,
+                message: '',
               ),
             ),
-            // Reload rather than patch in place: the repository is the one
-            // that knows how unlocks are persisted.
-            (_) => _load(emit),
           );
         },
         requestPricing: (value) async {
@@ -61,7 +57,6 @@ class CommunitiesBloc extends Bloc<CommunitiesEvent, CommunitiesState> {
   }
 
   final GetCommunities _getCommunities;
-  final UnlockCommunity _unlockCommunity;
   final RequestPricing _requestPricing;
 
   Future<void> _load(Emitter<CommunitiesState> emit) async {

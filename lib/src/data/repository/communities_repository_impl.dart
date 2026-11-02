@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:dartz/dartz.dart';
 import 'package:injectable/injectable.dart';
 import 'package:finskool/src/comman/error_handler.dart';
@@ -8,6 +6,7 @@ import 'package:finskool/src/comman/storage_keys.dart';
 import 'package:finskool/src/data/datasource/communities_remote_datasource.dart';
 import 'package:finskool/src/data/datasource/demo_subscription_datasource.dart';
 import 'package:finskool/src/domain/model/community/community_access.dart';
+import 'package:finskool/src/domain/model/community/checkout_session.dart';
 import 'package:finskool/src/domain/model/community/community_model.dart';
 import 'package:finskool/src/domain/model/community/compliance_details_model.dart';
 import 'package:finskool/src/domain/model/community/welcome_kit.dart';
@@ -19,10 +18,9 @@ import 'package:finskool/src/utilities/shared_pref_helper.dart';
 /// above still gets an `Either` (CLAUDE.md's layer rule); `handleErrors`
 /// is the single seam.
 ///
-/// `unlockCommunity`, `requestPricing` and the compliance flag stay local —
-/// there is still no payment or pricing-enquiry endpoint wired, so a
-/// purchase made in-app is replayed over the catalog until the backend
-/// reports it through `/auth/mobile/me`.
+/// `requestPricing` and the compliance flag stay local — there is no
+/// pricing-enquiry or KYC endpoint wired. Purchases are real: payment happens
+/// on the web checkout and the backend reports it through `/auth/mobile/me`.
 @LazySingleton(as: CommunitiesRepository)
 class CommunitiesRepositoryImpl implements CommunitiesRepository {
   CommunitiesRepositoryImpl(this._remote);
@@ -50,7 +48,6 @@ class CommunitiesRepositoryImpl implements CommunitiesRepository {
         ]);
         final catalog = results[0];
         final mine = {for (final c in results[1]) c.id: c};
-        final unlocked = _unlockedIds();
 
         final merged = catalog.map((community) {
           final subscription = mine[community.id];
@@ -62,12 +59,7 @@ class CommunitiesRepositoryImpl implements CommunitiesRepository {
               ),
             );
           }
-          // A purchase made in-app, before any payment endpoint exists.
-          return unlocked.contains(community.id)
-              ? _withDemoReceipt(
-                  community.copyWith(access: CommunityAccess.subscribed),
-                )
-              : community;
+          return community;
         }).toList();
 
         final seen = catalog.map((c) => c.id).toSet();
@@ -79,14 +71,19 @@ class CommunitiesRepositoryImpl implements CommunitiesRepository {
       handleErrors(() => _remote.getWelcomeKit(communityId));
 
   @override
-  Future<Either<Failure, Unit>> unlockCommunity(String communityId) =>
+  Future<Either<Failure, CheckoutSession>> startCheckout(
+    String communityId,
+    String planId,
+  ) => handleErrors(() => _remote.createCheckoutSession(communityId, planId));
+
+  @override
+  Future<Either<Failure, DateTime?>> subscriptionExpiry(String communityId) =>
       handleErrors(() async {
-        final ids = _unlockedIds()..add(communityId);
-        await SharedPreferenceHelper().storedata(
-          StorageKeys.unlockedCommunityIds,
-          jsonEncode(ids.toList()),
-        );
-        return unit;
+        final mine = await _remote.getMyCommunities();
+        for (final c in mine) {
+          if (c.id == communityId) return c.subscribedUntil;
+        }
+        return null;
       });
 
   @override
@@ -124,18 +121,5 @@ class CommunitiesRepositoryImpl implements CommunitiesRepository {
         DemoSubscriptionDatasource.forCommunity(community);
     if (info == null) return community;
     return community.copyWith(subscriptionInfo: info);
-  }
-
-  Set<String> _unlockedIds() {
-    final raw = SharedPreferenceHelper().getdata(
-      StorageKeys.unlockedCommunityIds,
-    );
-    if (raw == null || raw.isEmpty) return <String>{};
-    try {
-      return (jsonDecode(raw) as List).map((e) => e.toString()).toSet();
-    } catch (e) {
-      logger.warning('Discarding unreadable unlocked-community list: $e');
-      return <String>{};
-    }
   }
 }

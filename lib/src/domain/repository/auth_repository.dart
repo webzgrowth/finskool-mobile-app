@@ -45,9 +45,9 @@ abstract class AuthRepository {
   /// when the cached blob can't be parsed.
   UserModel? get cachedUser;
 
-  /// Flips the cached user's notification preference and re-persists it —
-  /// the Profile screen's Notifications toggle. No backend endpoint exists
-  /// for this yet, so it's local-only, same as the compliance flag.
+  /// Sets the **post-alerts** preference (`PATCH /auth/me/notifications`) and,
+  /// once the server accepts it, re-persists it on the cached user. Not the
+  /// master push switch — that is `PushSettingsBloc`'s.
   Future<Either<Failure, UserModel>> setPostNotificationsEnabled(bool enabled);
 
   /// Writes the Edit Profile form back onto the cached [UserModel]. Also
@@ -60,9 +60,10 @@ abstract class AuthRepository {
     required String phone,
   });
 
-  /// Sets (or, with a null [sourcePath], removes) the profile photo picked on
-  /// this device. Local-only like the rest of Edit Profile — the API has no
-  /// avatar upload — so the file is copied into app storage and only its path
-  /// is remembered, per user. Returns the user carrying that path.
-  Future<Either<Failure, UserModel>> updateAvatar(String? sourcePath);
+  /// Uploads [sourcePath] as the profile picture and saves it on the account
+  /// (`upload-url` → `PUT` to storage → `PATCH /auth/me/avatar`). Rejects
+  /// anything but JPG/PNG/WebP under 5 MB before any request. Returns the user
+  /// carrying the new `avatarUrl`. There is **no call to remove** a picture —
+  /// it can only be replaced.
+  Future<Either<Failure, UserModel>> updateAvatar(String sourcePath);
 }

@@ -335,6 +335,15 @@ class AppPalette {
   static const Color logoBlueInk = Color(0xFF2F6BD8);
   static const Color logoBluePlate = Color(0xFFE8F1FF);
 
+  // Notification card (Final page `1629:2132`): an OS-style card, so neutral
+  // greys rather than brand teal. The action pills reuse `badgeTeal`.
+  static const Color notificationMeta = Color(0xFF6B6B6B);
+  static const Color notificationTime = Color(0xFF8E8E8E);
+  static const Color notificationTitle = Color(0xFF111111);
+  static const Color notificationBody = Color(0xFF333333);
+  static const Color notificationShadow = Color(0x1A0D3330);
+  static const Color notificationIconRule = Color(0x0F000000);
+
   // Skeleton loading (see `comman/widgets/skeleton.dart`) — a neutral,
   // slightly-warm grey rather than the brand teal, so a loading screen
   // doesn't read as "tinted" before any real content has painted.

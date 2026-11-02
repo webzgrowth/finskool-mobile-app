@@ -13,7 +13,6 @@ class SubscriptionInfo {
     required this.transactionId,
     required this.paidOn,
     required this.paymentMethod,
-    this.autoRenew = false,
   });
 
   final CommunityPlanModel plan;
@@ -21,7 +20,6 @@ class SubscriptionInfo {
   final String transactionId;
   final DateTime paidOn;
   final String paymentMethod;
-  final bool autoRenew;
 
   factory SubscriptionInfo.fromJson(Map<String, dynamic> json) =>
       SubscriptionInfo(
@@ -30,7 +28,6 @@ class SubscriptionInfo {
         transactionId: json['transactionId'] as String,
         paidOn: DateTime.parse(json['paidOn'] as String),
         paymentMethod: json['paymentMethod'] as String,
-        autoRenew: json['autoRenew'] as bool? ?? false,
       );
 
   Map<String, dynamic> toJson() => {
@@ -39,6 +36,5 @@ class SubscriptionInfo {
     'transactionId': transactionId,
     'paidOn': paidOn.toIso8601String(),
     'paymentMethod': paymentMethod,
-    'autoRenew': autoRenew,
   };
 }

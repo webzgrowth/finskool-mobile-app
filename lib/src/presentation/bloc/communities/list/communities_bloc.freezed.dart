@@ -56,12 +56,12 @@ extension CommunitiesEventPatterns on CommunitiesEvent {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _LoadCommunities value)?  loadCommunities,TResult Function( _UnlockCommunity value)?  unlockCommunity,TResult Function( _RequestPricing value)?  requestPricing,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _LoadCommunities value)?  loadCommunities,TResult Function( _Refresh value)?  refresh,TResult Function( _RequestPricing value)?  requestPricing,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case _LoadCommunities() when loadCommunities != null:
-return loadCommunities(_that);case _UnlockCommunity() when unlockCommunity != null:
-return unlockCommunity(_that);case _RequestPricing() when requestPricing != null:
+return loadCommunities(_that);case _Refresh() when refresh != null:
+return refresh(_that);case _RequestPricing() when requestPricing != null:
 return requestPricing(_that);case _:
   return orElse();
 
@@ -80,12 +80,12 @@ return requestPricing(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _LoadCommunities value)  loadCommunities,required TResult Function( _UnlockCommunity value)  unlockCommunity,required TResult Function( _RequestPricing value)  requestPricing,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _LoadCommunities value)  loadCommunities,required TResult Function( _Refresh value)  refresh,required TResult Function( _RequestPricing value)  requestPricing,}){
 final _that = this;
 switch (_that) {
 case _LoadCommunities():
-return loadCommunities(_that);case _UnlockCommunity():
-return unlockCommunity(_that);case _RequestPricing():
+return loadCommunities(_that);case _Refresh():
+return refresh(_that);case _RequestPricing():
 return requestPricing(_that);case _:
   throw StateError('Unexpected subclass');
 
@@ -103,12 +103,12 @@ return requestPricing(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _LoadCommunities value)?  loadCommunities,TResult? Function( _UnlockCommunity value)?  unlockCommunity,TResult? Function( _RequestPricing value)?  requestPricing,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _LoadCommunities value)?  loadCommunities,TResult? Function( _Refresh value)?  refresh,TResult? Function( _RequestPricing value)?  requestPricing,}){
 final _that = this;
 switch (_that) {
 case _LoadCommunities() when loadCommunities != null:
-return loadCommunities(_that);case _UnlockCommunity() when unlockCommunity != null:
-return unlockCommunity(_that);case _RequestPricing() when requestPricing != null:
+return loadCommunities(_that);case _Refresh() when refresh != null:
+return refresh(_that);case _RequestPricing() when requestPricing != null:
 return requestPricing(_that);case _:
   return null;
 
@@ -126,11 +126,11 @@ return requestPricing(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  loadCommunities,TResult Function( String communityId)?  unlockCommunity,TResult Function( String communityId)?  requestPricing,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  loadCommunities,TResult Function()?  refresh,TResult Function( String communityId)?  requestPricing,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _LoadCommunities() when loadCommunities != null:
-return loadCommunities();case _UnlockCommunity() when unlockCommunity != null:
-return unlockCommunity(_that.communityId);case _RequestPricing() when requestPricing != null:
+return loadCommunities();case _Refresh() when refresh != null:
+return refresh();case _RequestPricing() when requestPricing != null:
 return requestPricing(_that.communityId);case _:
   return orElse();
 
@@ -149,11 +149,11 @@ return requestPricing(_that.communityId);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  loadCommunities,required TResult Function( String communityId)  unlockCommunity,required TResult Function( String communityId)  requestPricing,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  loadCommunities,required TResult Function()  refresh,required TResult Function( String communityId)  requestPricing,}) {final _that = this;
 switch (_that) {
 case _LoadCommunities():
-return loadCommunities();case _UnlockCommunity():
-return unlockCommunity(_that.communityId);case _RequestPricing():
+return loadCommunities();case _Refresh():
+return refresh();case _RequestPricing():
 return requestPricing(_that.communityId);case _:
   throw StateError('Unexpected subclass');
 
@@ -171,11 +171,11 @@ return requestPricing(_that.communityId);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  loadCommunities,TResult? Function( String communityId)?  unlockCommunity,TResult? Function( String communityId)?  requestPricing,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  loadCommunities,TResult? Function()?  refresh,TResult? Function( String communityId)?  requestPricing,}) {final _that = this;
 switch (_that) {
 case _LoadCommunities() when loadCommunities != null:
-return loadCommunities();case _UnlockCommunity() when unlockCommunity != null:
-return unlockCommunity(_that.communityId);case _RequestPricing() when requestPricing != null:
+return loadCommunities();case _Refresh() when refresh != null:
+return refresh();case _RequestPricing() when requestPricing != null:
 return requestPricing(_that.communityId);case _:
   return null;
 
@@ -219,70 +219,34 @@ String toString() {
 /// @nodoc
 
 
-class _UnlockCommunity implements CommunitiesEvent {
-  const _UnlockCommunity(this.communityId);
+class _Refresh implements CommunitiesEvent {
+  const _Refresh();
   
 
- final  String communityId;
 
-/// Create a copy of CommunitiesEvent
-/// with the given fields replaced by the non-null parameter values.
-@JsonKey(includeFromJson: false, includeToJson: false)
-@pragma('vm:prefer-inline')
-_$UnlockCommunityCopyWith<_UnlockCommunity> get copyWith => __$UnlockCommunityCopyWithImpl<_UnlockCommunity>(this, _$identity);
+
 
 
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _UnlockCommunity&&(identical(other.communityId, communityId) || other.communityId == communityId));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Refresh);
 }
 
 
 @override
-int get hashCode {
-    return Object.hash(runtimeType,communityId);
-}
+int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-    return 'CommunitiesEvent.unlockCommunity(communityId: $communityId)';
+    return 'CommunitiesEvent.refresh()';
 }
 
 
 }
 
-/// @nodoc
-abstract mixin class _$UnlockCommunityCopyWith<$Res> implements $CommunitiesEventCopyWith<$Res> {
-  factory _$UnlockCommunityCopyWith(_UnlockCommunity value, $Res Function(_UnlockCommunity) _then) = __$UnlockCommunityCopyWithImpl;
-@useResult
-$Res call({
- String communityId
-});
 
 
-
-
-}
-/// @nodoc
-class __$UnlockCommunityCopyWithImpl<$Res>
-    implements _$UnlockCommunityCopyWith<$Res> {
-  __$UnlockCommunityCopyWithImpl(this._self, this._then);
-
-  final _UnlockCommunity _self;
-  final $Res Function(_UnlockCommunity) _then;
-
-/// Create a copy of CommunitiesEvent
-/// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? communityId = null,}) {
-  return _then(_UnlockCommunity(
-null == communityId ? _self.communityId : communityId // ignore: cast_nullable_to_non_nullable
-as String,
-  ));
-}
-
-
-}
 
 /// @nodoc
 

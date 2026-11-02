@@ -1,12 +1,15 @@
 import 'package:bloc/bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
+import 'package:meta/meta.dart' show visibleForTesting;
 import 'package:finskool/src/comman/enum.dart';
 import 'package:finskool/src/comman/failure.dart';
 import 'package:finskool/src/domain/model/service/service_payment_model.dart';
 import 'package:finskool/src/domain/model/service/service_quote_model.dart';
 import 'package:finskool/src/domain/model/service/service_request_model.dart';
 import 'package:finskool/src/domain/usecases/services/get_gst_states.dart';
+import 'package:finskool/src/domain/usecases/services/get_last_billing.dart';
+import 'package:finskool/src/domain/usecases/services/remember_billing.dart';
 import 'package:finskool/src/domain/usecases/services/start_service_payment.dart';
 import 'package:finskool/src/domain/usecases/services/verify_service_payment.dart';
 
@@ -25,8 +28,13 @@ part 'service_payment_bloc.freezed.dart';
 @injectable
 class ServicePaymentBloc
     extends Bloc<ServicePaymentEvent, ServicePaymentState> {
-  ServicePaymentBloc(this._getStates, this._start, this._verify)
-    : super(ServicePaymentState.initial()) {
+  ServicePaymentBloc(
+    this._getStates,
+    this._start,
+    this._verify,
+    this._lastBilling,
+    this._remember,
+  ) : super(ServicePaymentState.initial()) {
     on<ServicePaymentEvent>((event, emit) async {
       await event.map(
         statesRequested: (_) => _loadStates(emit),
@@ -52,10 +60,19 @@ class ServicePaymentBloc
   final GetGstStates _getStates;
   final StartServicePayment _start;
   final VerifyServicePayment _verify;
+  final GetLastBilling _lastBilling;
+  final RememberBilling _remember;
+
+  /// The first wait between `verify` retries; doubles each time (1s, 2s, 4s,
+  /// 8s) per the payment guide. Static so a test can zero it.
+  @visibleForTesting
+  static Duration verifyRetryBase = const Duration(seconds: 1);
+  static const int _verifyAttempts = 5;
 
   String _requestId = '';
 
   Future<void> _loadStates(Emitter<ServicePaymentState> emit) async {
+    emit(state.copyWith(lastBilling: _lastBilling.execute()));
     if (state.states.isNotEmpty) return;
     final result = await _getStates.execute();
     result.fold(
@@ -80,6 +97,7 @@ class ServicePaymentBloc
         step: PaymentStep.creatingOrder,
         message: '',
         billingErrors: const {},
+        staleQuote: false,
         order: null,
       ),
     );
@@ -99,38 +117,58 @@ class ServicePaymentBloc
           staleQuote: _isStale(failure.code),
         ),
       ),
-      (order) => emit(
-        state.copyWith(step: PaymentStep.awaitingCheckout, order: order),
-      ),
+      (order) {
+        // The server accepted these details; keep them for next time.
+        _remember.execute(billing);
+        emit(state.copyWith(step: PaymentStep.awaitingCheckout, order: order));
+      },
     );
   }
 
+  /// Confirms a payment with the server. **`verify` is idempotent**, so a
+  /// network failure is retried with backoff (1s, 2s, 4s, 8s) — real answers
+  /// are final. Success is decided from the *response*, never from Checkout:
+  /// only a `paid` request that carries its invoice counts as paid.
   Future<void> _confirm(
     PaymentProof proof,
     Emitter<ServicePaymentState> emit,
   ) async {
     emit(state.copyWith(step: PaymentStep.verifying, message: ''));
-    final result = await _verify.execute(requestId: _requestId, proof: proof);
-    result.fold(
-      (failure) => emit(
-        // **Retry is safe** (verify is idempotent); keep the proof so the
-        // sheet can offer it. A bad signature is the one case not to retry.
-        state.copyWith(
-          step: PaymentStep.verifyFailed,
-          message: failure.message,
-          pendingProof: failure.code == 'PAYMENT_SIGNATURE_INVALID'
-              ? null
-              : proof,
+    for (var attempt = 0; ; attempt++) {
+      final result = await _verify.execute(requestId: _requestId, proof: proof);
+      final failure = result.fold<Failure?>((f) => f, (_) => null);
+      if (failure is ConnectionFailure && attempt < _verifyAttempts - 1) {
+        await Future<void>.delayed(verifyRetryBase * (1 << attempt));
+        continue;
+      }
+      result.fold(
+        (f) => emit(
+          // Still unknown (or refused). The server may already have it via
+          // Razorpay's own notification, so refetch the request; keep the
+          // proof for a manual retry unless the signature was wrong.
+          state.copyWith(
+            step: PaymentStep.verifyFailed,
+            message: f.message,
+            staleQuote: f is ConnectionFailure,
+            pendingProof: f.code == 'PAYMENT_SIGNATURE_INVALID' ? null : proof,
+          ),
         ),
-      ),
-      (request) => emit(
-        state.copyWith(
-          step: PaymentStep.done,
-          paid: request,
-          pendingProof: null,
+        (request) => emit(
+          request.status == ServiceStatus.paid && request.invoice != null
+              ? state.copyWith(
+                  step: PaymentStep.done,
+                  paid: request,
+                  pendingProof: null,
+                )
+              : state.copyWith(
+                  step: PaymentStep.underReview,
+                  pendingProof: null,
+                  staleQuote: true,
+                ),
         ),
-      ),
-    );
+      );
+      return;
+    }
   }
 
   static bool _isStale(String? code) =>
@@ -139,10 +177,16 @@ class ServicePaymentBloc
       code == 'SERVICE_ALREADY_PAID' ||
       code == 'SERVICE_CLOSED';
 
-  /// A 422's errors sit under `billing`; the sheet shows them by the field.
+  /// A 422's errors sit under `billing.<field>`; the sheet shows each by its
+  /// own field. Keys are mapped to the sheet's names (`stateCode` → `state`).
   static Map<String, String> _billingErrors(Failure failure) {
     if (failure is! ValidationFailure) return const {};
-    final all = failure.errors.values.expand((e) => e).toList();
-    return all.isEmpty ? const {} : {'billing': all.first};
+    final out = <String, String>{};
+    for (final e in failure.errors.entries) {
+      if (e.value.isEmpty) continue;
+      final field = e.key.replaceFirst('billing.', '');
+      out[field == 'stateCode' ? 'state' : field] = e.value.first;
+    }
+    return out;
   }
 }

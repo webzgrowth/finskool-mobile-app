@@ -5,8 +5,6 @@ import 'package:finskool/src/comman/widgets/teal_section_card.dart';
 import 'package:finskool/src/domain/model/community/community_model.dart';
 import 'package:finskool/src/domain/model/community/subscription_info.dart';
 
-import 'auto_renew_toggle.dart';
-
 /// Plan Details — plan, amount, start date over a rule, then validity and the
 /// auto-renew toggle. Column widths follow Figma's own (94 / 111 / 100): its
 /// rules aren't on thirds.
@@ -62,36 +60,16 @@ class SubscriptionPlanSection extends StatelessWidget {
               ],
             ),
           ),
-          const GridHRule(),
-          IntrinsicHeight(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Expanded(
-                  flex: 94,
-                  child: validTill == null
-                      ? const SizedBox.shrink()
-                      : DetailCell(
-                          glyph: 'assets/icons/sub_verify.svg',
-                          label: 'Valid till',
-                          value: fmt.format(validTill),
-                        ),
-                ),
-                const GridVRule(),
-                Expanded(
-                  flex: 199,
-                  child: DetailCell(
-                    glyph: 'assets/icons/sub_auto_renew.svg',
-                    label: 'Auto-renew',
-                    trailing: Align(
-                      alignment: Alignment.centerLeft,
-                      child: AutoRenewToggle(initial: info.autoRenew),
-                    ),
-                  ),
-                ),
-              ],
+          // Auto-renew is not offered — a plan is renewed by buying again — so
+          // this row is just "Valid till", across the full width.
+          if (validTill != null) ...[
+            const GridHRule(),
+            DetailCell(
+              glyph: 'assets/icons/sub_verify.svg',
+              label: 'Valid till',
+              value: fmt.format(validTill),
             ),
-          ),
+          ],
         ],
       ),
     );

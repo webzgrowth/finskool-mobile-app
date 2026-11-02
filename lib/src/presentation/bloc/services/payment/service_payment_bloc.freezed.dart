@@ -511,7 +511,8 @@ mixin _$ServicePaymentState {
 
  PaymentStep get step; RequestState get statesLoad; List<GstState> get states; String get message; Map<String, String> get billingErrors;/// The quote was replaced, expired or already paid while the sheet was
 /// open — the chat should refetch so the card says so.
- bool get staleQuote; PaymentOrder? get order; PaymentProof? get pendingProof;/// The request as the server now has it: `paid`, with its invoice.
+ bool get staleQuote;/// The billing details last used, to pre-fill the sheet.
+ BillingDetails? get lastBilling; PaymentOrder? get order; PaymentProof? get pendingProof;/// The request as the server now has it: `paid`, with its invoice.
  ServiceRequestModel? get paid;
 /// Create a copy of ServicePaymentState
 /// with the given fields replaced by the non-null parameter values.
@@ -524,20 +525,20 @@ $ServicePaymentStateCopyWith<ServicePaymentState> get copyWith => _$ServicePayme
 @override
 bool operator ==(Object other) {
   final _this = this as ServicePaymentState;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ServicePaymentState&&(identical(other.step, _this.step) || other.step == _this.step)&&(identical(other.statesLoad, _this.statesLoad) || other.statesLoad == _this.statesLoad)&&const DeepCollectionEquality().equals(other.states, _this.states)&&(identical(other.message, _this.message) || other.message == _this.message)&&const DeepCollectionEquality().equals(other.billingErrors, _this.billingErrors)&&(identical(other.staleQuote, _this.staleQuote) || other.staleQuote == _this.staleQuote)&&(identical(other.order, _this.order) || other.order == _this.order)&&(identical(other.pendingProof, _this.pendingProof) || other.pendingProof == _this.pendingProof)&&(identical(other.paid, _this.paid) || other.paid == _this.paid));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ServicePaymentState&&(identical(other.step, _this.step) || other.step == _this.step)&&(identical(other.statesLoad, _this.statesLoad) || other.statesLoad == _this.statesLoad)&&const DeepCollectionEquality().equals(other.states, _this.states)&&(identical(other.message, _this.message) || other.message == _this.message)&&const DeepCollectionEquality().equals(other.billingErrors, _this.billingErrors)&&(identical(other.staleQuote, _this.staleQuote) || other.staleQuote == _this.staleQuote)&&(identical(other.lastBilling, _this.lastBilling) || other.lastBilling == _this.lastBilling)&&(identical(other.order, _this.order) || other.order == _this.order)&&(identical(other.pendingProof, _this.pendingProof) || other.pendingProof == _this.pendingProof)&&(identical(other.paid, _this.paid) || other.paid == _this.paid));
 }
 
 
 @override
 int get hashCode {
   final _this = this as ServicePaymentState;
-  return Object.hash(runtimeType,_this.step,_this.statesLoad,const DeepCollectionEquality().hash(_this.states),_this.message,const DeepCollectionEquality().hash(_this.billingErrors),_this.staleQuote,_this.order,_this.pendingProof,_this.paid);
+  return Object.hash(runtimeType,_this.step,_this.statesLoad,const DeepCollectionEquality().hash(_this.states),_this.message,const DeepCollectionEquality().hash(_this.billingErrors),_this.staleQuote,_this.lastBilling,_this.order,_this.pendingProof,_this.paid);
 }
 
 @override
 String toString() {
   final _this = this as ServicePaymentState;
-  return 'ServicePaymentState(step: ${_this.step}, statesLoad: ${_this.statesLoad}, states: ${_this.states}, message: ${_this.message}, billingErrors: ${_this.billingErrors}, staleQuote: ${_this.staleQuote}, order: ${_this.order}, pendingProof: ${_this.pendingProof}, paid: ${_this.paid})';
+  return 'ServicePaymentState(step: ${_this.step}, statesLoad: ${_this.statesLoad}, states: ${_this.states}, message: ${_this.message}, billingErrors: ${_this.billingErrors}, staleQuote: ${_this.staleQuote}, lastBilling: ${_this.lastBilling}, order: ${_this.order}, pendingProof: ${_this.pendingProof}, paid: ${_this.paid})';
 }
 
 
@@ -548,7 +549,7 @@ abstract mixin class $ServicePaymentStateCopyWith<$Res>  {
   factory $ServicePaymentStateCopyWith(ServicePaymentState value, $Res Function(ServicePaymentState) _then) = _$ServicePaymentStateCopyWithImpl;
 @useResult
 $Res call({
- PaymentStep step, RequestState statesLoad, List<GstState> states, String message, Map<String, String> billingErrors, bool staleQuote, PaymentOrder? order, PaymentProof? pendingProof, ServiceRequestModel? paid
+ PaymentStep step, RequestState statesLoad, List<GstState> states, String message, Map<String, String> billingErrors, bool staleQuote, BillingDetails? lastBilling, PaymentOrder? order, PaymentProof? pendingProof, ServiceRequestModel? paid
 });
 
 
@@ -565,7 +566,7 @@ class _$ServicePaymentStateCopyWithImpl<$Res>
 
 /// Create a copy of ServicePaymentState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? step = null,Object? statesLoad = null,Object? states = null,Object? message = null,Object? billingErrors = null,Object? staleQuote = null,Object? order = freezed,Object? pendingProof = freezed,Object? paid = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? step = null,Object? statesLoad = null,Object? states = null,Object? message = null,Object? billingErrors = null,Object? staleQuote = null,Object? lastBilling = freezed,Object? order = freezed,Object? pendingProof = freezed,Object? paid = freezed,}) {
   return _then(ServicePaymentState(
 step: null == step ? _self.step : step // ignore: cast_nullable_to_non_nullable
 as PaymentStep,statesLoad: null == statesLoad ? _self.statesLoad : statesLoad // ignore: cast_nullable_to_non_nullable
@@ -573,7 +574,8 @@ as RequestState,states: null == states ? _self.states : states // ignore: cast_n
 as List<GstState>,message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
 as String,billingErrors: null == billingErrors ? _self.billingErrors : billingErrors // ignore: cast_nullable_to_non_nullable
 as Map<String, String>,staleQuote: null == staleQuote ? _self.staleQuote : staleQuote // ignore: cast_nullable_to_non_nullable
-as bool,order: freezed == order ? _self.order : order // ignore: cast_nullable_to_non_nullable
+as bool,lastBilling: freezed == lastBilling ? _self.lastBilling : lastBilling // ignore: cast_nullable_to_non_nullable
+as BillingDetails?,order: freezed == order ? _self.order : order // ignore: cast_nullable_to_non_nullable
 as PaymentOrder?,pendingProof: freezed == pendingProof ? _self.pendingProof : pendingProof // ignore: cast_nullable_to_non_nullable
 as PaymentProof?,paid: freezed == paid ? _self.paid : paid // ignore: cast_nullable_to_non_nullable
 as ServiceRequestModel?,
@@ -658,10 +660,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( PaymentStep step,  RequestState statesLoad,  List<GstState> states,  String message,  Map<String, String> billingErrors,  bool staleQuote,  PaymentOrder? order,  PaymentProof? pendingProof,  ServiceRequestModel? paid)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( PaymentStep step,  RequestState statesLoad,  List<GstState> states,  String message,  Map<String, String> billingErrors,  bool staleQuote,  BillingDetails? lastBilling,  PaymentOrder? order,  PaymentProof? pendingProof,  ServiceRequestModel? paid)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ServicePaymentState() when $default != null:
-return $default(_that.step,_that.statesLoad,_that.states,_that.message,_that.billingErrors,_that.staleQuote,_that.order,_that.pendingProof,_that.paid);case _:
+return $default(_that.step,_that.statesLoad,_that.states,_that.message,_that.billingErrors,_that.staleQuote,_that.lastBilling,_that.order,_that.pendingProof,_that.paid);case _:
   return orElse();
 
 }
@@ -679,10 +681,10 @@ return $default(_that.step,_that.statesLoad,_that.states,_that.message,_that.bil
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( PaymentStep step,  RequestState statesLoad,  List<GstState> states,  String message,  Map<String, String> billingErrors,  bool staleQuote,  PaymentOrder? order,  PaymentProof? pendingProof,  ServiceRequestModel? paid)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( PaymentStep step,  RequestState statesLoad,  List<GstState> states,  String message,  Map<String, String> billingErrors,  bool staleQuote,  BillingDetails? lastBilling,  PaymentOrder? order,  PaymentProof? pendingProof,  ServiceRequestModel? paid)  $default,) {final _that = this;
 switch (_that) {
 case _ServicePaymentState():
-return $default(_that.step,_that.statesLoad,_that.states,_that.message,_that.billingErrors,_that.staleQuote,_that.order,_that.pendingProof,_that.paid);}
+return $default(_that.step,_that.statesLoad,_that.states,_that.message,_that.billingErrors,_that.staleQuote,_that.lastBilling,_that.order,_that.pendingProof,_that.paid);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -696,10 +698,10 @@ return $default(_that.step,_that.statesLoad,_that.states,_that.message,_that.bil
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( PaymentStep step,  RequestState statesLoad,  List<GstState> states,  String message,  Map<String, String> billingErrors,  bool staleQuote,  PaymentOrder? order,  PaymentProof? pendingProof,  ServiceRequestModel? paid)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( PaymentStep step,  RequestState statesLoad,  List<GstState> states,  String message,  Map<String, String> billingErrors,  bool staleQuote,  BillingDetails? lastBilling,  PaymentOrder? order,  PaymentProof? pendingProof,  ServiceRequestModel? paid)?  $default,) {final _that = this;
 switch (_that) {
 case _ServicePaymentState() when $default != null:
-return $default(_that.step,_that.statesLoad,_that.states,_that.message,_that.billingErrors,_that.staleQuote,_that.order,_that.pendingProof,_that.paid);case _:
+return $default(_that.step,_that.statesLoad,_that.states,_that.message,_that.billingErrors,_that.staleQuote,_that.lastBilling,_that.order,_that.pendingProof,_that.paid);case _:
   return null;
 
 }
@@ -711,7 +713,7 @@ return $default(_that.step,_that.statesLoad,_that.states,_that.message,_that.bil
 
 
 class _ServicePaymentState implements ServicePaymentState {
-  const _ServicePaymentState({required this.step, required this.statesLoad, required  List<GstState> states, required this.message, required  Map<String, String> billingErrors, required this.staleQuote, this.order, this.pendingProof, this.paid}): _states = states,_billingErrors = billingErrors;
+  const _ServicePaymentState({required this.step, required this.statesLoad, required  List<GstState> states, required this.message, required  Map<String, String> billingErrors, required this.staleQuote, this.lastBilling, this.order, this.pendingProof, this.paid}): _states = states,_billingErrors = billingErrors;
   
 
 @override final  PaymentStep step;
@@ -734,6 +736,8 @@ class _ServicePaymentState implements ServicePaymentState {
 /// The quote was replaced, expired or already paid while the sheet was
 /// open — the chat should refetch so the card says so.
 @override final  bool staleQuote;
+/// The billing details last used, to pre-fill the sheet.
+@override final  BillingDetails? lastBilling;
 @override final  PaymentOrder? order;
 @override final  PaymentProof? pendingProof;
 /// The request as the server now has it: `paid`, with its invoice.
@@ -749,18 +753,18 @@ _$ServicePaymentStateCopyWith<_ServicePaymentState> get copyWith => __$ServicePa
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _ServicePaymentState&&(identical(other.step, step) || other.step == step)&&(identical(other.statesLoad, statesLoad) || other.statesLoad == statesLoad)&&const DeepCollectionEquality().equals(other.states, _states)&&(identical(other.message, message) || other.message == message)&&const DeepCollectionEquality().equals(other.billingErrors, _billingErrors)&&(identical(other.staleQuote, staleQuote) || other.staleQuote == staleQuote)&&(identical(other.order, order) || other.order == order)&&(identical(other.pendingProof, pendingProof) || other.pendingProof == pendingProof)&&(identical(other.paid, paid) || other.paid == paid));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _ServicePaymentState&&(identical(other.step, step) || other.step == step)&&(identical(other.statesLoad, statesLoad) || other.statesLoad == statesLoad)&&const DeepCollectionEquality().equals(other.states, _states)&&(identical(other.message, message) || other.message == message)&&const DeepCollectionEquality().equals(other.billingErrors, _billingErrors)&&(identical(other.staleQuote, staleQuote) || other.staleQuote == staleQuote)&&(identical(other.lastBilling, lastBilling) || other.lastBilling == lastBilling)&&(identical(other.order, order) || other.order == order)&&(identical(other.pendingProof, pendingProof) || other.pendingProof == pendingProof)&&(identical(other.paid, paid) || other.paid == paid));
 }
 
 
 @override
 int get hashCode {
-    return Object.hash(runtimeType,step,statesLoad,const DeepCollectionEquality().hash(_states),message,const DeepCollectionEquality().hash(_billingErrors),staleQuote,order,pendingProof,paid);
+    return Object.hash(runtimeType,step,statesLoad,const DeepCollectionEquality().hash(_states),message,const DeepCollectionEquality().hash(_billingErrors),staleQuote,lastBilling,order,pendingProof,paid);
 }
 
 @override
 String toString() {
-    return 'ServicePaymentState(step: $step, statesLoad: $statesLoad, states: $states, message: $message, billingErrors: $billingErrors, staleQuote: $staleQuote, order: $order, pendingProof: $pendingProof, paid: $paid)';
+    return 'ServicePaymentState(step: $step, statesLoad: $statesLoad, states: $states, message: $message, billingErrors: $billingErrors, staleQuote: $staleQuote, lastBilling: $lastBilling, order: $order, pendingProof: $pendingProof, paid: $paid)';
 }
 
 
@@ -771,7 +775,7 @@ abstract mixin class _$ServicePaymentStateCopyWith<$Res> implements $ServicePaym
   factory _$ServicePaymentStateCopyWith(_ServicePaymentState value, $Res Function(_ServicePaymentState) _then) = __$ServicePaymentStateCopyWithImpl;
 @override @useResult
 $Res call({
- PaymentStep step, RequestState statesLoad, List<GstState> states, String message, Map<String, String> billingErrors, bool staleQuote, PaymentOrder? order, PaymentProof? pendingProof, ServiceRequestModel? paid
+ PaymentStep step, RequestState statesLoad, List<GstState> states, String message, Map<String, String> billingErrors, bool staleQuote, BillingDetails? lastBilling, PaymentOrder? order, PaymentProof? pendingProof, ServiceRequestModel? paid
 });
 
 
@@ -788,7 +792,7 @@ class __$ServicePaymentStateCopyWithImpl<$Res>
 
 /// Create a copy of ServicePaymentState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? step = null,Object? statesLoad = null,Object? states = null,Object? message = null,Object? billingErrors = null,Object? staleQuote = null,Object? order = freezed,Object? pendingProof = freezed,Object? paid = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? step = null,Object? statesLoad = null,Object? states = null,Object? message = null,Object? billingErrors = null,Object? staleQuote = null,Object? lastBilling = freezed,Object? order = freezed,Object? pendingProof = freezed,Object? paid = freezed,}) {
   return _then(_ServicePaymentState(
 step: null == step ? _self.step : step // ignore: cast_nullable_to_non_nullable
 as PaymentStep,statesLoad: null == statesLoad ? _self.statesLoad : statesLoad // ignore: cast_nullable_to_non_nullable
@@ -796,7 +800,8 @@ as RequestState,states: null == states ? _self._states : states // ignore: cast_
 as List<GstState>,message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
 as String,billingErrors: null == billingErrors ? _self._billingErrors : billingErrors // ignore: cast_nullable_to_non_nullable
 as Map<String, String>,staleQuote: null == staleQuote ? _self.staleQuote : staleQuote // ignore: cast_nullable_to_non_nullable
-as bool,order: freezed == order ? _self.order : order // ignore: cast_nullable_to_non_nullable
+as bool,lastBilling: freezed == lastBilling ? _self.lastBilling : lastBilling // ignore: cast_nullable_to_non_nullable
+as BillingDetails?,order: freezed == order ? _self.order : order // ignore: cast_nullable_to_non_nullable
 as PaymentOrder?,pendingProof: freezed == pendingProof ? _self.pendingProof : pendingProof // ignore: cast_nullable_to_non_nullable
 as PaymentProof?,paid: freezed == paid ? _self.paid : paid // ignore: cast_nullable_to_non_nullable
 as ServiceRequestModel?,

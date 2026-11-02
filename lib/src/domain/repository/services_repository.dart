@@ -69,6 +69,11 @@ abstract class ServicesRepository {
 
   Future<Either<Failure, List<GstState>>> getGstStates();
 
+  /// The billing details last used to pay, to pre-fill the sheet.
+  BillingDetails? get lastBilling;
+
+  Future<void> rememberBilling(BillingDetails billing);
+
   Future<Either<Failure, PaymentOrder>> startPayment({
     required String requestId,
     required String quoteId,

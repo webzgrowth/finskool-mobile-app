@@ -36,12 +36,15 @@ class RazorpayCheckout {
       'order_id': order.orderId,
       'amount': order.amountPaise,
       'currency': order.currency,
-      'name': 'Finskool21',
+      'name': 'Finskool',
+      // "Service request SR-12" — the request's label, never its id.
       'description': title,
       'prefill': {
         if (phone != null && phone.isNotEmpty) 'contact': phone,
         if (email != null && email.isNotEmpty) 'email': email,
       },
+      'theme': {'color': '#108B8B'},
+      'retry': {'enabled': true, 'max_count': 3},
     });
   }
 

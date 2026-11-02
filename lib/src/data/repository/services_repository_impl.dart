@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:dartz/dartz.dart';
@@ -5,6 +6,8 @@ import 'package:injectable/injectable.dart';
 import 'package:finskool/src/comman/error_handler.dart';
 import 'package:finskool/src/comman/exception.dart';
 import 'package:finskool/src/comman/failure.dart';
+import 'package:finskool/src/comman/storage_keys.dart';
+import 'package:finskool/src/utilities/shared_pref_helper.dart';
 import 'package:finskool/src/data/datasource/services_remote_datasource.dart';
 import 'package:finskool/src/data/socket/socket_frames.dart';
 import 'package:finskool/src/data/socket/tickets_socket.dart';
@@ -65,6 +68,24 @@ class ServicesRepositoryImpl implements ServicesRepository {
   @override
   Future<Either<Failure, List<GstState>>> getGstStates() =>
       handleErrors(_remote.getGstStates);
+
+  @override
+  BillingDetails? get lastBilling {
+    final raw = SharedPreferenceHelper().getdata(StorageKeys.lastBilling);
+    if (raw == null || raw.isEmpty) return null;
+    try {
+      return BillingDetails.fromJson(jsonDecode(raw) as Map<String, dynamic>);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  @override
+  Future<void> rememberBilling(BillingDetails billing) =>
+      SharedPreferenceHelper().storedata(
+        StorageKeys.lastBilling,
+        jsonEncode(billing.toJson()),
+      );
 
   @override
   Future<Either<Failure, PaymentOrder>> startPayment({

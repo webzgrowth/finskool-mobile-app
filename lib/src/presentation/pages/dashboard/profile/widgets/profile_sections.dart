@@ -23,12 +23,21 @@ class ProfileSections extends StatelessWidget {
     required this.notificationsOn,
     required this.onToggleNotifications,
     required this.onRenew,
+    this.postAlertsOn = true,
+    this.onTogglePostAlerts,
   });
 
   final List<CommunityModel> subscribed;
   final int unreadTickets;
   final bool notificationsOn;
   final ValueChanged<bool> onToggleNotifications;
+
+  /// Community post alerts — a *different* setting from the master switch
+  /// above (it also stops the inbox row, not just the banner). **Not in
+  /// Figma**, which draws a single Notifications switch; the backend has two,
+  /// so the second is a plain extra row. Null hides it.
+  final bool postAlertsOn;
+  final ValueChanged<bool>? onTogglePostAlerts;
   final ValueChanged<CommunityModel> onRenew;
 
   @override
@@ -62,12 +71,6 @@ class ProfileSections extends StatelessWidget {
                 title: 'Edit Profile',
                 subtitle: 'Name, email and phone',
                 onTap: () => go(AppRoutes.EDIT_PROFILE_ROUTE_PATH),
-              ),
-              ProfileMenuRow(
-                glyph: ProfileGlyphs.gift,
-                title: 'Welcome kits',
-                subtitle: 'Videos, guides and insights',
-                onTap: () => go(AppRoutes.WELCOME_KITS_ROUTE_PATH),
               ),
             ],
           ),
@@ -136,6 +139,16 @@ class ProfileSections extends StatelessWidget {
                   onChanged: onToggleNotifications,
                 ),
               ),
+              if (onTogglePostAlerts != null)
+                ProfileMenuRow(
+                  glyph: ProfileGlyphs.bell,
+                  title: 'Post alerts',
+                  subtitle: 'New posts and recommendations',
+                  trailing: ProfileToggle(
+                    value: postAlertsOn,
+                    onChanged: onTogglePostAlerts!,
+                  ),
+                ),
               ProfileMenuRow(
                 glyph: ProfileGlyphs.privacy,
                 title: 'Privacy & security',

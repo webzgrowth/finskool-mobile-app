@@ -15,6 +15,8 @@ import 'package:finskool/src/data/datasource/auth_remote_datasource.dart'
     as _i10;
 import 'package:finskool/src/data/datasource/communities_remote_datasource.dart'
     as _i1023;
+import 'package:finskool/src/data/datasource/notifications_remote_datasource.dart'
+    as _i469;
 import 'package:finskool/src/data/datasource/password_reset_remote_datasource.dart'
     as _i44;
 import 'package:finskool/src/data/datasource/posts_remote_datasource.dart'
@@ -30,6 +32,8 @@ import 'package:finskool/src/data/repository/auth_repository_impl.dart'
     as _i141;
 import 'package:finskool/src/data/repository/communities_repository_impl.dart'
     as _i494;
+import 'package:finskool/src/data/repository/notifications_repository_impl.dart'
+    as _i646;
 import 'package:finskool/src/data/repository/password_reset_repository_impl.dart'
     as _i880;
 import 'package:finskool/src/data/repository/performance_repository_impl.dart'
@@ -42,10 +46,13 @@ import 'package:finskool/src/data/repository/services_repository_impl.dart'
     as _i93;
 import 'package:finskool/src/data/repository/tickets_repository_impl.dart'
     as _i745;
+import 'package:finskool/src/data/socket/notifications_socket.dart' as _i415;
 import 'package:finskool/src/data/socket/tickets_socket.dart' as _i916;
 import 'package:finskool/src/domain/repository/auth_repository.dart' as _i505;
 import 'package:finskool/src/domain/repository/communities_repository.dart'
     as _i122;
+import 'package:finskool/src/domain/repository/notifications_repository.dart'
+    as _i560;
 import 'package:finskool/src/domain/repository/password_reset_repository.dart'
     as _i901;
 import 'package:finskool/src/domain/repository/performance_repository.dart'
@@ -71,25 +78,39 @@ import 'package:finskool/src/domain/usecases/auth/set_post_notifications_enabled
     as _i605;
 import 'package:finskool/src/domain/usecases/auth/update_avatar.dart' as _i95;
 import 'package:finskool/src/domain/usecases/auth/update_profile.dart' as _i690;
-import 'package:finskool/src/domain/usecases/auth/verify_otp.dart' as _i583;
+import 'package:finskool/src/domain/usecases/auth/verify_otp.dart' as _i584;
 import 'package:finskool/src/domain/usecases/community/get_communities.dart'
     as _i229;
 import 'package:finskool/src/domain/usecases/community/get_compliance_status.dart'
     as _i599;
+import 'package:finskool/src/domain/usecases/community/get_subscription_expiry.dart'
+    as _i632;
 import 'package:finskool/src/domain/usecases/community/get_welcome_kit.dart'
     as _i969;
 import 'package:finskool/src/domain/usecases/community/request_pricing.dart'
     as _i999;
+import 'package:finskool/src/domain/usecases/community/start_checkout.dart'
+    as _i262;
 import 'package:finskool/src/domain/usecases/community/submit_compliance.dart'
     as _i510;
-import 'package:finskool/src/domain/usecases/community/unlock_community.dart'
-    as _i944;
 import 'package:finskool/src/domain/usecases/feed/get_post_reactions.dart'
     as _i970;
 import 'package:finskool/src/domain/usecases/feed/get_posts.dart' as _i268;
 import 'package:finskool/src/domain/usecases/feed/react_to_post.dart' as _i644;
 import 'package:finskool/src/domain/usecases/feed/remove_reaction.dart'
     as _i757;
+import 'package:finskool/src/domain/usecases/notifications/get_notifications.dart'
+    as _i583;
+import 'package:finskool/src/domain/usecases/notifications/get_notifications_unread_count.dart'
+    as _i333;
+import 'package:finskool/src/domain/usecases/notifications/get_push_enabled.dart'
+    as _i890;
+import 'package:finskool/src/domain/usecases/notifications/mark_all_notifications_read.dart'
+    as _i308;
+import 'package:finskool/src/domain/usecases/notifications/mark_notification_read.dart'
+    as _i1054;
+import 'package:finskool/src/domain/usecases/notifications/set_push_enabled.dart'
+    as _i43;
 import 'package:finskool/src/domain/usecases/password_reset/reset_password.dart'
     as _i360;
 import 'package:finskool/src/domain/usecases/password_reset/send_reset_code.dart'
@@ -102,6 +123,8 @@ import 'package:finskool/src/domain/usecases/services/create_service_request.dar
     as _i234;
 import 'package:finskool/src/domain/usecases/services/get_gst_states.dart'
     as _i983;
+import 'package:finskool/src/domain/usecases/services/get_last_billing.dart'
+    as _i30;
 import 'package:finskool/src/domain/usecases/services/get_service_catalog.dart'
     as _i497;
 import 'package:finskool/src/domain/usecases/services/get_service_history.dart'
@@ -120,6 +143,8 @@ import 'package:finskool/src/domain/usecases/services/rate_service.dart'
     as _i1003;
 import 'package:finskool/src/domain/usecases/services/refresh_service_attachment_url.dart'
     as _i71;
+import 'package:finskool/src/domain/usecases/services/remember_billing.dart'
+    as _i978;
 import 'package:finskool/src/domain/usecases/services/send_service_message.dart'
     as _i801;
 import 'package:finskool/src/domain/usecases/services/start_service_payment.dart'
@@ -175,6 +200,12 @@ import 'package:finskool/src/presentation/bloc/feed/filter/feed_filter_bloc.dart
     as _i695;
 import 'package:finskool/src/presentation/bloc/feed/posts/feed_bloc.dart'
     as _i2;
+import 'package:finskool/src/presentation/bloc/notifications/inbox/notifications_inbox_bloc.dart'
+    as _i1032;
+import 'package:finskool/src/presentation/bloc/notifications/settings/push_settings_bloc.dart'
+    as _i1011;
+import 'package:finskool/src/presentation/bloc/notifications/unread/notifications_unread_bloc.dart'
+    as _i789;
 import 'package:finskool/src/presentation/bloc/profile/edit_profile/edit_profile_bloc.dart'
     as _i1036;
 import 'package:finskool/src/presentation/bloc/services/catalog/services_catalog_bloc.dart'
@@ -215,6 +246,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.singleton<_i64.BottomNavBloc>(() => _i64.BottomNavBloc());
     gh.singleton<_i348.ServicesFilterBloc>(() => _i348.ServicesFilterBloc());
     gh.lazySingleton<_i373.ApiClient>(() => _i373.ApiClient());
+    gh.lazySingleton<_i415.NotificationsSocket>(
+      () => _i415.NotificationsSocket(),
+    );
     gh.lazySingleton<_i916.TicketsSocket>(() => _i916.TicketsSocket());
     gh.lazySingleton<_i82.ProfileInfoRepository>(
       () => _i671.ProfileInfoRepositoryImpl(),
@@ -228,6 +262,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i1023.CommunitiesRemoteDatasource>(
       () => _i1023.CommunitiesRemoteDatasource(gh<_i373.ApiClient>()),
     );
+    gh.lazySingleton<_i469.NotificationsRemoteDatasource>(
+      () => _i469.NotificationsRemoteDatasource(gh<_i373.ApiClient>()),
+    );
     gh.lazySingleton<_i44.PasswordResetRemoteDatasource>(
       () => _i44.PasswordResetRemoteDatasource(gh<_i373.ApiClient>()),
     );
@@ -236,6 +273,11 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i559.TicketsRemoteDatasource>(
       () => _i559.TicketsRemoteDatasource(gh<_i373.ApiClient>()),
+    );
+    gh.lazySingleton<_i560.NotificationsRepository>(
+      () => _i646.NotificationsRepositoryImpl(
+        gh<_i469.NotificationsRemoteDatasource>(),
+      ),
     );
     gh.lazySingleton<_i45.PostsRemoteDatasource>(
       () => _i45.PostsRemoteDatasource(
@@ -254,9 +296,35 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i1023.CommunitiesRemoteDatasource>(),
       ),
     );
+    gh.lazySingleton<_i583.GetNotifications>(
+      () => _i583.GetNotifications(gh<_i560.NotificationsRepository>()),
+    );
+    gh.lazySingleton<_i333.GetNotificationsUnreadCount>(
+      () => _i333.GetNotificationsUnreadCount(
+        gh<_i560.NotificationsRepository>(),
+      ),
+    );
+    gh.lazySingleton<_i890.GetPushEnabled>(
+      () => _i890.GetPushEnabled(gh<_i560.NotificationsRepository>()),
+    );
+    gh.lazySingleton<_i308.MarkAllNotificationsRead>(
+      () => _i308.MarkAllNotificationsRead(gh<_i560.NotificationsRepository>()),
+    );
+    gh.lazySingleton<_i1054.MarkNotificationRead>(
+      () => _i1054.MarkNotificationRead(gh<_i560.NotificationsRepository>()),
+    );
+    gh.lazySingleton<_i43.SetPushEnabled>(
+      () => _i43.SetPushEnabled(gh<_i560.NotificationsRepository>()),
+    );
     gh.lazySingleton<_i901.PasswordResetRepository>(
       () => _i880.PasswordResetRepositoryImpl(
         gh<_i44.PasswordResetRemoteDatasource>(),
+      ),
+    );
+    gh.singleton<_i789.NotificationsUnreadBloc>(
+      () => _i789.NotificationsUnreadBloc(
+        gh<_i333.GetNotificationsUnreadCount>(),
+        gh<_i415.NotificationsSocket>(),
       ),
     );
     gh.lazySingleton<_i548.PushService>(
@@ -274,6 +342,14 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i365.PostsRepository>(
       () => _i1039.PostsRepositoryImpl(gh<_i45.PostsRemoteDatasource>()),
     );
+    gh.factory<_i1032.NotificationsInboxBloc>(
+      () => _i1032.NotificationsInboxBloc(
+        gh<_i583.GetNotifications>(),
+        gh<_i1054.MarkNotificationRead>(),
+        gh<_i308.MarkAllNotificationsRead>(),
+        gh<_i415.NotificationsSocket>(),
+      ),
+    );
     gh.lazySingleton<_i343.TicketsRepository>(
       () => _i745.TicketsRepositoryImpl(
         gh<_i559.TicketsRemoteDatasource>(),
@@ -289,17 +365,20 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i599.GetComplianceStatus>(
       () => _i599.GetComplianceStatus(gh<_i122.CommunitiesRepository>()),
     );
+    gh.lazySingleton<_i632.GetSubscriptionExpiry>(
+      () => _i632.GetSubscriptionExpiry(gh<_i122.CommunitiesRepository>()),
+    );
     gh.lazySingleton<_i969.GetWelcomeKit>(
       () => _i969.GetWelcomeKit(gh<_i122.CommunitiesRepository>()),
     );
     gh.lazySingleton<_i999.RequestPricing>(
       () => _i999.RequestPricing(gh<_i122.CommunitiesRepository>()),
     );
+    gh.lazySingleton<_i262.StartCheckout>(
+      () => _i262.StartCheckout(gh<_i122.CommunitiesRepository>()),
+    );
     gh.lazySingleton<_i510.SubmitCompliance>(
       () => _i510.SubmitCompliance(gh<_i122.CommunitiesRepository>()),
-    );
-    gh.lazySingleton<_i944.UnlockCommunity>(
-      () => _i944.UnlockCommunity(gh<_i122.CommunitiesRepository>()),
     );
     gh.singleton<_i294.PasswordResetBloc>(
       () => _i294.PasswordResetBloc(
@@ -308,10 +387,23 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i360.ResetPassword>(),
       ),
     );
+    gh.singleton<_i506.CommunityPurchaseBloc>(
+      () => _i506.CommunityPurchaseBloc(
+        gh<_i599.GetComplianceStatus>(),
+        gh<_i262.StartCheckout>(),
+        gh<_i632.GetSubscriptionExpiry>(),
+      ),
+    );
     gh.lazySingleton<_i954.ServicesRepository>(
       () => _i93.ServicesRepositoryImpl(
         gh<_i645.ServicesRemoteDatasource>(),
         gh<_i916.TicketsSocket>(),
+      ),
+    );
+    gh.singleton<_i1011.PushSettingsBloc>(
+      () => _i1011.PushSettingsBloc(
+        gh<_i890.GetPushEnabled>(),
+        gh<_i43.SetPushEnabled>(),
       ),
     );
     gh.lazySingleton<_i325.CreateTicket>(
@@ -354,13 +446,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i325.CreateTicket>(),
       ),
     );
-    gh.singleton<_i541.CommunitiesBloc>(
-      () => _i541.CommunitiesBloc(
-        gh<_i229.GetCommunities>(),
-        gh<_i944.UnlockCommunity>(),
-        gh<_i999.RequestPricing>(),
-      ),
-    );
     gh.lazySingleton<_i970.GetPostReactions>(
       () => _i970.GetPostReactions(gh<_i365.PostsRepository>()),
     );
@@ -372,6 +457,12 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i757.RemoveReaction>(
       () => _i757.RemoveReaction(gh<_i365.PostsRepository>()),
+    );
+    gh.singleton<_i541.CommunitiesBloc>(
+      () => _i541.CommunitiesBloc(
+        gh<_i229.GetCommunities>(),
+        gh<_i999.RequestPricing>(),
+      ),
     );
     gh.singleton<_i142.TicketsUnreadBloc>(
       () => _i142.TicketsUnreadBloc(
@@ -409,11 +500,8 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i690.UpdateProfile>(
       () => _i690.UpdateProfile(gh<_i505.AuthRepository>()),
     );
-    gh.lazySingleton<_i583.VerifyOtp>(
-      () => _i583.VerifyOtp(gh<_i505.AuthRepository>()),
-    );
-    gh.singleton<_i506.CommunityPurchaseBloc>(
-      () => _i506.CommunityPurchaseBloc(gh<_i599.GetComplianceStatus>()),
+    gh.lazySingleton<_i584.VerifyOtp>(
+      () => _i584.VerifyOtp(gh<_i505.AuthRepository>()),
     );
     gh.singleton<_i821.AuthenticatorWatcherBloc>(
       () => _i821.AuthenticatorWatcherBloc(
@@ -431,6 +519,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i983.GetGstStates>(
       () => _i983.GetGstStates(gh<_i954.ServicesRepository>()),
+    );
+    gh.lazySingleton<_i30.GetLastBilling>(
+      () => _i30.GetLastBilling(gh<_i954.ServicesRepository>()),
     );
     gh.lazySingleton<_i497.GetServiceCatalog>(
       () => _i497.GetServiceCatalog(gh<_i954.ServicesRepository>()),
@@ -458,6 +549,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i71.RefreshServiceAttachmentUrl>(
       () => _i71.RefreshServiceAttachmentUrl(gh<_i954.ServicesRepository>()),
+    );
+    gh.lazySingleton<_i978.RememberBilling>(
+      () => _i978.RememberBilling(gh<_i954.ServicesRepository>()),
     );
     gh.lazySingleton<_i801.SendServiceMessage>(
       () => _i801.SendServiceMessage(gh<_i954.ServicesRepository>()),
@@ -488,6 +582,8 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i983.GetGstStates>(),
         gh<_i961.StartServicePayment>(),
         gh<_i868.VerifyServicePayment>(),
+        gh<_i30.GetLastBilling>(),
+        gh<_i978.RememberBilling>(),
       ),
     );
     gh.singleton<_i967.ComplianceBloc>(
@@ -527,7 +623,7 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.singleton<_i204.SignupVerificationBloc>(
       () => _i204.SignupVerificationBloc(
-        gh<_i583.VerifyOtp>(),
+        gh<_i584.VerifyOtp>(),
         gh<_i775.ResendOtp>(),
       ),
     );

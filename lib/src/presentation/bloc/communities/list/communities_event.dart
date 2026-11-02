@@ -4,9 +4,11 @@ part of 'communities_bloc.dart';
 class CommunitiesEvent with _$CommunitiesEvent {
   const factory CommunitiesEvent.loadCommunities() = _LoadCommunities;
 
-  /// Called after a successful (mocked) purchase + compliance.
-  const factory CommunitiesEvent.unlockCommunity(String communityId) =
-      _UnlockCommunity;
+  /// Re-reads the catalog **without** the loading state, so a list already on
+  /// screen doesn't flash its skeleton. Used after a purchase and when the app
+  /// returns to the foreground — a payment confirmed late by the webhook shows
+  /// up here.
+  const factory CommunitiesEvent.refresh() = _Refresh;
 
   /// For communities whose price isn't public.
   const factory CommunitiesEvent.requestPricing(String communityId) =

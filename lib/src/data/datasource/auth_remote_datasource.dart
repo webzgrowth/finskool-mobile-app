@@ -4,6 +4,7 @@ import 'package:finskool/src/comman/exception.dart';
 import 'package:finskool/src/data/api/api.dart';
 import 'package:finskool/src/data/api/api_client.dart';
 import 'package:finskool/src/domain/model/auth/auth_session_model.dart';
+import 'package:finskool/src/domain/model/auth/avatar_upload_link.dart';
 import 'package:finskool/src/domain/model/auth/login_request_model.dart';
 import 'package:finskool/src/domain/model/auth/register_request_model.dart';
 import 'package:finskool/src/domain/model/auth/register_result_model.dart';
@@ -67,6 +68,46 @@ class AuthRemoteDatasource {
     }
     return UserModel.fromJson(user);
   }
+
+  /// Step 1 of a profile-picture change: a signed link to PUT the image to
+  /// (valid ~5 minutes) and the public URL it will have afterwards.
+  Future<AvatarUploadLink> avatarUploadLink(String filename) async {
+    final data = await _client.get(
+      Api.avatarUploadUrl,
+      query: {'filename': filename},
+    );
+    final payload = _require(data, Api.avatarUploadUrl);
+    final link = AvatarUploadLink.fromJson(payload);
+    if (link.uploadUrl.isEmpty || link.publicUrl.isEmpty) {
+      throw ApiException('The server returned no upload link.');
+    }
+    return link;
+  }
+
+  /// Step 3: save [publicUrl] on the account; the server returns the user with
+  /// the new `avatarUrl` (and deletes the old picture). Only call this after
+  /// the upload succeeded — saving a URL for a file that never uploaded leaves
+  /// a broken image on the profile.
+  Future<UserModel> saveAvatar(String publicUrl) async {
+    final data = await _client.patch(
+      Api.avatar,
+      body: {'avatarUrl': publicUrl},
+    );
+    final payload = _require(data, Api.avatar);
+    final user = payload['user'];
+    if (user is! Map<String, dynamic>) {
+      throw ApiException('The server returned no profile for ${Api.avatar}.');
+    }
+    return UserModel.fromJson(user);
+  }
+
+  /// Community **post** alerts only (new posts and recommendations). When off
+  /// the server skips the member entirely for those — no inbox row either —
+  /// so they won't appear later if it is switched back on.
+  Future<void> setPostNotificationsEnabled(bool enabled) => _client.patch(
+    Api.postNotificationsSetting,
+    body: {'postNotificationsEnabled': enabled},
+  );
 
   Future<void> selectCommunity(String communityId) =>
       _client.post(Api.selectCommunity, body: {'communityId': communityId});

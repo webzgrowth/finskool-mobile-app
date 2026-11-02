@@ -44,7 +44,6 @@ class EditProfileBloc extends Bloc<EditProfileEvent, EditProfileState> {
             emit(EditProfileState.fromUser(state.user)),
         submit: (_) async => _submit(emit),
         avatarPicked: (value) async => _setAvatar(value.path, emit),
-        avatarRemoved: (_) async => _setAvatar(null, emit),
       );
     });
   }
@@ -54,7 +53,7 @@ class EditProfileBloc extends Bloc<EditProfileEvent, EditProfileState> {
 
   /// Photo changes are applied at once and leave the text fields alone —
   /// including any the member is mid-way through editing.
-  Future<void> _setAvatar(String? path, Emitter<EditProfileState> emit) async {
+  Future<void> _setAvatar(String path, Emitter<EditProfileState> emit) async {
     if (state.avatarBusy) return;
     emit(state.copyWith(avatarBusy: true));
     final result = await _updateAvatar.execute(path);
@@ -71,7 +70,7 @@ class EditProfileBloc extends Bloc<EditProfileEvent, EditProfileState> {
           avatarBusy: false,
           user: updated,
           state: RequestState.loaded,
-          message: path == null ? 'Photo removed.' : 'Photo updated.',
+          message: 'Photo updated.',
         ),
       ),
     );
