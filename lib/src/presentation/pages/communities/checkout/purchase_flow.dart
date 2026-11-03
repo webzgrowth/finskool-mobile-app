@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:finskool/src/comman/widgets/app_snack.dart';
 import 'package:finskool/src/comman/routes.dart';
 import 'package:finskool/src/domain/model/community/community_model.dart';
 import 'package:finskool/src/domain/model/community/community_plan_model.dart';
@@ -62,9 +63,7 @@ class _PurchaseNavigationListenerState
           case PurchaseStatus.checkout:
             context.push(AppRoutes.COMMUNITY_CHECKOUT_ROUTE_PATH);
           case PurchaseStatus.failed:
-            ScaffoldMessenger.of(context)
-              ..hideCurrentSnackBar()
-              ..showSnackBar(SnackBar(content: Text(state.message)));
+            AppSnack.show(state.message);
           case PurchaseStatus.confirmed:
             context.read<CommunitiesBloc>().add(
               const CommunitiesEvent.refresh(),

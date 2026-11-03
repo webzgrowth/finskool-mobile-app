@@ -6,6 +6,8 @@ import 'package:finskool/src/domain/model/feed_post_model.dart';
 import 'package:finskool/src/domain/model/reaction_type.dart';
 import 'package:finskool/src/presentation/bloc/feed/posts/feed_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:finskool/injections/injection.dart';
+import 'package:finskool/src/data/datasource/reaction_type_catalog.dart';
 
 import 'reaction_glyph.dart';
 import 'reaction_icons.dart';
@@ -13,8 +15,9 @@ import 'reaction_picker_overlay.dart';
 import 'reactions_bottom_sheet.dart';
 import 'reaction_badge_stack.dart';
 
-/// The like row: tap toggles the default reaction, long-press opens the
-/// animated 6-emoji picker, tapping the count opens the Reactions sheet.
+/// The like row: **tap opens the full reaction picker** (the member chooses —
+/// there is no instant like), long-press opens the same picker as a drag-to-
+/// select, tapping the count opens the Reactions sheet.
 class PostReactionBar extends StatefulWidget {
   const PostReactionBar({super.key, required this.post});
 
@@ -27,6 +30,27 @@ class PostReactionBar extends StatefulWidget {
 class _PostReactionBarState extends State<PostReactionBar> {
   final _picker = ReactionPickerOverlay();
   final _buttonKey = GlobalKey();
+
+  /// What the backend offers (`GET /mobile/reaction-types`, fetched once for
+  /// the app). Null until it answers; the picker then offers the default set.
+  Set<ReactionType>? _offered;
+
+  @override
+  void initState() {
+    super.initState();
+    locator<ReactionTypeCatalog>()
+        .all()
+        .then((types) {
+          if (!mounted) return;
+          _offered = {
+            for (final t in types)
+              if (t.type != null) t.type!,
+          };
+        })
+        .catchError((_) {}); // the default set is a fine fallback
+  }
+
+  List<ReactionType> get _reactions => ReactionIcons.available(_offered);
 
   @override
   void dispose() {
@@ -54,17 +78,25 @@ class _PostReactionBarState extends State<PostReactionBar> {
       children: [
         GestureDetector(
           key: _buttonKey,
-          onTap: () {
-            HapticFeedback.lightImpact();
-            if (current == null) {
-              _react(ReactionType.like);
-            } else {
-              context.read<FeedBloc>().add(
-                FeedEvent.removeReaction(postId: widget.post.id),
-              );
-            }
-          },
-          onLongPressStart: (_) => _picker.show(context, _anchor()),
+          // Opens every reaction and lets the member choose. Choosing the one
+          // they already have takes it back.
+          onTap: () => _picker.showTappable(
+            context,
+            _anchor(),
+            offered: _reactions,
+            current: current,
+            onSelect: (r) {
+              if (r == current) {
+                context.read<FeedBloc>().add(
+                  FeedEvent.removeReaction(postId: widget.post.id),
+                );
+              } else {
+                _react(r);
+              }
+            },
+          ),
+          onLongPressStart: (_) =>
+              _picker.show(context, _anchor(), offered: _reactions),
           onLongPressMoveUpdate: (d) => _picker.updateHover(d.globalPosition),
           onLongPressEnd: (_) {
             final selected = _picker.hide();

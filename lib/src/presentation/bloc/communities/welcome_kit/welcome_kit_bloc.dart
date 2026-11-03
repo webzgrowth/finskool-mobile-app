@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
+import 'package:finskool/src/comman/min_skeleton.dart';
 import 'package:finskool/src/comman/enum.dart';
 import 'package:finskool/src/domain/model/community/welcome_kit.dart';
 import 'package:finskool/src/domain/usecases/community/get_welcome_kit.dart';
@@ -37,7 +38,9 @@ class WelcomeKitBloc extends Bloc<WelcomeKitEvent, WelcomeKitState> {
         communityId: communityId,
       ),
     );
-    final result = await _getWelcomeKit.execute(communityId);
+    final result = await holdSkeletonOnFailure(
+      () => _getWelcomeKit.execute(communityId),
+    );
     result.fold(
       (failure) => emit(
         state.copyWith(state: RequestState.error, message: failure.message),

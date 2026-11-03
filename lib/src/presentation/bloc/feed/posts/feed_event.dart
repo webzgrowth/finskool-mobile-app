@@ -12,6 +12,12 @@ class FeedEvent with _$FeedEvent {
 
   const factory FeedEvent.loadMore() = _LoadMore;
 
+  /// Sign-out: forget the previous account's posts, reactions and scroll
+  /// state. This bloc lives for the whole app, so without it the next login
+  /// would open on the last member's feed — and, with posts "already there",
+  /// never show a skeleton or reload.
+  const factory FeedEvent.reset() = _Reset;
+
   const factory FeedEvent.reactToPost({
     required String postId,
     required ReactionType reaction,

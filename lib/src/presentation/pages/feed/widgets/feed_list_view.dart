@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:finskool/src/comman/widgets/app_snack.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
 import 'package:finskool/src/presentation/bloc/feed/posts/feed_bloc.dart';
 import 'package:finskool/src/presentation/bloc/feed/filter/feed_filter_bloc.dart';
@@ -101,9 +102,7 @@ class _FeedListViewState extends State<FeedListView> {
           current.message.isNotEmpty &&
           current.message != previous.message &&
           current.posts.isNotEmpty,
-      listener: (context, state) =>
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text(state.message))),
+      listener: (context, state) => AppSnack.show(state.message),
       child: BlocBuilder<FeedFilterBloc, FeedFilterState>(
         builder: (context, filterState) {
           final query = filterState.query.trim();

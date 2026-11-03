@@ -2,24 +2,20 @@ import 'package:dartz/dartz.dart';
 import 'package:injectable/injectable.dart';
 import 'package:finskool/src/comman/error_handler.dart';
 import 'package:finskool/src/comman/failure.dart';
-import 'package:finskool/src/comman/storage_keys.dart';
 import 'package:finskool/src/data/datasource/communities_remote_datasource.dart';
 import 'package:finskool/src/data/datasource/demo_subscription_datasource.dart';
 import 'package:finskool/src/domain/model/community/community_access.dart';
 import 'package:finskool/src/domain/model/community/checkout_session.dart';
 import 'package:finskool/src/domain/model/community/community_model.dart';
-import 'package:finskool/src/domain/model/community/compliance_details_model.dart';
 import 'package:finskool/src/domain/model/community/welcome_kit.dart';
 import 'package:finskool/src/domain/repository/communities_repository.dart';
 import 'package:finskool/src/utilities/logger.dart';
-import 'package:finskool/src/utilities/shared_pref_helper.dart';
 
 /// Real-API backed. Everything below this still *throws* and everything
 /// above still gets an `Either` (CLAUDE.md's layer rule); `handleErrors`
 /// is the single seam.
 ///
-/// `requestPricing` and the compliance flag stay local — there is no
-/// pricing-enquiry or KYC endpoint wired. Purchases are real: payment happens
+/// `requestPricing` stays local — there is no pricing-enquiry endpoint wired. Purchases are real: payment happens
 /// on the web checkout and the backend reports it through `/auth/mobile/me`.
 @LazySingleton(as: CommunitiesRepository)
 class CommunitiesRepositoryImpl implements CommunitiesRepository {
@@ -93,23 +89,6 @@ class CommunitiesRepositoryImpl implements CommunitiesRepository {
         logger.info('Pricing requested for $communityId');
         return unit;
       });
-
-  @override
-  Future<Either<Failure, Unit>> submitCompliance(
-    ComplianceDetailsModel details,
-  ) => handleErrors(() async {
-    // Deliberately storing only the flag, never the PAN.
-    await SharedPreferenceHelper().storeBool(
-      StorageKeys.complianceCompleted,
-      true,
-    );
-    return unit;
-  });
-
-  @override
-  bool get isComplianceCompleted =>
-      SharedPreferenceHelper().getBool(StorageKeys.complianceCompleted) ??
-      false;
 
   /// Attaches a stand-in purchase receipt so Subscription Detail renders its
   /// Plan and Transaction cards. No endpoint describes a past purchase, so

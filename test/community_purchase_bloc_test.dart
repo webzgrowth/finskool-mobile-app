@@ -4,7 +4,7 @@ import 'package:finskool/src/comman/failure.dart';
 import 'package:finskool/src/domain/model/community/community_model.dart';
 import 'package:finskool/src/domain/model/community/community_plan_model.dart';
 import 'package:finskool/src/domain/model/community/payment_outcome.dart';
-import 'package:finskool/src/domain/usecases/community/get_compliance_status.dart';
+import 'package:finskool/src/domain/usecases/kyc/get_kyc_status.dart';
 import 'package:finskool/src/domain/usecases/community/get_subscription_expiry.dart';
 import 'package:finskool/src/domain/usecases/community/start_checkout.dart';
 import 'package:finskool/src/presentation/bloc/communities/purchase/community_purchase_bloc.dart';
@@ -23,13 +23,15 @@ void main() {
   final newExpiry = DateTime(2027, 2, 1);
 
   late FakeCommunitiesRepository repo;
+  late FakeKycRepository kyc;
   late CommunityPurchaseBloc bloc;
 
   setUp(() {
     CommunityPurchaseBloc.retryDelay = Duration.zero;
     repo = FakeCommunitiesRepository();
+    kyc = FakeKycRepository();
     bloc = CommunityPurchaseBloc(
-      GetComplianceStatus(repo),
+      GetKycStatus(kyc),
       StartCheckout(repo),
       GetSubscriptionExpiry(repo),
     );

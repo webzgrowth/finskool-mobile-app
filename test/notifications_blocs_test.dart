@@ -168,12 +168,11 @@ void main() {
       await bloc.close();
     });
 
-    test('a live event takes the server total and raises the banner', () async {
+    test('a live event takes the server total', () async {
       final bloc = make();
       socket.emit(note('n'), unread: 9);
       await pump();
       expect(bloc.state.count, 9);
-      expect(bloc.state.incoming?.id, 'n');
       await bloc.close();
     });
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:finskool/src/comman/widgets/app_snack.dart';
 import 'package:finskool/injections/injection.dart';
 import 'package:finskool/src/comman/routes.dart';
 import 'package:finskool/src/comman/widgets/search_top_bar.dart';
@@ -84,9 +85,7 @@ class _ServicesViewState extends State<_ServicesView> {
     final router = GoRouter.of(context);
     if (s.submit.isError) {
       setState(() => _activeId = null);
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(SnackBar(content: Text(s.message)));
+      AppSnack.show(s.message);
       return;
     }
     final request = s.request;

@@ -8,6 +8,17 @@ import 'package:finskool/src/data/push/push_route.dart';
 import 'package:finskool/src/data/push/push_service.dart';
 import 'package:finskool/src/comman/routes.dart';
 import 'package:finskool/src/presentation/bloc/authentication/authenticator_watcher/authenticator_watcher_bloc.dart';
+import 'package:finskool/src/presentation/bloc/feed/posts/feed_bloc.dart';
+import 'package:finskool/src/presentation/bloc/feed/filter/feed_filter_bloc.dart';
+import 'package:finskool/src/presentation/bloc/communities/filter/community_filter_bloc.dart';
+import 'package:finskool/src/presentation/bloc/communities/purchase/community_purchase_bloc.dart';
+import 'package:finskool/src/presentation/bloc/services/catalog/services_catalog_bloc.dart';
+import 'package:finskool/src/presentation/bloc/services/filter/services_filter_bloc.dart';
+import 'package:finskool/src/presentation/bloc/profile/edit_profile/edit_profile_bloc.dart';
+import 'package:finskool/src/presentation/bloc/authentication/login_form/login_form_bloc.dart';
+import 'package:finskool/src/presentation/pages/dashboard/widgets/kyc_reminder.dart';
+import 'package:finskool/src/presentation/bloc/kyc/status/kyc_bloc.dart';
+import 'package:finskool/src/presentation/bloc/communities/compliance/compliance_bloc.dart';
 import 'package:finskool/src/presentation/bloc/communities/list/communities_bloc.dart';
 import 'package:finskool/src/presentation/bloc/notifications/settings/push_settings_bloc.dart';
 import 'package:finskool/src/presentation/bloc/notifications/unread/notifications_unread_bloc.dart';
@@ -67,6 +78,34 @@ class _DashboardShellScreenState extends State<DashboardShellScreen> {
     );
   }
 
+  /// Signing out clears **everything that belongs to the account**. These blocs
+  /// live for the whole app, so left alone they hand the *previous* member's
+  /// feed, subscriptions, services and profile to the next login — and, because
+  /// they already hold data, skip the load and its skeleton entirely.
+  void _forgetSession(BuildContext context) {
+    context.read<FeedBloc>().add(const FeedEvent.reset());
+    context.read<FeedFilterBloc>()
+      ..add(const FeedFilterEvent.queryChanged(''))
+      ..add(const FeedFilterEvent.filtersCleared());
+    context.read<CommunitiesBloc>().add(const CommunitiesEvent.reset());
+    context.read<CommunityFilterBloc>().add(
+      const CommunityFilterEvent.queryChanged(''),
+    );
+    context.read<CommunityPurchaseBloc>().add(
+      const CommunityPurchaseEvent.cleared(),
+    );
+    context.read<ServicesCatalogBloc>().add(const ServicesCatalogEvent.reset());
+    context.read<ServicesFilterBloc>().add(
+      const ServicesFilterEvent.queryChanged(''),
+    );
+    context.read<EditProfileBloc>().add(const EditProfileEvent.prefill(null));
+    context.read<KycBloc>().add(const KycEvent.reset());
+    // A half-typed PAN must not wait for the next member.
+    context.read<ComplianceBloc>().add(const ComplianceEvent.initial());
+    // The password the last member typed must not outlive their session.
+    context.read<LoginFormBloc>().add(const LoginFormEvent.initial());
+  }
+
   @override
   void dispose() {
     _lifecycle?.dispose();
@@ -101,6 +140,10 @@ class _DashboardShellScreenState extends State<DashboardShellScreen> {
           // not in `initState`, because `authCheckRequest` is asynchronous:
           // connecting before it resolves would race a dead cookie.
           authenticated: (_) {
+            // Ask the server whether it has the member's DOB + PAN, on every
+            // login and launch. The Profile shows the answer and the purchase
+            // flow decides from the server, not from a local flag.
+            context.read<KycBloc>().add(const KycEvent.load());
             context.read<TicketsUnreadBloc>().add(
               const TicketsUnreadEvent.started(),
             );
@@ -140,6 +183,7 @@ class _DashboardShellScreenState extends State<DashboardShellScreen> {
               const PushSettingsEvent.reset(),
             );
             locator<PushService>().reset();
+            _forgetSession(context);
             // Back to Feed before leaving. BottomNavBloc is a singleton, so the
             // index would otherwise still point at whatever tab the user was on
             // when the next login opens the shell.
@@ -148,21 +192,23 @@ class _DashboardShellScreenState extends State<DashboardShellScreen> {
           },
         );
       },
-      child: BlocBuilder<BottomNavBloc, BottomNavState>(
-        builder: (context, state) {
-          return Scaffold(
-            body: IndexedStack(
-              index: state.selectedIndex,
-              children: const [
-                FeedScreen(),
-                CommunitiesScreen(),
-                ServicesScreen(),
-                ProfileScreen(),
-              ],
-            ),
-            bottomNavigationBar: const AppBottomNavBar(),
-          );
-        },
+      child: KycReminder(
+        child: BlocBuilder<BottomNavBloc, BottomNavState>(
+          builder: (context, state) {
+            return Scaffold(
+              body: IndexedStack(
+                index: state.selectedIndex,
+                children: const [
+                  FeedScreen(),
+                  CommunitiesScreen(),
+                  ServicesScreen(),
+                  ProfileScreen(),
+                ],
+              ),
+              bottomNavigationBar: const AppBottomNavBar(),
+            );
+          },
+        ),
       ),
     );
   }

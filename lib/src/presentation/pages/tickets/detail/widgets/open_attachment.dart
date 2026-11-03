@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:finskool/src/comman/widgets/app_snack.dart';
 import 'package:finskool/src/domain/model/ticket/ticket_attachment_model.dart';
 import 'package:finskool/src/presentation/bloc/tickets/chat/ticket_chat_bloc.dart';
 
@@ -32,7 +33,6 @@ Future<void> openAttachment(
 ) async {
   if (attachment.id.startsWith('local-')) return;
 
-  final messenger = ScaffoldMessenger.of(context);
   final fresh = Completer<String?>();
   request(attachment.id, fresh);
 
@@ -43,8 +43,6 @@ Future<void> openAttachment(
     mode: LaunchMode.externalApplication,
   );
   if (!opened) {
-    messenger.showSnackBar(
-      const SnackBar(content: Text('Could not open that file.')),
-    );
+    AppSnack.show('Could not open that file.');
   }
 }

@@ -19,9 +19,10 @@ import 'package:finskool/src/presentation/bloc/tickets/unread/tickets_unread_blo
 import 'package:finskool/src/presentation/bloc/communities/list/communities_bloc.dart';
 import 'package:finskool/src/presentation/bloc/communities/filter/community_filter_bloc.dart';
 import 'package:finskool/src/presentation/bloc/communities/purchase/community_purchase_bloc.dart';
+import 'package:finskool/src/presentation/bloc/kyc/status/kyc_bloc.dart';
+import 'package:finskool/src/comman/storage_keys.dart';
 import 'package:finskool/src/presentation/bloc/communities/compliance/compliance_bloc.dart';
 import 'package:finskool/src/presentation/bloc/profile/edit_profile/edit_profile_bloc.dart';
-import 'package:finskool/src/comman/widgets/in_app_banner.dart';
 import 'package:finskool/src/comman/widgets/ui_scaler.dart';
 import 'package:finskool/src/presentation/bloc/notifications/settings/push_settings_bloc.dart';
 import 'package:finskool/src/presentation/bloc/notifications/unread/notifications_unread_bloc.dart';
@@ -46,6 +47,10 @@ void main() async {
       // constructed inside configureDependencies(). Anything reading prefs
       // during construction would hit an uninitialised SharedPreferences.
       await SharedPreferenceHelper().init();
+      // KYC moved to the server; drop the old on-device "done" flag.
+      await SharedPreferenceHelper().remove(
+        StorageKeys.legacyComplianceCompleted,
+      );
       configureDependencies();
       await locator<PushService>().init();
       runApp(const MyApp());
@@ -93,6 +98,9 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (_) => locator<CommunityFilterBloc>()),
         BlocProvider(create: (_) => locator<CommunityPurchaseBloc>()),
         BlocProvider(create: (_) => locator<ComplianceBloc>()),
+        // What the server holds of the member's DOB + PAN (masked), for the
+        // Profile. In memory only.
+        BlocProvider(create: (_) => locator<KycBloc>()),
         BlocProvider(create: (_) => locator<EditProfileBloc>()),
       ],
       child: MaterialApp.router(
@@ -103,8 +111,7 @@ class MyApp extends StatelessWidget {
         themeMode: ThemeMode.light,
         // Uniformly bumps icon/text sizes on a device wider than Figma's
         // 393pt frame (most 6.6"+ Android phones) — see `UiScaler`.
-        builder: (context, child) =>
-            InAppBannerHost(child: UiScaler(child: child!)),
+        builder: (context, child) => UiScaler(child: child!),
         routerConfig: routerinit,
       ),
     );

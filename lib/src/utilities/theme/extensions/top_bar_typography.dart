@@ -27,7 +27,9 @@ class TopBarTypography extends ThemeExtension<TopBarTypography> {
   /// The pushed feed's screen title (a single community).
   final TextStyle title;
 
-  /// The bell's count, 4.46px — Figma draws it that small.
+  /// The bell's unread count. Figma drew a static dot with a 4.46px "3"; with
+  /// a real count that is unreadable, so it is 10px bold on a 19px badge (set in the widget — see
+  /// `_NotificationBell`).
   final TextStyle badge;
 
   static final TopBarTypography light = TopBarTypography(
@@ -50,8 +52,8 @@ class TopBarTypography extends ThemeExtension<TopBarTypography> {
       color: AppPalette.white,
     ).copyWith(letterSpacing: 0),
     badge: inter(
-      size: 4.46,
-      weight: 600,
+      size: 10,
+      weight: 700,
       height: 1.0,
       color: AppPalette.white,
     ).copyWith(letterSpacing: 0),

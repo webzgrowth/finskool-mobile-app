@@ -469,9 +469,7 @@ String toString() {
 /// @nodoc
 mixin _$NotificationsUnreadState {
 
- int get count;/// The notification that just arrived over the socket. The in-app banner
-/// drops from the top for it; the next one replaces it.
- AppNotification? get incoming;
+ int get count;
 /// Create a copy of NotificationsUnreadState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -483,20 +481,20 @@ $NotificationsUnreadStateCopyWith<NotificationsUnreadState> get copyWith => _$No
 @override
 bool operator ==(Object other) {
   final _this = this as NotificationsUnreadState;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is NotificationsUnreadState&&(identical(other.count, _this.count) || other.count == _this.count)&&(identical(other.incoming, _this.incoming) || other.incoming == _this.incoming));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is NotificationsUnreadState&&(identical(other.count, _this.count) || other.count == _this.count));
 }
 
 
 @override
 int get hashCode {
   final _this = this as NotificationsUnreadState;
-  return Object.hash(runtimeType,_this.count,_this.incoming);
+  return Object.hash(runtimeType,_this.count);
 }
 
 @override
 String toString() {
   final _this = this as NotificationsUnreadState;
-  return 'NotificationsUnreadState(count: ${_this.count}, incoming: ${_this.incoming})';
+  return 'NotificationsUnreadState(count: ${_this.count})';
 }
 
 
@@ -507,7 +505,7 @@ abstract mixin class $NotificationsUnreadStateCopyWith<$Res>  {
   factory $NotificationsUnreadStateCopyWith(NotificationsUnreadState value, $Res Function(NotificationsUnreadState) _then) = _$NotificationsUnreadStateCopyWithImpl;
 @useResult
 $Res call({
- int count, AppNotification? incoming
+ int count
 });
 
 
@@ -524,11 +522,10 @@ class _$NotificationsUnreadStateCopyWithImpl<$Res>
 
 /// Create a copy of NotificationsUnreadState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? count = null,Object? incoming = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? count = null,}) {
   return _then(NotificationsUnreadState(
 count: null == count ? _self.count : count // ignore: cast_nullable_to_non_nullable
-as int,incoming: freezed == incoming ? _self.incoming : incoming // ignore: cast_nullable_to_non_nullable
-as AppNotification?,
+as int,
   ));
 }
 
@@ -610,10 +607,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int count,  AppNotification? incoming)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int count)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _NotificationsUnreadState() when $default != null:
-return $default(_that.count,_that.incoming);case _:
+return $default(_that.count);case _:
   return orElse();
 
 }
@@ -631,10 +628,10 @@ return $default(_that.count,_that.incoming);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int count,  AppNotification? incoming)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int count)  $default,) {final _that = this;
 switch (_that) {
 case _NotificationsUnreadState():
-return $default(_that.count,_that.incoming);}
+return $default(_that.count);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -648,10 +645,10 @@ return $default(_that.count,_that.incoming);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int count,  AppNotification? incoming)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int count)?  $default,) {final _that = this;
 switch (_that) {
 case _NotificationsUnreadState() when $default != null:
-return $default(_that.count,_that.incoming);case _:
+return $default(_that.count);case _:
   return null;
 
 }
@@ -663,13 +660,10 @@ return $default(_that.count,_that.incoming);case _:
 
 
 class _NotificationsUnreadState implements NotificationsUnreadState {
-  const _NotificationsUnreadState({this.count = 0, this.incoming});
+  const _NotificationsUnreadState({this.count = 0});
   
 
 @override@JsonKey() final  int count;
-/// The notification that just arrived over the socket. The in-app banner
-/// drops from the top for it; the next one replaces it.
-@override final  AppNotification? incoming;
 
 /// Create a copy of NotificationsUnreadState
 /// with the given fields replaced by the non-null parameter values.
@@ -681,18 +675,18 @@ _$NotificationsUnreadStateCopyWith<_NotificationsUnreadState> get copyWith => __
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _NotificationsUnreadState&&(identical(other.count, count) || other.count == count)&&(identical(other.incoming, incoming) || other.incoming == incoming));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _NotificationsUnreadState&&(identical(other.count, count) || other.count == count));
 }
 
 
 @override
 int get hashCode {
-    return Object.hash(runtimeType,count,incoming);
+    return Object.hash(runtimeType,count);
 }
 
 @override
 String toString() {
-    return 'NotificationsUnreadState(count: $count, incoming: $incoming)';
+    return 'NotificationsUnreadState(count: $count)';
 }
 
 
@@ -703,7 +697,7 @@ abstract mixin class _$NotificationsUnreadStateCopyWith<$Res> implements $Notifi
   factory _$NotificationsUnreadStateCopyWith(_NotificationsUnreadState value, $Res Function(_NotificationsUnreadState) _then) = __$NotificationsUnreadStateCopyWithImpl;
 @override @useResult
 $Res call({
- int count, AppNotification? incoming
+ int count
 });
 
 
@@ -720,11 +714,10 @@ class __$NotificationsUnreadStateCopyWithImpl<$Res>
 
 /// Create a copy of NotificationsUnreadState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? count = null,Object? incoming = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? count = null,}) {
   return _then(_NotificationsUnreadState(
 count: null == count ? _self.count : count // ignore: cast_nullable_to_non_nullable
-as int,incoming: freezed == incoming ? _self.incoming : incoming // ignore: cast_nullable_to_non_nullable
-as AppNotification?,
+as int,
   ));
 }
 

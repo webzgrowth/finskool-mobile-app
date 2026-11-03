@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:finskool/src/comman/widgets/app_snack.dart';
 import 'package:finskool/injections/injection.dart';
 import 'package:finskool/src/domain/model/auth/user_model.dart';
 import 'package:finskool/src/presentation/bloc/authentication/authenticator_watcher/authenticator_watcher_bloc.dart';
@@ -103,10 +104,8 @@ class _ChatViewState extends State<_ChatView> {
       .state
       .mapOrNull(authenticated: (s) => s.user);
 
-  void _snack(String text, {SnackBarAction? action}) =>
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(SnackBar(content: Text(text), action: action));
+  void _snack(String text, {String? actionLabel, VoidCallback? onAction}) =>
+      AppSnack.show(text, actionLabel: actionLabel, onAction: onAction);
 
   /// Billing sheet → `/pay`. [errors] reopens the sheet after a 422, with the
   /// server's per-field messages, since the member can only fix a field they
@@ -163,13 +162,10 @@ class _ChatViewState extends State<_ChatView> {
         final proof = s.pendingProof;
         _snack(
           s.message,
-          action: proof == null
+          actionLabel: proof == null ? null : 'Retry',
+          onAction: proof == null
               ? null
-              : SnackBarAction(
-                  label: 'Retry',
-                  onPressed: () =>
-                      payment.add(ServicePaymentEvent.checkoutSucceeded(proof)),
-                ),
+              : () => payment.add(ServicePaymentEvent.checkoutSucceeded(proof)),
         );
       case PaymentStep.idle:
         if (s.billingErrors.isNotEmpty && _payingQuoteId.isNotEmpty) {

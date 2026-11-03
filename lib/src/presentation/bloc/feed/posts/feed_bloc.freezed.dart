@@ -56,13 +56,14 @@ extension FeedEventPatterns on FeedEvent {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _LoadFeed value)?  loadFeed,TResult Function( _RefreshFeed value)?  refreshFeed,TResult Function( _LoadMore value)?  loadMore,TResult Function( _ReactToPost value)?  reactToPost,TResult Function( _RemoveReaction value)?  removeReaction,TResult Function( _ReactionsHydrated value)?  reactionsHydrated,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _LoadFeed value)?  loadFeed,TResult Function( _RefreshFeed value)?  refreshFeed,TResult Function( _LoadMore value)?  loadMore,TResult Function( _Reset value)?  reset,TResult Function( _ReactToPost value)?  reactToPost,TResult Function( _RemoveReaction value)?  removeReaction,TResult Function( _ReactionsHydrated value)?  reactionsHydrated,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case _LoadFeed() when loadFeed != null:
 return loadFeed(_that);case _RefreshFeed() when refreshFeed != null:
 return refreshFeed(_that);case _LoadMore() when loadMore != null:
-return loadMore(_that);case _ReactToPost() when reactToPost != null:
+return loadMore(_that);case _Reset() when reset != null:
+return reset(_that);case _ReactToPost() when reactToPost != null:
 return reactToPost(_that);case _RemoveReaction() when removeReaction != null:
 return removeReaction(_that);case _ReactionsHydrated() when reactionsHydrated != null:
 return reactionsHydrated(_that);case _:
@@ -83,13 +84,14 @@ return reactionsHydrated(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _LoadFeed value)  loadFeed,required TResult Function( _RefreshFeed value)  refreshFeed,required TResult Function( _LoadMore value)  loadMore,required TResult Function( _ReactToPost value)  reactToPost,required TResult Function( _RemoveReaction value)  removeReaction,required TResult Function( _ReactionsHydrated value)  reactionsHydrated,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _LoadFeed value)  loadFeed,required TResult Function( _RefreshFeed value)  refreshFeed,required TResult Function( _LoadMore value)  loadMore,required TResult Function( _Reset value)  reset,required TResult Function( _ReactToPost value)  reactToPost,required TResult Function( _RemoveReaction value)  removeReaction,required TResult Function( _ReactionsHydrated value)  reactionsHydrated,}){
 final _that = this;
 switch (_that) {
 case _LoadFeed():
 return loadFeed(_that);case _RefreshFeed():
 return refreshFeed(_that);case _LoadMore():
-return loadMore(_that);case _ReactToPost():
+return loadMore(_that);case _Reset():
+return reset(_that);case _ReactToPost():
 return reactToPost(_that);case _RemoveReaction():
 return removeReaction(_that);case _ReactionsHydrated():
 return reactionsHydrated(_that);case _:
@@ -109,13 +111,14 @@ return reactionsHydrated(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _LoadFeed value)?  loadFeed,TResult? Function( _RefreshFeed value)?  refreshFeed,TResult? Function( _LoadMore value)?  loadMore,TResult? Function( _ReactToPost value)?  reactToPost,TResult? Function( _RemoveReaction value)?  removeReaction,TResult? Function( _ReactionsHydrated value)?  reactionsHydrated,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _LoadFeed value)?  loadFeed,TResult? Function( _RefreshFeed value)?  refreshFeed,TResult? Function( _LoadMore value)?  loadMore,TResult? Function( _Reset value)?  reset,TResult? Function( _ReactToPost value)?  reactToPost,TResult? Function( _RemoveReaction value)?  removeReaction,TResult? Function( _ReactionsHydrated value)?  reactionsHydrated,}){
 final _that = this;
 switch (_that) {
 case _LoadFeed() when loadFeed != null:
 return loadFeed(_that);case _RefreshFeed() when refreshFeed != null:
 return refreshFeed(_that);case _LoadMore() when loadMore != null:
-return loadMore(_that);case _ReactToPost() when reactToPost != null:
+return loadMore(_that);case _Reset() when reset != null:
+return reset(_that);case _ReactToPost() when reactToPost != null:
 return reactToPost(_that);case _RemoveReaction() when removeReaction != null:
 return removeReaction(_that);case _ReactionsHydrated() when reactionsHydrated != null:
 return reactionsHydrated(_that);case _:
@@ -135,12 +138,13 @@ return reactionsHydrated(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String? communityId)?  loadFeed,TResult Function()?  refreshFeed,TResult Function()?  loadMore,TResult Function( String postId,  ReactionType reaction)?  reactToPost,TResult Function( String postId)?  removeReaction,TResult Function( int generation,  String postId,  List<ReactorModel> reactors)?  reactionsHydrated,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String? communityId)?  loadFeed,TResult Function()?  refreshFeed,TResult Function()?  loadMore,TResult Function()?  reset,TResult Function( String postId,  ReactionType reaction)?  reactToPost,TResult Function( String postId)?  removeReaction,TResult Function( int generation,  String postId,  List<ReactorModel> reactors)?  reactionsHydrated,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _LoadFeed() when loadFeed != null:
 return loadFeed(_that.communityId);case _RefreshFeed() when refreshFeed != null:
 return refreshFeed();case _LoadMore() when loadMore != null:
-return loadMore();case _ReactToPost() when reactToPost != null:
+return loadMore();case _Reset() when reset != null:
+return reset();case _ReactToPost() when reactToPost != null:
 return reactToPost(_that.postId,_that.reaction);case _RemoveReaction() when removeReaction != null:
 return removeReaction(_that.postId);case _ReactionsHydrated() when reactionsHydrated != null:
 return reactionsHydrated(_that.generation,_that.postId,_that.reactors);case _:
@@ -161,12 +165,13 @@ return reactionsHydrated(_that.generation,_that.postId,_that.reactors);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String? communityId)  loadFeed,required TResult Function()  refreshFeed,required TResult Function()  loadMore,required TResult Function( String postId,  ReactionType reaction)  reactToPost,required TResult Function( String postId)  removeReaction,required TResult Function( int generation,  String postId,  List<ReactorModel> reactors)  reactionsHydrated,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String? communityId)  loadFeed,required TResult Function()  refreshFeed,required TResult Function()  loadMore,required TResult Function()  reset,required TResult Function( String postId,  ReactionType reaction)  reactToPost,required TResult Function( String postId)  removeReaction,required TResult Function( int generation,  String postId,  List<ReactorModel> reactors)  reactionsHydrated,}) {final _that = this;
 switch (_that) {
 case _LoadFeed():
 return loadFeed(_that.communityId);case _RefreshFeed():
 return refreshFeed();case _LoadMore():
-return loadMore();case _ReactToPost():
+return loadMore();case _Reset():
+return reset();case _ReactToPost():
 return reactToPost(_that.postId,_that.reaction);case _RemoveReaction():
 return removeReaction(_that.postId);case _ReactionsHydrated():
 return reactionsHydrated(_that.generation,_that.postId,_that.reactors);case _:
@@ -186,12 +191,13 @@ return reactionsHydrated(_that.generation,_that.postId,_that.reactors);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String? communityId)?  loadFeed,TResult? Function()?  refreshFeed,TResult? Function()?  loadMore,TResult? Function( String postId,  ReactionType reaction)?  reactToPost,TResult? Function( String postId)?  removeReaction,TResult? Function( int generation,  String postId,  List<ReactorModel> reactors)?  reactionsHydrated,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String? communityId)?  loadFeed,TResult? Function()?  refreshFeed,TResult? Function()?  loadMore,TResult? Function()?  reset,TResult? Function( String postId,  ReactionType reaction)?  reactToPost,TResult? Function( String postId)?  removeReaction,TResult? Function( int generation,  String postId,  List<ReactorModel> reactors)?  reactionsHydrated,}) {final _that = this;
 switch (_that) {
 case _LoadFeed() when loadFeed != null:
 return loadFeed(_that.communityId);case _RefreshFeed() when refreshFeed != null:
 return refreshFeed();case _LoadMore() when loadMore != null:
-return loadMore();case _ReactToPost() when reactToPost != null:
+return loadMore();case _Reset() when reset != null:
+return reset();case _ReactToPost() when reactToPost != null:
 return reactToPost(_that.postId,_that.reaction);case _RemoveReaction() when removeReaction != null:
 return removeReaction(_that.postId);case _ReactionsHydrated() when reactionsHydrated != null:
 return reactionsHydrated(_that.generation,_that.postId,_that.reactors);case _:
@@ -326,6 +332,38 @@ int get hashCode => runtimeType.hashCode;
 @override
 String toString() {
     return 'FeedEvent.loadMore()';
+}
+
+
+}
+
+
+
+
+/// @nodoc
+
+
+class _Reset implements FeedEvent {
+  const _Reset();
+  
+
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Reset);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+    return 'FeedEvent.reset()';
 }
 
 

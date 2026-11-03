@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
+import 'package:finskool/src/comman/min_skeleton.dart';
 import 'package:finskool/src/comman/enum.dart';
 import 'package:finskool/src/domain/model/service/service_model.dart';
 import 'package:finskool/src/domain/usecases/services/get_service_catalog.dart';
@@ -24,22 +25,31 @@ class ServicesCatalogBloc
       await event.map(
         load: (_) => _load(emit, force: false),
         refresh: (_) => _load(emit, force: true),
+        reset: (_) async {
+          _epoch++;
+          emit(ServicesCatalogState.initial());
+        },
       );
     });
   }
 
   final GetServiceCatalog _getCatalog;
 
+  /// Bumped by `reset`, so a response for a signed-out session is dropped.
+  int _epoch = 0;
+
   Future<void> _load(
     Emitter<ServicesCatalogState> emit, {
     required bool force,
   }) async {
     if (!force && (state.state.isLoaded || state.state.isLoading)) return;
+    final epoch = _epoch;
     // A refresh keeps the list on screen rather than blanking it.
     if (!state.state.isLoaded) {
       emit(state.copyWith(state: RequestState.loading, message: ''));
     }
-    final result = await _getCatalog.execute();
+    final result = await holdSkeletonOnFailure(_getCatalog.execute);
+    if (epoch != _epoch) return;
     result.fold(
       (failure) => emit(
         state.copyWith(

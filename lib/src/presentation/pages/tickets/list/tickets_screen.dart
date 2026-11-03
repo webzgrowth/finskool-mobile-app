@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:finskool/src/comman/widgets/app_snack.dart';
 import 'package:finskool/injections/injection.dart';
 import 'package:finskool/src/comman/routes.dart';
 import 'package:finskool/src/domain/model/ticket/ticket_model.dart';
@@ -75,9 +76,7 @@ class _TicketsView extends StatelessWidget {
           b.message.isNotEmpty &&
           a.message != b.message &&
           b.tickets.isNotEmpty,
-      listener: (context, state) =>
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text(state.message))),
+      listener: (context, state) => AppSnack.show(state.message),
       builder: (context, state) => TicketSheetPage(
         header: TicketHeader(
           spec: TicketHeaderSpec.list,

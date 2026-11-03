@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
+import 'package:finskool/src/comman/min_skeleton.dart';
 import 'package:finskool/src/comman/enum.dart';
 import 'package:finskool/src/domain/model/community/community_access.dart';
 import 'package:finskool/src/domain/model/community/community_model.dart';
@@ -22,8 +23,14 @@ class CommunitiesBloc extends Bloc<CommunitiesEvent, CommunitiesState> {
     on<CommunitiesEvent>((event, emit) async {
       await event.map(
         loadCommunities: (_) => _load(emit),
+        reset: (_) async {
+          _epoch++;
+          emit(CommunitiesState.initial());
+        },
         refresh: (_) async {
+          final epoch = _epoch;
           final result = await _getCommunities.execute();
+          if (epoch != _epoch) return;
           // A failed background refresh keeps what is already shown.
           result.fold(
             (_) {},
@@ -59,9 +66,14 @@ class CommunitiesBloc extends Bloc<CommunitiesEvent, CommunitiesState> {
   final GetCommunities _getCommunities;
   final RequestPricing _requestPricing;
 
+  /// Bumped by `reset`, so a response for a signed-out session is dropped.
+  int _epoch = 0;
+
   Future<void> _load(Emitter<CommunitiesState> emit) async {
+    final epoch = _epoch;
     emit(state.copyWith(state: RequestState.loading, message: ''));
-    final result = await _getCommunities.execute();
+    final result = await holdSkeletonOnFailure(_getCommunities.execute);
+    if (epoch != _epoch) return;
     emit(
       result.fold(
         (failure) =>

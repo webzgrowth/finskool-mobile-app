@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:finskool/src/comman/widgets/app_snack.dart';
 import 'package:finskool/src/comman/routes.dart';
 import 'package:finskool/src/presentation/bloc/authentication/google_signin/google_signin_bloc.dart';
 
@@ -19,8 +20,7 @@ class GoogleSigninListener extends StatelessWidget {
         if (state.requestState.isLoaded) {
           context.go(AppRoutes.DASHBOARD_ROUTE_PATH);
         } else if (state.requestState.isError) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text(state.message)));
+          AppSnack.show(state.message);
         }
       },
       child: child,

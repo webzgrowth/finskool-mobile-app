@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:finskool/src/comman/widgets/app_snack.dart';
 import 'package:finskool/injections/injection.dart';
 import 'package:finskool/src/presentation/bloc/tickets/form/ticket_form_bloc.dart';
 import 'package:finskool/src/presentation/pages/tickets/widgets/pick_ticket_files.dart';
@@ -66,8 +67,7 @@ class _RaiseTicketViewState extends State<_RaiseTicketView> {
           // hang and the new ticket would never appear in it.
           context.pop(state.created);
         } else if (state.message.isNotEmpty) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text(state.message)));
+          AppSnack.show(state.message);
         }
       },
       builder: (context, state) {

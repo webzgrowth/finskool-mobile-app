@@ -15,10 +15,19 @@ class ReactionPickerRow extends StatelessWidget {
     super.key,
     required this.reactions,
     required this.hoveredIndex,
+    this.current,
+    this.onTap,
   });
 
   final List<ReactionType> reactions;
   final ValueNotifier<int?> hoveredIndex;
+
+  /// The member's present reaction, shown on a soft plate (tap picker only).
+  final ReactionType? current;
+
+  /// Makes each reaction a button. Null for the long-press picker, where the
+  /// finger's release picks instead.
+  final ValueChanged<ReactionType>? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +41,7 @@ class ReactionPickerRow extends StatelessWidget {
       ),
       child: Container(
         height: ReactionPickerOverlay.pillHeight,
-        width: ReactionPickerOverlay.pillWidth,
+        width: ReactionPickerOverlay.widthFor(reactions.length),
         padding: const EdgeInsets.symmetric(
           horizontal: ReactionPickerOverlay.padH,
         ),
@@ -60,7 +69,7 @@ class ReactionPickerRow extends StatelessWidget {
             return Row(
               mainAxisSize: MainAxisSize.min,
               children: List.generate(reactions.length, (i) {
-                return SizedBox(
+                final slot = SizedBox(
                   // Each slot owns a full pitch so the hit-test maths in
                   // `updateHover` and the layout can't drift apart; the last
                   // one is only as wide as the item itself.
@@ -75,7 +84,17 @@ class ReactionPickerRow extends StatelessWidget {
                       alignment: Alignment.bottomCenter,
                       child: SizedBox(
                         width: ReactionPickerOverlay.itemExtent,
-                        child: Center(
+                        child: Container(
+                          width: ReactionPickerOverlay.itemExtent,
+                          height: ReactionPickerOverlay.itemExtent,
+                          decoration: current == reactions[i]
+                              ? BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Theme.of(context).colorScheme.primary
+                                      .withValues(alpha: 0.16),
+                                )
+                              : null,
+                          alignment: Alignment.center,
                           // `inherit: false` matters: the app theme sets a
                           // custom fontFamily (Inter/Manrope), and U+2764
                           // (❤) defaults to *text* presentation, so it
@@ -94,6 +113,16 @@ class ReactionPickerRow extends StatelessWidget {
                         ),
                       ),
                     ),
+                  ),
+                );
+                if (onTap == null) return slot;
+                return Semantics(
+                  button: true,
+                  label: reactions[i].label,
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () => onTap!(reactions[i]),
+                    child: slot,
                   ),
                 );
               }),

@@ -53,7 +53,7 @@ abstract class AuthRepository {
   /// Writes the Edit Profile form back onto the cached [UserModel]. Also
   /// local-only: `docs/auth_api_doc.md` documents no profile-update
   /// endpoint, so this never leaves the device — same category as the
-  /// notification preference above and the compliance flag.
+  /// notification preference above.
   Future<Either<Failure, UserModel>> updateProfile({
     required String name,
     required String email,

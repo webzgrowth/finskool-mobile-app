@@ -13,7 +13,9 @@
 /// (`605:17127`) holds text nodes of emoji characters, so the designer used
 /// emoji too and there is no picker art to export. Note Figma designed a
 /// different set (👍❤️🔥👏✅😮); the backend's is authoritative, so fire,
-/// clap and verified are gone.
+/// clap and verified are gone. The backend's own fixed set is like · love ·
+/// haha · wow · sad · angry ("never changes at runtime"), so those three Figma
+/// reactions cannot exist until the *backend* seeds them.
 ///
 /// Two reactions additionally have illustrated badge art for the post card's
 /// reaction stack; see `pages/feed/widgets/reaction_icons.dart`.

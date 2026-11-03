@@ -2,6 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:dartz/dartz.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
+import 'package:finskool/src/comman/min_skeleton.dart';
 import 'package:finskool/src/comman/enum.dart';
 import 'package:finskool/src/comman/failure.dart';
 import 'package:finskool/src/domain/model/feed_post_model.dart';
@@ -48,6 +49,13 @@ class FeedBloc extends Bloc<FeedEvent, FeedState> {
         loadFeed: (value) => _load(emit, communityId: value.communityId),
         refreshFeed: (_) => _load(emit, communityId: state.communityId),
         loadMore: (_) => _loadMore(emit),
+        reset: (_) async {
+          // Also invalidates any load/hydration still in flight for the old
+          // session, so a late response can't repopulate the new one.
+          _generation++;
+          _pendingWrites.clear();
+          emit(FeedState.initial());
+        },
         reactToPost: (value) => _write(
           emit,
           value.postId,

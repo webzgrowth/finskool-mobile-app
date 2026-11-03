@@ -74,6 +74,11 @@ class Api {
   /// tab — see `CommunitiesRemoteDatasource`.
   static const String me = '/auth/mobile/me';
 
+  /// DOB + PAN. `GET` reports `{completed, dateOfBirth, panMasked}`; `POST`
+  /// sends them once (a second call is `409 KYC_ALREADY_SUBMITTED`); `PUT`
+  /// edits them. The full PAN is never returned.
+  static const String kyc = '/auth/mobile/me/kyc';
+
   ///  =================================================================
   ///  ************************* Communities ***************************
   ///  =================================================================

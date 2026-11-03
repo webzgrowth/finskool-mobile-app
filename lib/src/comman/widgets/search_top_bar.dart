@@ -53,7 +53,7 @@ class SearchTopBar extends StatelessWidget {
   /// published rather than hardcoded at the call sites.
   static const double baseHeight = 62;
 
-  static const double _titleFontSize = 16;
+  static const double _titleFontSize = 14;
   static const double _backIconSize = 22;
 
   /// The toolbar height a bar with these options needs. The title row is
@@ -301,6 +301,11 @@ class _Glass extends StatelessWidget {
 class _NotificationBell extends StatelessWidget {
   const _NotificationBell({this.count, this.onTap});
 
+  /// The red pill is a little smaller than the number inside it is tall — the
+  /// number is what matters, so it gets the room.
+  static const double _badgeSize = 19;
+  static const double _badgeFont = 10;
+
   final int? count;
   final VoidCallback? onTap;
 
@@ -324,21 +329,34 @@ class _NotificationBell extends StatelessWidget {
             child: _Scaled(SvgPicture.asset('assets/icons/topbar_bell.svg')),
           ),
           if (showCount)
+            // Readable, and hung off the disc's top-right corner so it doesn't
+            // sit on the bell itself (Figma's 6.5px dot was a placeholder for a
+            // number nobody could read).
             Positioned(
-              top: 5,
-              left: 14.6,
+              top: -7,
+              right: -8,
               child: Container(
-                height: 6.52,
-                constraints: const BoxConstraints(minWidth: 6.52),
-                padding: EdgeInsets.symmetric(horizontal: count! > 9 ? 1.5 : 0),
+                height: _badgeSize,
+                constraints: const BoxConstraints(minWidth: _badgeSize),
+                padding: EdgeInsets.symmetric(horizontal: count! > 9 ? 4 : 0),
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
                   color: AppPalette.topBarBellDot,
                   borderRadius: BorderRadius.circular(AppRadii.pill),
+                  // A ring in the bar's own teal separates it from the disc.
+                  border: Border.all(color: AppPalette.primary, width: 1.5),
                 ),
                 child: Text(
                   count! > 99 ? '99+' : '$count',
-                  style: context.topBarType.badge,
+                  // Sized **here**, not left to the theme extension: that is
+                  // a `static final`, which a hot reload never rebuilds, so a
+                  // change to its size looked as if nothing had happened and
+                  // the number stayed at Figma's 4.46px speck.
+                  style: context.topBarType.badge.copyWith(
+                    fontSize: _badgeFont,
+                    fontWeight: FontWeight.w700,
+                    height: 1.0,
+                  ),
                 ),
               ),
             ),

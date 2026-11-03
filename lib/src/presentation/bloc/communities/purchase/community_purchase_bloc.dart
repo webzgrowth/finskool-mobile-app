@@ -4,9 +4,9 @@ import 'package:injectable/injectable.dart';
 import 'package:finskool/src/domain/model/community/community_model.dart';
 import 'package:finskool/src/domain/model/community/community_plan_model.dart';
 import 'package:finskool/src/domain/model/community/payment_outcome.dart';
-import 'package:finskool/src/domain/usecases/community/get_compliance_status.dart';
 import 'package:finskool/src/domain/usecases/community/get_subscription_expiry.dart';
 import 'package:finskool/src/domain/usecases/community/start_checkout.dart';
+import 'package:finskool/src/domain/usecases/kyc/get_kyc_status.dart';
 
 part 'community_purchase_event.dart';
 part 'community_purchase_state.dart';
@@ -28,11 +28,8 @@ part 'community_purchase_bloc.freezed.dart';
 @singleton
 class CommunityPurchaseBloc
     extends Bloc<CommunityPurchaseEvent, CommunityPurchaseState> {
-  CommunityPurchaseBloc(
-    this._complianceStatus,
-    this._startCheckout,
-    this._expiry,
-  ) : super(CommunityPurchaseState.initial()) {
+  CommunityPurchaseBloc(this._kycStatus, this._startCheckout, this._expiry)
+    : super(CommunityPurchaseState.initial()) {
     on<CommunityPurchaseEvent>((event, emit) async {
       await event.map(
         started: (v) => _start(v.community, v.plan, emit),
@@ -58,7 +55,7 @@ class CommunityPurchaseBloc
     });
   }
 
-  final GetComplianceStatus _complianceStatus;
+  final GetKycStatus _kycStatus;
   final StartCheckout _startCheckout;
   final GetSubscriptionExpiry _expiry;
 
@@ -73,11 +70,6 @@ class CommunityPurchaseBloc
   /// that belongs to a purchase the member has since abandoned drops its result
   /// instead of overwriting the new one.
   int _generation = 0;
-
-  /// Whether this purchase still needs the one-time SEBI step. The success
-  /// screen reads this to decide between "Continue to Compliance" and
-  /// going straight back to the catalog.
-  bool get needsCompliance => !_complianceStatus.isCompleted;
 
   Future<void> _start(
     CommunityModel community,
@@ -132,12 +124,19 @@ class CommunityPurchaseBloc
       if (gen != _generation) return;
       final expiry = result.fold<DateTime?>((_) => null, (e) => e);
       if (expiry != null && (before == null || expiry.isAfter(before))) {
+        // Does the server already hold this member's DOB + PAN? Only their
+        // *first* paid community asks; the answer is the server's, not a
+        // local flag. An unreadable answer asks anyway — a repeat is
+        // harmless (`409` is treated as done), a skipped one is not.
+        final kyc = await _kycStatus.execute();
+        if (gen != _generation) return;
         emit(
           state.copyWith(
             status: PurchaseStatus.confirmed,
             expiresAt: expiry,
             paidAt: DateTime.now(),
             checkoutUrl: null,
+            needsKyc: kyc.fold((_) => true, (s) => !s.completed),
           ),
         );
         return;

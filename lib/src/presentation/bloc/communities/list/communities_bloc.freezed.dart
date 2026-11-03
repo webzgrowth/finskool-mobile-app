@@ -56,12 +56,13 @@ extension CommunitiesEventPatterns on CommunitiesEvent {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _LoadCommunities value)?  loadCommunities,TResult Function( _Refresh value)?  refresh,TResult Function( _RequestPricing value)?  requestPricing,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _LoadCommunities value)?  loadCommunities,TResult Function( _Refresh value)?  refresh,TResult Function( _Reset value)?  reset,TResult Function( _RequestPricing value)?  requestPricing,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case _LoadCommunities() when loadCommunities != null:
 return loadCommunities(_that);case _Refresh() when refresh != null:
-return refresh(_that);case _RequestPricing() when requestPricing != null:
+return refresh(_that);case _Reset() when reset != null:
+return reset(_that);case _RequestPricing() when requestPricing != null:
 return requestPricing(_that);case _:
   return orElse();
 
@@ -80,12 +81,13 @@ return requestPricing(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _LoadCommunities value)  loadCommunities,required TResult Function( _Refresh value)  refresh,required TResult Function( _RequestPricing value)  requestPricing,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _LoadCommunities value)  loadCommunities,required TResult Function( _Refresh value)  refresh,required TResult Function( _Reset value)  reset,required TResult Function( _RequestPricing value)  requestPricing,}){
 final _that = this;
 switch (_that) {
 case _LoadCommunities():
 return loadCommunities(_that);case _Refresh():
-return refresh(_that);case _RequestPricing():
+return refresh(_that);case _Reset():
+return reset(_that);case _RequestPricing():
 return requestPricing(_that);case _:
   throw StateError('Unexpected subclass');
 
@@ -103,12 +105,13 @@ return requestPricing(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _LoadCommunities value)?  loadCommunities,TResult? Function( _Refresh value)?  refresh,TResult? Function( _RequestPricing value)?  requestPricing,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _LoadCommunities value)?  loadCommunities,TResult? Function( _Refresh value)?  refresh,TResult? Function( _Reset value)?  reset,TResult? Function( _RequestPricing value)?  requestPricing,}){
 final _that = this;
 switch (_that) {
 case _LoadCommunities() when loadCommunities != null:
 return loadCommunities(_that);case _Refresh() when refresh != null:
-return refresh(_that);case _RequestPricing() when requestPricing != null:
+return refresh(_that);case _Reset() when reset != null:
+return reset(_that);case _RequestPricing() when requestPricing != null:
 return requestPricing(_that);case _:
   return null;
 
@@ -126,11 +129,12 @@ return requestPricing(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  loadCommunities,TResult Function()?  refresh,TResult Function( String communityId)?  requestPricing,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  loadCommunities,TResult Function()?  refresh,TResult Function()?  reset,TResult Function( String communityId)?  requestPricing,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _LoadCommunities() when loadCommunities != null:
 return loadCommunities();case _Refresh() when refresh != null:
-return refresh();case _RequestPricing() when requestPricing != null:
+return refresh();case _Reset() when reset != null:
+return reset();case _RequestPricing() when requestPricing != null:
 return requestPricing(_that.communityId);case _:
   return orElse();
 
@@ -149,11 +153,12 @@ return requestPricing(_that.communityId);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  loadCommunities,required TResult Function()  refresh,required TResult Function( String communityId)  requestPricing,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  loadCommunities,required TResult Function()  refresh,required TResult Function()  reset,required TResult Function( String communityId)  requestPricing,}) {final _that = this;
 switch (_that) {
 case _LoadCommunities():
 return loadCommunities();case _Refresh():
-return refresh();case _RequestPricing():
+return refresh();case _Reset():
+return reset();case _RequestPricing():
 return requestPricing(_that.communityId);case _:
   throw StateError('Unexpected subclass');
 
@@ -171,11 +176,12 @@ return requestPricing(_that.communityId);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  loadCommunities,TResult? Function()?  refresh,TResult? Function( String communityId)?  requestPricing,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  loadCommunities,TResult? Function()?  refresh,TResult? Function()?  reset,TResult? Function( String communityId)?  requestPricing,}) {final _that = this;
 switch (_that) {
 case _LoadCommunities() when loadCommunities != null:
 return loadCommunities();case _Refresh() when refresh != null:
-return refresh();case _RequestPricing() when requestPricing != null:
+return refresh();case _Reset() when reset != null:
+return reset();case _RequestPricing() when requestPricing != null:
 return requestPricing(_that.communityId);case _:
   return null;
 
@@ -240,6 +246,38 @@ int get hashCode => runtimeType.hashCode;
 @override
 String toString() {
     return 'CommunitiesEvent.refresh()';
+}
+
+
+}
+
+
+
+
+/// @nodoc
+
+
+class _Reset implements CommunitiesEvent {
+  const _Reset();
+  
+
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Reset);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+    return 'CommunitiesEvent.reset()';
 }
 
 

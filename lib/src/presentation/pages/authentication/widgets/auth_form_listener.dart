@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:finskool/src/comman/widgets/app_snack.dart';
 import 'package:finskool/src/comman/enum.dart';
 
 /// Shared "wait for the API, then move" wiring for the auth forms.
@@ -52,9 +53,7 @@ class AuthFormListener<B extends StateStreamable<S>, S>
         // message — those render inline under their own field instead.
         final text = message(state);
         if (text.isEmpty) return;
-        ScaffoldMessenger.of(context)
-          ..hideCurrentSnackBar()
-          ..showSnackBar(SnackBar(content: Text(text)));
+        AppSnack.show(text);
       },
       child: child,
     );

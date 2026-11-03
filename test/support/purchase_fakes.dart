@@ -2,9 +2,11 @@ import 'package:dartz/dartz.dart';
 import 'package:finskool/src/comman/failure.dart';
 import 'package:finskool/src/domain/model/community/checkout_session.dart';
 import 'package:finskool/src/domain/model/community/community_model.dart';
-import 'package:finskool/src/domain/model/community/compliance_details_model.dart';
 import 'package:finskool/src/domain/model/community/welcome_kit.dart';
+import 'package:finskool/src/domain/model/kyc/kyc_details.dart';
+import 'package:finskool/src/domain/model/kyc/kyc_status.dart';
 import 'package:finskool/src/domain/repository/communities_repository.dart';
+import 'package:finskool/src/domain/repository/kyc_repository.dart';
 
 /// Scripted repository: only the two calls a purchase makes do anything.
 class FakeCommunitiesRepository implements CommunitiesRepository {
@@ -37,18 +39,36 @@ class FakeCommunitiesRepository implements CommunitiesRepository {
   }
 
   @override
-  bool get isComplianceCompleted => false;
-
-  @override
   Future<Either<Failure, List<CommunityModel>>> getCommunities() =>
       throw UnimplementedError();
   @override
   Future<Either<Failure, Unit>> requestPricing(String id) =>
       throw UnimplementedError();
   @override
-  Future<Either<Failure, Unit>> submitCompliance(ComplianceDetailsModel d) =>
-      throw UnimplementedError();
-  @override
   Future<Either<Failure, WelcomeKit?>> getWelcomeKit(String id) =>
       throw UnimplementedError();
+}
+
+/// Scripted KYC repository.
+class FakeKycRepository implements KycRepository {
+  /// What `GET .../me/kyc` answers.
+  Either<Failure, KycStatus> status = const Right(KycStatus(completed: false));
+
+  /// What `POST .../me/kyc` answers.
+  Either<Failure, Unit> submitResult = const Right(unit);
+
+  int statusCalls = 0;
+  final submitted = <KycDetails>[];
+
+  @override
+  Future<Either<Failure, KycStatus>> getStatus() async {
+    statusCalls++;
+    return status;
+  }
+
+  @override
+  Future<Either<Failure, Unit>> submit(KycDetails details) async {
+    submitted.add(details);
+    return submitResult;
+  }
 }

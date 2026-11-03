@@ -5,7 +5,6 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:finskool/src/data/socket/notifications_socket.dart';
 import 'package:finskool/src/data/socket/socket_frames.dart';
-import 'package:finskool/src/domain/model/notification/app_notification.dart';
 import 'package:finskool/src/domain/usecases/notifications/get_notifications_unread_count.dart';
 
 part 'notifications_unread_event.dart';
@@ -38,7 +37,6 @@ class NotificationsUnreadBloc
           state.copyWith(
             // The server's total when it sends one; otherwise count it.
             count: v.event.unreadCount ?? state.count + 1,
-            incoming: v.event.notification,
           ),
         ),
         stopped: (_) async {

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io' show Platform;
 
 import 'package:firebase_core/firebase_core.dart';
@@ -17,26 +18,13 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
 }
 
-/// A push that arrived while the app was **open**.
-class ForegroundPush {
-  const ForegroundPush({
-    required this.title,
-    required this.body,
-    required this.data,
-  });
-
-  final String title;
-  final String body;
-  final Map<String, dynamic> data;
-}
-
 /// Push notifications: permission, the device's FCM token, and routing taps.
 ///
-/// **No banner is drawn here while the app is open.** The push guide §9 says
-/// the user must see one notification, not the socket's and the push's, so the
-/// OS banner is suppressed in the foreground (iOS presentation options off; on
-/// Android FCM draws none) and the in-app banner takes over, fed by the live
-/// socket — with [foreground] as the fallback when the socket is down.
+/// **Only real push notifications — there is no in-app banner.** While the app
+/// is open the system banner is shown the same as when it is closed: iOS by
+/// its foreground presentation options, Android by posting a local
+/// notification (FCM draws none in the foreground). The live socket updates the
+/// inbox and the bell badge silently, so a notification is never shown twice.
 ///
 /// **Never throws.** Push is an extra: with Firebase unconfigured, the user
 /// refusing permission, or iOS without an APNs key (no Apple developer
@@ -53,7 +41,6 @@ class PushService {
   static const String channelId = 'finskool_default';
 
   final _local = FlutterLocalNotificationsPlugin();
-  final _foreground = StreamController<ForegroundPush>.broadcast();
   final _taps = StreamController<Map<String, dynamic>>.broadcast();
   StreamSubscription<String>? _refresh;
   bool _ready = false;
@@ -62,7 +49,6 @@ class PushService {
   Map<String, dynamic>? _pending;
 
   Stream<Map<String, dynamic>> get taps => _taps.stream;
-  Stream<ForegroundPush> get foreground => _foreground.stream;
 
   /// A notification tapped while the app was **closed**. It arrives before
   /// anyone is listening (and before sign-in is confirmed), so it waits here
@@ -78,12 +64,20 @@ class PushService {
     try {
       await Firebase.initializeApp();
       FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
-      // The local-notifications plugin is only here to create the Android
-      // channel FCM's banners use — high importance, or they don't heads-up.
+      // The local-notifications plugin creates the Android channel FCM's
+      // banners use (high importance, or they don't heads-up) and draws the
+      // notification for a message that arrives while the app is open.
       await _local.initialize(
         settings: const InitializationSettings(
           android: AndroidInitializationSettings('@mipmap/ic_launcher'),
         ),
+        onDidReceiveNotificationResponse: (r) {
+          final payload = r.payload;
+          if (payload == null || payload.isEmpty) return;
+          try {
+            _taps.add(Map<String, dynamic>.from(jsonDecode(payload) as Map));
+          } catch (_) {}
+        },
       );
       await _local
           .resolvePlatformSpecificImplementation<
@@ -96,11 +90,13 @@ class PushService {
               importance: Importance.high,
             ),
           );
+      // iOS: show the system banner (and sound/badge) even while the app is
+      // open. Android ignores this and is handled in `_onForeground`.
       await FirebaseMessaging.instance
           .setForegroundNotificationPresentationOptions(
-            alert: false,
-            badge: false,
-            sound: false,
+            alert: true,
+            badge: true,
+            sound: true,
           );
       FirebaseMessaging.onMessage.listen(_onForeground);
       FirebaseMessaging.onMessageOpenedApp.listen((m) => _taps.add(m.data));
@@ -159,13 +155,25 @@ class PushService {
     }
   }
 
-  void _onForeground(RemoteMessage message) {
+  /// Android draws nothing for an FCM message while the app is open, so post
+  /// the notification ourselves — carrying the routing `data`, so tapping it
+  /// opens the same screen a closed-app notification would. iOS already showed
+  /// its own (see the presentation options in [init]).
+  Future<void> _onForeground(RemoteMessage message) async {
     final n = message.notification;
-    _foreground.add(
-      ForegroundPush(
-        title: n?.title ?? '',
-        body: n?.body ?? '',
-        data: message.data,
+    if (!Platform.isAndroid || n == null) return;
+    await _local.show(
+      id: message.hashCode,
+      title: n.title,
+      body: n.body,
+      payload: jsonEncode(message.data),
+      notificationDetails: const NotificationDetails(
+        android: AndroidNotificationDetails(
+          channelId,
+          'Finskool21',
+          importance: Importance.high,
+          priority: Priority.high,
+        ),
       ),
     );
   }

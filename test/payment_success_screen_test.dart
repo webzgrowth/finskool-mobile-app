@@ -5,7 +5,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:finskool/src/domain/model/community/community_model.dart';
 import 'package:finskool/src/domain/model/community/community_plan_model.dart';
 import 'package:finskool/src/domain/model/community/payment_outcome.dart';
-import 'package:finskool/src/domain/usecases/community/get_compliance_status.dart';
+import 'package:finskool/src/comman/failure.dart';
+import 'package:finskool/src/domain/model/kyc/kyc_status.dart';
+import 'package:finskool/src/domain/usecases/kyc/get_kyc_status.dart';
 import 'package:finskool/src/domain/usecases/community/get_subscription_expiry.dart';
 import 'package:finskool/src/domain/usecases/community/start_checkout.dart';
 import 'package:finskool/src/presentation/bloc/communities/purchase/community_purchase_bloc.dart';
@@ -30,13 +32,15 @@ void main() {
   Future<CommunityPurchaseBloc> pump(
     WidgetTester tester,
     FakeCommunitiesRepository repo,
-    PurchaseStatus until,
-  ) async {
+    PurchaseStatus until, {
+    FakeKycRepository? kycRepo,
+  }) async {
+    final kyc = kycRepo ?? FakeKycRepository();
     CommunityPurchaseBloc.retryDelay = Duration.zero;
     // Created inside the test: a bloc built in setUp lives outside the
     // fake-async zone and its streams never flush.
     final bloc = CommunityPurchaseBloc(
-      GetComplianceStatus(repo),
+      GetKycStatus(kyc),
       StartCheckout(repo),
       GetSubscriptionExpiry(repo),
     );
@@ -91,12 +95,49 @@ void main() {
     expect(find.textContaining('transaction ID'), findsNothing);
   });
 
+  group('after payment, KYC is decided by the server', () {
+    Future<void> confirmedWith(
+      WidgetTester tester,
+      FakeKycRepository kyc,
+    ) async {
+      final repo = FakeCommunitiesRepository()
+        ..expiries = [Right(DateTime(2027, 2, 1))];
+      await pump(tester, repo, PurchaseStatus.confirmed, kycRepo: kyc);
+    }
+
+    testWidgets('not completed: the next step is the DOB + PAN form', (
+      tester,
+    ) async {
+      final kyc = FakeKycRepository();
+      await confirmedWith(tester, kyc);
+      expect(kyc.statusCalls, 1);
+      expect(find.text('Continue to Compliance'), findsOneWidget);
+    });
+
+    testWidgets('already completed: no form, just Continue', (tester) async {
+      final kyc = FakeKycRepository()
+        ..status = const Right(KycStatus(completed: true));
+      await confirmedWith(tester, kyc);
+      expect(find.text('Continue'), findsOneWidget);
+      expect(find.text('Continue to Compliance'), findsNothing);
+    });
+
+    testWidgets('status unreadable: asks anyway (a repeat is harmless)', (
+      tester,
+    ) async {
+      final kyc = FakeKycRepository()
+        ..status = const Left(ConnectionFailure('No internet connection.'));
+      await confirmedWith(tester, kyc);
+      expect(find.text('Continue to Compliance'), findsOneWidget);
+    });
+  });
+
   testWidgets('with nothing bought it says so instead of crashing', (
     tester,
   ) async {
     final repo = FakeCommunitiesRepository();
     final bloc = CommunityPurchaseBloc(
-      GetComplianceStatus(repo),
+      GetKycStatus(FakeKycRepository()),
       StartCheckout(repo),
       GetSubscriptionExpiry(repo),
     );

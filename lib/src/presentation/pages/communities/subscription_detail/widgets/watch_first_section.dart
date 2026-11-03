@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:finskool/src/comman/widgets/app_snack.dart';
 import 'package:finskool/src/comman/markdown_text.dart';
 import 'package:finskool/src/comman/widgets/teal_section_card.dart';
 import 'package:finskool/src/domain/model/community/welcome_kit.dart';
@@ -52,15 +53,12 @@ class _VideoRow extends StatelessWidget {
   final int number;
 
   Future<void> _open(BuildContext context) async {
-    final messenger = ScaffoldMessenger.of(context);
     final opened = await launchUrl(
       Uri.parse(video.url),
       mode: LaunchMode.externalApplication,
     );
     if (!opened) {
-      messenger.showSnackBar(
-        const SnackBar(content: Text('Could not open that video.')),
-      );
+      AppSnack.show('Could not open that video.');
     }
   }
 

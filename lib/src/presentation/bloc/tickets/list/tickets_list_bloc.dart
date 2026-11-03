@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
+import 'package:finskool/src/comman/min_skeleton.dart';
 import 'package:finskool/src/comman/enum.dart';
 import 'package:finskool/src/data/socket/socket_frames.dart';
 import 'package:finskool/src/data/socket/tickets_socket.dart';
@@ -80,7 +81,9 @@ class TicketsListBloc extends Bloc<TicketsListEvent, TicketsListState> {
     required bool blank,
   }) async {
     if (blank) emit(state.copyWith(state: RequestState.loading, message: ''));
-    final result = await _getTickets.execute();
+    final result = blank
+        ? await holdSkeletonOnFailure(_getTickets.execute)
+        : await _getTickets.execute();
     result.fold(
       (failure) => emit(
         state.copyWith(

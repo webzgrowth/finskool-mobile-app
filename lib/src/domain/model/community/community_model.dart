@@ -69,6 +69,13 @@ class CommunityModel {
   /// screen. Only set on subscribed communities with known purchase data.
   final SubscriptionInfo? subscriptionInfo;
 
+  /// A membership the member **paid** for: subscribed, and a community that
+  /// has plans. The free community every account is auto-joined to is excluded
+  /// from the catalog, so it never has plans — there is no explicit "free" flag
+  /// in the payload, so this is how the two are told apart. Decides whether
+  /// the member owes the one-time KYC.
+  bool get isPaidMembership => access.isSubscribed && plans.isNotEmpty;
+
   /// Renewal is nudged inside this window — Figma's mockup shows "Expires
   /// in 7 days" with a Renew pill on the community that's close, and a
   /// plain "Active till…" on the one that isn't.

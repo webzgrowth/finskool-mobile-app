@@ -20,6 +20,9 @@ class ApiLoggingInterceptor extends Interceptor {
     // authorises a payment.
     'razorpaySignature',
     'razorpayPaymentId',
+    // KYC: the PAN and date of birth are personal data, in both directions.
+    'panNumber',
+    'dateOfBirth',
   };
 
   @override

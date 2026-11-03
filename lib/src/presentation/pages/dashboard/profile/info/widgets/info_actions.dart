@@ -1,3 +1,4 @@
+import 'package:finskool/src/comman/widgets/app_snack.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -6,7 +7,6 @@ import 'package:url_launcher/url_launcher.dart';
 /// in a snackbar when the device has nothing to handle it — an emulator with
 /// no dialer, say — rather than a silent dead tap.
 Future<void> openExternal(BuildContext context, String uri) async {
-  final messenger = ScaffoldMessenger.of(context);
   var opened = false;
   try {
     opened = await launchUrl(
@@ -15,9 +15,7 @@ Future<void> openExternal(BuildContext context, String uri) async {
     );
   } catch (_) {}
   if (!opened) {
-    messenger
-      ..hideCurrentSnackBar()
-      ..showSnackBar(const SnackBar(content: Text('Could not open that.')));
+    AppSnack.show('Could not open that.');
   }
 }
 
@@ -26,10 +24,7 @@ Future<void> copyToClipboard(
   String text,
   String confirmation,
 ) async {
-  final messenger = ScaffoldMessenger.of(context);
   await Clipboard.setData(ClipboardData(text: text));
   HapticFeedback.selectionClick();
-  messenger
-    ..hideCurrentSnackBar()
-    ..showSnackBar(SnackBar(content: Text(confirmation)));
+  AppSnack.show(confirmation);
 }

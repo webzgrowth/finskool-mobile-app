@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:finskool/src/comman/widgets/app_snack.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
 import 'package:finskool/src/domain/model/community/community_access.dart';
 import 'package:finskool/src/domain/model/community/community_model.dart';
@@ -39,9 +40,7 @@ class ProfileScreen extends StatelessWidget {
     // the cached user; re-read it so the header and nav avatar update.
     return BlocListener<PushSettingsBloc, PushSettingsState>(
       listenWhen: (p, c) => p.message != c.message && c.message.isNotEmpty,
-      listener: (context, state) => ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(SnackBar(content: Text(state.message))),
+      listener: (context, state) => AppSnack.show(state.message),
       child: BlocListener<EditProfileBloc, EditProfileState>(
         listenWhen: (p, c) => p.avatarBusy && !c.avatarBusy,
         listener: (context, _) => context.read<AuthenticatorWatcherBloc>().add(

@@ -2,7 +2,6 @@ import 'package:dartz/dartz.dart';
 import 'package:finskool/src/comman/failure.dart';
 import 'package:finskool/src/domain/model/community/checkout_session.dart';
 import 'package:finskool/src/domain/model/community/community_model.dart';
-import 'package:finskool/src/domain/model/community/compliance_details_model.dart';
 import 'package:finskool/src/domain/model/community/welcome_kit.dart';
 
 /// The contract the presentation layer depends on. Implemented by
@@ -27,18 +26,8 @@ abstract class CommunitiesRepository {
   /// community. No endpoint yet — succeeds locally.
   Future<Either<Failure, Unit>> requestPricing(String communityId);
 
-  /// Stores the one-time SEBI details. Only the completion flag is kept;
-  /// the PAN itself is never persisted.
-  Future<Either<Failure, Unit>> submitCompliance(
-    ComplianceDetailsModel details,
-  );
-
   /// The community's welcome kit. `Right(null)` means there is nothing to
   /// show (none published, or not entitled) — distinct from a `Left`, which
   /// is a real failure worth a retry.
   Future<Either<Failure, WelcomeKit?>> getWelcomeKit(String communityId);
-
-  /// Whether compliance has already been completed, so the purchase flow
-  /// can skip straight past it.
-  bool get isComplianceCompleted;
 }

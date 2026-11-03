@@ -6,6 +6,7 @@ import 'package:finskool/src/comman/date_slash_formatter.dart';
 import 'package:finskool/src/comman/routes.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
 import 'package:finskool/src/presentation/bloc/communities/compliance/compliance_bloc.dart';
+import 'package:finskool/src/presentation/bloc/kyc/status/kyc_bloc.dart';
 import 'package:finskool/src/presentation/bloc/communities/list/communities_bloc.dart';
 import 'package:finskool/src/presentation/bloc/communities/purchase/community_purchase_bloc.dart';
 import 'package:finskool/src/presentation/pages/authentication/widgets/auth_field_icons.dart';
@@ -105,12 +106,14 @@ class ComplianceForm extends StatelessWidget {
     );
   }
 
-  /// Compliance passed — the purchase is already real (confirmed against the
-  /// server before this screen), so just re-read the catalog and go back.
+  /// Saved on the server — the purchase is already real (confirmed against it
+  /// before this screen), so re-read the KYC flag (the Profile shows it) and
+  /// the catalog, and go back.
   ///
   /// The two blocs are combined **here**, in the widget layer, rather than
   /// calling each other. Same pattern as `verify_phone_form`.
   void _onSubmitted(BuildContext context, ComplianceState _) {
+    context.read<KycBloc>().add(const KycEvent.load());
     context.read<CommunitiesBloc>().add(const CommunitiesEvent.refresh());
     context.read<CommunityPurchaseBloc>().add(
       const CommunityPurchaseEvent.cleared(),

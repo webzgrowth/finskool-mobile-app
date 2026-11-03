@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
+import 'package:finskool/src/comman/min_skeleton.dart';
 import 'package:finskool/src/comman/enum.dart';
 import 'package:finskool/src/data/socket/notifications_socket.dart';
 import 'package:finskool/src/data/socket/socket_frames.dart';
@@ -73,7 +74,9 @@ class NotificationsInboxBloc
     if (state.items.isEmpty) {
       emit(state.copyWith(state: RequestState.loading, message: ''));
     }
-    final result = await _getPage.execute(1);
+    final result = state.items.isEmpty
+        ? await holdSkeletonOnFailure(() => _getPage.execute(1))
+        : await _getPage.execute(1);
     emit(
       result.fold(
         (f) => state.items.isEmpty

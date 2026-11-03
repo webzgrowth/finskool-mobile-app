@@ -17,13 +17,10 @@ class StorageKeys {
   /// The community whose feed/recommendations we're scoped to.
   static const String selectedCommunityId = 'selected_community_id';
 
-  /// Set once the user has submitted their SEBI compliance details (DOB +
-  /// PAN). The step is required before the *first* paid community only, so
-  /// this gates it for every purchase afterwards.
-  ///
-  /// Local because the backend has no compliance endpoint yet; move it onto
-  /// `UserModel` when it does, so it survives a reinstall.
-  static const String complianceCompleted = 'compliance_completed';
+  /// The retired local "compliance done" flag. KYC lives on the server now
+  /// (`GET /auth/mobile/me/kyc`); `main()` deletes this key from devices that
+  /// still have it. Never read it.
+  static const String legacyComplianceCompleted = 'compliance_completed';
 
   /// The last billing details used to pay a service quote (name, state,
   /// GSTIN, address), so the sheet is pre-filled next time. Personal data on a

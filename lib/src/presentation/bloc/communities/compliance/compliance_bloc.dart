@@ -2,8 +2,9 @@ import 'package:bloc/bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:finskool/src/comman/enum.dart';
-import 'package:finskool/src/domain/model/community/compliance_details_model.dart';
-import 'package:finskool/src/domain/usecases/community/submit_compliance.dart';
+import 'package:finskool/src/comman/failure.dart';
+import 'package:finskool/src/domain/model/kyc/kyc_details.dart';
+import 'package:finskool/src/domain/usecases/kyc/submit_kyc.dart';
 
 import 'compliance_validation.dart';
 
@@ -11,13 +12,18 @@ part 'compliance_event.dart';
 part 'compliance_state.dart';
 part 'compliance_bloc.freezed.dart';
 
-/// The one-time SEBI form: date of birth + PAN + a confirmation tick.
+/// The one-time SEBI form: date of birth + PAN + a confirmation tick, shown
+/// after the member's first paid community when the server says it doesn't
+/// have them yet.
+///
+/// The typed values live only in this state and are **wiped as soon as they
+/// are sent** — the PAN is never stored on the device.
 ///
 /// Same shape as the auth form blocs — validate on submit, per-field
 /// `String?` errors cleared by their own `*Changed` event.
 @singleton
 class ComplianceBloc extends Bloc<ComplianceEvent, ComplianceState> {
-  ComplianceBloc(this._submitCompliance) : super(ComplianceState.initial()) {
+  ComplianceBloc(this._submitKyc) : super(ComplianceState.initial()) {
     on<ComplianceEvent>((event, emit) async {
       await event.map(
         initial: (_) async => emit(ComplianceState.initial()),
@@ -38,25 +44,35 @@ class ComplianceBloc extends Bloc<ComplianceEvent, ComplianceState> {
     });
   }
 
-  final SubmitCompliance _submitCompliance;
+  final SubmitKyc _submitKyc;
 
   Future<void> _submit(Emitter<ComplianceState> emit) async {
     final validated = state.validated();
     emit(validated);
     if (!validated.state.isLoading) return;
 
-    final result = await _submitCompliance.execute(
-      ComplianceDetailsModel(
-        dateOfBirth: state.dateOfBirth,
-        panNumber: state.pan,
-      ),
+    final result = await _submitKyc.execute(
+      KycDetails(dateOfBirth: state.dateOfBirth, panNumber: state.pan),
     );
-    emit(
-      result.fold(
-        (failure) =>
-            state.copyWith(state: RequestState.error, message: failure.message),
-        (_) => state.copyWith(state: RequestState.loaded, message: ''),
-      ),
-    );
+    emit(result.fold((failure) => _failed(failure), (_) => _done()));
+  }
+
+  /// Saved — and the typed values go with it.
+  ComplianceState _done() =>
+      ComplianceState.initial().copyWith(state: RequestState.loaded);
+
+  ComplianceState _failed(Failure failure) {
+    // The server already has them (a retry after a lost response, or another
+    // device): nothing to fix, so carry on as if this one had saved.
+    if (failure.code == 'KYC_ALREADY_SUBMITTED') return _done();
+    if (failure is ValidationFailure) {
+      return state.copyWith(
+        state: RequestState.error,
+        message: failure.message,
+        dateOfBirthError: failure.forField('dateOfBirth'),
+        panError: failure.forField('panNumber'),
+      );
+    }
+    return state.copyWith(state: RequestState.error, message: failure.message);
   }
 }

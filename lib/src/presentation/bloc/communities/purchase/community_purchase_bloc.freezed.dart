@@ -437,7 +437,9 @@ mixin _$CommunityPurchaseState {
 /// is never logged, persisted or put in a route.
  String? get checkoutUrl; String get message;/// Access end *before* this purchase — a renewal is only confirmed once
 /// `/me` reports a later date than this.
- DateTime? get previousExpiry; DateTime? get expiresAt; DateTime? get paidAt;
+ DateTime? get previousExpiry; DateTime? get expiresAt; DateTime? get paidAt;/// Set when the purchase is confirmed: the server doesn't have the
+/// member's date of birth + PAN yet, so the next step is the SEBI form.
+ bool get needsKyc;
 /// Create a copy of CommunityPurchaseState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -449,20 +451,20 @@ $CommunityPurchaseStateCopyWith<CommunityPurchaseState> get copyWith => _$Commun
 @override
 bool operator ==(Object other) {
   final _this = this as CommunityPurchaseState;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is CommunityPurchaseState&&(identical(other.community, _this.community) || other.community == _this.community)&&(identical(other.plan, _this.plan) || other.plan == _this.plan)&&(identical(other.status, _this.status) || other.status == _this.status)&&(identical(other.checkoutUrl, _this.checkoutUrl) || other.checkoutUrl == _this.checkoutUrl)&&(identical(other.message, _this.message) || other.message == _this.message)&&(identical(other.previousExpiry, _this.previousExpiry) || other.previousExpiry == _this.previousExpiry)&&(identical(other.expiresAt, _this.expiresAt) || other.expiresAt == _this.expiresAt)&&(identical(other.paidAt, _this.paidAt) || other.paidAt == _this.paidAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CommunityPurchaseState&&(identical(other.community, _this.community) || other.community == _this.community)&&(identical(other.plan, _this.plan) || other.plan == _this.plan)&&(identical(other.status, _this.status) || other.status == _this.status)&&(identical(other.checkoutUrl, _this.checkoutUrl) || other.checkoutUrl == _this.checkoutUrl)&&(identical(other.message, _this.message) || other.message == _this.message)&&(identical(other.previousExpiry, _this.previousExpiry) || other.previousExpiry == _this.previousExpiry)&&(identical(other.expiresAt, _this.expiresAt) || other.expiresAt == _this.expiresAt)&&(identical(other.paidAt, _this.paidAt) || other.paidAt == _this.paidAt)&&(identical(other.needsKyc, _this.needsKyc) || other.needsKyc == _this.needsKyc));
 }
 
 
 @override
 int get hashCode {
   final _this = this as CommunityPurchaseState;
-  return Object.hash(runtimeType,_this.community,_this.plan,_this.status,_this.checkoutUrl,_this.message,_this.previousExpiry,_this.expiresAt,_this.paidAt);
+  return Object.hash(runtimeType,_this.community,_this.plan,_this.status,_this.checkoutUrl,_this.message,_this.previousExpiry,_this.expiresAt,_this.paidAt,_this.needsKyc);
 }
 
 @override
 String toString() {
   final _this = this as CommunityPurchaseState;
-  return 'CommunityPurchaseState(community: ${_this.community}, plan: ${_this.plan}, status: ${_this.status}, checkoutUrl: ${_this.checkoutUrl}, message: ${_this.message}, previousExpiry: ${_this.previousExpiry}, expiresAt: ${_this.expiresAt}, paidAt: ${_this.paidAt})';
+  return 'CommunityPurchaseState(community: ${_this.community}, plan: ${_this.plan}, status: ${_this.status}, checkoutUrl: ${_this.checkoutUrl}, message: ${_this.message}, previousExpiry: ${_this.previousExpiry}, expiresAt: ${_this.expiresAt}, paidAt: ${_this.paidAt}, needsKyc: ${_this.needsKyc})';
 }
 
 
@@ -473,7 +475,7 @@ abstract mixin class $CommunityPurchaseStateCopyWith<$Res>  {
   factory $CommunityPurchaseStateCopyWith(CommunityPurchaseState value, $Res Function(CommunityPurchaseState) _then) = _$CommunityPurchaseStateCopyWithImpl;
 @useResult
 $Res call({
- CommunityModel? community, CommunityPlanModel? plan, PurchaseStatus status, String? checkoutUrl, String message, DateTime? previousExpiry, DateTime? expiresAt, DateTime? paidAt
+ CommunityModel? community, CommunityPlanModel? plan, PurchaseStatus status, String? checkoutUrl, String message, DateTime? previousExpiry, DateTime? expiresAt, DateTime? paidAt, bool needsKyc
 });
 
 
@@ -490,7 +492,7 @@ class _$CommunityPurchaseStateCopyWithImpl<$Res>
 
 /// Create a copy of CommunityPurchaseState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? community = freezed,Object? plan = freezed,Object? status = null,Object? checkoutUrl = freezed,Object? message = null,Object? previousExpiry = freezed,Object? expiresAt = freezed,Object? paidAt = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? community = freezed,Object? plan = freezed,Object? status = null,Object? checkoutUrl = freezed,Object? message = null,Object? previousExpiry = freezed,Object? expiresAt = freezed,Object? paidAt = freezed,Object? needsKyc = null,}) {
   return _then(CommunityPurchaseState(
 community: freezed == community ? _self.community : community // ignore: cast_nullable_to_non_nullable
 as CommunityModel?,plan: freezed == plan ? _self.plan : plan // ignore: cast_nullable_to_non_nullable
@@ -500,7 +502,8 @@ as String?,message: null == message ? _self.message : message // ignore: cast_nu
 as String,previousExpiry: freezed == previousExpiry ? _self.previousExpiry : previousExpiry // ignore: cast_nullable_to_non_nullable
 as DateTime?,expiresAt: freezed == expiresAt ? _self.expiresAt : expiresAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,paidAt: freezed == paidAt ? _self.paidAt : paidAt // ignore: cast_nullable_to_non_nullable
-as DateTime?,
+as DateTime?,needsKyc: null == needsKyc ? _self.needsKyc : needsKyc // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 
@@ -582,10 +585,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( CommunityModel? community,  CommunityPlanModel? plan,  PurchaseStatus status,  String? checkoutUrl,  String message,  DateTime? previousExpiry,  DateTime? expiresAt,  DateTime? paidAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( CommunityModel? community,  CommunityPlanModel? plan,  PurchaseStatus status,  String? checkoutUrl,  String message,  DateTime? previousExpiry,  DateTime? expiresAt,  DateTime? paidAt,  bool needsKyc)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _CommunityPurchaseState() when $default != null:
-return $default(_that.community,_that.plan,_that.status,_that.checkoutUrl,_that.message,_that.previousExpiry,_that.expiresAt,_that.paidAt);case _:
+return $default(_that.community,_that.plan,_that.status,_that.checkoutUrl,_that.message,_that.previousExpiry,_that.expiresAt,_that.paidAt,_that.needsKyc);case _:
   return orElse();
 
 }
@@ -603,10 +606,10 @@ return $default(_that.community,_that.plan,_that.status,_that.checkoutUrl,_that.
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( CommunityModel? community,  CommunityPlanModel? plan,  PurchaseStatus status,  String? checkoutUrl,  String message,  DateTime? previousExpiry,  DateTime? expiresAt,  DateTime? paidAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( CommunityModel? community,  CommunityPlanModel? plan,  PurchaseStatus status,  String? checkoutUrl,  String message,  DateTime? previousExpiry,  DateTime? expiresAt,  DateTime? paidAt,  bool needsKyc)  $default,) {final _that = this;
 switch (_that) {
 case _CommunityPurchaseState():
-return $default(_that.community,_that.plan,_that.status,_that.checkoutUrl,_that.message,_that.previousExpiry,_that.expiresAt,_that.paidAt);}
+return $default(_that.community,_that.plan,_that.status,_that.checkoutUrl,_that.message,_that.previousExpiry,_that.expiresAt,_that.paidAt,_that.needsKyc);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -620,10 +623,10 @@ return $default(_that.community,_that.plan,_that.status,_that.checkoutUrl,_that.
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( CommunityModel? community,  CommunityPlanModel? plan,  PurchaseStatus status,  String? checkoutUrl,  String message,  DateTime? previousExpiry,  DateTime? expiresAt,  DateTime? paidAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( CommunityModel? community,  CommunityPlanModel? plan,  PurchaseStatus status,  String? checkoutUrl,  String message,  DateTime? previousExpiry,  DateTime? expiresAt,  DateTime? paidAt,  bool needsKyc)?  $default,) {final _that = this;
 switch (_that) {
 case _CommunityPurchaseState() when $default != null:
-return $default(_that.community,_that.plan,_that.status,_that.checkoutUrl,_that.message,_that.previousExpiry,_that.expiresAt,_that.paidAt);case _:
+return $default(_that.community,_that.plan,_that.status,_that.checkoutUrl,_that.message,_that.previousExpiry,_that.expiresAt,_that.paidAt,_that.needsKyc);case _:
   return null;
 
 }
@@ -635,7 +638,7 @@ return $default(_that.community,_that.plan,_that.status,_that.checkoutUrl,_that.
 
 
 class _CommunityPurchaseState extends CommunityPurchaseState {
-  const _CommunityPurchaseState({this.community, this.plan, this.status = PurchaseStatus.idle, this.checkoutUrl, this.message = '', this.previousExpiry, this.expiresAt, this.paidAt}): super._();
+  const _CommunityPurchaseState({this.community, this.plan, this.status = PurchaseStatus.idle, this.checkoutUrl, this.message = '', this.previousExpiry, this.expiresAt, this.paidAt, this.needsKyc = false}): super._();
   
 
 @override final  CommunityModel? community;
@@ -650,6 +653,9 @@ class _CommunityPurchaseState extends CommunityPurchaseState {
 @override final  DateTime? previousExpiry;
 @override final  DateTime? expiresAt;
 @override final  DateTime? paidAt;
+/// Set when the purchase is confirmed: the server doesn't have the
+/// member's date of birth + PAN yet, so the next step is the SEBI form.
+@override@JsonKey() final  bool needsKyc;
 
 /// Create a copy of CommunityPurchaseState
 /// with the given fields replaced by the non-null parameter values.
@@ -661,18 +667,18 @@ _$CommunityPurchaseStateCopyWith<_CommunityPurchaseState> get copyWith => __$Com
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _CommunityPurchaseState&&(identical(other.community, community) || other.community == community)&&(identical(other.plan, plan) || other.plan == plan)&&(identical(other.status, status) || other.status == status)&&(identical(other.checkoutUrl, checkoutUrl) || other.checkoutUrl == checkoutUrl)&&(identical(other.message, message) || other.message == message)&&(identical(other.previousExpiry, previousExpiry) || other.previousExpiry == previousExpiry)&&(identical(other.expiresAt, expiresAt) || other.expiresAt == expiresAt)&&(identical(other.paidAt, paidAt) || other.paidAt == paidAt));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _CommunityPurchaseState&&(identical(other.community, community) || other.community == community)&&(identical(other.plan, plan) || other.plan == plan)&&(identical(other.status, status) || other.status == status)&&(identical(other.checkoutUrl, checkoutUrl) || other.checkoutUrl == checkoutUrl)&&(identical(other.message, message) || other.message == message)&&(identical(other.previousExpiry, previousExpiry) || other.previousExpiry == previousExpiry)&&(identical(other.expiresAt, expiresAt) || other.expiresAt == expiresAt)&&(identical(other.paidAt, paidAt) || other.paidAt == paidAt)&&(identical(other.needsKyc, needsKyc) || other.needsKyc == needsKyc));
 }
 
 
 @override
 int get hashCode {
-    return Object.hash(runtimeType,community,plan,status,checkoutUrl,message,previousExpiry,expiresAt,paidAt);
+    return Object.hash(runtimeType,community,plan,status,checkoutUrl,message,previousExpiry,expiresAt,paidAt,needsKyc);
 }
 
 @override
 String toString() {
-    return 'CommunityPurchaseState(community: $community, plan: $plan, status: $status, checkoutUrl: $checkoutUrl, message: $message, previousExpiry: $previousExpiry, expiresAt: $expiresAt, paidAt: $paidAt)';
+    return 'CommunityPurchaseState(community: $community, plan: $plan, status: $status, checkoutUrl: $checkoutUrl, message: $message, previousExpiry: $previousExpiry, expiresAt: $expiresAt, paidAt: $paidAt, needsKyc: $needsKyc)';
 }
 
 
@@ -683,7 +689,7 @@ abstract mixin class _$CommunityPurchaseStateCopyWith<$Res> implements $Communit
   factory _$CommunityPurchaseStateCopyWith(_CommunityPurchaseState value, $Res Function(_CommunityPurchaseState) _then) = __$CommunityPurchaseStateCopyWithImpl;
 @override @useResult
 $Res call({
- CommunityModel? community, CommunityPlanModel? plan, PurchaseStatus status, String? checkoutUrl, String message, DateTime? previousExpiry, DateTime? expiresAt, DateTime? paidAt
+ CommunityModel? community, CommunityPlanModel? plan, PurchaseStatus status, String? checkoutUrl, String message, DateTime? previousExpiry, DateTime? expiresAt, DateTime? paidAt, bool needsKyc
 });
 
 
@@ -700,7 +706,7 @@ class __$CommunityPurchaseStateCopyWithImpl<$Res>
 
 /// Create a copy of CommunityPurchaseState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? community = freezed,Object? plan = freezed,Object? status = null,Object? checkoutUrl = freezed,Object? message = null,Object? previousExpiry = freezed,Object? expiresAt = freezed,Object? paidAt = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? community = freezed,Object? plan = freezed,Object? status = null,Object? checkoutUrl = freezed,Object? message = null,Object? previousExpiry = freezed,Object? expiresAt = freezed,Object? paidAt = freezed,Object? needsKyc = null,}) {
   return _then(_CommunityPurchaseState(
 community: freezed == community ? _self.community : community // ignore: cast_nullable_to_non_nullable
 as CommunityModel?,plan: freezed == plan ? _self.plan : plan // ignore: cast_nullable_to_non_nullable
@@ -710,7 +716,8 @@ as String?,message: null == message ? _self.message : message // ignore: cast_nu
 as String,previousExpiry: freezed == previousExpiry ? _self.previousExpiry : previousExpiry // ignore: cast_nullable_to_non_nullable
 as DateTime?,expiresAt: freezed == expiresAt ? _self.expiresAt : expiresAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,paidAt: freezed == paidAt ? _self.paidAt : paidAt // ignore: cast_nullable_to_non_nullable
-as DateTime?,
+as DateTime?,needsKyc: null == needsKyc ? _self.needsKyc : needsKyc // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 

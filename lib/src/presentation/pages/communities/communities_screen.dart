@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:finskool/src/comman/widgets/app_snack.dart';
 import 'package:finskool/src/comman/routes.dart';
 import 'package:finskool/src/comman/widgets/search_top_bar.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
@@ -62,9 +63,7 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
       body: PurchaseNavigationListener(
         child: BlocListener<CommunitiesBloc, CommunitiesState>(
           listenWhen: (p, c) => p.message != c.message && c.message.isNotEmpty,
-          listener: (context, state) => ScaffoldMessenger.of(context)
-            ..hideCurrentSnackBar()
-            ..showSnackBar(SnackBar(content: Text(state.message))),
+          listener: (context, state) => AppSnack.show(state.message),
           child: BlocBuilder<CommunityFilterBloc, CommunityFilterState>(
             builder: (context, filterState) {
               return BlocBuilder<CommunitiesBloc, CommunitiesState>(

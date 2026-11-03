@@ -5,7 +5,7 @@ part of 'feed_bloc.dart';
 /// private `_generation` and `_pendingWrites`.
 extension FeedBlocHandlers on FeedBloc {
   Future<void> _load(Emitter<FeedState> emit, {String? communityId}) async {
-    _generation++;
+    final generation = ++_generation;
     emit(
       state.copyWith(
         state: RequestState.loading,
@@ -13,7 +13,11 @@ extension FeedBlocHandlers on FeedBloc {
         communityId: communityId,
       ),
     );
-    final result = await _getPosts.execute(page: 1, communityId: communityId);
+    final result = await holdSkeletonOnFailure(
+      () => _getPosts.execute(page: 1, communityId: communityId),
+    );
+    // Replaced (a newer load, or a sign-out) while this was in flight.
+    if (generation != _generation) return;
     result.fold(
       (failure) => emit(
         state.copyWith(state: RequestState.error, message: failure.message),
@@ -29,7 +33,7 @@ extension FeedBlocHandlers on FeedBloc {
             isLoadingMore: false,
           ),
         );
-        _hydrate(page.posts, _generation);
+        _hydrate(page.posts, generation);
       },
     );
   }

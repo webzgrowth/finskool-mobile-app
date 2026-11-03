@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:finskool/src/comman/widgets/app_snack.dart';
 import 'package:finskool/src/comman/widgets/success_animation.dart';
 import 'package:finskool/src/domain/model/service/service_payment_model.dart';
 import 'package:finskool/src/domain/model/service/service_request_model.dart';
@@ -16,7 +17,6 @@ import 'quote_card.dart';
 /// — the link expires in minutes, and the first call after payment can take a
 /// moment because the PDF is made on demand.
 Future<void> downloadInvoice(BuildContext context, ServiceChatBloc chat) async {
-  final messenger = ScaffoldMessenger.of(context);
   final result = Completer<InvoiceLink?>();
   chat.add(ServiceChatEvent.invoiceRequested(result));
   final link = await result.future;
@@ -26,9 +26,7 @@ Future<void> downloadInvoice(BuildContext context, ServiceChatBloc chat) async {
     mode: LaunchMode.externalApplication,
   );
   if (!opened) {
-    messenger.showSnackBar(
-      const SnackBar(content: Text('Could not open the invoice.')),
-    );
+    AppSnack.show('Could not open the invoice.');
   }
 }
 

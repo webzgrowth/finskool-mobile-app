@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:finskool/src/comman/widgets/app_snack.dart';
 import 'package:finskool/injections/injection.dart';
 import 'package:finskool/src/presentation/bloc/tickets/chat/ticket_chat_bloc.dart';
 import 'package:finskool/src/presentation/pages/tickets/widgets/pick_ticket_files.dart';
@@ -85,9 +86,7 @@ class _DetailViewState extends State<_DetailView> {
       listener: (context, state) {
         _anchor.onState(state);
         if (state.message.isNotEmpty) {
-          ScaffoldMessenger.of(context)
-            ..hideCurrentSnackBar()
-            ..showSnackBar(SnackBar(content: Text(state.message)));
+          AppSnack.show(state.message);
         }
       },
       builder: (context, state) {

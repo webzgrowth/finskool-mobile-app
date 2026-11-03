@@ -654,6 +654,24 @@ simultaneous reacts cause one fetch) — never hardcoded.
 arrives from the API, so an unknown one drops that single datum rather than
 throwing and taking the whole feed down. Callers skip the row or count key.
 
+**Tapping Like opens every reaction; it never likes by itself.** The Like control's
+`onTap` calls `ReactionPickerOverlay.showTappable`: the same pill as the
+long-press picker, but each reaction is a button, the member's current one is
+on a soft plate, and a tap anywhere else dismisses it. Choosing the reaction you
+already have **takes it back** (`removeReaction`); choosing another sends it.
+Long-press still works as drag-and-release. (Before, a tap sent an instant 👍.)
+
+**The picker shows what Figma draws *and* the backend has — which is less than
+Figma.** Figma's picker is 👍 ❤️ 🔥 👏 ✅ 😮. The backend's fixed, seeded set is
+like · love · haha · wow · sad · angry (`GET /mobile/reaction-types`, "never
+changes at runtime"). Only **like, love and wow** exist in both, so 🔥 👏 ✅ cannot
+be offered — there is no id to send. `ReactionIcons.pickerOrder` keeps Figma's
+relative order for the overlap (like → love → wow) and puts the backend-only
+haha and angry after; `available()` then limits it to the types the server
+actually returned, so a type the backend drops disappears without a release.
+**To match Figma the backend must seed fire/clap/verified** — then add them to
+`ReactionType`, `pickerOrder` and `badgeColor`. `sad` stays out by product call.
+
 **Reaction icons: emoji are the design, not a placeholder.** Figma's
 long-press picker is a frame literally named `Picker` (`605:17127`) holding
 six *text* nodes of emoji characters — the designer used emoji too, so
@@ -1066,13 +1084,48 @@ app returns to the foreground (`DashboardShellScreen`'s `AppLifecycleListener`,
 alongside `authCheckRequest` — the guide's §10 safety net for a payment the
 webhook confirmed while the app was away).
 
-Compliance (SEBI DOB + PAN) is still **local** and runs *after* payment, as
-before: `StorageKeys.complianceCompleted`, `needsCompliance` on the bloc.
-`/auth/mobile/me` now returns `panSubmitted`/`dateOfBirth`, and
-`POST /auth/mobile/me/kyc` exists — moving compliance onto those is the
-remaining piece. **Never persist the PAN.**
+**KYC (SEBI date of birth + PAN) is the server's, never stored on the device.**
+Contract: `GET/POST/PUT /auth/mobile/me/kyc` (`Api.kyc`). `GET` answers
+`{completed, dateOfBirth: 'YYYY-MM-DD'|null, panMasked: 'XXXXXX234F'|null}` —
+the full PAN is never returned. `POST` sends the details once; a second call is
+`409 KYC_ALREADY_SUBMITTED` and changes nothing. `PUT` edits them and is **not
+wired** (no UI for it). Layers: `KycRemoteDatasource` → `KycRepository` →
+`GetKycStatus` / `SubmitKyc`. The old local flag (`StorageKeys.compliance
+Completed`, `GetComplianceStatus`, `SubmitCompliance`) is deleted, and `main()`
+removes the leftover `compliance_completed` key from devices that have it.
 
-**Tests** (`test/community_purchase_bloc_test.dart`, `payment_outcome_test.dart`,
+* **Decided after payment, by the server.** When a purchase is `confirmed`,
+  `CommunityPurchaseBloc` asks `GetKycStatus` and sets `state.needsKyc`
+  (`!completed`); the success screen shows "Continue to Compliance" only then.
+  An **unreadable** answer asks anyway — a repeat is harmless (`409` is
+  treated as done), a skipped one is not. A member who already gave the details
+  (their second community) is never asked again.
+* **`KycBloc`** (`@singleton`, in memory only) holds the status for the Profile.
+  The shell loads it on every `authenticated` (login and launch) and the form
+  reloads it after saving; sign-out resets it (`_forgetSession`).
+* **`ComplianceBloc` is the form.** The date is typed `DD/MM/YYYY` and sent as
+  `YYYY-MM-DD` (`KycDetails.toJson`); a two-digit year, an impossible date
+  (31/02), a future date or one before 1900 is rejected before any request. A
+  `422` lands under `dateOfBirth`/`panNumber`. On success **the typed DOB and PAN
+  are wiped from the bloc's state**, and sign-out clears it too.
+  `ApiLoggingInterceptor` redacts `panNumber` and `dateOfBirth`.
+* A member who completed the old local step has nothing on the server, so
+  they are asked once (by the prompt above).
+* **A paid member without KYC is asked to complete it** (`KycReminder`, wrapped
+  around the dashboard in the shell). It listens to `KycBloc` and
+  `CommunitiesBloc` (they answer separately, in either order) and, once the
+  server says `completed: false` **and** the member holds a paid membership
+  (`CommunityModel.isPaidMembership` = subscribed **with plans** — the free
+  community is excluded from the catalog so never has any; there is no explicit
+  "free" flag in the payload), shows "Complete your KYC" → *Complete KYC* opens
+  the same form, *Later* is respected until the next launch/login. It stays
+  quiet while a purchase is in flight (the success screen asks at the right
+  moment) and while another screen covers the dashboard. Edit Profile → "Verified
+  with SEBI" also shows a **Please complete KYC** button for as long as it is
+  owed, so dismissing the dialog is never a dead end. Pinned by
+  `test/kyc_reminder_test.dart`.
+
+**Tests** (`test/community_purchase_bloc_test.dart`, `kyc_test.dart`, `payment_outcome_test.dart`,
 `payment_success_screen_test.dart`, fake repo in `test/support/purchase_fakes.dart`):
 the bloc against a scripted repository (confirm after N polls, renewal needs a
 later date, pending after all tries, recheck, popup-closed no-op, quiet dismiss
@@ -1177,7 +1230,7 @@ different versions of these screens.
 * **Top bar** (`comman/widgets/search_top_bar.dart`, shared by Feed and
   Communities): 62px of content under the status bar (`baseHeight`), a 36px
   glass field (white 12% fill, white-18% hairline, r10.55), exported search and
-  filter glyphs, a 23px filter chip and a 29px bell disc with a 6.5px red dot.
+  filter glyphs, a 23px filter chip and a 29px bell disc. The unread badge is **not** Figma's 6.5px dot with a 4.46px "3" (unreadable with a real count): it is a 19px red pill with a 10px bold number (sized in the widget — `TopBarTypography.light` is a `static final`, which a hot reload never rebuilds, so a change made only there looks like it did nothing), ringed in the bar's teal and hung off the disc's top-right corner.
   Text styles live in `TopBarTypography` (`context.topBarType`); the hint is
   Poppins in Figma, approximated with Inter. The first card sits 20 below it.
 * **Post card** (`FeedPostCard`): r20, a 0.5dp `#A5D3D3` hairline (Figma's
@@ -1492,15 +1545,12 @@ from the image cache. The earlier on-device-only photo machinery
 `path_provider`) is **deleted** — don't bring back a local overlay: it would hide
 the server's picture on another device.
 
-**The SEBI date of birth and PAN cannot currently be displayed.**
-`submitCompliance` persists only `StorageKeys.complianceCompleted` and
-**discards its `ComplianceDetailsModel` argument entirely** — nothing
-writes the DOB either, and `ComplianceDetailsModel` has no `fromJson`. So
-`SebiDetailsSection` takes both as nullable and renders an em-dash. Filling
-them in needs a decision first: persist the DOB plus a masked PAN locally,
-or wait for a backend compliance endpoint and put them on `UserModel` (what
-the `complianceCompleted` comment anticipates). Don't quietly start storing
-the full PAN.
+**The SEBI date of birth and PAN come from the server.** `SebiDetailsSection`
+reads `KycBloc` (`GET /auth/mobile/me/kyc`): the date as `d MMM yyyy` and the
+**masked** PAN (`XXXXXX234F`) — the app never has the full PAN. Until the member
+has submitted them (their first paid community), or while it loads, each shows
+an em-dash, with a *Please complete KYC* button when it is owed. Read-only; the footer still says to contact support to change them
+(`PUT` exists but isn't wired).
 
 **Menu rows with no destination designed** (About &
 SEBI info, Help & support, Give feedback, Terms &
@@ -1892,12 +1942,9 @@ sign-in and launch because a login makes a new session with no token. The
 classic `getToken` is kept despite the deprecation: `register()`/`onRegistered`
 return a Firebase *Installation ID*, not the token the backend sends to.
 
-* **One notification, never two (§9).** While the app is open the OS banner is
-  suppressed (iOS presentation options off; FCM draws none on Android) and **no
-  local notification is posted**. The in-app banner is fed by the **socket**;
-  `PushService.foreground` is only the fallback when the socket is down
-  (`InAppBannerHost` checks `NotificationsSocket.isLive`). Don't "restore" a
-  foreground local notification — it would duplicate the socket's.
+* **One notification, never two.** The push is the only thing that draws a
+  notification; the socket never does (see below). Don't add a socket-driven
+  banner or toast — it would duplicate the push.
 * **Tap routing is one function**, `data/push/push_route.dart::routeForPush`, shared
   by an OS banner, the in-app banner and an inbox row: `ticket`→chat,
   `service`→chat, `post`→`/community/<communityId|id>`,
@@ -1928,13 +1975,15 @@ socket so a reaction row re-sent as unread replaces rather than duplicates),
 `PushSettingsBloc` (`@singleton`: the master switch). They never call each
 other; `NotificationsScreen` combines them in the widget layer.
 
-**In-app banner** (`comman/widgets/in_app_banner.dart`, wraps the app in
-`MaterialApp.builder`): Figma "While using the app" — drops from the top, hides
-after 4 s, swipe up to dismiss, tap routes. `NotificationCard` is the Figma card
-(r22, 38px icon, `FINSKOOL21` Inter 600·11 +3%, title Inter 600·14, body 13/18 ≤2
-lines) and is shared with the inbox rows; styles in `NotificationTypography`.
-Figma's per-event action pills ("Pay now", "Renew"…) are **not built** — the
-whole card taps through to the same screen.
+**There is no in-app banner** (it was built and then removed on request — only
+real push notifications). `NotificationCard` and `NotificationTypography` remain
+because the **inbox rows** use that card. While the app is open the system
+notification is shown just as when it is closed: **iOS** by its foreground
+presentation options (alert/badge/sound on); **Android** by `PushService`
+posting a local notification (FCM draws none in the foreground), carrying the
+`data` payload so a tap routes the same. The socket updates the inbox and bell
+badge **silently** — it draws nothing, so a notification is never shown twice.
+Figma's per-event action pills are not built.
 
 **Settings — two different switches, and Figma draws one.** The Profile →
 Settings "Notifications" switch is the **master** push switch
@@ -1984,6 +2033,50 @@ on** (debug too) with no per-screen exceptions.
   broke the Android build.
 * Consequences to know: store screenshots and screen-share demos need the flag
   off; Flutter golden tests are unaffected (they render offscreen).
+
+## Sign-out clears the account's state
+
+The tab blocs (`FeedBloc`, `CommunitiesBloc`, `ServicesCatalogBloc`, the three
+filter blocs, `CommunityPurchaseBloc`, `EditProfileBloc`, `LoginFormBloc`,
+`KycBloc`, `ComplianceBloc`) are
+built once for the whole app, so **they outlive a logout**. Left alone they
+handed the previous member's feed, subscriptions, services and profile to the
+next login — and, because they already held data, skipped the load and its
+skeleton entirely (`FeedScreen` loads only when `posts.isEmpty`;
+`ServicesCatalogBloc` returns early when `isLoaded`). The shell's
+`unauthenticated` listener now calls `_forgetSession`, which resets each of them
+(`FeedEvent.reset`, `CommunitiesEvent.reset`, `ServicesCatalogEvent.reset`, the
+filters' queries, `cleared`, `prefill(null)`, `LoginFormEvent.initial`, `KycEvent.reset`, `ComplianceEvent.initial`). A load
+still in flight at sign-out is dropped by a generation/epoch counter so it can't
+repopulate the next session. **Any new app-lifetime bloc that holds
+account data must be added there**; route-scoped blocs need nothing.
+`test/session_reset_test.dart` pins it, including the "second login wouldn't
+reload" case.
+
+## Snackbars are at the top
+
+`comman/widgets/app_snack.dart` — **`AppSnack.show(message, {actionLabel,
+onAction})`** is the only way to show a transient message; don't call
+`ScaffoldMessenger.showSnackBar` (Flutter's snackbar is bottom-only and sat
+over the reply bars, CTAs and bottom nav). It draws in the root navigator's
+overlay, so it floats above every screen, sheet and dialog, needs **no
+`BuildContext`** (usable from a listener or after an `await`), shows one at a
+time (a new one replaces the current), auto-hides (3 s, 6 s with an action) and
+swipes up to dismiss. Colours come from the theme's `SnackBarThemeData`.
+`AppSnack.overlayProvider` is the test seam. Dialogs and bottom sheets are
+unchanged.
+
+## Failed loads keep their skeleton for 2 s
+
+`comman/min_skeleton.dart` — with the network off a request fails in
+milliseconds, so a refresh / "Try again" went skeleton → error inside a frame
+and looked as if nothing was tried. `holdSkeletonOnFailure(load)` holds a
+**failed** load until `MinSkeleton.duration` (2 s) has passed; a success is
+never delayed and a slow failure adds nothing. Applied to the first/blank loads
+of Feed, Communities, Services catalog, My requests, My tickets, the inbox and
+the Welcome Kit. `test/flutter_test_config.dart` sets it to zero for every test
+file; `min_skeleton_test.dart` sets its own. Don't wrap loads that show no
+skeleton (a silent background refresh).
 
 ## Success animation
 
@@ -2078,7 +2171,7 @@ Do not treat these as incidental bugs to fix while doing something else:
   placeholder — Figma has no design for the inside of a community, and the
   post model has no community field yet. The route works; the body doesn't.
 - Payments are wired through the web checkout (see "Purchase flow"); only
-  `requestPricing` and compliance remain local-only. **Not yet verified on a
+  `requestPricing` remains local-only. **Not yet verified on a
   device with real Razorpay test payments.**
 - `SelectCommunity` is only ever called automatically, when login returns
   exactly one community. A user in **two or more** communities never gets to
@@ -2110,9 +2203,6 @@ Do not treat these as incidental bugs to fix while doing something else:
   OpenAPI document is embedded in its `swagger-ui-init.js`, so the page
   can't be read directly) now also documents endpoints that would close
   gaps listed here, **none of them wired yet**:
-  `POST /auth/mobile/me/kyc` + `GET /auth/mobile/me` (SEBI DOB + PAN, which
-  is what the Edit Profile em-dashes and the local-only
-  `StorageKeys.complianceCompleted` flag are waiting for), and
   `GET /mobile/communities` / `GET /communities/{id}/plans` /
   `POST /communities/{id}/plans/{planId}/orders` / `POST /payments/verify`
   (Razorpay), which would replace `CommunitiesMockDatasource` and

@@ -45,6 +45,10 @@ sealed class CommunityPurchaseState with _$CommunityPurchaseState {
     DateTime? previousExpiry,
     DateTime? expiresAt,
     DateTime? paidAt,
+
+    /// Set when the purchase is confirmed: the server doesn't have the
+    /// member's date of birth + PAN yet, so the next step is the SEBI form.
+    @Default(false) bool needsKyc,
   }) = _CommunityPurchaseState;
 
   factory CommunityPurchaseState.initial() => const CommunityPurchaseState();

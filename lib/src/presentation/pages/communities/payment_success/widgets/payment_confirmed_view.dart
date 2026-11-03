@@ -19,9 +19,7 @@ class PaymentConfirmedView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final type = context.communityType;
-    final needsCompliance = context
-        .read<CommunityPurchaseBloc>()
-        .needsCompliance;
+    final needsCompliance = state.needsKyc;
     final until = state.expiresAt;
     return Column(
       children: [

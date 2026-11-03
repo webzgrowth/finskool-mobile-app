@@ -32,6 +32,28 @@ class ReactionIcons {
     _ => null,
   };
 
+  /// The picker's order, laid out as **Figma's** picker is: 👍 ❤️ 🔥 👏 ✅ 😮.
+  /// Figma's 🔥 / 👏 / ✅ have no backend reaction (the seeded set is
+  /// like · love · haha · wow · sad · angry and "never changes at runtime"), so
+  /// they are absent; what *is* drawn keeps Figma's relative order — like, love,
+  /// wow — with the backend-only extras after. Only types the server actually
+  /// returns are shown (see [available]).
+  static const List<ReactionType> pickerOrder = [
+    ReactionType.like,
+    ReactionType.love,
+    ReactionType.wow,
+    ReactionType.haha,
+    ReactionType.angry,
+  ];
+
+  /// [pickerOrder] limited to [offered] (the names `GET /mobile/reaction-types`
+  /// returned). With nothing known yet — the first tap before the catalog has
+  /// answered — the whole default list is offered.
+  static List<ReactionType> available(Set<ReactionType>? offered) =>
+      offered == null || offered.isEmpty
+      ? pickerOrder
+      : pickerOrder.where(offered.contains).toList();
+
   /// The Reactions sheet's tab order. Figma lays the discs out blue, red,
   /// yellow, teal — like, love, then the yellow one (`wow` here), then the
   /// laughing face — which isn't the enum's (API `sortOrder`) order.

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show HapticFeedback;
 import 'package:finskool/src/domain/model/reaction_type.dart';
 
+import 'reaction_icons.dart';
 import 'reaction_picker_row.dart';
 
 /// Drives the long-press reaction popup: which icon is hovered while the
@@ -35,13 +36,15 @@ class ReactionPickerOverlay {
   /// The border has to be counted: Flutter's [Border] is drawn *inside* the
   /// box, so leaving it out made the row 0.76px wider than its own content
   /// box and tripped a RenderFlex overflow.
-  static double get pillWidth =>
-      padH * 2 +
-      borderWidth * 2 +
-      itemExtent +
-      (ReactionType.values.length - 1) * pitch;
+  static double widthFor(int count) =>
+      padH * 2 + borderWidth * 2 + itemExtent + (count - 1) * pitch;
 
-  final reactions = ReactionType.values;
+  /// Width of the default (full) row.
+  static double get pillWidth => widthFor(ReactionIcons.pickerOrder.length);
+
+  /// What the picker currently offers. Set per show, from what the backend
+  /// supports; defaults to the whole [ReactionIcons.pickerOrder].
+  List<ReactionType> reactions = ReactionIcons.pickerOrder;
   final ValueNotifier<int?> hoveredIndex = ValueNotifier(null);
 
   OverlayEntry? _entry;
@@ -53,8 +56,13 @@ class ReactionPickerOverlay {
   /// conversion exists at all.
   RenderBox? _overlayBox;
 
-  void show(BuildContext context, Offset anchorTopCenter) {
+  void show(
+    BuildContext context,
+    Offset anchorTopCenter, {
+    List<ReactionType>? offered,
+  }) {
     hide();
+    if (offered != null && offered.isNotEmpty) reactions = offered;
     // The open itself is the one haptic every long-press reaction picker in
     // the wild gives (Facebook, Instagram, WhatsApp) — without it the popup
     // can appear and still feel like nothing happened.
@@ -77,7 +85,7 @@ class ReactionPickerOverlay {
     // factor, rather than this file needing to know the scale itself.
     final anchor = overlayBox.globalToLocal(anchorTopCenter);
 
-    final width = pillWidth;
+    final width = widthFor(reactions.length);
     final screenWidth = overlayBox.size.width;
     final left = (anchor.dx - width / 2).clamp(8.0, screenWidth - width - 8);
     final top = anchor.dy - pillHeight - 16;
@@ -90,6 +98,65 @@ class ReactionPickerOverlay {
           reactions: reactions,
           hoveredIndex: hoveredIndex,
         ),
+      ),
+    );
+    overlayState.insert(_entry!);
+  }
+
+  /// The **tap** picker: the same pill, but every reaction is a button and a
+  /// tap anywhere else dismisses it. Opened by a tap on the Like control so the
+  /// member sees every reaction and chooses, instead of an instant like.
+  ///
+  /// [current] is highlighted; choosing it again is the caller's cue to *remove*
+  /// the reaction. [onSelect] runs after the pill is gone.
+  void showTappable(
+    BuildContext context,
+    Offset anchorTopCenter, {
+    required void Function(ReactionType) onSelect,
+    List<ReactionType>? offered,
+    ReactionType? current,
+  }) {
+    hide();
+    HapticFeedback.lightImpact();
+    if (offered != null && offered.isNotEmpty) reactions = offered;
+    final overlayState = Overlay.of(context, rootOverlay: true);
+    final overlayBox = overlayState.context.findRenderObject()! as RenderBox;
+    // Same `UiScaler` conversion as `show`: true screen pixels in, the
+    // overlay's own local space out.
+    final anchor = overlayBox.globalToLocal(anchorTopCenter);
+    final width = widthFor(reactions.length);
+    final left = (anchor.dx - width / 2).clamp(
+      8.0,
+      overlayBox.size.width - width - 8,
+    );
+    // Above the control when there is room; below it when the card is at the
+    // very top of the screen.
+    final above = anchor.dy - pillHeight - 16;
+    final top = above < 8 ? anchor.dy + 40 : above;
+    _entry = OverlayEntry(
+      builder: (_) => Stack(
+        children: [
+          Positioned.fill(
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: hide,
+            ),
+          ),
+          Positioned(
+            left: left,
+            top: top,
+            child: ReactionPickerRow(
+              reactions: reactions,
+              hoveredIndex: hoveredIndex,
+              current: current,
+              onTap: (r) {
+                HapticFeedback.mediumImpact();
+                hide();
+                onSelect(r);
+              },
+            ),
+          ),
+        ],
       ),
     );
     overlayState.insert(_entry!);

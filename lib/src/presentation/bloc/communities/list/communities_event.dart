@@ -10,6 +10,9 @@ class CommunitiesEvent with _$CommunitiesEvent {
   /// up here.
   const factory CommunitiesEvent.refresh() = _Refresh;
 
+  /// Sign-out: drop the previous account's catalog, subscriptions and badges.
+  const factory CommunitiesEvent.reset() = _Reset;
+
   /// For communities whose price isn't public.
   const factory CommunitiesEvent.requestPricing(String communityId) =
       _RequestPricing;
