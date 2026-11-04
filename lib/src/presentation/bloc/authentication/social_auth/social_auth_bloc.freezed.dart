@@ -846,7 +846,13 @@ mixin _$SocialAuthState {
  String? get email; String? get name; String? get signupToken; String? get linkToken; String? get otpToken; String get password; String? get passwordError; String get countryCode; String get phone; String? get phoneError;/// Apple gives the name once and Google may omit it: ask when it is
 /// missing, or when the server answers `NAME_REQUIRED`.
  String get typedName; bool get nameRequired; String? get nameError;/// The number the code went to, as the server normalised it.
- String get sentTo; String get otp; String? get otpError; int get resendSeconds;
+ String get sentTo; String get otp; String? get otpError; int get resendSeconds;/// How long the code on the phone is good for, from `otpExpiresInSeconds`
+/// (600) — the code screen says so.
+ int get otpExpiresInSeconds;/// The server answered `404 SOCIAL_LOGIN_DISABLED`: social login is switched
+/// off there, so the buttons hide. A fact about the server, not the member,
+/// so it **survives** `reset` and sign-out (it is only re-learned on the
+/// next launch).
+ bool get unavailable;
 /// Create a copy of SocialAuthState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -858,20 +864,20 @@ $SocialAuthStateCopyWith<SocialAuthState> get copyWith => _$SocialAuthStateCopyW
 @override
 bool operator ==(Object other) {
   final _this = this as SocialAuthState;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is SocialAuthState&&(identical(other.step, _this.step) || other.step == _this.step)&&(identical(other.state, _this.state) || other.state == _this.state)&&(identical(other.message, _this.message) || other.message == _this.message)&&(identical(other.provider, _this.provider) || other.provider == _this.provider)&&(identical(other.email, _this.email) || other.email == _this.email)&&(identical(other.name, _this.name) || other.name == _this.name)&&(identical(other.signupToken, _this.signupToken) || other.signupToken == _this.signupToken)&&(identical(other.linkToken, _this.linkToken) || other.linkToken == _this.linkToken)&&(identical(other.otpToken, _this.otpToken) || other.otpToken == _this.otpToken)&&(identical(other.password, _this.password) || other.password == _this.password)&&(identical(other.passwordError, _this.passwordError) || other.passwordError == _this.passwordError)&&(identical(other.countryCode, _this.countryCode) || other.countryCode == _this.countryCode)&&(identical(other.phone, _this.phone) || other.phone == _this.phone)&&(identical(other.phoneError, _this.phoneError) || other.phoneError == _this.phoneError)&&(identical(other.typedName, _this.typedName) || other.typedName == _this.typedName)&&(identical(other.nameRequired, _this.nameRequired) || other.nameRequired == _this.nameRequired)&&(identical(other.nameError, _this.nameError) || other.nameError == _this.nameError)&&(identical(other.sentTo, _this.sentTo) || other.sentTo == _this.sentTo)&&(identical(other.otp, _this.otp) || other.otp == _this.otp)&&(identical(other.otpError, _this.otpError) || other.otpError == _this.otpError)&&(identical(other.resendSeconds, _this.resendSeconds) || other.resendSeconds == _this.resendSeconds));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SocialAuthState&&(identical(other.step, _this.step) || other.step == _this.step)&&(identical(other.state, _this.state) || other.state == _this.state)&&(identical(other.message, _this.message) || other.message == _this.message)&&(identical(other.provider, _this.provider) || other.provider == _this.provider)&&(identical(other.email, _this.email) || other.email == _this.email)&&(identical(other.name, _this.name) || other.name == _this.name)&&(identical(other.signupToken, _this.signupToken) || other.signupToken == _this.signupToken)&&(identical(other.linkToken, _this.linkToken) || other.linkToken == _this.linkToken)&&(identical(other.otpToken, _this.otpToken) || other.otpToken == _this.otpToken)&&(identical(other.password, _this.password) || other.password == _this.password)&&(identical(other.passwordError, _this.passwordError) || other.passwordError == _this.passwordError)&&(identical(other.countryCode, _this.countryCode) || other.countryCode == _this.countryCode)&&(identical(other.phone, _this.phone) || other.phone == _this.phone)&&(identical(other.phoneError, _this.phoneError) || other.phoneError == _this.phoneError)&&(identical(other.typedName, _this.typedName) || other.typedName == _this.typedName)&&(identical(other.nameRequired, _this.nameRequired) || other.nameRequired == _this.nameRequired)&&(identical(other.nameError, _this.nameError) || other.nameError == _this.nameError)&&(identical(other.sentTo, _this.sentTo) || other.sentTo == _this.sentTo)&&(identical(other.otp, _this.otp) || other.otp == _this.otp)&&(identical(other.otpError, _this.otpError) || other.otpError == _this.otpError)&&(identical(other.resendSeconds, _this.resendSeconds) || other.resendSeconds == _this.resendSeconds)&&(identical(other.otpExpiresInSeconds, _this.otpExpiresInSeconds) || other.otpExpiresInSeconds == _this.otpExpiresInSeconds)&&(identical(other.unavailable, _this.unavailable) || other.unavailable == _this.unavailable));
 }
 
 
 @override
 int get hashCode {
   final _this = this as SocialAuthState;
-  return Object.hashAll([runtimeType,_this.step,_this.state,_this.message,_this.provider,_this.email,_this.name,_this.signupToken,_this.linkToken,_this.otpToken,_this.password,_this.passwordError,_this.countryCode,_this.phone,_this.phoneError,_this.typedName,_this.nameRequired,_this.nameError,_this.sentTo,_this.otp,_this.otpError,_this.resendSeconds]);
+  return Object.hashAll([runtimeType,_this.step,_this.state,_this.message,_this.provider,_this.email,_this.name,_this.signupToken,_this.linkToken,_this.otpToken,_this.password,_this.passwordError,_this.countryCode,_this.phone,_this.phoneError,_this.typedName,_this.nameRequired,_this.nameError,_this.sentTo,_this.otp,_this.otpError,_this.resendSeconds,_this.otpExpiresInSeconds,_this.unavailable]);
 }
 
 @override
 String toString() {
   final _this = this as SocialAuthState;
-  return 'SocialAuthState(step: ${_this.step}, state: ${_this.state}, message: ${_this.message}, provider: ${_this.provider}, email: ${_this.email}, name: ${_this.name}, signupToken: ${_this.signupToken}, linkToken: ${_this.linkToken}, otpToken: ${_this.otpToken}, password: ${_this.password}, passwordError: ${_this.passwordError}, countryCode: ${_this.countryCode}, phone: ${_this.phone}, phoneError: ${_this.phoneError}, typedName: ${_this.typedName}, nameRequired: ${_this.nameRequired}, nameError: ${_this.nameError}, sentTo: ${_this.sentTo}, otp: ${_this.otp}, otpError: ${_this.otpError}, resendSeconds: ${_this.resendSeconds})';
+  return 'SocialAuthState(step: ${_this.step}, state: ${_this.state}, message: ${_this.message}, provider: ${_this.provider}, email: ${_this.email}, name: ${_this.name}, signupToken: ${_this.signupToken}, linkToken: ${_this.linkToken}, otpToken: ${_this.otpToken}, password: ${_this.password}, passwordError: ${_this.passwordError}, countryCode: ${_this.countryCode}, phone: ${_this.phone}, phoneError: ${_this.phoneError}, typedName: ${_this.typedName}, nameRequired: ${_this.nameRequired}, nameError: ${_this.nameError}, sentTo: ${_this.sentTo}, otp: ${_this.otp}, otpError: ${_this.otpError}, resendSeconds: ${_this.resendSeconds}, otpExpiresInSeconds: ${_this.otpExpiresInSeconds}, unavailable: ${_this.unavailable})';
 }
 
 
@@ -882,7 +888,7 @@ abstract mixin class $SocialAuthStateCopyWith<$Res>  {
   factory $SocialAuthStateCopyWith(SocialAuthState value, $Res Function(SocialAuthState) _then) = _$SocialAuthStateCopyWithImpl;
 @useResult
 $Res call({
- SocialStep step, RequestState state, String message, SocialProvider? provider, String? email, String? name, String? signupToken, String? linkToken, String? otpToken, String password, String? passwordError, String countryCode, String phone, String? phoneError, String typedName, bool nameRequired, String? nameError, String sentTo, String otp, String? otpError, int resendSeconds
+ SocialStep step, RequestState state, String message, SocialProvider? provider, String? email, String? name, String? signupToken, String? linkToken, String? otpToken, String password, String? passwordError, String countryCode, String phone, String? phoneError, String typedName, bool nameRequired, String? nameError, String sentTo, String otp, String? otpError, int resendSeconds, int otpExpiresInSeconds, bool unavailable
 });
 
 
@@ -899,7 +905,7 @@ class _$SocialAuthStateCopyWithImpl<$Res>
 
 /// Create a copy of SocialAuthState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? step = null,Object? state = null,Object? message = null,Object? provider = freezed,Object? email = freezed,Object? name = freezed,Object? signupToken = freezed,Object? linkToken = freezed,Object? otpToken = freezed,Object? password = null,Object? passwordError = freezed,Object? countryCode = null,Object? phone = null,Object? phoneError = freezed,Object? typedName = null,Object? nameRequired = null,Object? nameError = freezed,Object? sentTo = null,Object? otp = null,Object? otpError = freezed,Object? resendSeconds = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? step = null,Object? state = null,Object? message = null,Object? provider = freezed,Object? email = freezed,Object? name = freezed,Object? signupToken = freezed,Object? linkToken = freezed,Object? otpToken = freezed,Object? password = null,Object? passwordError = freezed,Object? countryCode = null,Object? phone = null,Object? phoneError = freezed,Object? typedName = null,Object? nameRequired = null,Object? nameError = freezed,Object? sentTo = null,Object? otp = null,Object? otpError = freezed,Object? resendSeconds = null,Object? otpExpiresInSeconds = null,Object? unavailable = null,}) {
   return _then(SocialAuthState(
 step: null == step ? _self.step : step // ignore: cast_nullable_to_non_nullable
 as SocialStep,state: null == state ? _self.state : state // ignore: cast_nullable_to_non_nullable
@@ -922,7 +928,9 @@ as String?,sentTo: null == sentTo ? _self.sentTo : sentTo // ignore: cast_nullab
 as String,otp: null == otp ? _self.otp : otp // ignore: cast_nullable_to_non_nullable
 as String,otpError: freezed == otpError ? _self.otpError : otpError // ignore: cast_nullable_to_non_nullable
 as String?,resendSeconds: null == resendSeconds ? _self.resendSeconds : resendSeconds // ignore: cast_nullable_to_non_nullable
-as int,
+as int,otpExpiresInSeconds: null == otpExpiresInSeconds ? _self.otpExpiresInSeconds : otpExpiresInSeconds // ignore: cast_nullable_to_non_nullable
+as int,unavailable: null == unavailable ? _self.unavailable : unavailable // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 
@@ -1004,10 +1012,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( SocialStep step,  RequestState state,  String message,  SocialProvider? provider,  String? email,  String? name,  String? signupToken,  String? linkToken,  String? otpToken,  String password,  String? passwordError,  String countryCode,  String phone,  String? phoneError,  String typedName,  bool nameRequired,  String? nameError,  String sentTo,  String otp,  String? otpError,  int resendSeconds)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( SocialStep step,  RequestState state,  String message,  SocialProvider? provider,  String? email,  String? name,  String? signupToken,  String? linkToken,  String? otpToken,  String password,  String? passwordError,  String countryCode,  String phone,  String? phoneError,  String typedName,  bool nameRequired,  String? nameError,  String sentTo,  String otp,  String? otpError,  int resendSeconds,  int otpExpiresInSeconds,  bool unavailable)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _SocialAuthState() when $default != null:
-return $default(_that.step,_that.state,_that.message,_that.provider,_that.email,_that.name,_that.signupToken,_that.linkToken,_that.otpToken,_that.password,_that.passwordError,_that.countryCode,_that.phone,_that.phoneError,_that.typedName,_that.nameRequired,_that.nameError,_that.sentTo,_that.otp,_that.otpError,_that.resendSeconds);case _:
+return $default(_that.step,_that.state,_that.message,_that.provider,_that.email,_that.name,_that.signupToken,_that.linkToken,_that.otpToken,_that.password,_that.passwordError,_that.countryCode,_that.phone,_that.phoneError,_that.typedName,_that.nameRequired,_that.nameError,_that.sentTo,_that.otp,_that.otpError,_that.resendSeconds,_that.otpExpiresInSeconds,_that.unavailable);case _:
   return orElse();
 
 }
@@ -1025,10 +1033,10 @@ return $default(_that.step,_that.state,_that.message,_that.provider,_that.email,
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( SocialStep step,  RequestState state,  String message,  SocialProvider? provider,  String? email,  String? name,  String? signupToken,  String? linkToken,  String? otpToken,  String password,  String? passwordError,  String countryCode,  String phone,  String? phoneError,  String typedName,  bool nameRequired,  String? nameError,  String sentTo,  String otp,  String? otpError,  int resendSeconds)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( SocialStep step,  RequestState state,  String message,  SocialProvider? provider,  String? email,  String? name,  String? signupToken,  String? linkToken,  String? otpToken,  String password,  String? passwordError,  String countryCode,  String phone,  String? phoneError,  String typedName,  bool nameRequired,  String? nameError,  String sentTo,  String otp,  String? otpError,  int resendSeconds,  int otpExpiresInSeconds,  bool unavailable)  $default,) {final _that = this;
 switch (_that) {
 case _SocialAuthState():
-return $default(_that.step,_that.state,_that.message,_that.provider,_that.email,_that.name,_that.signupToken,_that.linkToken,_that.otpToken,_that.password,_that.passwordError,_that.countryCode,_that.phone,_that.phoneError,_that.typedName,_that.nameRequired,_that.nameError,_that.sentTo,_that.otp,_that.otpError,_that.resendSeconds);}
+return $default(_that.step,_that.state,_that.message,_that.provider,_that.email,_that.name,_that.signupToken,_that.linkToken,_that.otpToken,_that.password,_that.passwordError,_that.countryCode,_that.phone,_that.phoneError,_that.typedName,_that.nameRequired,_that.nameError,_that.sentTo,_that.otp,_that.otpError,_that.resendSeconds,_that.otpExpiresInSeconds,_that.unavailable);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -1042,10 +1050,10 @@ return $default(_that.step,_that.state,_that.message,_that.provider,_that.email,
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( SocialStep step,  RequestState state,  String message,  SocialProvider? provider,  String? email,  String? name,  String? signupToken,  String? linkToken,  String? otpToken,  String password,  String? passwordError,  String countryCode,  String phone,  String? phoneError,  String typedName,  bool nameRequired,  String? nameError,  String sentTo,  String otp,  String? otpError,  int resendSeconds)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( SocialStep step,  RequestState state,  String message,  SocialProvider? provider,  String? email,  String? name,  String? signupToken,  String? linkToken,  String? otpToken,  String password,  String? passwordError,  String countryCode,  String phone,  String? phoneError,  String typedName,  bool nameRequired,  String? nameError,  String sentTo,  String otp,  String? otpError,  int resendSeconds,  int otpExpiresInSeconds,  bool unavailable)?  $default,) {final _that = this;
 switch (_that) {
 case _SocialAuthState() when $default != null:
-return $default(_that.step,_that.state,_that.message,_that.provider,_that.email,_that.name,_that.signupToken,_that.linkToken,_that.otpToken,_that.password,_that.passwordError,_that.countryCode,_that.phone,_that.phoneError,_that.typedName,_that.nameRequired,_that.nameError,_that.sentTo,_that.otp,_that.otpError,_that.resendSeconds);case _:
+return $default(_that.step,_that.state,_that.message,_that.provider,_that.email,_that.name,_that.signupToken,_that.linkToken,_that.otpToken,_that.password,_that.passwordError,_that.countryCode,_that.phone,_that.phoneError,_that.typedName,_that.nameRequired,_that.nameError,_that.sentTo,_that.otp,_that.otpError,_that.resendSeconds,_that.otpExpiresInSeconds,_that.unavailable);case _:
   return null;
 
 }
@@ -1057,7 +1065,7 @@ return $default(_that.step,_that.state,_that.message,_that.provider,_that.email,
 
 
 class _SocialAuthState extends SocialAuthState {
-  const _SocialAuthState({this.step = SocialStep.idle, this.state = RequestState.empty, this.message = '', this.provider, this.email, this.name, this.signupToken, this.linkToken, this.otpToken, this.password = '', this.passwordError, this.countryCode = '+91', this.phone = '', this.phoneError, this.typedName = '', this.nameRequired = false, this.nameError, this.sentTo = '', this.otp = '', this.otpError, this.resendSeconds = 0}): super._();
+  const _SocialAuthState({this.step = SocialStep.idle, this.state = RequestState.empty, this.message = '', this.provider, this.email, this.name, this.signupToken, this.linkToken, this.otpToken, this.password = '', this.passwordError, this.countryCode = '+91', this.phone = '', this.phoneError, this.typedName = '', this.nameRequired = false, this.nameError, this.sentTo = '', this.otp = '', this.otpError, this.resendSeconds = 0, this.otpExpiresInSeconds = 0, this.unavailable = false}): super._();
   
 
 @override@JsonKey() final  SocialStep step;
@@ -1086,6 +1094,14 @@ class _SocialAuthState extends SocialAuthState {
 @override@JsonKey() final  String otp;
 @override final  String? otpError;
 @override@JsonKey() final  int resendSeconds;
+/// How long the code on the phone is good for, from `otpExpiresInSeconds`
+/// (600) — the code screen says so.
+@override@JsonKey() final  int otpExpiresInSeconds;
+/// The server answered `404 SOCIAL_LOGIN_DISABLED`: social login is switched
+/// off there, so the buttons hide. A fact about the server, not the member,
+/// so it **survives** `reset` and sign-out (it is only re-learned on the
+/// next launch).
+@override@JsonKey() final  bool unavailable;
 
 /// Create a copy of SocialAuthState
 /// with the given fields replaced by the non-null parameter values.
@@ -1097,18 +1113,18 @@ _$SocialAuthStateCopyWith<_SocialAuthState> get copyWith => __$SocialAuthStateCo
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _SocialAuthState&&(identical(other.step, step) || other.step == step)&&(identical(other.state, state) || other.state == state)&&(identical(other.message, message) || other.message == message)&&(identical(other.provider, provider) || other.provider == provider)&&(identical(other.email, email) || other.email == email)&&(identical(other.name, name) || other.name == name)&&(identical(other.signupToken, signupToken) || other.signupToken == signupToken)&&(identical(other.linkToken, linkToken) || other.linkToken == linkToken)&&(identical(other.otpToken, otpToken) || other.otpToken == otpToken)&&(identical(other.password, password) || other.password == password)&&(identical(other.passwordError, passwordError) || other.passwordError == passwordError)&&(identical(other.countryCode, countryCode) || other.countryCode == countryCode)&&(identical(other.phone, phone) || other.phone == phone)&&(identical(other.phoneError, phoneError) || other.phoneError == phoneError)&&(identical(other.typedName, typedName) || other.typedName == typedName)&&(identical(other.nameRequired, nameRequired) || other.nameRequired == nameRequired)&&(identical(other.nameError, nameError) || other.nameError == nameError)&&(identical(other.sentTo, sentTo) || other.sentTo == sentTo)&&(identical(other.otp, otp) || other.otp == otp)&&(identical(other.otpError, otpError) || other.otpError == otpError)&&(identical(other.resendSeconds, resendSeconds) || other.resendSeconds == resendSeconds));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _SocialAuthState&&(identical(other.step, step) || other.step == step)&&(identical(other.state, state) || other.state == state)&&(identical(other.message, message) || other.message == message)&&(identical(other.provider, provider) || other.provider == provider)&&(identical(other.email, email) || other.email == email)&&(identical(other.name, name) || other.name == name)&&(identical(other.signupToken, signupToken) || other.signupToken == signupToken)&&(identical(other.linkToken, linkToken) || other.linkToken == linkToken)&&(identical(other.otpToken, otpToken) || other.otpToken == otpToken)&&(identical(other.password, password) || other.password == password)&&(identical(other.passwordError, passwordError) || other.passwordError == passwordError)&&(identical(other.countryCode, countryCode) || other.countryCode == countryCode)&&(identical(other.phone, phone) || other.phone == phone)&&(identical(other.phoneError, phoneError) || other.phoneError == phoneError)&&(identical(other.typedName, typedName) || other.typedName == typedName)&&(identical(other.nameRequired, nameRequired) || other.nameRequired == nameRequired)&&(identical(other.nameError, nameError) || other.nameError == nameError)&&(identical(other.sentTo, sentTo) || other.sentTo == sentTo)&&(identical(other.otp, otp) || other.otp == otp)&&(identical(other.otpError, otpError) || other.otpError == otpError)&&(identical(other.resendSeconds, resendSeconds) || other.resendSeconds == resendSeconds)&&(identical(other.otpExpiresInSeconds, otpExpiresInSeconds) || other.otpExpiresInSeconds == otpExpiresInSeconds)&&(identical(other.unavailable, unavailable) || other.unavailable == unavailable));
 }
 
 
 @override
 int get hashCode {
-    return Object.hashAll([runtimeType,step,state,message,provider,email,name,signupToken,linkToken,otpToken,password,passwordError,countryCode,phone,phoneError,typedName,nameRequired,nameError,sentTo,otp,otpError,resendSeconds]);
+    return Object.hashAll([runtimeType,step,state,message,provider,email,name,signupToken,linkToken,otpToken,password,passwordError,countryCode,phone,phoneError,typedName,nameRequired,nameError,sentTo,otp,otpError,resendSeconds,otpExpiresInSeconds,unavailable]);
 }
 
 @override
 String toString() {
-    return 'SocialAuthState(step: $step, state: $state, message: $message, provider: $provider, email: $email, name: $name, signupToken: $signupToken, linkToken: $linkToken, otpToken: $otpToken, password: $password, passwordError: $passwordError, countryCode: $countryCode, phone: $phone, phoneError: $phoneError, typedName: $typedName, nameRequired: $nameRequired, nameError: $nameError, sentTo: $sentTo, otp: $otp, otpError: $otpError, resendSeconds: $resendSeconds)';
+    return 'SocialAuthState(step: $step, state: $state, message: $message, provider: $provider, email: $email, name: $name, signupToken: $signupToken, linkToken: $linkToken, otpToken: $otpToken, password: $password, passwordError: $passwordError, countryCode: $countryCode, phone: $phone, phoneError: $phoneError, typedName: $typedName, nameRequired: $nameRequired, nameError: $nameError, sentTo: $sentTo, otp: $otp, otpError: $otpError, resendSeconds: $resendSeconds, otpExpiresInSeconds: $otpExpiresInSeconds, unavailable: $unavailable)';
 }
 
 
@@ -1119,7 +1135,7 @@ abstract mixin class _$SocialAuthStateCopyWith<$Res> implements $SocialAuthState
   factory _$SocialAuthStateCopyWith(_SocialAuthState value, $Res Function(_SocialAuthState) _then) = __$SocialAuthStateCopyWithImpl;
 @override @useResult
 $Res call({
- SocialStep step, RequestState state, String message, SocialProvider? provider, String? email, String? name, String? signupToken, String? linkToken, String? otpToken, String password, String? passwordError, String countryCode, String phone, String? phoneError, String typedName, bool nameRequired, String? nameError, String sentTo, String otp, String? otpError, int resendSeconds
+ SocialStep step, RequestState state, String message, SocialProvider? provider, String? email, String? name, String? signupToken, String? linkToken, String? otpToken, String password, String? passwordError, String countryCode, String phone, String? phoneError, String typedName, bool nameRequired, String? nameError, String sentTo, String otp, String? otpError, int resendSeconds, int otpExpiresInSeconds, bool unavailable
 });
 
 
@@ -1136,7 +1152,7 @@ class __$SocialAuthStateCopyWithImpl<$Res>
 
 /// Create a copy of SocialAuthState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? step = null,Object? state = null,Object? message = null,Object? provider = freezed,Object? email = freezed,Object? name = freezed,Object? signupToken = freezed,Object? linkToken = freezed,Object? otpToken = freezed,Object? password = null,Object? passwordError = freezed,Object? countryCode = null,Object? phone = null,Object? phoneError = freezed,Object? typedName = null,Object? nameRequired = null,Object? nameError = freezed,Object? sentTo = null,Object? otp = null,Object? otpError = freezed,Object? resendSeconds = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? step = null,Object? state = null,Object? message = null,Object? provider = freezed,Object? email = freezed,Object? name = freezed,Object? signupToken = freezed,Object? linkToken = freezed,Object? otpToken = freezed,Object? password = null,Object? passwordError = freezed,Object? countryCode = null,Object? phone = null,Object? phoneError = freezed,Object? typedName = null,Object? nameRequired = null,Object? nameError = freezed,Object? sentTo = null,Object? otp = null,Object? otpError = freezed,Object? resendSeconds = null,Object? otpExpiresInSeconds = null,Object? unavailable = null,}) {
   return _then(_SocialAuthState(
 step: null == step ? _self.step : step // ignore: cast_nullable_to_non_nullable
 as SocialStep,state: null == state ? _self.state : state // ignore: cast_nullable_to_non_nullable
@@ -1159,7 +1175,9 @@ as String?,sentTo: null == sentTo ? _self.sentTo : sentTo // ignore: cast_nullab
 as String,otp: null == otp ? _self.otp : otp // ignore: cast_nullable_to_non_nullable
 as String,otpError: freezed == otpError ? _self.otpError : otpError // ignore: cast_nullable_to_non_nullable
 as String?,resendSeconds: null == resendSeconds ? _self.resendSeconds : resendSeconds // ignore: cast_nullable_to_non_nullable
-as int,
+as int,otpExpiresInSeconds: null == otpExpiresInSeconds ? _self.otpExpiresInSeconds : otpExpiresInSeconds // ignore: cast_nullable_to_non_nullable
+as int,unavailable: null == unavailable ? _self.unavailable : unavailable // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 

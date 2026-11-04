@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:finskool/src/comman/exception.dart';
 import 'package:finskool/src/data/api/api.dart';
@@ -53,6 +54,38 @@ class PerformanceRemoteDatasource {
       },
     );
     if (data == null) throw ApiException('The server returned no data.');
+    _logLogos(data);
     return PerformanceBoard.fromJson(data);
+  }
+}
+
+/// Debug only: what the server actually sent for each trade's stock logo, read
+/// from the raw JSON before anything is parsed. A row showing initials is
+/// either `null` here (the server has no logo for that stock), or a URL that
+/// failed to load — this line tells the two apart.
+///
+/// `debugPrint` guarded by `kDebugMode`, one line per row, like
+/// `CommunitiesRemoteDatasource._log`.
+void _logLogos(Map<String, dynamic> data) {
+  if (!kDebugMode) return;
+  final rows = ((data['items'] as List?) ?? const [])
+      .whereType<Map<String, dynamic>>()
+      .toList();
+  final withLogo = rows.where((r) {
+    final url = r['logoUrl'];
+    return url is String && url.isNotEmpty;
+  }).length;
+  debugPrint(
+    '═══ performance logos (${data['kind']}): '
+    '$withLogo of ${rows.length} rows have a logoUrl ═══',
+  );
+  if (rows.isNotEmpty) {
+    debugPrint('row keys: ${rows.first.keys.toList()}');
+  }
+  for (final r in rows) {
+    debugPrint(
+      '  ${'${r['name']}'.padRight(28)} '
+      'symbol=${r['symbol']}  logoUrl=${r['logoUrl']}',
+    );
   }
 }

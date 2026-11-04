@@ -9,8 +9,7 @@ import 'package:finskool/src/presentation/bloc/authentication/signup_verificatio
 import '../widgets/auth_text_field.dart';
 import '../widgets/phone_field.dart';
 import '../widgets/member_hint_card.dart';
-import '../widgets/auth_divider.dart';
-import '../widgets/social_auth_buttons.dart';
+import '../widgets/social_auth_section.dart';
 import '../widgets/auth_switch_prompt.dart';
 import '../widgets/auth_tab_switch.dart';
 import '../widgets/auth_field_icons.dart';
@@ -73,10 +72,7 @@ class SignUpForm extends StatelessWidget {
                 onPressed: () =>
                     bloc.add(const SignUpFormEvent.registerUser(false)),
               ),
-              const SizedBox(height: AppSpacing.lg),
-              const AuthDivider(),
-              const SizedBox(height: AppSpacing.lg),
-              const SocialAuthButtons(verb: 'Sign up'),
+              const SocialAuthSection(verb: 'Sign up'),
               const SizedBox(height: AppSpacing.xl),
               AuthSwitchPrompt(
                 message: 'Already have an account?',

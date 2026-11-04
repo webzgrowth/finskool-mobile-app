@@ -42,6 +42,11 @@ class Api {
   static const String socialPhone = '/auth/mobile/social/phone';
   static const String socialVerifyOtp = '/auth/mobile/social/verify-otp';
 
+  /// Connect Google / Apple to the account the member is **logged in to**
+  /// (needs the session). The way out of `409 ALREADY_REGISTERED`: log in with
+  /// the password, then connect from the profile.
+  static const String socialConnect = '/auth/mobile/me/social/link';
+
   /// Registers this device's FCM token against the session. One device per
   /// member: a new token replaces the old.
   static const String pushToken = '/mobile/push-token';

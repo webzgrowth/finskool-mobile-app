@@ -56,7 +56,7 @@ class SocialAuthBloc extends Bloc<SocialAuthEvent, SocialAuthState> {
         tick: (_) async => _tick(emit),
         reset: (_) async {
           _timer?.cancel();
-          emit(SocialAuthState.initial());
+          emit(_fresh());
         },
       );
     });

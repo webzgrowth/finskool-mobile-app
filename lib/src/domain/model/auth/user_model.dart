@@ -12,6 +12,7 @@ class UserModel {
     required this.postNotificationsEnabled,
     this.avatarUrl,
     this.memberSince,
+    this.linkedProviders = const [],
   });
 
   final String id;
@@ -28,6 +29,14 @@ class UserModel {
   /// rather than inventing a date.
   final DateTime? memberSince;
 
+  /// The sign-in providers linked to this account — `["google"]`, `["apple"]`,
+  /// both, or none (a password-only member). From `GET /auth/mobile/me`; absent
+  /// on login's payload, which just means "not known yet", so it parses as empty.
+  /// Drives the Profile's Connect Google / Apple rows.
+  final List<String> linkedProviders;
+
+  bool hasLinked(String provider) => linkedProviders.contains(provider);
+
   factory UserModel.fromJson(Map<String, dynamic> json) => UserModel(
     id: json['id'] as String,
     name: json['name'] as String,
@@ -40,6 +49,10 @@ class UserModel {
     memberSince: json['memberSince'] == null
         ? null
         : DateTime.parse(json['memberSince'] as String),
+    linkedProviders: [
+      for (final p in (json['linkedProviders'] as List?) ?? const [])
+        if (p is String) p,
+    ],
   );
 
   Map<String, dynamic> toJson() => {
@@ -52,6 +65,7 @@ class UserModel {
     'postNotificationsEnabled': postNotificationsEnabled,
     'avatarUrl': avatarUrl,
     'memberSince': memberSince?.toIso8601String(),
+    'linkedProviders': linkedProviders,
   };
 
   /// The app writes back [postNotificationsEnabled] (the post-alerts switch),
@@ -64,6 +78,7 @@ class UserModel {
     String? email,
     String? phone,
     String? avatarUrl,
+    List<String>? linkedProviders,
   }) => UserModel(
     id: id,
     name: name ?? this.name,
@@ -75,5 +90,6 @@ class UserModel {
         postNotificationsEnabled ?? this.postNotificationsEnabled,
     avatarUrl: avatarUrl ?? this.avatarUrl,
     memberSince: memberSince,
+    linkedProviders: linkedProviders ?? this.linkedProviders,
   );
 }

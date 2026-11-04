@@ -7,8 +7,7 @@ import 'package:finskool/src/presentation/bloc/authentication/login_form/login_f
 import 'package:finskool/src/presentation/bloc/authentication/password_reset/password_reset_bloc.dart';
 
 import '../widgets/auth_text_field.dart';
-import '../widgets/auth_divider.dart';
-import '../widgets/social_auth_buttons.dart';
+import '../widgets/social_auth_section.dart';
 import '../widgets/auth_switch_prompt.dart';
 import '../widgets/auth_tab_switch.dart';
 import '../widgets/auth_field_icons.dart';
@@ -72,10 +71,7 @@ class LoginForm extends StatelessWidget {
                 loading: state.state.isLoading,
                 onPressed: () => bloc.add(const LoginFormEvent.submit()),
               ),
-              const SizedBox(height: AppSpacing.lg),
-              const AuthDivider(),
-              const SizedBox(height: AppSpacing.lg),
-              const SocialAuthButtons(verb: 'Log in'),
+              const SocialAuthSection(verb: 'Log in'),
               const SizedBox(height: AppSpacing.xl),
               AuthSwitchPrompt(
                 message: "Don't have an account?",

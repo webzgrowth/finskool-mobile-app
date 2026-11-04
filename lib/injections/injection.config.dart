@@ -177,6 +177,8 @@ import 'package:finskool/src/domain/usecases/services/upload_service_attachment.
     as _i450;
 import 'package:finskool/src/domain/usecases/services/verify_service_payment.dart'
     as _i868;
+import 'package:finskool/src/domain/usecases/social/connect_social_account.dart'
+    as _i939;
 import 'package:finskool/src/domain/usecases/social/link_social_account.dart'
     as _i771;
 import 'package:finskool/src/domain/usecases/social/request_social_phone.dart'
@@ -216,6 +218,8 @@ import 'package:finskool/src/presentation/bloc/authentication/sing_up_form/sign_
     as _i251;
 import 'package:finskool/src/presentation/bloc/authentication/social_auth/social_auth_bloc.dart'
     as _i728;
+import 'package:finskool/src/presentation/bloc/authentication/social_connect/social_connect_bloc.dart'
+    as _i327;
 import 'package:finskool/src/presentation/bloc/communities/compliance/compliance_bloc.dart'
     as _i967;
 import 'package:finskool/src/presentation/bloc/communities/filter/community_filter_bloc.dart'
@@ -709,6 +713,9 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i916.TicketsSocket>(),
       ),
     );
+    gh.lazySingleton<_i939.ConnectSocialAccount>(
+      () => _i939.ConnectSocialAccount(gh<_i1071.SocialAuthRepository>()),
+    );
     gh.lazySingleton<_i771.LinkSocialAccount>(
       () => _i771.LinkSocialAccount(gh<_i1071.SocialAuthRepository>()),
     );
@@ -735,6 +742,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.singleton<_i598.LoginFormBloc>(
       () => _i598.LoginFormBloc(gh<_i379.LoginUser>()),
+    );
+    gh.factory<_i327.SocialConnectBloc>(
+      () => _i327.SocialConnectBloc(gh<_i939.ConnectSocialAccount>()),
     );
     gh.singleton<_i508.ServicesCatalogBloc>(
       () => _i508.ServicesCatalogBloc(gh<_i497.GetServiceCatalog>()),

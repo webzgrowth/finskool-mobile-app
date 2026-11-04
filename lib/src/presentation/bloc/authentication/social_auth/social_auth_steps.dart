@@ -6,13 +6,24 @@ const _restartCodes = {
   'SOCIAL_STEP_EXPIRED',
   'SOCIAL_LINK_LOCKED',
   'SOCIAL_TOKEN_INVALID',
+  // This phone already has a password account. The way on is to log in with
+  // it and connect Google from the Profile, so the member goes back to login
+  // with the server's explanation rather than being stranded on the phone step.
+  'ALREADY_REGISTERED',
 };
+
+/// Social login is switched off on the server (`SOCIAL_LOGIN_ENABLED`).
+const _disabledCode = 'SOCIAL_LOGIN_DISABLED';
 
 const _resendWindowSeconds = 60;
 
 /// The steps after the provider's button. Kept out of the bloc file to stay
 /// under the line limit; each takes the [Emitter] of the event being handled.
 extension _SocialSteps on SocialAuthBloc {
+  /// A blank flow that still remembers what the server told us about itself.
+  SocialAuthState _fresh() =>
+      SocialAuthState.initial().copyWith(unavailable: state.unavailable);
+
   /// A failure with no field of its own: the server's words, as a snackbar.
   /// A closed sheet is not a failure at all.
   SocialAuthState _quiet(Failure failure) => failure is CancelledFailure
@@ -23,29 +34,33 @@ extension _SocialSteps on SocialAuthBloc {
     SocialProvider provider,
     Emitter<SocialAuthState> emit,
   ) async {
-    emit(
-      SocialAuthState.initial().copyWith(
-        state: RequestState.loading,
-        provider: provider,
-      ),
-    );
+    emit(_fresh().copyWith(state: RequestState.loading, provider: provider));
     final result = await _signIn.execute(provider);
     emit(
-      result.fold(_quiet, (login) {
-        final next = switch (login.status) {
-          SocialStatus.loggedIn => SocialStep.done,
-          SocialStatus.phoneRequired => SocialStep.phoneRequired,
-          SocialStatus.linkRequired => SocialStep.linkRequired,
-        };
-        return state.copyWith(
-          step: next,
-          state: RequestState.loaded,
-          email: login.email,
-          name: login.name,
-          signupToken: login.signupToken,
-          linkToken: login.linkToken,
-        );
-      }),
+      result.fold(
+        (failure) {
+          final next = _quiet(failure);
+          // Switched off on the server: say so once, then stop offering it.
+          return failure.code == _disabledCode
+              ? next.copyWith(unavailable: true)
+              : next;
+        },
+        (login) {
+          final next = switch (login.status) {
+            SocialStatus.loggedIn => SocialStep.done,
+            SocialStatus.phoneRequired => SocialStep.phoneRequired,
+            SocialStatus.linkRequired => SocialStep.linkRequired,
+          };
+          return state.copyWith(
+            step: next,
+            state: RequestState.loaded,
+            email: login.email,
+            name: login.name,
+            signupToken: login.signupToken,
+            linkToken: login.linkToken,
+          );
+        },
+      ),
     );
   }
 
@@ -126,6 +141,7 @@ extension _SocialSteps on SocialAuthBloc {
             step: SocialStep.codeSent,
             state: RequestState.loaded,
             otpToken: challenge.otpToken,
+            otpExpiresInSeconds: challenge.expiresInSeconds,
             sentTo: challenge.phone.isEmpty ? state.fullPhone : challenge.phone,
             otp: '',
             otpError: null,
@@ -209,15 +225,12 @@ extension _SocialSteps on SocialAuthBloc {
   /// Logged in — and every token, the password and the number go with it.
   SocialAuthState _done() {
     _timer?.cancel();
-    return SocialAuthState.initial().copyWith(
-      step: SocialStep.done,
-      state: RequestState.loaded,
-    );
+    return _fresh().copyWith(step: SocialStep.done, state: RequestState.loaded);
   }
 
   SocialAuthState _restart(Failure failure) {
     _timer?.cancel();
-    return SocialAuthState.initial().copyWith(
+    return _fresh().copyWith(
       step: SocialStep.restart,
       state: RequestState.error,
       message: failure.message,

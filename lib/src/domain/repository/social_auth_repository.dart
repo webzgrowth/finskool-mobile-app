@@ -32,4 +32,9 @@ abstract class SocialAuthRepository {
     required String otpToken,
     required String otp,
   });
+
+  /// Profile → Connect: gets the provider's token and links it to the account
+  /// the member is logged in to. Returns the providers now linked. A closed
+  /// provider sheet is a [CancelledFailure].
+  Future<Either<Failure, List<String>>> connect(SocialProvider provider);
 }

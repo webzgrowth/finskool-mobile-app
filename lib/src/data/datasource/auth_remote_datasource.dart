@@ -66,7 +66,13 @@ class AuthRemoteDatasource {
     if (user is! Map<String, dynamic>) {
       throw ApiException('The server returned no profile for ${Api.me}.');
     }
-    return UserModel.fromJson(user);
+    // `linkedProviders` is documented on the user, but tolerate it beside it.
+    final beside = payload['linkedProviders'];
+    return UserModel.fromJson({
+      ...user,
+      if (user['linkedProviders'] == null && beside is List)
+        'linkedProviders': beside,
+    });
   }
 
   /// Step 1 of a profile-picture change: a signed link to PUT the image to

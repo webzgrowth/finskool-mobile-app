@@ -1,10 +1,14 @@
+import 'dart:io' show Platform;
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:finskool/src/comman/routes.dart';
 import 'package:finskool/src/comman/widgets/fade_slide_in.dart';
+import 'package:finskool/src/domain/model/auth/social_models.dart';
 import 'package:finskool/src/domain/model/community/community_model.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
 
+import 'connect_account_row.dart';
 import 'profile_glyphs.dart';
 import 'profile_menu_row.dart';
 import 'profile_section_card.dart';
@@ -25,6 +29,9 @@ class ProfileSections extends StatelessWidget {
     required this.onRenew,
     this.postAlertsOn = true,
     this.onTogglePostAlerts,
+    this.linkedProviders = const [],
+    this.connecting,
+    this.onConnect,
   });
 
   final List<CommunityModel> subscribed;
@@ -39,6 +46,16 @@ class ProfileSections extends StatelessWidget {
   final bool postAlertsOn;
   final ValueChanged<bool>? onTogglePostAlerts;
   final ValueChanged<CommunityModel> onRenew;
+
+  /// The providers already linked to this account (`user.linkedProviders`).
+  final List<String> linkedProviders;
+
+  /// The provider whose Connect is in flight, if any.
+  final SocialProvider? connecting;
+
+  /// Taps on a Connect pill. Null hides the Connect rows (a golden, a build
+  /// with no social login).
+  final ValueChanged<SocialProvider>? onConnect;
 
   @override
   Widget build(BuildContext context) {
@@ -72,6 +89,19 @@ class ProfileSections extends StatelessWidget {
                 subtitle: 'Name, email and phone',
                 onTap: () => go(AppRoutes.EDIT_PROFILE_ROUTE_PATH),
               ),
+              if (onConnect != null) ...[
+                for (final provider in [
+                  SocialProvider.google,
+                  // Apple sign-in is iPhone-only (see `SocialAuthButtons`).
+                  if (Platform.isIOS) SocialProvider.apple,
+                ])
+                  ConnectAccountRow(
+                    provider: provider,
+                    connected: linkedProviders.contains(provider.name),
+                    busy: connecting == provider,
+                    onConnect: () => onConnect!(provider),
+                  ),
+              ],
             ],
           ),
         ),

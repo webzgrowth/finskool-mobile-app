@@ -35,6 +35,7 @@ class _FakeSocial implements SocialAuthRepository {
     ),
   );
   Either<Failure, AuthSessionModel>? verifyResult;
+  Either<Failure, List<String>> connectResult = const Right(['google']);
   final calls = <String>[];
   String? lastPhone;
   String? lastName;
@@ -66,6 +67,12 @@ class _FakeSocial implements SocialAuthRepository {
     lastPhone = phone;
     lastName = fullName;
     return phoneResult;
+  }
+
+  @override
+  Future<Either<Failure, List<String>>> connect(SocialProvider provider) async {
+    calls.add('connect:${provider.name}');
+    return connectResult;
   }
 
   @override
@@ -354,6 +361,63 @@ void main() {
         expect(bloc.state.step, SocialStep.done);
         expect(bloc.state.password, isEmpty);
       });
+    });
+
+    test('server says social login is off: the flag is set and outlives reset', () async {
+      social.signInResult = const Left(
+        ServerFailure('Social login is off.', code: 'SOCIAL_LOGIN_DISABLED'),
+      );
+      await send(const SocialAuthEvent.signIn(SocialProvider.google));
+      expect(bloc.state.unavailable, isTrue);
+      expect(bloc.state.message, 'Social login is off.');
+      // It is a fact about the server, not the member: sign-out must not clear
+      // it, and the next attempt keeps it.
+      await send(const SocialAuthEvent.reset());
+      expect(bloc.state.unavailable, isTrue);
+    });
+
+    test('other failures leave the buttons on', () async {
+      social.signInResult = const Left(ServerFailure('Try again.'));
+      await send(const SocialAuthEvent.signIn(SocialProvider.google));
+      expect(bloc.state.unavailable, isFalse);
+    });
+
+    test(
+      'a phone that already has an account sends the member back to log in',
+      () async {
+        social.signInResult = const Right(
+          SocialLoginResult(
+            status: SocialStatus.phoneRequired,
+            signupToken: 'su',
+            name: 'Asha',
+          ),
+        );
+        await send(const SocialAuthEvent.signIn(SocialProvider.google));
+        social.phoneResult = const Left(
+          ServerFailure(
+            'This number already has an account. Log in with your password.',
+            code: 'ALREADY_REGISTERED',
+          ),
+        );
+        await send(const SocialAuthEvent.phoneChanged('9876543210'));
+        await send(const SocialAuthEvent.sendCode());
+        expect(bloc.state.step, SocialStep.restart);
+        expect(bloc.state.message, contains('already has an account'));
+      },
+    );
+
+    test('the code screen learns how long the code is good for', () async {
+      social.signInResult = const Right(
+        SocialLoginResult(
+          status: SocialStatus.phoneRequired,
+          signupToken: 'su',
+          name: 'Asha',
+        ),
+      );
+      await send(const SocialAuthEvent.signIn(SocialProvider.google));
+      await send(const SocialAuthEvent.phoneChanged('9876543210'));
+      await send(const SocialAuthEvent.sendCode());
+      expect(bloc.state.otpExpiresInSeconds, 600);
     });
 
     test('reset wipes the flow', () async {

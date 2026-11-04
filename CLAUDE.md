@@ -388,12 +388,31 @@ code screen and never stacks a second phone screen (pinned by
   `AuthRepository.adoptSession` caches the user and auto-selects a lone
   community. The tokens (`idToken`, `signupToken`, `linkToken`, `otpToken`) are
   redacted from logs like a password.
-* **Not built:** linking a provider from the profile (`POST /me/social/link`,
-  needed after `409 ALREADY_REGISTERED`: the member logs in by password and
-  connects Google), `user.linkedProviders`, and Apple's rule that an app with
-  sign-in lets people **delete their account in-app**. The buttons are always
-  shown; while the server's `SOCIAL_LOGIN_ENABLED` is off a tap answers
-  `404 SOCIAL_LOGIN_DISABLED` and the snackbar says so.
+* **Connect from the Profile is built** (`mobile-social-login.md`, `POST
+  /auth/mobile/me/social/link`). It is the second half of `409 ALREADY_REGISTERED`
+  ("log in with your password, then connect Google from your profile"): that error
+  now sends the member **back to login** with the server's explanation (it is in
+  `_restartCodes`) instead of stranding them on the phone step. **Profile →
+  Account** has a "Google account" row (and "Apple account" on iPhone) —
+  `ConnectAccountRow`: **Connected** when `user.linkedProviders` has it, otherwise a
+  **Connect** pill. It is `SocialConnectBloc` (`@injectable`, provided by
+  `ProfileScreen`): one at a time, a closed provider sheet is silent, a refusal
+  (`SOCIAL_ALREADY_LINKED`, `SOCIAL_PROVIDER_ALREADY_LINKED`) is the server's own
+  words, and success re-reads `/me` (`authCheckRequest`) — **the bloc keeps no copy
+  of `linkedProviders`**; `UserModel.linkedProviders` is parsed from `/me` (also
+  tolerated beside `user`) and rides the prefs cache. The rows are not in Figma
+  and reuse the privacy glyph — flag them for the designer.
+* **`404 SOCIAL_LOGIN_DISABLED` hides the buttons.** There is no status endpoint,
+  so the only way to learn the server has it off is a tap: the snackbar says so
+  once and `SocialAuthState.unavailable` is set, after which `SocialAuthSection`
+  (the "Or" divider **and** the buttons) renders nothing. The flag is about the
+  server, not the member, so it **survives `reset` and sign-out** (`_fresh()`
+  carries it) and is re-learned on the next launch. The code screen also says how
+  long the code is good for (`otpExpiresInSeconds`, 600 → "10 minutes").
+* **Not built:** Apple's rule that an app with sign-in lets people **delete their
+  account in-app**, and sending the optional `deviceId` / `appVersion` metadata.
+  The buttons are shown until the server says it is off. Pinned by
+  `social_auth_test`, `social_connect_test`.
 * **iOS: the Google SDK crashes the app unless it has a client ID — and
   `GoogleService-Info.plist` can't be relied on for it.** The file is in
   `ios/Runner/` but **not in the Xcode project** (0 references in
@@ -2357,8 +2376,11 @@ Do not treat these as incidental bugs to fix while doing something else:
   `FirebaseAuth`/`FirebaseStorage` call sites). Auth now runs against the real
   Finskool backend instead — see "Networking / API integration".
 - Social sign-in is wired but **unverified on a device** (no real Google/Apple
-  account was used) and lacks profile linking and in-app account deletion — see
-  "Sign in with Google / Apple".
+  account was used) and lacks in-app account deletion — see
+  "Sign in with Google / Apple". The production server answered
+  `401 SOCIAL_PROVIDER_UNAVAILABLE` for both providers (its
+  `GOOGLE_CLIENT_IDS` / `APPLE_BUNDLE_IDS` aren't set or it can't reach the key
+  servers) — a backend config problem, not the app.
 - `CommunityDetailScreen` (behind "Enter Community") is a routed
   placeholder — Figma has no design for the inside of a community, and the
   post model has no community field yet. The route works; the body doesn't.

@@ -59,6 +59,16 @@ sealed class SocialAuthState with _$SocialAuthState {
     @Default('') String otp,
     String? otpError,
     @Default(0) int resendSeconds,
+
+    /// How long the code on the phone is good for, from `otpExpiresInSeconds`
+    /// (600) — the code screen says so.
+    @Default(0) int otpExpiresInSeconds,
+
+    /// The server answered `404 SOCIAL_LOGIN_DISABLED`: social login is switched
+    /// off there, so the buttons hide. A fact about the server, not the member,
+    /// so it **survives** `reset` and sign-out (it is only re-learned on the
+    /// next launch).
+    @Default(false) bool unavailable,
   }) = _SocialAuthState;
 
   factory SocialAuthState.initial() => const SocialAuthState();

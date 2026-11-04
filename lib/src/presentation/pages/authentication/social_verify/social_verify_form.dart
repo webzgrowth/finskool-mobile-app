@@ -48,6 +48,15 @@ class SocialVerifyForm extends StatelessWidget {
                 style: tt.bodySmall?.copyWith(color: cs.error),
               ),
             ],
+            if (state.otpExpiresInSeconds > 0) ...[
+              const SizedBox(height: AppSpacing.sm),
+              Text(
+                'The code is valid for '
+                '${(state.otpExpiresInSeconds / 60).ceil()} minutes.',
+                style: tt.bodySmall,
+                textAlign: TextAlign.center,
+              ),
+            ],
             const SizedBox(height: AppSpacing.md),
             ResendCodeRow(
               secondsRemaining: state.resendSeconds,
