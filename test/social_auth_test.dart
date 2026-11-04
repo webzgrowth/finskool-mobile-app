@@ -35,7 +35,6 @@ class _FakeSocial implements SocialAuthRepository {
     ),
   );
   Either<Failure, AuthSessionModel>? verifyResult;
-  Either<Failure, List<String>> connectResult = const Right(['google']);
   final calls = <String>[];
   String? lastPhone;
   String? lastName;
@@ -67,12 +66,6 @@ class _FakeSocial implements SocialAuthRepository {
     lastPhone = phone;
     lastName = fullName;
     return phoneResult;
-  }
-
-  @override
-  Future<Either<Failure, List<String>>> connect(SocialProvider provider) async {
-    calls.add('connect:${provider.name}');
-    return connectResult;
   }
 
   @override

@@ -41,10 +41,6 @@ class _Social implements SocialAuthRepository {
   );
 
   @override
-  Future<Either<Failure, List<String>>> connect(SocialProvider p) async =>
-      const Right([]);
-
-  @override
   Future<Either<Failure, AuthSessionModel>> verifyOtp({
     required String otpToken,
     required String otp,

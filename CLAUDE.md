@@ -388,20 +388,12 @@ code screen and never stacks a second phone screen (pinned by
   `AuthRepository.adoptSession` caches the user and auto-selects a lone
   community. The tokens (`idToken`, `signupToken`, `linkToken`, `otpToken`) are
   redacted from logs like a password.
-* **Connect from the Profile is built** (`mobile-social-login.md`, `POST
-  /auth/mobile/me/social/link`). It is the second half of `409 ALREADY_REGISTERED`
-  ("log in with your password, then connect Google from your profile"): that error
-  now sends the member **back to login** with the server's explanation (it is in
-  `_restartCodes`) instead of stranding them on the phone step. **Profile →
-  Account** has a "Google account" row (and "Apple account" on iPhone) —
-  `ConnectAccountRow`: **Connected** when `user.linkedProviders` has it, otherwise a
-  **Connect** pill. It is `SocialConnectBloc` (`@injectable`, provided by
-  `ProfileScreen`): one at a time, a closed provider sheet is silent, a refusal
-  (`SOCIAL_ALREADY_LINKED`, `SOCIAL_PROVIDER_ALREADY_LINKED`) is the server's own
-  words, and success re-reads `/me` (`authCheckRequest`) — **the bloc keeps no copy
-  of `linkedProviders`**; `UserModel.linkedProviders` is parsed from `/me` (also
-  tolerated beside `user`) and rides the prefs cache. The rows are not in Figma
-  and reuse the privacy glyph — flag them for the designer.
+* **There is no "connect Google/Apple" in the Profile.** It was built
+  (`POST /auth/mobile/me/social/link`, a `SocialConnectBloc` and Account rows) and
+  then **removed on request** — Figma's Profile has no such rows. Don't re-add it
+  without a design. `409 ALREADY_REGISTERED` still sends the member back to login
+  with the server's explanation (it is in `_restartCodes`). `UserModel.
+  linkedProviders` is still parsed from `/me` but nothing reads it.
 * **`404 SOCIAL_LOGIN_DISABLED` hides the buttons.** There is no status endpoint,
   so the only way to learn the server has it off is a tap: the snackbar says so
   once and `SocialAuthState.unavailable` is set, after which `SocialAuthSection`
@@ -412,7 +404,7 @@ code screen and never stacks a second phone screen (pinned by
 * **Not built:** Apple's rule that an app with sign-in lets people **delete their
   account in-app**, and sending the optional `deviceId` / `appVersion` metadata.
   The buttons are shown until the server says it is off. Pinned by
-  `social_auth_test`, `social_connect_test`.
+  `social_auth_test`.
 * **iOS: the Google SDK crashes the app unless it has a client ID — and
   `GoogleService-Info.plist` can't be relied on for it.** The file is in
   `ios/Runner/` but **not in the Xcode project** (0 references in
@@ -1585,7 +1577,7 @@ matches pixel for pixel).
 * **Renew** is a green `#34C759` pill with a chevron; "Expires in N days" is
   red `#E10200`. The switch is `ProfileToggle` (40x24, `#108B8B`), not a
   Material `Switch`.
-* **Privacy & security** is new in this design and routes to the placeholder.
+* **Privacy & security** was drawn and shipped, then **removed on request**: it duplicated "Terms & privacy policy", which opens the same Privacy tab. The route constant and `GoRoute` stay unused.
 * **Log out** is not drawn in Figma and stays below the cards.
 * `ProfileTypography` pins `letterSpacing: 0` (see the ticket note — the
   ambient 0.25 widened every row by ~4px).

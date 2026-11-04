@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:finskool/injections/injection.dart';
 import 'package:finskool/src/comman/enum.dart';
 import 'package:finskool/src/comman/widgets/app_snack.dart';
-import 'package:finskool/src/domain/model/auth/social_models.dart';
-import 'package:finskool/src/presentation/bloc/authentication/social_connect/social_connect_bloc.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
 import 'package:finskool/src/domain/model/community/community_access.dart';
 import 'package:finskool/src/domain/model/community/community_model.dart';
@@ -42,166 +39,124 @@ class ProfileScreen extends StatelessWidget {
     // can expire from any tab, so it isn't this screen's job.
     // A finished photo change (picked from the header's camera badge) rewrote
     // the cached user; re-read it so the header and nav avatar update.
-    return BlocProvider(
-      create: (_) => locator<SocialConnectBloc>(),
-      child: BlocListener<SocialConnectBloc, SocialConnectState>(
-        listenWhen: (p, c) => p.state != c.state,
-        listener: _onConnect,
-        child: BlocListener<PushSettingsBloc, PushSettingsState>(
-          listenWhen: (p, c) => p.message != c.message && c.message.isNotEmpty,
-          listener: (context, state) => AppSnack.show(state.message),
-          child: BlocListener<EditProfileBloc, EditProfileState>(
-            listenWhen: (p, c) => p.avatarBusy && !c.avatarBusy,
-            listener: (context, _) => context
-                .read<AuthenticatorWatcherBloc>()
-                .add(const AuthenticatorWatcherEvent.authCheckRequest()),
-            child: BlocBuilder<AuthenticatorWatcherBloc, AuthenticatorWatcherState>(
-              builder: (context, authState) {
-                final user = authState.mapOrNull(authenticated: (s) => s.user);
-                final cs = Theme.of(context).colorScheme;
-                final connect = context.watch<SocialConnectBloc>().state;
+    return BlocListener<PushSettingsBloc, PushSettingsState>(
+      listenWhen: (p, c) => p.message != c.message && c.message.isNotEmpty,
+      listener: (context, state) => AppSnack.show(state.message),
+      child: BlocListener<EditProfileBloc, EditProfileState>(
+        listenWhen: (p, c) => p.avatarBusy && !c.avatarBusy,
+        listener: (context, _) => context.read<AuthenticatorWatcherBloc>().add(
+          const AuthenticatorWatcherEvent.authCheckRequest(),
+        ),
+        child: BlocBuilder<AuthenticatorWatcherBloc, AuthenticatorWatcherState>(
+          builder: (context, authState) {
+            final user = authState.mapOrNull(authenticated: (s) => s.user);
+            final cs = Theme.of(context).colorScheme;
 
-                return Scaffold(
-                  // Plain white, not the teal-tinted `surfaceContainer` the Feed/
-                  // Communities tabs use — the reference screenshot's body is flat
-                  // white behind the grey section cards.
-                  backgroundColor: cs.surface,
-                  // `top: false` — the hero banner bleeds its background behind the
-                  // status bar itself (see `ProfileHeroBanner`), same as
-                  // `SearchTopBar` on Feed/Communities; a full `SafeArea` would
-                  // inset the content down and leave a gap above the image instead.
-                  body: SafeArea(
-                    top: false,
-                    // Plain `ListView` — the banner is just the first item and
-                    // scrolls away with everything else, like the rest of this
-                    // screen. An earlier pass wrapped it in a floating/snap
-                    // `SliverAppBar` (the technique `SearchTopBar` uses on
-                    // Feed/Communities), but that's wrong here: floating means the
-                    // banner hides on scroll-down and pops back the moment you
-                    // scroll up even slightly, which reads as the avatar getting
-                    // "stuck" mid-scroll — fine for a compact search bar, not for
-                    // a tall identity header that should behave like normal
-                    // content.
-                    child: ListView(
-                      // `ListView` auto-pads its top edge by the status-bar inset
-                      // when not given an explicit `padding`, which would stack a
-                      // second gap above the header; `ProfileHeader` bleeds behind the
-                      // status bar itself.
-                      padding: EdgeInsets.zero,
-                      children: [
-                        ProfileHeader(user: user),
-                        ColoredBox(
-                          color: AppPalette.white,
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 20),
-                            child: BlocBuilder<CommunitiesBloc, CommunitiesState>(
-                              builder: (context, communities) =>
-                                  BlocBuilder<
-                                    TicketsUnreadBloc,
-                                    TicketsUnreadState
-                                  >(
-                                    builder: (context, unread) => ProfileSections(
-                                      subscribed: communities.communities
-                                          .where(
-                                            (c) =>
-                                                c.access ==
-                                                CommunityAccess.subscribed,
-                                          )
-                                          .toList(),
-                                      unreadTickets: unread.count,
-                                      // The Figma switch is the master push switch.
-                                      notificationsOn: context
-                                          .watch<PushSettingsBloc>()
-                                          .state
-                                          .enabled,
-                                      onToggleNotifications: (value) =>
-                                          context.read<PushSettingsBloc>().add(
-                                            PushSettingsEvent.toggled(value),
-                                          ),
-                                      postAlertsOn:
-                                          user?.postNotificationsEnabled ??
-                                          true,
-                                      onTogglePostAlerts: (value) => context
-                                          .read<AuthenticatorWatcherBloc>()
-                                          .add(
-                                            AuthenticatorWatcherEvent.notificationsToggled(
-                                              value,
-                                            ),
-                                          ),
-                                      onRenew: (c) => _renew(context, c),
-                                      linkedProviders:
-                                          user?.linkedProviders ?? const [],
-                                      connecting: connect.state.isLoading
-                                          ? connect.provider
-                                          : null,
-                                      onConnect: (provider) =>
-                                          context.read<SocialConnectBloc>().add(
-                                            SocialConnectEvent.requested(
-                                              provider,
-                                            ),
-                                          ),
-                                    ),
-                                  ),
-                            ),
-                          ),
+            return Scaffold(
+              // Plain white, not the teal-tinted `surfaceContainer` the Feed/
+              // Communities tabs use — the reference screenshot's body is flat
+              // white behind the grey section cards.
+              backgroundColor: cs.surface,
+              // `top: false` — the hero banner bleeds its background behind the
+              // status bar itself (see `ProfileHeroBanner`), same as
+              // `SearchTopBar` on Feed/Communities; a full `SafeArea` would
+              // inset the content down and leave a gap above the image instead.
+              body: SafeArea(
+                top: false,
+                // Plain `ListView` — the banner is just the first item and
+                // scrolls away with everything else, like the rest of this
+                // screen. An earlier pass wrapped it in a floating/snap
+                // `SliverAppBar` (the technique `SearchTopBar` uses on
+                // Feed/Communities), but that's wrong here: floating means the
+                // banner hides on scroll-down and pops back the moment you
+                // scroll up even slightly, which reads as the avatar getting
+                // "stuck" mid-scroll — fine for a compact search bar, not for
+                // a tall identity header that should behave like normal
+                // content.
+                child: ListView(
+                  // `ListView` auto-pads its top edge by the status-bar inset
+                  // when not given an explicit `padding`, which would stack a
+                  // second gap above the header; `ProfileHeader` bleeds behind the
+                  // status bar itself.
+                  padding: EdgeInsets.zero,
+                  children: [
+                    ProfileHeader(user: user),
+                    ColoredBox(
+                      color: AppPalette.white,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: BlocBuilder<CommunitiesBloc, CommunitiesState>(
+                          builder: (context, communities) =>
+                              BlocBuilder<
+                                TicketsUnreadBloc,
+                                TicketsUnreadState
+                              >(
+                                builder: (context, unread) => ProfileSections(
+                                  subscribed: communities.communities
+                                      .where(
+                                        (c) =>
+                                            c.access ==
+                                            CommunityAccess.subscribed,
+                                      )
+                                      .toList(),
+                                  unreadTickets: unread.count,
+                                  // The Figma switch is the master push switch.
+                                  notificationsOn: context
+                                      .watch<PushSettingsBloc>()
+                                      .state
+                                      .enabled,
+                                  onToggleNotifications: (value) => context
+                                      .read<PushSettingsBloc>()
+                                      .add(PushSettingsEvent.toggled(value)),
+                                  postAlertsOn:
+                                      user?.postNotificationsEnabled ?? true,
+                                  onTogglePostAlerts: (value) => context
+                                      .read<AuthenticatorWatcherBloc>()
+                                      .add(
+                                        AuthenticatorWatcherEvent.notificationsToggled(
+                                          value,
+                                        ),
+                                      ),
+                                  onRenew: (c) => _renew(context, c),
+                                ),
+                              ),
                         ),
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(
-                            AppSpacing.lg,
-                            AppSpacing.sm,
-                            AppSpacing.lg,
-                            AppSpacing.xl,
-                          ),
-                          // Figma has no visible logout row in this mockup, so it
-                          // stays a clearly separate destructive action below the
-                          // sections rather than folded into one of them.
-                          child: LogoutButton(
-                            loading: authState.maybeMap(
-                              authenticating: (_) => true,
-                              orElse: () => false,
-                            ),
-                            // Asks first — and only an explicit "Log out" in the
-                            // dialog signs out. `context.mounted` because the dialog
-                            // is awaited across an async gap.
-                            onPressed: () async {
-                              final bloc = context
-                                  .read<AuthenticatorWatcherBloc>();
-                              if (await showLogoutDialog(context)) {
-                                bloc.add(
-                                  const AuthenticatorWatcherEvent.signOut(),
-                                );
-                              }
-                            },
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
-                  ),
-                );
-              },
-            ),
-          ),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(
+                        AppSpacing.lg,
+                        AppSpacing.sm,
+                        AppSpacing.lg,
+                        AppSpacing.xl,
+                      ),
+                      // Figma has no visible logout row in this mockup, so it
+                      // stays a clearly separate destructive action below the
+                      // sections rather than folded into one of them.
+                      child: LogoutButton(
+                        loading: authState.maybeMap(
+                          authenticating: (_) => true,
+                          orElse: () => false,
+                        ),
+                        // Asks first — and only an explicit "Log out" in the
+                        // dialog signs out. `context.mounted` because the dialog
+                        // is awaited across an async gap.
+                        onPressed: () async {
+                          final bloc = context.read<AuthenticatorWatcherBloc>();
+                          if (await showLogoutDialog(context)) {
+                            bloc.add(const AuthenticatorWatcherEvent.signOut());
+                          }
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
         ),
       ),
     );
-  }
-
-  /// A Connect finished. A closed provider sheet resets to idle and says
-  /// nothing; success re-reads `/me` (the new `linkedProviders` live there, not
-  /// in this bloc), and a refusal shows the server's own reason.
-  void _onConnect(BuildContext context, SocialConnectState state) {
-    final bloc = context.read<SocialConnectBloc>();
-    if (state.state.isLoaded) {
-      final name = state.provider == SocialProvider.apple ? 'Apple' : 'Google';
-      AppSnack.show('$name account connected.');
-      context.read<AuthenticatorWatcherBloc>().add(
-        const AuthenticatorWatcherEvent.authCheckRequest(),
-      );
-      bloc.add(const SocialConnectEvent.reset());
-    } else if (state.state.isError) {
-      AppSnack.show(state.message);
-      bloc.add(const SocialConnectEvent.reset());
-    }
   }
 
   /// Re-buys the community's current headline plan — the simplest faithful

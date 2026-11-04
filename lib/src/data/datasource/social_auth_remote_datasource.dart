@@ -77,26 +77,6 @@ class SocialAuthRemoteDatasource {
     return AuthSessionModel.fromJson(_require(data, Api.socialVerifyOtp));
   }
 
-  /// `POST /me/social/link` → the providers now linked. `409
-  /// SOCIAL_ALREADY_LINKED` (that account belongs to another member) and `409
-  /// SOCIAL_PROVIDER_ALREADY_LINKED` (a different one is already linked) come
-  /// back as the server's own words.
-  Future<List<String>> connect(SocialCredential credential) async {
-    final data = await _client.post(
-      Api.socialConnect,
-      body: {
-        'provider': credential.provider.name,
-        'idToken': credential.idToken,
-        'nonce': credential.nonce,
-      },
-    );
-    final linked = _require(data, Api.socialConnect)['linkedProviders'];
-    return [
-      for (final p in (linked as List?) ?? const [])
-        if (p is String) p,
-    ];
-  }
-
   Map<String, dynamic> _require(Map<String, dynamic>? data, String path) {
     if (data == null) {
       throw ApiException('The server returned no data for $path.');

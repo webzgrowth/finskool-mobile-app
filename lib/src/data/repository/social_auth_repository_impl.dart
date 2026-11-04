@@ -52,13 +52,6 @@ class SocialAuthRepositoryImpl implements SocialAuthRepository {
     required String otp,
   }) => _adopting(() => _remote.verifyOtp(otpToken: otpToken, otp: otp));
 
-  @override
-  Future<Either<Failure, List<String>>> connect(SocialProvider provider) =>
-      handleErrors(() async {
-        final credential = await _credentials.obtain(provider);
-        return _remote.connect(credential);
-      });
-
   /// A call that ends with the member logged in: keep the user, as a password
   /// login does, before handing the session back.
   Future<Either<Failure, AuthSessionModel>> _adopting(
