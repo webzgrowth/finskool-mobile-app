@@ -72,7 +72,6 @@ class _PostReactionBarState extends State<PostReactionBar> {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
     final current = widget.post.currentUserReaction;
     return Row(
       children: [
@@ -123,23 +122,23 @@ class _PostReactionBarState extends State<PostReactionBar> {
               shape: BoxShape.circle,
             ),
             child: Center(
-              child: current == null || current == ReactionType.like
+              // Figma's grey outlined thumbs-up until the member reacts; after
+              // that, the emoji they chose — the very glyph the picker showed,
+              // including 👍 (a tinted thumbs-up here used to look different
+              // from the picker's 👍). `ReactionGlyph` keeps `inherit: false`,
+              // without which ❤ renders as a monochrome glyph.
+              child: current == null
                   ? SizedBox(
                       height: 16,
                       width: 16,
                       child: SvgPicture.asset(
                         ReactionIcons.likeButton,
-                        colorFilter: ColorFilter.mode(
-                          current == null ? AppPalette.postMeta : cs.primary,
+                        colorFilter: const ColorFilter.mode(
+                          AppPalette.postMeta,
                           BlendMode.srcIn,
                         ),
                       ),
                     )
-                  // `inherit: false` is required: the theme sets a custom
-                  // fontFamily and U+2764 (❤) defaults to *text*
-                  // presentation, so without it the heart renders as a
-                  // monochrome glyph tinted by the inherited text colour —
-                  // which showed up as a green heart, not a red one.
                   : ReactionGlyph(reaction: current, size: 16),
             ),
           ),

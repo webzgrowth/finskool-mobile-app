@@ -775,18 +775,18 @@ border width — Flutter draws a `Border` inside the box, and omitting it
 made the row 0.76px wider than its content box and tripped a RenderFlex
 overflow.
 
-Three reactions have exported art, and they differ in kind
-(`pages/feed/widgets/reaction_icons.dart`):
-`reaction_like_fill.svg` is a monochrome UI glyph — the **Like control**,
-the only tintable asset; `reaction_like.svg`, `reaction_haha.svg` (Figma's
-laughing face) and `reaction_heart.png` are full-colour illustrations for the
-badges. `ReactionGlyph` picks art when it exists and falls back to the emoji —
-so **`insightful` (Figma's bulb disc) and `celebrate` (its clap disc) are emoji
-until their art is exported from Figma** (the figma-mcp-rust server timed out
-when that was attempted; export them and add them to `ReactionIcons.svgBadge`). (The laughing face
-only exports from node `605:16870`; the same-named nodes in the feed frame
-return an empty image.) The Reactions sheet's tabs follow Figma's disc order
-via `ReactionIcons.sheetOrder`, not the enum's.
+**Every reaction renders as its emoji, everywhere** — the picker, the Like
+control once the member has reacted, the badge stack, the Reactions sheet's tabs
+and the reactor rows (`ReactionGlyph` is emoji-only). It used to prefer Figma's
+illustrations (a vector 👍, a raster ❤️, a vector 😂), so the picker (emoji text,
+as Figma draws it) disagreed with the card — pick 😂, see a different 😂 — and
+only the art-less types matched. The illustrations were deleted
+(`reaction_like.svg`, `reaction_haha.svg`, `reaction_heart.png`). The one piece
+of art left is `reaction_like_fill.svg`, Figma's grey outlined thumbs-up on the
+Like control **before** the member reacts; once they have, it shows their emoji,
+including 👍. If Figma art is ever exported, replace it in the picker *and*
+`ReactionGlyph` together or they will drift apart again. The Reactions sheet's
+tabs use `ReactionIcons.sheetOrder`, which is the picker's order.
 
 **Emoji text needs `inherit: false`.** The app theme sets a custom
 `fontFamily`, and U+2764 (❤) defaults to *text* presentation — under a

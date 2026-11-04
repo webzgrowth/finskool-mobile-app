@@ -20,6 +20,7 @@ import 'package:finskool/src/domain/usecases/feed/remove_reaction.dart';
 import 'package:finskool/src/presentation/bloc/feed/posts/feed_bloc.dart';
 import 'package:finskool/src/presentation/pages/feed/widgets/post_reaction_bar.dart';
 import 'package:finskool/src/presentation/pages/feed/widgets/reaction_icons.dart';
+import 'package:finskool/src/presentation/pages/feed/widgets/reaction_picker_row.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
 
 import 'support/ticket_fakes.dart';
@@ -208,7 +209,13 @@ void main() {
     await tester.tap(like());
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300)); // the entrance scale
-    await tester.tap(find.text(ReactionType.love.emoji));
+    // The Like control now shows the member's own ❤️ too, so aim at the picker's.
+    await tester.tap(
+      find.descendant(
+        of: find.byType(ReactionPickerRow),
+        matching: find.text(ReactionType.love.emoji),
+      ),
+    );
     await settle(tester);
     expect(repo.removed, 1);
     expect(repo.reacted, isEmpty);

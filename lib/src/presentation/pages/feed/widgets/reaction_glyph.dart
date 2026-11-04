@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:finskool/src/domain/model/reaction_type.dart';
 
 import 'reaction_icons.dart';
 
-/// Renders one reaction at [size], preferring the illustrated art exported
-/// from Figma and falling back to the emoji glyph.
+/// Renders one reaction at [size] — always as its **emoji**, the same glyph the
+/// picker offers, so choosing a reaction and seeing it on the Like control, in
+/// the badge stack, in the Reactions sheet and beside a reactor's name all show
+/// the identical picture.
 ///
-/// 👍 and 😂 are Figma's vector art and ❤️ its raster; insightful and
-/// celebrate have no export yet, so they render as emoji text.
+/// It used to prefer Figma's illustrated art (a vector 👍, a raster ❤️, a vector
+/// 😂) and fall back to emoji for the rest. That meant the picker (emoji text,
+/// as Figma draws it) and everywhere else (illustrations) disagreed, and
+/// insightful / celebrate, which have no art, were the only ones that matched.
 class ReactionGlyph extends StatelessWidget {
   const ReactionGlyph({super.key, required this.reaction, required this.size});
 
@@ -28,27 +31,21 @@ class ReactionGlyph extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final svg = ReactionIcons.svgBadge(reaction);
-    final png = ReactionIcons.pngBadge(reaction);
     return SizedBox(
       height: size,
       width: size,
-      child: switch ((svg, png)) {
-        (final String s, _) => SvgPicture.asset(s, fit: BoxFit.contain),
-        (_, final String p) => Image.asset(p, fit: BoxFit.contain),
-        _ => Transform.translate(
-          offset: Offset(0, size * _emojiInkRise),
-          child: FittedBox(
-            fit: BoxFit.contain,
-            // See ReactionPickerRow: `inherit: false` keeps the theme's
-            // custom font family from turning ❤ monochrome.
-            child: Text(
-              reaction.emoji,
-              style: const TextStyle(inherit: false, fontSize: 24, height: 1.0),
-            ),
+      child: Transform.translate(
+        offset: Offset(0, size * _emojiInkRise),
+        child: FittedBox(
+          fit: BoxFit.contain,
+          // See ReactionPickerRow: `inherit: false` keeps the theme's custom
+          // font family from turning ❤ monochrome.
+          child: Text(
+            reaction.emoji,
+            style: const TextStyle(inherit: false, fontSize: 24, height: 1.0),
           ),
         ),
-      },
+      ),
     );
   }
 }
