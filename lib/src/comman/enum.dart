@@ -30,12 +30,3 @@ enum PasswordResetStep {
   bool get isCodeVerified => this == PasswordResetStep.codeVerified;
   bool get isPasswordUpdated => this == PasswordResetStep.passwordUpdated;
 }
-
-enum AuthFlow {
-  initial,
-  SendOtp,
-  VerifyOtp,
-  ResendOtp,
-  UserExist,
-  UserNotExist,
-}

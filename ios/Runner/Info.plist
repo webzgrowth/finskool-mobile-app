@@ -2,6 +2,21 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<!-- Google Sign-In returns to the app through this scheme (the iOS OAuth
+	     client's REVERSED_CLIENT_ID, from GoogleService-Info.plist). Without it
+	     the Google SDK raises an exception the moment the button is tapped and
+	     the app dies. Update it if the iOS client ID ever changes. -->
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.546100684047-ou0thrgnk2ktu9gq2su7l1isevaeihpo</string>
+			</array>
+		</dict>
+	</array>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>upi</string>

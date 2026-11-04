@@ -24,6 +24,8 @@ Future<Either<Failure, T>> handleErrors<T>(Future<T> Function() action) async {
       return Left(ValidationFailure(e.message, errors: errors, code: e.code));
     }
     return Left(ServerFailure(e.message, code: e.code));
+  } on SocialCancelledException {
+    return const Left(CancelledFailure());
   } on ServerException catch (e) {
     return Left(ServerFailure(e.message));
   } on SocketException {

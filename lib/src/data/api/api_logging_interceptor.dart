@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:finskool/src/utilities/logger.dart';
 
 /// Routes traffic through the app's own [logger], which already suppresses
@@ -16,6 +17,12 @@ class ApiLoggingInterceptor extends Interceptor {
     'confirmNewPassword',
     'otp',
     'cypher',
+    // Social sign-in: the provider's ID token is a credential, and each step's
+    // token (sign-up, link, otp) authorises the next call.
+    'idToken',
+    'signupToken',
+    'linkToken',
+    'otpToken',
     // A Razorpay proof — not needed in a log line, and the signature is what
     // authorises a payment.
     'razorpaySignature',
@@ -24,6 +31,12 @@ class ApiLoggingInterceptor extends Interceptor {
     'panNumber',
     'dateOfBirth',
   };
+
+  /// **TEMPORARY, debug builds only.** Shown in full so the exact KYC body can
+  /// be handed to the backend while `POST /me/kyc` answers 500. Release builds
+  /// still mask them (the contract says the app must never log a PAN) — delete
+  /// this set once that endpoint is fixed.
+  static const _visibleInDebug = {'panNumber', 'dateOfBirth'};
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
@@ -74,7 +87,9 @@ class ApiLoggingInterceptor extends Interceptor {
     if (body is! Map) return body;
     return {
       for (final entry in body.entries)
-        entry.key: _redactedKeys.contains(entry.key)
+        entry.key:
+            _redactedKeys.contains(entry.key) &&
+                !(kDebugMode && _visibleInDebug.contains(entry.key))
             ? '***'
             : _redact(entry.value),
     };

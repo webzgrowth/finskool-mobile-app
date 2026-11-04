@@ -147,10 +147,22 @@ class FeedPostModel {
   /// two string sources are deduped against each other — a picture listed in
   /// both `imageUrls` and the body must not render twice.
   static List<PostMediaModel> _media(Map<String, dynamic> json) {
+    // `images[]` repeats `imageUrls` but adds each file's measured size. Older
+    // payloads omit it, so it only ever *enriches*: the URL list still decides
+    // what renders, and a picture without a size just gets no `ratio`.
+    final sized = <String, double>{};
+    for (final entry in (json['images'] as List?) ?? const []) {
+      if (entry is! Map<String, dynamic>) continue;
+      final url = entry['url'] as String?;
+      final ratio = PostMediaModel.ratioOf(entry);
+      if (url != null && ratio != null) sized[url] = ratio;
+    }
+
     final pictures = <String>{
       ...((json['imageUrls'] as List?) ?? const []).cast<String>(),
+      ...sized.keys,
       ...htmlImageUrls(json['content'] as String? ?? ''),
-    }.map(PostMediaModel.fromUrl);
+    }.map((url) => PostMediaModel.fromUrl(url).withRatio(sized[url]));
 
     final videos = ((json['videos'] as List?) ?? const [])
         .whereType<Map<String, dynamic>>()

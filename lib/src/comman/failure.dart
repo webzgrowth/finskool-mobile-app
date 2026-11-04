@@ -49,3 +49,9 @@ class ValidationFailure extends Failure {
   @override
   List<Object?> get props => [message, code, errors];
 }
+
+/// The member closed the provider's sign-in sheet. Not an error: the UI goes
+/// quiet rather than showing a message.
+class CancelledFailure extends Failure {
+  const CancelledFailure() : super('');
+}

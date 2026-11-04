@@ -6,7 +6,7 @@ import 'package:finskool/src/presentation/bloc/authentication/sing_up_form/sign_
 import 'widgets/auth_header_for_tab.dart';
 import 'widgets/auth_tab_switch.dart';
 import 'widgets/auth_card.dart';
-import 'widgets/google_signin_listener.dart';
+import 'widgets/social_auth_listener.dart';
 import 'login/login_form.dart';
 import 'signup/signup_form.dart';
 import 'auth_tab_scope.dart';
@@ -62,7 +62,7 @@ class _AuthScreenState extends State<AuthScreen> {
   @override
   Widget build(BuildContext context) {
     final isLogin = _tab == AuthTab.login;
-    return GoogleSigninListener(
+    return SocialAuthListener(
       child: AuthTabScope(
         onSwitchTab: _select,
         child: Scaffold(

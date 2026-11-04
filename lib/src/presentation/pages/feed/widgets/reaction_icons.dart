@@ -7,10 +7,11 @@ import 'package:finskool/src/domain/model/reaction_type.dart';
 /// Figma draws the long-press picker's six reactions as plain **emoji text**
 /// — the frame is literally named "Picker" (`605:17127`) and each child is a
 /// text node holding an emoji character. Emoji are therefore the design
-/// here, not a stand-in for missing art. (Figma drew a different six —
-/// 👍❤️🔥👏✅😮 — but the backend's seeded set is authoritative.)
+/// here, not a stand-in for missing art.
 ///
-/// Three things do have real art, and they are different in kind:
+/// Real art exists for like, love and haha only; **insightful (Figma's bulb
+/// disc) and celebrate (its clap disc) have no export yet and render as emoji**
+/// — swap them in via [svgBadge] once exported. It is different in kind:
 /// * [likeButton] is a monochrome UI glyph (one path, `#7D7D91`) — the Like
 ///   control, and the only asset that can be tinted.
 /// * the badge art below is full-colour illustration (gradients, skin tone)
@@ -32,18 +33,14 @@ class ReactionIcons {
     _ => null,
   };
 
-  /// The picker's order, laid out as **Figma's** picker is: 👍 ❤️ 🔥 👏 ✅ 😮.
-  /// Figma's 🔥 / 👏 / ✅ have no backend reaction (the seeded set is
-  /// like · love · haha · wow · sad · angry and "never changes at runtime"), so
-  /// they are absent; what *is* drawn keeps Figma's relative order — like, love,
-  /// wow — with the backend-only extras after. Only types the server actually
-  /// returns are shown (see [available]).
+  /// The picker's order: the API's `sortOrder` — 👍 ❤️ 💡 😂 👏. Only types the
+  /// server actually returns are shown (see [available]).
   static const List<ReactionType> pickerOrder = [
     ReactionType.like,
     ReactionType.love,
-    ReactionType.wow,
+    ReactionType.insightful,
     ReactionType.haha,
-    ReactionType.angry,
+    ReactionType.celebrate,
   ];
 
   /// [pickerOrder] limited to [offered] (the names `GET /mobile/reaction-types`
@@ -54,16 +51,9 @@ class ReactionIcons {
       ? pickerOrder
       : pickerOrder.where(offered.contains).toList();
 
-  /// The Reactions sheet's tab order. Figma lays the discs out blue, red,
-  /// yellow, teal — like, love, then the yellow one (`wow` here), then the
-  /// laughing face — which isn't the enum's (API `sortOrder`) order.
-  static const List<ReactionType> sheetOrder = [
-    ReactionType.like,
-    ReactionType.love,
-    ReactionType.wow,
-    ReactionType.haha,
-    ReactionType.angry,
-  ];
+  /// The Reactions sheet's tab order — the same as the picker's: blue, red,
+  /// yellow, teal, green.
+  static const List<ReactionType> sheetOrder = pickerOrder;
 
   /// Raster badge art (the heart was uploaded as an image, not a vector).
   static String? pngBadge(ReactionType reaction) =>
@@ -71,22 +61,18 @@ class ReactionIcons {
 
   /// The coloured disc behind a reaction in the post card's badge stack.
   ///
-  /// Figma's colourful feed variant (`605:15302`) specifies discs for
-  /// thumbs-up (blue `#388FE7`), heart (red `#F15759`), clap (green
-  /// `#6DAE53`), bulb (amber) and laughing (teal) — a set that only partly
-  /// overlaps the reactions this app offers. So: like and love
-  /// are Figma's own, `haha` takes the teal Figma gave its laughing emoji,
-  /// and `wow` and `angry` reuse the remaining palette tokens rather
-  /// than inventing new ones. Figma never designed those two —
-  /// **confirm with the designer** before treating them as final.
+  /// Figma's colourful feed variant (`605:15302`) draws blue thumbs-up
+  /// (`#388FE7`), red heart (`#F15759`), amber bulb (`#FFDA56`), teal laughing
+  /// face (`#108B8B`) and green clap (`#6DAE53`) — exactly the backend's five,
+  /// so every disc is Figma's own.
   static Color badgeColor(BuildContext context, ReactionType reaction) {
     final g = context.gradients;
     return switch (reaction) {
       ReactionType.like => g.badgeLike,
       ReactionType.love => g.badgeLove,
+      ReactionType.insightful => g.badgeInsightful,
       ReactionType.haha => g.badgeHaha,
-      ReactionType.wow => g.badgeWow,
-      ReactionType.angry => g.badgeAngry,
+      ReactionType.celebrate => g.badgeCelebrate,
     };
   }
 }

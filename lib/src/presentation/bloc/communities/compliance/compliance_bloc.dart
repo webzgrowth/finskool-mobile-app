@@ -27,8 +27,16 @@ class ComplianceBloc extends Bloc<ComplianceEvent, ComplianceState> {
     on<ComplianceEvent>((event, emit) async {
       await event.map(
         initial: (_) async => emit(ComplianceState.initial()),
+        // The one field checked as it is typed: a complete date (10 chars,
+        // `DD/MM/YYYY`) is judged at once, so "31/02/2000" or a future date
+        // is flagged without waiting for Submit. A partial date stays quiet.
         dateOfBirthChanged: (value) async => emit(
-          state.copyWith(dateOfBirth: value.value, dateOfBirthError: null),
+          state.copyWith(
+            dateOfBirth: value.value,
+            dateOfBirthError: value.value.length == 10
+                ? validateDateOfBirth(value.value)
+                : null,
+          ),
         ),
         panChanged: (value) async => emit(
           state.copyWith(

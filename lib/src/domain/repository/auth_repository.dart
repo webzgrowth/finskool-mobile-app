@@ -24,6 +24,11 @@ abstract class AuthRepository {
     required String password,
   });
 
+  /// Keeps a session that was just established by something other than
+  /// [login] (social sign-in): caches the user and selects the member's only
+  /// community, exactly as [login] does. The cookie is already stored.
+  Future<void> adoptSession(AuthSessionModel session);
+
   Future<Either<Failure, Unit>> logout();
 
   Future<Either<Failure, Unit>> selectCommunity(String communityId);

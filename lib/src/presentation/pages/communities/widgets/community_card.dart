@@ -97,6 +97,9 @@ class _CommunityCardState extends State<CommunityCard> {
                   imageUrl: community.coverImageUrl,
                   memberCount: community.memberCount,
                   communityId: community.id,
+                  // Bought communities are the ones `pinnedFirst` lifts to the
+                  // top of the list; the pin says why.
+                  pinned: community.access.isSubscribed,
                 ),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(

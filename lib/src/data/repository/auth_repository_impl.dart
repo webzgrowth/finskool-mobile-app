@@ -59,10 +59,15 @@ class AuthRepositoryImpl implements AuthRepository {
     );
     // The session cookie itself was already captured by
     // SessionInterceptor; cache the user so splash can restore offline.
-    await _cacheUser(session.user);
-    await _autoSelectCommunity(session);
+    await adoptSession(session);
     return session;
   });
+
+  @override
+  Future<void> adoptSession(AuthSessionModel session) async {
+    await _cacheUser(session.user);
+    await _autoSelectCommunity(session);
+  }
 
   @override
   Future<Either<Failure, Unit>> logout() => handleErrors(() async {

@@ -27,6 +27,8 @@ import 'package:finskool/src/data/datasource/reaction_type_catalog.dart'
     as _i867;
 import 'package:finskool/src/data/datasource/services_remote_datasource.dart'
     as _i645;
+import 'package:finskool/src/data/datasource/social_auth_remote_datasource.dart'
+    as _i938;
 import 'package:finskool/src/data/datasource/tickets_remote_datasource.dart'
     as _i559;
 import 'package:finskool/src/data/push/push_service.dart' as _i548;
@@ -47,8 +49,12 @@ import 'package:finskool/src/data/repository/profile_info_repository_impl.dart'
     as _i671;
 import 'package:finskool/src/data/repository/services_repository_impl.dart'
     as _i93;
+import 'package:finskool/src/data/repository/social_auth_repository_impl.dart'
+    as _i22;
 import 'package:finskool/src/data/repository/tickets_repository_impl.dart'
     as _i745;
+import 'package:finskool/src/data/social/social_credential_source.dart'
+    as _i593;
 import 'package:finskool/src/data/socket/notifications_socket.dart' as _i415;
 import 'package:finskool/src/data/socket/tickets_socket.dart' as _i916;
 import 'package:finskool/src/domain/repository/auth_repository.dart' as _i505;
@@ -66,6 +72,8 @@ import 'package:finskool/src/domain/repository/profile_info_repository.dart'
     as _i82;
 import 'package:finskool/src/domain/repository/services_repository.dart'
     as _i954;
+import 'package:finskool/src/domain/repository/social_auth_repository.dart'
+    as _i1071;
 import 'package:finskool/src/domain/repository/tickets_repository.dart'
     as _i343;
 import 'package:finskool/src/domain/usecases/auth/get_auth_status.dart'
@@ -155,6 +163,14 @@ import 'package:finskool/src/domain/usecases/services/upload_service_attachment.
     as _i450;
 import 'package:finskool/src/domain/usecases/services/verify_service_payment.dart'
     as _i868;
+import 'package:finskool/src/domain/usecases/social/link_social_account.dart'
+    as _i771;
+import 'package:finskool/src/domain/usecases/social/request_social_phone.dart'
+    as _i513;
+import 'package:finskool/src/domain/usecases/social/social_sign_in.dart'
+    as _i922;
+import 'package:finskool/src/domain/usecases/social/verify_social_otp.dart'
+    as _i384;
 import 'package:finskool/src/domain/usecases/tickets/create_ticket.dart'
     as _i325;
 import 'package:finskool/src/domain/usecases/tickets/get_ticket.dart' as _i39;
@@ -176,8 +192,6 @@ import 'package:finskool/src/domain/usecases/tickets/upload_ticket_attachment.da
     as _i816;
 import 'package:finskool/src/presentation/bloc/authentication/authenticator_watcher/authenticator_watcher_bloc.dart'
     as _i821;
-import 'package:finskool/src/presentation/bloc/authentication/google_signin/google_signin_bloc.dart'
-    as _i747;
 import 'package:finskool/src/presentation/bloc/authentication/login_form/login_form_bloc.dart'
     as _i598;
 import 'package:finskool/src/presentation/bloc/authentication/password_reset/password_reset_bloc.dart'
@@ -186,6 +200,8 @@ import 'package:finskool/src/presentation/bloc/authentication/signup_verificatio
     as _i204;
 import 'package:finskool/src/presentation/bloc/authentication/sing_up_form/sign_up_form_bloc.dart'
     as _i251;
+import 'package:finskool/src/presentation/bloc/authentication/social_auth/social_auth_bloc.dart'
+    as _i728;
 import 'package:finskool/src/presentation/bloc/communities/compliance/compliance_bloc.dart'
     as _i967;
 import 'package:finskool/src/presentation/bloc/communities/filter/community_filter_bloc.dart'
@@ -245,7 +261,6 @@ extension GetItInjectableX on _i174.GetIt {
   }) {
     final gh = _i526.GetItHelper(this, environment, environmentFilter);
     gh.factory<_i695.FeedFilterBloc>(() => _i695.FeedFilterBloc());
-    gh.singleton<_i747.GoogleSigninBloc>(() => _i747.GoogleSigninBloc());
     gh.singleton<_i0.CommunityFilterBloc>(() => _i0.CommunityFilterBloc());
     gh.singleton<_i64.BottomNavBloc>(() => _i64.BottomNavBloc());
     gh.singleton<_i348.ServicesFilterBloc>(() => _i348.ServicesFilterBloc());
@@ -256,6 +271,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i916.TicketsSocket>(() => _i916.TicketsSocket());
     gh.lazySingleton<_i82.ProfileInfoRepository>(
       () => _i671.ProfileInfoRepositoryImpl(),
+    );
+    gh.lazySingleton<_i593.SocialCredentialSource>(
+      () => _i593.PlatformSocialCredentialSource(),
     );
     gh.lazySingleton<_i686.PerformanceRepository>(
       () => _i679.PerformanceRepositoryImpl(),
@@ -277,6 +295,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i867.ReactionTypeCatalog>(
       () => _i867.ReactionTypeCatalog(gh<_i373.ApiClient>()),
+    );
+    gh.lazySingleton<_i938.SocialAuthRemoteDatasource>(
+      () => _i938.SocialAuthRemoteDatasource(gh<_i373.ApiClient>()),
     );
     gh.lazySingleton<_i559.TicketsRemoteDatasource>(
       () => _i559.TicketsRemoteDatasource(gh<_i373.ApiClient>()),
@@ -591,6 +612,13 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i168.WelcomeKitBloc>(
       () => _i168.WelcomeKitBloc(gh<_i969.GetWelcomeKit>()),
     );
+    gh.lazySingleton<_i1071.SocialAuthRepository>(
+      () => _i22.SocialAuthRepositoryImpl(
+        gh<_i938.SocialAuthRemoteDatasource>(),
+        gh<_i593.SocialCredentialSource>(),
+        gh<_i505.AuthRepository>(),
+      ),
+    );
     gh.factory<_i507.ServicePaymentBloc>(
       () => _i507.ServicePaymentBloc(
         gh<_i983.GetGstStates>(),
@@ -632,6 +660,18 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i916.TicketsSocket>(),
       ),
     );
+    gh.lazySingleton<_i771.LinkSocialAccount>(
+      () => _i771.LinkSocialAccount(gh<_i1071.SocialAuthRepository>()),
+    );
+    gh.lazySingleton<_i513.RequestSocialPhone>(
+      () => _i513.RequestSocialPhone(gh<_i1071.SocialAuthRepository>()),
+    );
+    gh.lazySingleton<_i922.SocialSignIn>(
+      () => _i922.SocialSignIn(gh<_i1071.SocialAuthRepository>()),
+    );
+    gh.lazySingleton<_i384.VerifySocialOtp>(
+      () => _i384.VerifySocialOtp(gh<_i1071.SocialAuthRepository>()),
+    );
     gh.singleton<_i204.SignupVerificationBloc>(
       () => _i204.SignupVerificationBloc(
         gh<_i584.VerifyOtp>(),
@@ -668,6 +708,15 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i90.ServicesUnreadBloc(
         gh<_i706.GetServiceUnreadCount>(),
         gh<_i916.TicketsSocket>(),
+      ),
+    );
+    gh.singleton<_i728.SocialAuthBloc>(
+      () => _i728.SocialAuthBloc(
+        gh<_i922.SocialSignIn>(),
+        gh<_i771.LinkSocialAccount>(),
+        gh<_i513.RequestSocialPhone>(),
+        gh<_i384.VerifySocialOtp>(),
+        gh<_i775.ResendOtp>(),
       ),
     );
     return this;

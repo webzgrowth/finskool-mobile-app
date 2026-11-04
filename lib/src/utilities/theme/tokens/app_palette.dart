@@ -28,14 +28,13 @@ class AppPalette {
 
   /// Per-reaction badge rings, from Figma's colourful feed variant
   /// (`605:15302`). Blue and red map 1:1 onto like/love and teal onto haha
-  /// (Figma's laughing disc); amber, green and orange are reassigned to wow,
-  /// sad and angry — see `reaction_icons.dart`.
+  /// (Figma's laughing disc), amber onto insightful (its bulb) and green onto
+  /// celebrate (its clap) — see `reaction_icons.dart`.
   static const Color badgeBlue = Color(0xFF388FE7);
   static const Color badgeRed = Color(0xFFF15759);
   static const Color badgeAmber = Color(0xFFFFDA56);
   static const Color badgeTeal = Color(0xFF108B8B);
   static const Color badgeGreen = Color(0xFF6DAE53);
-  static const Color badgeOrange = Color(0xFFF95428);
 
   /// Reactions bottom sheet: near-black drag handle, the tab row's rule and
   /// the lighter rule between reactor rows.

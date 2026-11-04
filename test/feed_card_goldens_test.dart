@@ -68,8 +68,8 @@ void main() {
           ReactionType.like: 300,
           ReactionType.love: 100,
           ReactionType.haha: 80,
-          ReactionType.wow: 40,
-          ReactionType.angry: 24,
+          ReactionType.insightful: 40,
+          ReactionType.celebrate: 24,
         },
       );
 

@@ -1,31 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:finskool/src/comman/routes.dart';
+import 'package:finskool/src/domain/model/auth/social_models.dart';
+import 'package:finskool/src/presentation/bloc/authentication/social_auth/social_auth_bloc.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
-import 'package:finskool/src/presentation/bloc/authentication/sing_up_form/sign_up_form_bloc.dart';
-import 'package:finskool/src/presentation/bloc/authentication/signup_verification/signup_verification_bloc.dart';
 
-import '../widgets/back_arrow_button.dart';
-import '../widgets/phone_field.dart';
-import '../widgets/member_hint_card.dart';
+import '../widgets/auth_field_icons.dart';
 import '../widgets/auth_submit_button.dart';
-import '../widgets/auth_divider.dart';
-import '../widgets/google_auth_button.dart';
+import '../widgets/auth_text_field.dart';
+import '../widgets/back_arrow_button.dart';
+import '../widgets/member_hint_card.dart';
+import '../widgets/phone_field.dart';
 import '../widgets/privacy_footer_note.dart';
 import 'google_account_chip.dart';
 
+/// The phone step for a new member who signed in with Google or Apple
+/// (`phone_required`): the provider account, the WhatsApp number, and — only
+/// when the provider gave no name — the full name.
 class GoogleLastStepForm extends StatelessWidget {
   const GoogleLastStepForm({super.key});
 
-  static const _mockName = 'Hardik Sharma';
-  static const _mockEmail = 'hardik@gmail.com';
-
   @override
   Widget build(BuildContext context) {
-    final bloc = context.read<SignUpFormBloc>();
-    return BlocBuilder<SignUpFormBloc, SignUpFormState>(
+    final bloc = context.read<SocialAuthBloc>();
+    final tt = Theme.of(context).textTheme;
+    return BlocBuilder<SocialAuthBloc, SocialAuthState>(
       builder: (context, state) {
+        final email = state.email ?? '';
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -34,21 +35,36 @@ class GoogleLastStepForm extends StatelessWidget {
               child: BackArrowButton(onTap: () => context.pop()),
             ),
             const SizedBox(height: AppSpacing.lg),
-            const GoogleAccountChip(name: _mockName, email: _mockEmail),
+            GoogleAccountChip(
+              name: state.name ?? (email.isEmpty ? 'Your account' : email),
+              email: state.name == null ? '' : email,
+              provider: state.provider ?? SocialProvider.google,
+            ),
             const SizedBox(height: AppSpacing.lg),
+            if (state.needsName) ...[
+              AuthTextField(
+                label: 'Full Name',
+                hint: 'Enter your full name',
+                iconAsset: AuthFieldIcons.person,
+                errorText: state.nameError,
+                textCapitalization: TextCapitalization.words,
+                onChanged: (v) => bloc.add(SocialAuthEvent.nameChanged(v)),
+              ),
+              const SizedBox(height: AppSpacing.lg),
+            ],
             PhoneField(
               countryCode: state.countryCode,
               errorText: state.phoneError,
-              onChanged: (v) => bloc.add(SignUpFormEvent.phonenumberChanged(v)),
+              onChanged: (v) => bloc.add(SocialAuthEvent.phoneChanged(v)),
               onCountryChanged: (v) =>
-                  bloc.add(SignUpFormEvent.countryCodeChanged(v)),
+                  bloc.add(SocialAuthEvent.countryChanged(v)),
             ),
             const SizedBox(height: AppSpacing.lg),
             const MemberHintCard(),
             const SizedBox(height: AppSpacing.lg),
             Text.rich(
               TextSpan(
-                style: Theme.of(context).textTheme.bodySmall,
+                style: tt.bodySmall,
                 children: [
                   const TextSpan(text: "We'll send a "),
                   TextSpan(
@@ -71,33 +87,15 @@ class GoogleLastStepForm extends StatelessWidget {
             const SizedBox(height: AppSpacing.xl),
             AuthSubmitButton(
               label: 'Send Verification Code',
-              loading: false,
-              onPressed: () {
-                bloc.add(SignUpFormEvent.emailOnChanged(_mockEmail));
-                bloc.add(const SignUpFormEvent.isFromSocial(true));
-                final verificationBloc = context.read<SignupVerificationBloc>();
-                verificationBloc.add(const SignupVerificationEvent.initial());
-                verificationBloc.add(
-                  SignupVerificationEvent.prefill(
-                    phoneDisplay: '${state.countryCode} ${state.phonenumber}',
-                    email: _mockEmail,
-                    isFromSocial: true,
-                  ),
-                );
-                verificationBloc.add(
-                  const SignupVerificationEvent.sendPhoneCode(),
-                );
-                context.push(AppRoutes.VERIFY_PHONE_ROUTE_PATH);
-              },
+              loading: state.state.isLoading,
+              onPressed: () => bloc.add(const SocialAuthEvent.sendCode()),
             ),
             const SizedBox(height: AppSpacing.lg),
             const PrivacyFooterNote(),
             const SizedBox(height: AppSpacing.md),
-            const AuthDivider(),
-            const SizedBox(height: AppSpacing.md),
-            GoogleAuthButton(
-              label: 'Use a different Google account',
+            TextButton(
               onPressed: () => context.pop(),
+              child: const Text('Use a different account'),
             ),
           ],
         );

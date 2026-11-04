@@ -5,8 +5,8 @@ import 'package:finskool/src/presentation/pages/authentication/widgets/auth_card
 
 import 'google_last_step_form.dart';
 
-/// Shown after "Sign up with Google": confirm the picked Google account,
-/// collect the WhatsApp number (same [PhoneField] + [MemberHintCard] as
+/// Shown after Google / Apple sign-in for a new member: the provider account,
+/// the WhatsApp number (same [PhoneField] + [MemberHintCard] as
 /// the manual sign-up form), then send the WhatsApp code.
 class GoogleLastStepScreen extends StatelessWidget {
   const GoogleLastStepScreen({super.key});

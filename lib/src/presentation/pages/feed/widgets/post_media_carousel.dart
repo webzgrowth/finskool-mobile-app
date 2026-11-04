@@ -40,16 +40,22 @@ class _PostMediaCarouselState extends State<PostMediaCarousel> {
   /// been seen once is the right size from its first frame, even after the
   /// list disposed and rebuilt it — see that class for why this matters (the
   /// feed "juggled" because a rebuilt card restarted at the fallback and then
-  /// jumped to its real shape under the user's finger). Only the first-ever
-  /// build uses the fallback: a square for an image, 16:9 for a video.
+  /// jumped to its real shape under the user's finger). Only a media item with
+  /// neither a server ratio nor a cached one uses the fallback: a square for
+  /// an image, 16:9 for a video.
   /// YouTube/Instagram have a fixed ratio up front; their players don't
   /// expose the clip's true shape.
   double _ratioFor(int page) {
     final item = widget.media[page];
     final known = MediaRatioCache.of(_keyFor(page));
+    // The backend's measured ratio wins: it is there on the first frame and
+    // never changes, so the card is its final size before anything loads. The
+    // decoded ratio (cache) covers a post saved before sizes were recorded.
+    // Clamped like a decoded one, so a freak upload can't make a tall card.
+    final declared = item.ratio?.clamp(0.5, 2.0);
     return switch (item.type) {
-      PostMediaType.image => known ?? 1.0,
-      PostMediaType.nativeVideo => known ?? item.aspectRatio,
+      PostMediaType.image => declared ?? known ?? 1.0,
+      PostMediaType.nativeVideo => declared ?? known ?? item.aspectRatio,
       _ => item.aspectRatio,
     };
   }

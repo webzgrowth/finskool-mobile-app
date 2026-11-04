@@ -118,10 +118,9 @@ void main() {
     List<String> offered = const [
       'like',
       'love',
+      'insightful',
       'haha',
-      'wow',
-      'sad',
-      'angry',
+      'celebrate',
     ],
   }) async {
     if (locator.isRegistered<ReactionTypeCatalog>()) {
@@ -193,10 +192,13 @@ void main() {
     await tester.tap(like());
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300)); // the entrance scale
-    await tester.tap(find.text(ReactionType.wow.emoji));
+    await tester.tap(find.text(ReactionType.insightful.emoji));
     await settle(tester);
-    expect(repo.reacted, [ReactionType.wow]);
-    expect(find.text(ReactionType.wow.emoji), findsNothing); // picker closed
+    expect(repo.reacted, [ReactionType.insightful]);
+    expect(
+      find.text(ReactionType.insightful.emoji),
+      findsNothing,
+    ); // picker closed
   });
 
   testWidgets('choosing the reaction you already have takes it back', (
@@ -219,7 +221,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 300)); // the entrance scale
     await tester.tapAt(const Offset(700, 50)); // nowhere near the picker
     await tester.pump(const Duration(milliseconds: 250));
-    expect(find.text(ReactionType.wow.emoji), findsNothing);
+    expect(find.text(ReactionType.insightful.emoji), findsNothing);
     expect(repo.reacted, isEmpty);
     expect(repo.removed, 0);
   });
@@ -231,29 +233,34 @@ void main() {
     await tester.pump(const Duration(milliseconds: 300)); // the entrance scale
     expect(find.text(ReactionType.like.emoji), findsOneWidget);
     expect(find.text(ReactionType.love.emoji), findsOneWidget);
-    expect(find.text(ReactionType.wow.emoji), findsNothing);
+    expect(find.text(ReactionType.insightful.emoji), findsNothing);
     expect(find.text(ReactionType.haha.emoji), findsNothing);
   });
 
-  test(
-    'the picker follows Figma\'s order for what exists, and nothing else',
-    () {
-      // Figma: 👍 ❤️ 🔥 👏 ✅ 😮 — like, love and wow exist on the backend.
-      final order = ReactionIcons.pickerOrder;
-      expect(
-        order.indexOf(ReactionType.like),
-        lessThan(order.indexOf(ReactionType.love)),
-      );
-      expect(
-        order.indexOf(ReactionType.love),
-        lessThan(order.indexOf(ReactionType.wow)),
-      );
-      expect(ReactionIcons.available(null), order);
-      expect(ReactionIcons.available({}), order);
-      expect(ReactionIcons.available({ReactionType.wow, ReactionType.like}), [
-        ReactionType.like,
-        ReactionType.wow,
-      ]);
-    },
-  );
+  test('the picker follows the API order, and only what the server offers', () {
+    // 👍 ❤️ 💡 😂 👏 — the backend's `sortOrder`.
+    expect(ReactionIcons.pickerOrder, [
+      ReactionType.like,
+      ReactionType.love,
+      ReactionType.insightful,
+      ReactionType.haha,
+      ReactionType.celebrate,
+    ]);
+    expect(ReactionIcons.sheetOrder, ReactionIcons.pickerOrder);
+    final order = ReactionIcons.pickerOrder;
+    expect(ReactionIcons.available(null), order);
+    expect(ReactionIcons.available({}), order);
+    expect(
+      ReactionIcons.available({ReactionType.celebrate, ReactionType.like}),
+      [ReactionType.like, ReactionType.celebrate],
+    );
+  });
+
+  test('removed types (wow, sad, angry) are dropped, not thrown on', () {
+    expect(ReactionTypeX.fromName('wow'), isNull);
+    expect(ReactionTypeX.fromName('sad'), isNull);
+    expect(ReactionTypeX.fromName('angry'), isNull);
+    expect(ReactionTypeX.fromName('insightful'), ReactionType.insightful);
+    expect(ReactionTypeX.fromName('celebrate'), ReactionType.celebrate);
+  });
 }

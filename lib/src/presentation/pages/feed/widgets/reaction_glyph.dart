@@ -7,9 +7,8 @@ import 'reaction_icons.dart';
 /// Renders one reaction at [size], preferring the illustrated art exported
 /// from Figma and falling back to the emoji glyph.
 ///
-/// 👍 and 😂 are Figma's vector art and ❤️ its raster; wow and angry have no
-/// Figma art, so they render as emoji text — the fallback, not a stand-in
-/// for something missing.
+/// 👍 and 😂 are Figma's vector art and ❤️ its raster; insightful and
+/// celebrate have no export yet, so they render as emoji text.
 class ReactionGlyph extends StatelessWidget {
   const ReactionGlyph({super.key, required this.reaction, required this.size});
 
@@ -19,16 +18,12 @@ class ReactionGlyph extends StatelessWidget {
   /// Emoji ink sits high inside its line box, so a glyph centred by layout
   /// still looks lifted inside a round badge.
   ///
-  /// Measured, not guessed — but measured against the *previous* reaction
-  /// set: rendered all six badges at a 60pt disc and compared each glyph's
-  /// ink centroid to the disc centre. The two symmetric glyphs of that set,
-  /// ✅ and 😮 (whose centroid must equal their optical centre), both landed
-  /// 3.58pt high, i.e. 9.94% of the 36pt art box.
-  ///
-  /// ✅ and 👏 have since been replaced by 😢 and 😡 to match the backend's
-  /// seeded reaction types, so **re-measure** against 😂 😢 😡 — and on
-  /// Android (Noto Color Emoji), since this figure came from Apple Color
-  /// Emoji.
+  /// Measured, not guessed — but against an *earlier* reaction set: all six
+  /// badges rendered at a 60pt disc, each glyph's ink centroid compared to the
+  /// disc centre; the two symmetric glyphs (✅ and 😮) both landed 3.58pt high,
+  /// i.e. 9.94% of the 36pt art box. The set is now 💡 and 👏 as emoji, so
+  /// **re-measure** against those — and on Android (Noto Color Emoji), since
+  /// this figure came from Apple Color Emoji.
   static const double _emojiInkRise = 0.0994;
 
   @override

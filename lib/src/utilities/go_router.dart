@@ -11,6 +11,8 @@ import 'package:finskool/src/presentation/pages/authentication/new_password/new_
 import 'package:finskool/src/presentation/pages/authentication/password_reset_success/password_reset_success_screen.dart';
 import 'package:finskool/src/presentation/pages/authentication/verify_phone/verify_phone_screen.dart';
 import 'package:finskool/src/presentation/pages/authentication/google_last_step/google_last_step_screen.dart';
+import 'package:finskool/src/presentation/pages/authentication/social_link/social_link_screen.dart';
+import 'package:finskool/src/presentation/pages/authentication/social_verify/social_verify_screen.dart';
 import 'package:finskool/src/presentation/pages/authentication/signup_success/signup_success_screen.dart';
 import 'package:finskool/src/presentation/pages/dashboard/dashboard_shell_screen.dart';
 import 'package:finskool/src/presentation/pages/communities/detail/community_detail_screen.dart';
@@ -117,6 +119,20 @@ GoRouter routerinit = GoRouter(
       path: AppRoutes.GOOGLE_LAST_STEP_ROUTE_PATH,
       builder: (BuildContext context, GoRouterState state) {
         return const GoogleLastStepScreen();
+      },
+    ),
+    GoRoute(
+      name: AppRoutes.SOCIAL_LINK_ROUTE_NAME,
+      path: AppRoutes.SOCIAL_LINK_ROUTE_PATH,
+      builder: (BuildContext context, GoRouterState state) {
+        return const SocialLinkScreen();
+      },
+    ),
+    GoRoute(
+      name: AppRoutes.SOCIAL_VERIFY_ROUTE_NAME,
+      path: AppRoutes.SOCIAL_VERIFY_ROUTE_PATH,
+      builder: (BuildContext context, GoRouterState state) {
+        return const SocialVerifyScreen();
       },
     ),
     GoRoute(

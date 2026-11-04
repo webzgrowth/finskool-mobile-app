@@ -1,41 +1,41 @@
-/// The reaction types this app offers: like, love, haha, wow, angry.
+/// The reaction types the backend offers (`mobile-post-reactions.md`):
+/// like, love, insightful, haha, celebrate — in that order.
 ///
-/// The backend seeds a sixth, `sad` — it is deliberately **not** listed here.
-/// The product call is that a sad face doesn't belong on this feed, and since
-/// [fromName] is nullable, a `sad` row arriving from the API drops out of the
-/// counts and the reactor list on its own rather than throwing.
+/// Declaration order is the API's `sortOrder`, because it drives both the
+/// long-press picker's row order and the badge stack's tie-break in
+/// `FeedPostModel.rankedReactions`. The set is the backend's, which replaced
+/// wow / sad / angry with insightful (id 7) and celebrate (id 8); Figma's
+/// bulb and clap discs are those two. The integer `reactionTypeId` is never
+/// hardcoded — `ReactionTypeCatalog` resolves it from
+/// `GET /mobile/reaction-types`.
 ///
-/// Declaration order follows the API's `sortOrder`, because it drives both
-/// the long-press picker's row order and the badge stack's tie-break in
-/// `FeedPostModel.rankedReactions`.
+/// [fromName] is nullable, so a name this build doesn't know (a type added
+/// later, or an old `wow` still in a cache) drops that one datum from the
+/// counts and the reactor list instead of throwing. The API also sends an
+/// `emoji` for every type, which could draw an unknown one — not done: the
+/// enum is closed.
 ///
-/// These emoji are the design, **not** a placeholder. Figma's picker frame
-/// (`605:17127`) holds text nodes of emoji characters, so the designer used
-/// emoji too and there is no picker art to export. Note Figma designed a
-/// different set (👍❤️🔥👏✅😮); the backend's is authoritative, so fire,
-/// clap and verified are gone. The backend's own fixed set is like · love ·
-/// haha · wow · sad · angry ("never changes at runtime"), so those three Figma
-/// reactions cannot exist until the *backend* seeds them.
-///
-/// Two reactions additionally have illustrated badge art for the post card's
-/// reaction stack; see `pages/feed/widgets/reaction_icons.dart`.
-enum ReactionType { like, love, haha, wow, angry }
+/// These emoji are the design, **not** a placeholder: Figma's picker frame
+/// (`605:17127`) holds text nodes of emoji characters. Illustrated art exists
+/// only for the badge stack, and only for some types — see
+/// `pages/feed/widgets/reaction_icons.dart`.
+enum ReactionType { like, love, insightful, haha, celebrate }
 
 extension ReactionTypeX on ReactionType {
   String get emoji => switch (this) {
     ReactionType.like => '👍',
     ReactionType.love => '❤️',
+    ReactionType.insightful => '💡',
     ReactionType.haha => '😂',
-    ReactionType.wow => '😮',
-    ReactionType.angry => '😡',
+    ReactionType.celebrate => '👏',
   };
 
   String get label => switch (this) {
     ReactionType.like => 'Like',
     ReactionType.love => 'Love',
+    ReactionType.insightful => 'Insightful',
     ReactionType.haha => 'Haha',
-    ReactionType.wow => 'Wow',
-    ReactionType.angry => 'Angry',
+    ReactionType.celebrate => 'Celebrate',
   };
 
   /// Nullable on purpose. Every reaction name in the app now arrives from the

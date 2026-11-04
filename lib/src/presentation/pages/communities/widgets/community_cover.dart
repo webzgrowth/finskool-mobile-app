@@ -6,6 +6,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:finskool/src/comman/placeholder_images.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
 
+import 'pin_badge.dart';
+
 /// A community card's header image, with the member-count pill and the
 /// circular chart badge that overlaps its bottom-left corner.
 ///
@@ -18,6 +20,7 @@ class CommunityCover extends StatelessWidget {
     required this.imageUrl,
     required this.memberCount,
     required this.communityId,
+    this.pinned = false,
   });
 
   final String? imageUrl;
@@ -26,6 +29,9 @@ class CommunityCover extends StatelessWidget {
   /// Only used to pick a stable stand-in cover when [imageUrl] is null —
   /// most communities come back from the API without one today.
   final String communityId;
+
+  /// A bought community: shows the pin in the top-left corner.
+  final bool pinned;
 
   static const double height = 156;
   static const double badgeSize = 44;
@@ -61,6 +67,7 @@ class CommunityCover extends StatelessWidget {
             right: 14,
             child: _MemberPill(count: memberCount),
           ),
+          if (pinned) const Positioned(top: 13, left: 14, child: PinBadge()),
           Positioned(
             left: AppSpacing.lg,
             top: height - badgeSize / 2,

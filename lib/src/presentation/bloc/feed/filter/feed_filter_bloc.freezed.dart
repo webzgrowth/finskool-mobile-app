@@ -56,13 +56,12 @@ extension FeedFilterEventPatterns on FeedFilterEvent {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _QueryChanged value)?  queryChanged,TResult Function( _FilterToggled value)?  filterToggled,TResult Function( _FiltersCleared value)?  filtersCleared,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _QueryChanged value)?  queryChanged,TResult Function( _Cleared value)?  cleared,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case _QueryChanged() when queryChanged != null:
-return queryChanged(_that);case _FilterToggled() when filterToggled != null:
-return filterToggled(_that);case _FiltersCleared() when filtersCleared != null:
-return filtersCleared(_that);case _:
+return queryChanged(_that);case _Cleared() when cleared != null:
+return cleared(_that);case _:
   return orElse();
 
 }
@@ -80,13 +79,12 @@ return filtersCleared(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _QueryChanged value)  queryChanged,required TResult Function( _FilterToggled value)  filterToggled,required TResult Function( _FiltersCleared value)  filtersCleared,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _QueryChanged value)  queryChanged,required TResult Function( _Cleared value)  cleared,}){
 final _that = this;
 switch (_that) {
 case _QueryChanged():
-return queryChanged(_that);case _FilterToggled():
-return filterToggled(_that);case _FiltersCleared():
-return filtersCleared(_that);case _:
+return queryChanged(_that);case _Cleared():
+return cleared(_that);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -103,13 +101,12 @@ return filtersCleared(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _QueryChanged value)?  queryChanged,TResult? Function( _FilterToggled value)?  filterToggled,TResult? Function( _FiltersCleared value)?  filtersCleared,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _QueryChanged value)?  queryChanged,TResult? Function( _Cleared value)?  cleared,}){
 final _that = this;
 switch (_that) {
 case _QueryChanged() when queryChanged != null:
-return queryChanged(_that);case _FilterToggled() when filterToggled != null:
-return filterToggled(_that);case _FiltersCleared() when filtersCleared != null:
-return filtersCleared(_that);case _:
+return queryChanged(_that);case _Cleared() when cleared != null:
+return cleared(_that);case _:
   return null;
 
 }
@@ -126,12 +123,11 @@ return filtersCleared(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String query)?  queryChanged,TResult Function( String filterId)?  filterToggled,TResult Function()?  filtersCleared,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String query)?  queryChanged,TResult Function()?  cleared,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _QueryChanged() when queryChanged != null:
-return queryChanged(_that.query);case _FilterToggled() when filterToggled != null:
-return filterToggled(_that.filterId);case _FiltersCleared() when filtersCleared != null:
-return filtersCleared();case _:
+return queryChanged(_that.query);case _Cleared() when cleared != null:
+return cleared();case _:
   return orElse();
 
 }
@@ -149,12 +145,11 @@ return filtersCleared();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String query)  queryChanged,required TResult Function( String filterId)  filterToggled,required TResult Function()  filtersCleared,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String query)  queryChanged,required TResult Function()  cleared,}) {final _that = this;
 switch (_that) {
 case _QueryChanged():
-return queryChanged(_that.query);case _FilterToggled():
-return filterToggled(_that.filterId);case _FiltersCleared():
-return filtersCleared();case _:
+return queryChanged(_that.query);case _Cleared():
+return cleared();case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -171,12 +166,11 @@ return filtersCleared();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String query)?  queryChanged,TResult? Function( String filterId)?  filterToggled,TResult? Function()?  filtersCleared,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String query)?  queryChanged,TResult? Function()?  cleared,}) {final _that = this;
 switch (_that) {
 case _QueryChanged() when queryChanged != null:
-return queryChanged(_that.query);case _FilterToggled() when filterToggled != null:
-return filterToggled(_that.filterId);case _FiltersCleared() when filtersCleared != null:
-return filtersCleared();case _:
+return queryChanged(_that.query);case _Cleared() when cleared != null:
+return cleared();case _:
   return null;
 
 }
@@ -255,76 +249,8 @@ as String,
 /// @nodoc
 
 
-class _FilterToggled implements FeedFilterEvent {
-  const _FilterToggled(this.filterId);
-  
-
- final  String filterId;
-
-/// Create a copy of FeedFilterEvent
-/// with the given fields replaced by the non-null parameter values.
-@JsonKey(includeFromJson: false, includeToJson: false)
-@pragma('vm:prefer-inline')
-_$FilterToggledCopyWith<_FilterToggled> get copyWith => __$FilterToggledCopyWithImpl<_FilterToggled>(this, _$identity);
-
-
-
-@override
-bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _FilterToggled&&(identical(other.filterId, filterId) || other.filterId == filterId));
-}
-
-
-@override
-int get hashCode {
-    return Object.hash(runtimeType,filterId);
-}
-
-@override
-String toString() {
-    return 'FeedFilterEvent.filterToggled(filterId: $filterId)';
-}
-
-
-}
-
-/// @nodoc
-abstract mixin class _$FilterToggledCopyWith<$Res> implements $FeedFilterEventCopyWith<$Res> {
-  factory _$FilterToggledCopyWith(_FilterToggled value, $Res Function(_FilterToggled) _then) = __$FilterToggledCopyWithImpl;
-@useResult
-$Res call({
- String filterId
-});
-
-
-
-
-}
-/// @nodoc
-class __$FilterToggledCopyWithImpl<$Res>
-    implements _$FilterToggledCopyWith<$Res> {
-  __$FilterToggledCopyWithImpl(this._self, this._then);
-
-  final _FilterToggled _self;
-  final $Res Function(_FilterToggled) _then;
-
-/// Create a copy of FeedFilterEvent
-/// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? filterId = null,}) {
-  return _then(_FilterToggled(
-null == filterId ? _self.filterId : filterId // ignore: cast_nullable_to_non_nullable
-as String,
-  ));
-}
-
-
-}
-
-/// @nodoc
-
-
-class _FiltersCleared implements FeedFilterEvent {
-  const _FiltersCleared();
+class _Cleared implements FeedFilterEvent {
+  const _Cleared();
   
 
 
@@ -334,7 +260,7 @@ class _FiltersCleared implements FeedFilterEvent {
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _FiltersCleared);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Cleared);
 }
 
 
@@ -343,7 +269,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-    return 'FeedFilterEvent.filtersCleared()';
+    return 'FeedFilterEvent.cleared()';
 }
 
 
@@ -355,7 +281,7 @@ String toString() {
 /// @nodoc
 mixin _$FeedFilterState {
 
- String get query; Set<String> get activeFilterIds;
+ String get query;
 /// Create a copy of FeedFilterState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -367,20 +293,20 @@ $FeedFilterStateCopyWith<FeedFilterState> get copyWith => _$FeedFilterStateCopyW
 @override
 bool operator ==(Object other) {
   final _this = this as FeedFilterState;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is FeedFilterState&&(identical(other.query, _this.query) || other.query == _this.query)&&const DeepCollectionEquality().equals(other.activeFilterIds, _this.activeFilterIds));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is FeedFilterState&&(identical(other.query, _this.query) || other.query == _this.query));
 }
 
 
 @override
 int get hashCode {
   final _this = this as FeedFilterState;
-  return Object.hash(runtimeType,_this.query,const DeepCollectionEquality().hash(_this.activeFilterIds));
+  return Object.hash(runtimeType,_this.query);
 }
 
 @override
 String toString() {
   final _this = this as FeedFilterState;
-  return 'FeedFilterState(query: ${_this.query}, activeFilterIds: ${_this.activeFilterIds})';
+  return 'FeedFilterState(query: ${_this.query})';
 }
 
 
@@ -391,7 +317,7 @@ abstract mixin class $FeedFilterStateCopyWith<$Res>  {
   factory $FeedFilterStateCopyWith(FeedFilterState value, $Res Function(FeedFilterState) _then) = _$FeedFilterStateCopyWithImpl;
 @useResult
 $Res call({
- String query, Set<String> activeFilterIds
+ String query
 });
 
 
@@ -408,11 +334,10 @@ class _$FeedFilterStateCopyWithImpl<$Res>
 
 /// Create a copy of FeedFilterState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? query = null,Object? activeFilterIds = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? query = null,}) {
   return _then(FeedFilterState(
 query: null == query ? _self.query : query // ignore: cast_nullable_to_non_nullable
-as String,activeFilterIds: null == activeFilterIds ? _self.activeFilterIds : activeFilterIds // ignore: cast_nullable_to_non_nullable
-as Set<String>,
+as String,
   ));
 }
 
@@ -494,10 +419,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String query,  Set<String> activeFilterIds)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String query)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _FeedFilterState() when $default != null:
-return $default(_that.query,_that.activeFilterIds);case _:
+return $default(_that.query);case _:
   return orElse();
 
 }
@@ -515,10 +440,10 @@ return $default(_that.query,_that.activeFilterIds);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String query,  Set<String> activeFilterIds)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String query)  $default,) {final _that = this;
 switch (_that) {
 case _FeedFilterState():
-return $default(_that.query,_that.activeFilterIds);}
+return $default(_that.query);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -532,10 +457,10 @@ return $default(_that.query,_that.activeFilterIds);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String query,  Set<String> activeFilterIds)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String query)?  $default,) {final _that = this;
 switch (_that) {
 case _FeedFilterState() when $default != null:
-return $default(_that.query,_that.activeFilterIds);case _:
+return $default(_that.query);case _:
   return null;
 
 }
@@ -547,17 +472,10 @@ return $default(_that.query,_that.activeFilterIds);case _:
 
 
 class _FeedFilterState implements FeedFilterState {
-  const _FeedFilterState({required this.query, required  Set<String> activeFilterIds}): _activeFilterIds = activeFilterIds;
+  const _FeedFilterState({required this.query});
   
 
 @override final  String query;
- final  Set<String> _activeFilterIds;
-@override Set<String> get activeFilterIds {
-  if (_activeFilterIds is EqualUnmodifiableSetView) return _activeFilterIds;
-  // ignore: implicit_dynamic_type
-  return EqualUnmodifiableSetView(_activeFilterIds);
-}
-
 
 /// Create a copy of FeedFilterState
 /// with the given fields replaced by the non-null parameter values.
@@ -569,18 +487,18 @@ _$FeedFilterStateCopyWith<_FeedFilterState> get copyWith => __$FeedFilterStateCo
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _FeedFilterState&&(identical(other.query, query) || other.query == query)&&const DeepCollectionEquality().equals(other.activeFilterIds, _activeFilterIds));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _FeedFilterState&&(identical(other.query, query) || other.query == query));
 }
 
 
 @override
 int get hashCode {
-    return Object.hash(runtimeType,query,const DeepCollectionEquality().hash(_activeFilterIds));
+    return Object.hash(runtimeType,query);
 }
 
 @override
 String toString() {
-    return 'FeedFilterState(query: $query, activeFilterIds: $activeFilterIds)';
+    return 'FeedFilterState(query: $query)';
 }
 
 
@@ -591,7 +509,7 @@ abstract mixin class _$FeedFilterStateCopyWith<$Res> implements $FeedFilterState
   factory _$FeedFilterStateCopyWith(_FeedFilterState value, $Res Function(_FeedFilterState) _then) = __$FeedFilterStateCopyWithImpl;
 @override @useResult
 $Res call({
- String query, Set<String> activeFilterIds
+ String query
 });
 
 
@@ -608,11 +526,10 @@ class __$FeedFilterStateCopyWithImpl<$Res>
 
 /// Create a copy of FeedFilterState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? query = null,Object? activeFilterIds = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? query = null,}) {
   return _then(_FeedFilterState(
 query: null == query ? _self.query : query // ignore: cast_nullable_to_non_nullable
-as String,activeFilterIds: null == activeFilterIds ? _self._activeFilterIds : activeFilterIds // ignore: cast_nullable_to_non_nullable
-as Set<String>,
+as String,
   ));
 }
 

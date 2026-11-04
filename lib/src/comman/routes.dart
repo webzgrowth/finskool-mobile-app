@@ -40,6 +40,12 @@ class AppRoutes {
   static const String GOOGLE_LAST_STEP_ROUTE_NAME = 'google-last-step';
   static const String GOOGLE_LAST_STEP_ROUTE_PATH = '/signup/google-last-step';
 
+  // Sign in with Google / Apple: the phone step reuses `google-last-step`.
+  static const String SOCIAL_LINK_ROUTE_NAME = 'social-link';
+  static const String SOCIAL_LINK_ROUTE_PATH = '/social/link';
+  static const String SOCIAL_VERIFY_ROUTE_NAME = 'social-verify';
+  static const String SOCIAL_VERIFY_ROUTE_PATH = '/social/verify';
+
   static const String SIGNUP_SUCCESS_ROUTE_NAME = 'signup-success';
   static const String SIGNUP_SUCCESS_ROUTE_PATH = '/signup/success';
 

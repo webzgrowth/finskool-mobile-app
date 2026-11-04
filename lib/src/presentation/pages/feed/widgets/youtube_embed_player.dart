@@ -50,6 +50,16 @@ class _YoutubeEmbedPlayerState extends State<YoutubeEmbedPlayer> {
   // is the fix.
   bool _muted = true;
 
+  // **Why the button lives in its own overlay.** On mobile the package draws
+  // the WebView inside an `OverlayPortal` — a layer that paints above every
+  // ordinary widget — and puts its own controls in there too so they stay on
+  // top. A speaker button placed in a `Stack` beside the player therefore sat
+  // *underneath* the video and was never visible, on iOS and Android alike.
+  // This portal is a second overlay entry, shown after the player's own, and
+  // a `CompositedTransformFollower` keeps the button pinned to the player.
+  final _buttonPortal = OverlayPortalController();
+  final _playerLink = LayerLink();
+
   YoutubePlayerController _build({bool mute = true, double? start}) =>
       YoutubePlayerController.fromVideoId(
         videoId: widget.videoId,
@@ -79,6 +89,17 @@ class _YoutubeEmbedPlayerState extends State<YoutubeEmbedPlayer> {
   /// The carousel reuses one element per page slot, so swiping can hand this
   /// state a different video. Without this the first video keeps playing
   /// under the second one's card.
+  @override
+  void initState() {
+    super.initState();
+    // The player shows its own overlay a frame or two after it mounts, and the
+    // later entry is the upper one — so this waits it out rather than racing
+    // it. Until then the button simply isn't there, which no one can tell.
+    Future<void>.delayed(const Duration(milliseconds: 400), () {
+      if (mounted) _buttonPortal.show();
+    });
+  }
+
   @override
   void didUpdateWidget(YoutubeEmbedPlayer old) {
     super.didUpdateWidget(old);
@@ -126,17 +147,41 @@ class _YoutubeEmbedPlayerState extends State<YoutubeEmbedPlayer> {
 
   @override
   Widget build(BuildContext context) {
-    // The real overflow fix is the **ratio** (`widget.aspectRatio` is now
-    // 16:9, not the 332:171 that squeezed the package's controls `Column`
-    // ~3px too tall for its box — see `PostMediaModel.aspectRatio`). `ClipRect`
-    // stays as cheap insurance: it clips any sub-pixel paint from a mid-swipe
-    // `AnimatedSize` frame, though it can't suppress a Flex *assertion*, which
-    // is why it alone never fixed this.
-    return ClipRect(
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          YoutubePlayer(
+    // `ClipRect` is cheap insurance against sub-pixel paint from a mid-swipe
+    // frame. (The real overflow fix is the **ratio**: `widget.aspectRatio` is
+    // 16:9, not the 332:171 that squeezed the package's controls `Column` ~3px
+    // too tall for its box — see `PostMediaModel.aspectRatio`.)
+    return OverlayPortal(
+      controller: _buttonPortal,
+      // `Align` hands the follower *loose* constraints. An overlay child is
+      // otherwise forced to the full screen, which stretched the button into a
+      // screen-sized circle.
+      overlayChildBuilder: (context) => Align(
+        alignment: Alignment.topLeft,
+        child: CompositedTransformFollower(
+          link: _playerLink,
+          // Not linked (player gone, or scrolled out) → nothing drawn.
+          showWhenUnlinked: false,
+          // Middle of the right edge: clear of the title/speed row, the play
+          // button and the bottom bar the package's controls occupy.
+          targetAnchor: Alignment.centerRight,
+          followerAnchor: Alignment.centerRight,
+          offset: const Offset(-8, 0),
+          child: YoutubeValueBuilder(
+            controller: _controller,
+            buildWhen: (o, n) => o.fullScreenOption != n.fullScreenOption,
+            // Fullscreen is the package's own layer; the card's button would
+            // float over the wrong thing.
+            builder: (context, value) => value.fullScreenOption.enabled
+                ? const SizedBox.shrink()
+                : _MuteButton(muted: _muted, onTap: _toggleMute),
+          ),
+        ),
+      ),
+      child: ClipRect(
+        child: CompositedTransformTarget(
+          link: _playerLink,
+          child: YoutubePlayer(
             controller: _controller,
             aspectRatio: widget.aspectRatio,
             // Default is true: a vertical drag on the player toggles
@@ -145,28 +190,39 @@ class _YoutubeEmbedPlayerState extends State<YoutubeEmbedPlayer> {
             // Fullscreen is still one tap on the player's own button.
             enableFullScreenOnVerticalDrag: false,
           ),
-          Positioned(
-            right: 8,
-            bottom: 8,
-            child: GestureDetector(
-              onTap: _toggleMute,
-              behavior: HitTestBehavior.opaque,
-              child: Container(
-                height: 28,
-                width: 28,
-                decoration: BoxDecoration(
-                  color: Colors.black.withValues(alpha: 0.45),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  _muted ? Icons.volume_off_rounded : Icons.volume_up_rounded,
-                  color: Colors.white,
-                  size: 16,
-                ),
-              ),
-            ),
+        ),
+      ),
+    );
+  }
+}
+
+class _MuteButton extends StatelessWidget {
+  const _MuteButton({required this.muted, required this.onTap});
+
+  final bool muted;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Semantics(
+        button: true,
+        label: muted ? 'Turn sound on' : 'Mute',
+        child: Container(
+          height: 32,
+          width: 32,
+          decoration: BoxDecoration(
+            color: Colors.black.withValues(alpha: 0.55),
+            shape: BoxShape.circle,
           ),
-        ],
+          child: Icon(
+            muted ? Icons.volume_off_rounded : Icons.volume_up_rounded,
+            color: Colors.white,
+            size: 18,
+          ),
+        ),
       ),
     );
   }

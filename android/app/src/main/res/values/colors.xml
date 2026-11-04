@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Tint of the notification small icon (brand primary, `#1E9299`). -->
+    <color name="notification_accent">#1E9299</color>
+</resources>

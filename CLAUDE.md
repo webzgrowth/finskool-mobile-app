@@ -58,11 +58,11 @@ If a value is missing from the theme, add it to the theme.
 One folder per sub-feature, containing three files plus generated output:
 
 ```
-bloc/authentication/google_signin/
-  google_signin_bloc.dart          # the library
-  google_signin_event.dart         # part of the bloc
-  google_signin_state.dart         # part of the bloc
-  google_signin_bloc.freezed.dart  # generated
+bloc/authentication/login_form/
+  login_form_bloc.dart          # the library
+  login_form_event.dart         # part of the bloc
+  login_form_state.dart         # part of the bloc
+  login_form_bloc.freezed.dart  # generated
 ```
 
 The bloc file declares the parts in this order:
@@ -94,7 +94,7 @@ Give each distinct responsibility its own singleton bloc rather than
 merging unrelated state onto one screen's bloc just because it's on one
 screen. E.g. the Feed tab uses three: `BottomNavBloc` (which tab is
 selected), `FeedBloc` (the post list + reaction state), `FeedFilterBloc`
-(search text + filter chips) — search/filter state and post data are
+(the search text) — search state and post data are
 different responsibilities even though they render on the same screen.
 Screens combine multiple blocs' states in the widget layer (nested
 `BlocBuilder`s); blocs don't talk to each other directly.
@@ -192,9 +192,8 @@ re-fire step 1's listener.
 `HttpOverrides.global = null`, since `flutter_test` blocks real requests).
 Exclude it with `flutter test --exclude-tags network`.
 
-**Google sign-in has no backend endpoint.** `GoogleSigninBloc` and
-`google_last_step/` are still mocked, and `verify_phone/` must keep working
-with a null `userId` for that path — see below.
+**Google and Apple sign-in are wired to the real backend** — see "Sign in with
+Google / Apple" below (contract: `social-logins.md`).
 
 ## Authentication screens
 
@@ -204,7 +203,7 @@ Figma design. Shared pieces live in `widgets/`: `AuthHeader` (gradient hero),
 `AuthCard` (animated entrance sheet), `AuthTextField`, `PhoneField`,
 `GoogleAuthButton`, `AuthDivider`, `MemberHintCard`, `AuthSwitchPrompt`.
 `login_form.dart` / `signup_form.dart` wire `LoginFormBloc` /
-`SignUpFormBloc` + `GoogleSigninBloc`. Splash now routes to `/login` after
+`SignUpFormBloc` + `SocialAuthBloc` (via `SocialAuthButtons`). Splash now routes to `/login` after
 its delay (`AuthenticatorWatcherBloc` still doesn't resolve auth state — see
 Known gaps).
 
@@ -294,10 +293,11 @@ Verifying the OTP does **not** create a session — the API says so explicitly.
 combines two blocs **in the widget layer**, matching the rest of the app; the
 blocs never talk to each other.
 
-**The Google path has no `userId`** — it never registers, since no social
-endpoint exists. `SignupVerificationState.isBackedByApi` is the guard:
-false means validate locally and move on, exactly as before. Keep that branch
-alive or `google_last_step/` → `verify_phone/` crashes.
+**`SignupVerificationState.isBackedByApi` / `isFromSocial` are now legacy.**
+The social flow no longer goes through `verify_phone/` (it has its own code
+screen, below), so nothing reaches the `userId == null` branch any more; the
+mock Google path that needed it is gone. They are dead and can be deleted along
+with `SignUpFormEvent.isFromSocial`.
 
 **`verify_phone/` is one screen,
 not two** — per Figma, the WhatsApp number confirmation (inline icon + number
@@ -327,23 +327,89 @@ diff against it rather than assuming the current copy is final.
 `widgets/` and are shared across the password-reset and signup-verification
 flows — don't fork per-flow copies; pass the question/label text in.
 
-**Google signup is intentionally static for now.** Tapping "Sign up with
-Google" on the sign-up form pushes `google_last_step/`
-(`/signup/google-last-step`), the "One last step" screen — a fixed mock
-Google account (`GoogleAccountChip`: avatar + name/email + verified
-checkmark, not tappable) followed by the **same** `PhoneField` +
-`MemberHintCard` used on the manual sign-up form, then "Send Verification
-Code". This pushes `verify_phone/` directly (no email OTP afterwards, since
-Google already verifies the email) — `SignUpFormBloc` drives the phone
-field here too (shared with the manual form), and
-`SignUpFormEvent.isFromSocial(true)` plus
-`SignupVerificationEvent.prefill(isFromSocial: true)` are what make
-`verify_phone_form.dart` skip to `signup_success/` instead of
-`verify_email/` on its "Verify & Continue" button. `GoogleSigninBloc`'s real
-flow is untouched and still backs the **Login** screen's Google button. Wire
-a real Google account picker and a real WhatsApp/email OTP backend here when
-ready — the branching logic is already in place, only the data source is
-mocked.
+### Sign in with Google / Apple
+
+Contract: `social-logins.md`, base `/auth/mobile/social/*`. The provider's
+button gives the app an **ID token**; the server decides what happens next, so
+the screens follow `SocialAuthState.step`, not the order of taps:
+
+| `POST /social/login` answers | Step | Screen |
+|---|---|---|
+| `logged_in` | `done` | straight to `/dashboard` (cookie set, same body as a password login) |
+| `link_required` (an account with this email exists) | `linkRequired` | `social_link/` — that account's password → `POST /social/link` |
+| `phone_required` (new member, or one an admin added) | `phoneRequired` | `google_last_step/` ("One last step", provider-agnostic despite the name) → `POST /social/phone` |
+| — after the phone | `codeSent` | `social_verify/` — WhatsApp code → `POST /social/verify-otp` → logged in, **no success page** |
+
+**`SocialAuthBloc`** (`@singleton`, one bloc across all four screens like
+`PasswordResetBloc`; handlers split into `social_auth_steps.dart`) replaced
+`GoogleSigninBloc`. It holds the provider's tokens in memory only and is wiped
+by `reset` — dispatched when a flow finishes and by the shell's `_forgetSession`.
+`SocialAuthListener` (wrapping `AuthScreen`, which stays mounted underneath)
+is the **only** place that navigates and shows the snackbar, so no step shows an
+error twice. Pushes are keyed on the step *transition*: `_sendCode` steps back
+to `phoneRequired` while sending, so "Change number → send again" re-opens the
+code screen and never stacks a second phone screen (pinned by
+`social_auth_listener_test.dart`).
+
+* **Nonce, per sign-in.** The server rejects a token without the nonce it was
+  sent. `google_sign_in` v7 only takes a nonce at `initialize`, which it says
+  to call **exactly once** — that would pin one nonce for the app's life. So
+  `PlatformSocialCredentialSource` talks to `GoogleSignInPlatform` directly
+  (`google_sign_in_platform_interface` is a direct dependency for this), whose
+  `init` just stores the parameters. Apple gets `sha256(raw)`; the server always
+  gets `raw`. Don't "simplify" this back to `GoogleSignIn.instance.authenticate()`
+  — the facade was never initialised in this app anyway, so the old button could
+  not have worked.
+* **The Web client ID is the audience** (`SocialConfig.googleWebClientId`,
+  `--dart-define=GOOGLE_WEB_CLIENT_ID`). Android and iOS client IDs identify the
+  app to Google and live in the platform files; the server only knows the Web
+  one. The plugin is signed out right after the token is taken, so the next tap
+  shows the account chooser (this also replaced the `GoogleSignIn.instance
+  .signOut()` in `AuthenticatorWatcherBloc`).
+* **Apple is iPhone-only** (`SocialAuthButtons` hides it elsewhere): Android
+  would need a Services ID and a web flow. The button is our own
+  `AppleAuthButton`, an `OutlinedButton` with a solid `onSurface` fill — **not**
+  the package's `SignInWithAppleButton`, whose label is hard-wired to ~43% of
+  the button height and read as far larger than Google's. Built on the same
+  base as `GoogleAuthButton` (and with the same 18px glyph) so the two are the
+  same height; it still uses Apple's logo and an approved title. The name arrives **once, outside the token**, so it is
+  sent as `fullName` on the first login; if the server still has no name the
+  phone step asks for it (`NAME_REQUIRED` too).
+* **Inline vs snackbar.** Errors with a field of their own (wrong link
+  password, wrong/expired/locked code, `NAME_REQUIRED`, a 422 phone) are drawn
+  under it with `message: ''`; the rest are the server's words verbatim. A closed
+  provider sheet is `CancelledFailure` — silent. `SOCIAL_STEP_EXPIRED`,
+  `SOCIAL_LINK_LOCKED` and `SOCIAL_TOKEN_INVALID` close the step for good: the
+  bloc emits `restart` and the listener goes back to login.
+* **Resend** reuses `POST /auth/mobile/resend-otp` with the `otpToken` as the
+  `userId` (60 s wait, bloc-owned `Timer.periodic`; a `429 OTP_COOLDOWN` shows
+  the server's message and leaves the countdown alone).
+* **Logged-in side effects** are shared with password login:
+  `AuthRepository.adoptSession` caches the user and auto-selects a lone
+  community. The tokens (`idToken`, `signupToken`, `linkToken`, `otpToken`) are
+  redacted from logs like a password.
+* **Not built:** linking a provider from the profile (`POST /me/social/link`,
+  needed after `409 ALREADY_REGISTERED`: the member logs in by password and
+  connects Google), `user.linkedProviders`, and Apple's rule that an app with
+  sign-in lets people **delete their account in-app**. The buttons are always
+  shown; while the server's `SOCIAL_LOGIN_ENABLED` is off a tap answers
+  `404 SOCIAL_LOGIN_DISABLED` and the snackbar says so.
+* **iOS: the Google SDK crashes the app unless it has a client ID — and
+  `GoogleService-Info.plist` can't be relied on for it.** The file is in
+  `ios/Runner/` but **not in the Xcode project** (0 references in
+  `project.pbxproj`; it is absent from the built `Runner.app`), so the plugin
+  found no `CLIENT_ID` and `-[GIDSignIn signInWithOptions:]` threw an uncaught
+  `NSException` ("No active configuration") the instant the button was tapped.
+  Fixed in code: `SocialConfig.googleIosClientId` is passed as `clientId` on iOS
+  only (never on Android), and `Info.plist` carries the matching URL scheme
+  (`CFBundleURLTypes` = `REVERSED_CLIENT_ID`) the SDK also insists on. Change
+  both together if the iOS client changes. A side effect worth knowing:
+  `Firebase.initializeApp()` also reads that plist, so on iOS it fails (caught,
+  "Push disabled") until the file is added to the Runner target in Xcode.
+* **Other platform setup the code can't do:** the SHA-1 of every signing key on
+  the Android OAuth client (debug, upload, Play App Signing), and the *Sign in
+  with Apple* capability in Xcode (Signing & Capabilities) and on the App ID.
+  Verified on the iOS simulator up to Google's consent prompt; not past it.
 
 ### Responsive layout (iOS + Android, phone + tablet)
 
@@ -381,7 +447,9 @@ is a stub with a real logout (see Known gaps).
 Three singleton blocs back the Feed tab (see "Bloc granularity" above for
 why they're separate): `BottomNavBloc` (tab selection), `bloc/feed/posts/
 FeedBloc` (post list + reaction state), `bloc/feed/filter/FeedFilterBloc`
-(search text + filter chips).
+(the search text). **There are no feed filters**: the filter button, its sheet and
+the chip selection were removed on request — only search remains. The shared
+`SearchTopBar` still has an optional `onFilterTap`, but no screen passes it.
 
 **The feed is wired to the real API.** `GET /mobile/posts` via
 `PostsRemoteDatasource` → `PostsRepository` → four usecases in
@@ -433,7 +501,7 @@ also repeats the bloc's own `hasMore`/`isLoadingMore` guard, so a feed with
 no next page stops dispatching at the source instead of churning one
 dropped event per tick. The
 endpoint's `date`/`order` params are plumbed through `GetPosts` but have no
-UI; the filter chips are still client-side.
+UI.
 
 The feed is always scoped to **exactly one community**. `communityId` is
 omitted, which asks for the one free community every account is subscribed
@@ -466,7 +534,19 @@ button at all, and `YoutubePlayerParams.showControls` is silently ignored
 on mobile (the package always hides YouTube's own native controls in favour
 of its own). `YoutubeEmbedPlayer` therefore draws its own small speaker
 button, calling the controller's `mute()`/`unMute()` directly — that's the
-one and only route to sound. `NativeVideoPlayer` follows the identical
+one and only route to sound. **The button must live in its own overlay, not a
+`Stack` beside the player.** On mobile the package draws the WebView inside an
+`OverlayPortal`, which paints above every ordinary widget, so a button in a
+sibling `Stack` is *underneath the video* and never visible (on iOS and Android
+alike — this was the "no mute button" bug). It is a second `OverlayPortal`,
+shown 400 ms after mount so it lands above the player's own entry (the later
+entry is the upper one), pinned by a `CompositedTransformFollower` to the middle
+of the player's right edge, clear of the package's title/speed row, play button
+and bottom bar. The follower needs an `Align` above it: overlay children get
+*tight* screen-size constraints, which stretched the button into a full-screen
+circle. It hides in fullscreen. Like the player's own overlay it isn't clipped
+by the scroll viewport, so the existing mount/unmount hysteresis is what keeps
+it from floating over the bottom nav. `NativeVideoPlayer` follows the identical
 pattern (muted `play()` + its own speaker button driving `setVolume`),
 since `video_player` ships with no UI chrome of its own either.
 
@@ -515,6 +595,20 @@ in that order — images first, then videos:
    *page* (Vimeo and the like) is `videoEmbed` and still goes to the
    WebView rather than being dropped. An entry with neither `embedUrl` nor
    `url` returns null and is skipped.
+
+**The backend now sends each file's measured size** (`mobile-post-media.md`):
+`images[] {url, width, height, ratio, orientation}` and, on a `videos[]` upload,
+`width`/`height`/`ratio`/`durationSec`, plus post-level `ratio`/`orientation`/
+`mediaWidth`/`mediaHeight` (the first sized item). They land on
+`PostMediaModel.ratio` — `images[]` only *enriches* the `imageUrls` items
+(matched by URL; a URL found only in `images[]` still renders), and a YouTube/
+Instagram link, a body-only picture or a pre-change post is `null` = unknown.
+`PostMediaCarousel._ratioFor` prefers that ratio (clamped to [0.5, 2.0]) over
+the decoded one in `MediaRatioCache`, so a card is its final shape on the first
+frame — no fallback-then-jump. The post-level fields are not parsed: the
+carousel sizes per item and page 0 *is* the first sized item. `durationSec` is
+not used either (the badge is still decorative). `mobile-post-media-layout.md`,
+which the doc points to for frame/fit rules, was not supplied.
 
 `PostMediaType` is therefore `image` / `youtubeEmbed` / `instagramEmbed` /
 `videoEmbed` / `nativeVideo`. **A raw video file was previously typed
@@ -637,18 +731,19 @@ widget. `MediaThumbnailStrip._Poster` falls back to a play glyph on a dark
 plate when it is null. The "01:11"-style badge is a decorative overlay, not
 a real video control, and `durationLabel` is never populated from the API.
 
-**`ReactionType` is the backend's seeded set, minus one.**
-`like, love, haha, wow, angry` (👍❤️😂😮😡), in the API's `sortOrder`.
-The backend also seeds **`sad`, which this app deliberately omits** — the
-product call is that it doesn't belong on this feed. Nothing special is
-needed to filter it: `ReactionTypeX.fromName` is nullable, so a `sad` row
-drops out of the counts, the reactor list and the type catalog on its own.
-Don't re-add it to the enum to "match the backend". Figma drew a *different* six — 👍❤️🔥👏✅😮 — but
-`GET /mobile/reaction-types` is authoritative and there is no social
-endpoint to add `fire`/`clap`/`verified` to, so they're gone. The integer
+**`ReactionType` is the backend's set exactly** (`mobile-post-reactions.md`):
+`like, love, insightful, haha, celebrate` (👍 ❤️ 💡 😂 👏; API ids 1, 2, 7, 3, 8),
+in the API's `sortOrder`. The backend **removed wow, sad and angry** (their
+reactions were deleted and post counts recalculated) and added insightful and
+celebrate — which are Figma's **bulb and clap discs**, so the set now matches
+Figma's badge stack. Don't re-add the removed three. The integer
 `reactionTypeId` that `PUT .../reactions` wants is resolved at runtime by
 `ReactionTypeCatalog` (which memoises the **in-flight future**, so N
-simultaneous reacts cause one fetch) — never hardcoded.
+simultaneous reacts cause one fetch) — never hardcoded. An app that sent 4/5/6
+would get `400 Invalid reaction type`; this one only sends ids the catalog
+returned. The API also sends an `emoji` per type, which could draw a type this
+build doesn't know — **not done**: the enum is closed and an unknown name is
+dropped.
 
 `ReactionTypeX.fromName` is **nullable on purpose**: every reaction name now
 arrives from the API, so an unknown one drops that single datum rather than
@@ -661,16 +756,11 @@ on a soft plate, and a tap anywhere else dismisses it. Choosing the reaction you
 already have **takes it back** (`removeReaction`); choosing another sends it.
 Long-press still works as drag-and-release. (Before, a tap sent an instant 👍.)
 
-**The picker shows what Figma draws *and* the backend has — which is less than
-Figma.** Figma's picker is 👍 ❤️ 🔥 👏 ✅ 😮. The backend's fixed, seeded set is
-like · love · haha · wow · sad · angry (`GET /mobile/reaction-types`, "never
-changes at runtime"). Only **like, love and wow** exist in both, so 🔥 👏 ✅ cannot
-be offered — there is no id to send. `ReactionIcons.pickerOrder` keeps Figma's
-relative order for the overlap (like → love → wow) and puts the backend-only
-haha and angry after; `available()` then limits it to the types the server
-actually returned, so a type the backend drops disappears without a release.
-**To match Figma the backend must seed fire/clap/verified** — then add them to
-`ReactionType`, `pickerOrder` and `badgeColor`. `sad` stays out by product call.
+**The picker is the backend's five, in its order** — 👍 ❤️ 💡 😂 👏
+(`ReactionIcons.pickerOrder`; `available()` limits it to the types
+`GET /mobile/reaction-types` actually returned, so a type the backend drops
+disappears without a release). Figma's own picker drew 👍 ❤️ 🔥 👏 ✅ 😮 — that
+set is superseded; the backend's emoji table wins.
 
 **Reaction icons: emoji are the design, not a placeholder.** Figma's
 long-press picker is a frame literally named `Picker` (`605:17127`) holding
@@ -691,7 +781,9 @@ Three reactions have exported art, and they differ in kind
 the only tintable asset; `reaction_like.svg`, `reaction_haha.svg` (Figma's
 laughing face) and `reaction_heart.png` are full-colour illustrations for the
 badges. `ReactionGlyph` picks art when it exists and falls back to the emoji —
-so `wow` and `angry`, which Figma never drew, are emoji. (The laughing face
+so **`insightful` (Figma's bulb disc) and `celebrate` (its clap disc) are emoji
+until their art is exported from Figma** (the figma-mcp-rust server timed out
+when that was attempted; export them and add them to `ReactionIcons.svgBadge`). (The laughing face
 only exports from node `605:16870`; the same-named nodes in the feed frame
 return an empty image.) The Reactions sheet's tabs follow Figma's disc order
 via `ReactionIcons.sheetOrder`, not the enum's.
@@ -715,23 +807,10 @@ on a 13px pitch, each holding ~12px of art, then the total. Who reacted is
 the Reactions sheet's job; `FeedPostModel.rankedReactions` drives the stack.
 
 Per-reaction disc colours live on `AppGradients` and are resolved by
-`ReactionIcons.badgeColor`. Figma's set only partly overlaps the backend's,
-so: `like` keeps Figma's blue `#388FE7` and `love` its red `#F15759`;
-`haha` takes the teal `#108B8B` Figma gave its *laughing* emoji, which is
-now a genuine match rather than a reassignment; and `wow` (amber
-`#FFDA56`), `sad` (green `#6DAE53`) and `angry` (orange `#F95428`) reuse
-the remaining palette tokens. **Confirm those last three with the
-designer** — Figma never designed them. No new `AppPalette` entries were
-invented for this.
-
-Figma's `bulb` (insight) and `clap` discs now belong to no reaction at all,
-and `ReactionType` deliberately has no `insight` value.
-
-**Avatars are nullable now.** `authorAvatarUrl` and `ReactorModel.avatarUrl`
-are `String?`, deliberately *not* defaulted to `''` — they feed
-`CachedNetworkImage`, so an empty string fires a guaranteed-failing request
-per card. Both fall back to `comman/initials.dart`'s `initialsFor(name)`,
-which `UserAvatar` now shares rather than keeping its own copy.
+`ReactionIcons.badgeColor`. All five are Figma's own discs (`605:15302`): blue
+`#388FE7` like, red `#F15759` love, amber `#FFDA56` insightful (the bulb), teal
+`#108B8B` haha, green `#6DAE53` celebrate (the clap). The orange token that
+belonged to `angry` is deleted.
 
 ### Reactions bottom sheet
 
@@ -1085,7 +1164,7 @@ alongside `authCheckRequest` — the guide's §10 safety net for a payment the
 webhook confirmed while the app was away).
 
 **KYC (SEBI date of birth + PAN) is the server's, never stored on the device.**
-Contract: `GET/POST/PUT /auth/mobile/me/kyc` (`Api.kyc`). `GET` answers
+Contract: `kyc.md` — `GET/POST/PUT /auth/mobile/me/kyc` (`Api.kyc`). The client validates **exactly** the server's rules and no stricter: PAN is 5 letters + 4 digits + 1 letter (the CBDT holder-type check was dropped — it refused the contract's own sample `ABCDE1234F`), the date is `1900-01-01` through **today inclusive**. `GET` answers
 `{completed, dateOfBirth: 'YYYY-MM-DD'|null, panMasked: 'XXXXXX234F'|null}` —
 the full PAN is never returned. `POST` sends the details once; a second call is
 `409 KYC_ALREADY_SUBMITTED` and changes nothing. `PUT` edits them and is **not
@@ -1103,12 +1182,22 @@ removes the leftover `compliance_completed` key from devices that have it.
 * **`KycBloc`** (`@singleton`, in memory only) holds the status for the Profile.
   The shell loads it on every `authenticated` (login and launch) and the form
   reloads it after saving; sign-out resets it (`_forgetSession`).
+* **The DOB field checks itself as soon as the 10th character is typed**
+  (`dateOfBirthChanged` → `validateDateOfBirth`), so 31/02/2000 or a future date
+  is flagged without waiting for Submit; a partial date stays quiet. This is the
+  one deliberate exception to "validate on submit". "Enter a valid date." is
+  right-shape-impossible-date; "Use DD/MM/YYYY." is wrong shape.
+* **`DateSlashFormatter` writes a slash only *before* the next digit**, never
+  trailing. The first version wrote it right after the 2nd/4th digit, so
+  deleting the slash in `12/` gave `12`, instantly rebuilt as `12/` — **backspace
+  looked dead at every slash** (the number pad's ⌫ "cross" key). Pinned by
+  `test/date_slash_formatter_test.dart`.
 * **`ComplianceBloc` is the form.** The date is typed `DD/MM/YYYY` and sent as
   `YYYY-MM-DD` (`KycDetails.toJson`); a two-digit year, an impossible date
   (31/02), a future date or one before 1900 is rejected before any request. A
   `422` lands under `dateOfBirth`/`panNumber`. On success **the typed DOB and PAN
   are wiped from the bloc's state**, and sign-out clears it too.
-  `ApiLoggingInterceptor` redacts `panNumber` and `dateOfBirth`.
+  `ApiLoggingInterceptor` redacts `panNumber` and `dateOfBirth` — except in **debug builds, temporarily** (`_visibleInDebug`), so the exact body can go to the backend while `POST /me/kyc` 500s; delete that set once it is fixed.
 * A member who completed the old local step has nothing on the server, so
   they are asked once (by the prompt above).
 * **A paid member without KYC is asked to complete it** (`KycReminder`, wrapped
@@ -1171,7 +1260,11 @@ in the test's fake-async zone), not `runAsync` — that hangs.
   per the designer's "important words in the description will be bold"
   (`921:21875`). Mock copy carries the markers.
 - **Subscribed communities pin to the top** (`911:20521`) via
-  `CommunitiesState.pinnedFirst`.
+  `CommunitiesState.pinnedFirst`, and wear a **`PinBadge`** — a frosted-glass
+  disc with Material's `push_pin`, top-left of the cover opposite the member-count
+  pill (`CommunityCover.pinned`, set from `access.isSubscribed`). The glyph is a
+  stand-in: Figma only says the card "will be pinned" and its mark couldn't be
+  exported.
 - **`NavBarItem.badgeCount`** drives the bottom-nav bubble. Only the
   Communities badge is real (sum of unread announcements); Figma also shows
   one on Feed, which is absent rather than faked because the feed has no
@@ -1211,7 +1304,7 @@ one expecting the shared instance. `ReactionTypeCatalog` stays
 `@lazySingleton`, so reaction types are still fetched once across both.
 
 Every consumer (`FeedPostCard`, `PostReactionBar`, `showReactionsSheet`,
-`feedBodySlivers`, the filter sheet) resolves its bloc from `context`, so the
+`feedBodySlivers`) resolves its bloc from `context`, so the
 scoped provider redirects the whole subtree with no further changes.
 
 The route passes the whole `CommunityModel` via `extra` (like
@@ -2000,6 +2093,14 @@ Info screens' hero chrome (`InfoPage`, which gained `controller`/`action`/
 still opens My requests). Flag it for the designer. It re-reads on open, on
 pull-to-refresh and on every return to the foreground.
 
+* **The Android status-bar icon is a white silhouette**, `res/drawable-*/
+  ic_stat_finskool.png` (the logo's chart mark, cut from
+  `ic_launcher_foreground.png`; 24dp canvas, 20dp glyph), with `default_notification_
+  icon` / `default_notification_color` (`#1E9299`) in the manifest for FCM's own
+  banners and the same drawable in `PushService` for local ones. Android masks a
+  small icon by its **alpha**, so the launcher icon this used to point at —
+  opaque, with a white background — drew as a blank square. A coloured logo
+  can't be a small icon; to show it in colour use a `largeIcon` (not set).
 * Android: `google-services` plugin, `POST_NOTIFICATIONS`, default channel meta
   and **core-library desugaring** (flutter_local_notifications). iOS: the plist
   is in `ios/Runner/`; **still needs** a paid Apple account for the Push
@@ -2038,7 +2139,7 @@ on** (debug too) with no per-screen exceptions.
 
 The tab blocs (`FeedBloc`, `CommunitiesBloc`, `ServicesCatalogBloc`, the three
 filter blocs, `CommunityPurchaseBloc`, `EditProfileBloc`, `LoginFormBloc`,
-`KycBloc`, `ComplianceBloc`) are
+`KycBloc`, `ComplianceBloc`, `SocialAuthBloc`) are
 built once for the whole app, so **they outlive a logout**. Left alone they
 handed the previous member's feed, subscriptions, services and profile to the
 next login — and, because they already held data, skipped the load and its
@@ -2046,7 +2147,7 @@ skeleton entirely (`FeedScreen` loads only when `posts.isEmpty`;
 `ServicesCatalogBloc` returns early when `isLoaded`). The shell's
 `unauthenticated` listener now calls `_forgetSession`, which resets each of them
 (`FeedEvent.reset`, `CommunitiesEvent.reset`, `ServicesCatalogEvent.reset`, the
-filters' queries, `cleared`, `prefill(null)`, `LoginFormEvent.initial`, `KycEvent.reset`, `ComplianceEvent.initial`). A load
+filters' queries, `cleared`, `prefill(null)`, `LoginFormEvent.initial`, `KycEvent.reset`, `ComplianceEvent.initial`, `SocialAuthEvent.reset`). A load
 still in flight at sign-out is dropped by a generation/epoch counter so it can't
 repopulate the next session. **Any new app-lifetime bloc that holds
 account data must be added there**; route-scoped blocs need nothing.
@@ -2163,10 +2264,9 @@ Do not treat these as incidental bugs to fix while doing something else:
 - **Firebase has been removed** (`firebase_auth`, `firebase_storage`, and all
   `FirebaseAuth`/`FirebaseStorage` call sites). Auth now runs against the real
   Finskool backend instead — see "Networking / API integration".
-- `GoogleSigninBloc._signUpNewUser` and `_checkIfUserAlreadyRegistered` are
-  still stubs returning `false`, and `google_last_step/` is still a hardcoded
-  mock account. **This is blocked on the backend, not on us** — the API has
-  no social-auth endpoint at all. Leave both mocked until one exists.
+- Social sign-in is wired but **unverified on a device** (no real Google/Apple
+  account was used) and lacks profile linking and in-app account deletion — see
+  "Sign in with Google / Apple".
 - `CommunityDetailScreen` (behind "Enter Community") is a routed
   placeholder — Figma has no design for the inside of a community, and the
   post model has no community field yet. The route works; the body doesn't.

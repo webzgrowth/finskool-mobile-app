@@ -38,7 +38,7 @@ class FeedMockDatasource {
       id: 'u3',
       name: 'Vinod Sharma',
       avatarUrl: 'https://ui-avatars.com/api/?name=Vinod+Sharma',
-      reaction: ReactionType.wow,
+      reaction: ReactionType.insightful,
     ),
   ];
 
@@ -72,7 +72,7 @@ class FeedMockDatasource {
       reactionCounts: const {
         ReactionType.like: 540,
         ReactionType.love: 2,
-        ReactionType.wow: 2,
+        ReactionType.insightful: 2,
       },
       reactors: _reactors,
     ),

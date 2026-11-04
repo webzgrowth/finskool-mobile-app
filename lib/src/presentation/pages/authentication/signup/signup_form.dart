@@ -10,7 +10,7 @@ import '../widgets/auth_text_field.dart';
 import '../widgets/phone_field.dart';
 import '../widgets/member_hint_card.dart';
 import '../widgets/auth_divider.dart';
-import '../widgets/google_auth_button.dart';
+import '../widgets/social_auth_buttons.dart';
 import '../widgets/auth_switch_prompt.dart';
 import '../widgets/auth_tab_switch.dart';
 import '../widgets/auth_field_icons.dart';
@@ -76,12 +76,7 @@ class SignUpForm extends StatelessWidget {
               const SizedBox(height: AppSpacing.lg),
               const AuthDivider(),
               const SizedBox(height: AppSpacing.lg),
-              GoogleAuthButton(
-                label: 'Sign up with Google',
-                loading: false,
-                onPressed: () =>
-                    context.push(AppRoutes.GOOGLE_LAST_STEP_ROUTE_PATH),
-              ),
+              const SocialAuthButtons(verb: 'Sign up'),
               const SizedBox(height: AppSpacing.xl),
               AuthSwitchPrompt(
                 message: 'Already have an account?',

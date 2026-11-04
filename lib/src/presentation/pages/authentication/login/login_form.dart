@@ -4,12 +4,11 @@ import 'package:go_router/go_router.dart';
 import 'package:finskool/src/comman/routes.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
 import 'package:finskool/src/presentation/bloc/authentication/login_form/login_form_bloc.dart';
-import 'package:finskool/src/presentation/bloc/authentication/google_signin/google_signin_bloc.dart';
 import 'package:finskool/src/presentation/bloc/authentication/password_reset/password_reset_bloc.dart';
 
 import '../widgets/auth_text_field.dart';
 import '../widgets/auth_divider.dart';
-import '../widgets/google_auth_button.dart';
+import '../widgets/social_auth_buttons.dart';
 import '../widgets/auth_switch_prompt.dart';
 import '../widgets/auth_tab_switch.dart';
 import '../widgets/auth_field_icons.dart';
@@ -76,15 +75,7 @@ class LoginForm extends StatelessWidget {
               const SizedBox(height: AppSpacing.lg),
               const AuthDivider(),
               const SizedBox(height: AppSpacing.lg),
-              BlocBuilder<GoogleSigninBloc, GoogleSigninState>(
-                builder: (context, gState) => GoogleAuthButton(
-                  label: 'Log in with Google',
-                  loading: gState.requestState.isLoading,
-                  onPressed: () => context.read<GoogleSigninBloc>().add(
-                    const GoogleSigninEvent.signin(),
-                  ),
-                ),
-              ),
+              const SocialAuthButtons(verb: 'Log in'),
               const SizedBox(height: AppSpacing.xl),
               AuthSwitchPrompt(
                 message: "Don't have an account?",

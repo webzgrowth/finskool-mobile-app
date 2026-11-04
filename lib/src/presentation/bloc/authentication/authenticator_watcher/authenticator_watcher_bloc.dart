@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:finskool/src/data/api/session_expiry.dart';
 import 'package:finskool/src/domain/model/auth/user_model.dart';
 import 'package:finskool/src/domain/usecases/auth/get_auth_status.dart';
@@ -61,7 +60,6 @@ class AuthenticatorWatcherBloc
           // credential either way, so a failed call can't strand the user in
           // a signed-in shell they can't leave.
           await _logoutUser.execute();
-          await GoogleSignIn.instance.signOut();
           emit(const AuthenticatorWatcherState.unauthenticated());
         },
         notificationsToggled: (value) async {

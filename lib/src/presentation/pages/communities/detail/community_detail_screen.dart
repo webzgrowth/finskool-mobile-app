@@ -10,7 +10,7 @@ import 'package:finskool/src/presentation/pages/feed/widgets/feed_top_bar.dart';
 
 /// The inside of a community: its own feed, scoped to [communityId].
 ///
-/// Identical UI to the Feed tab — same cards, reactions, search, filter,
+/// Identical UI to the Feed tab — same cards, reactions, search,
 /// pull-to-refresh and paging — because it is literally [FeedListView], the
 /// widget that tab uses. Only the top bar differs, gaining a back arrow and
 /// the community's name.

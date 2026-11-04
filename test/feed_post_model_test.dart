@@ -91,6 +91,72 @@ void main() {
     expect(post.media.first.imageUrl, 'https://cdn.test/a.png');
   });
 
+  test('images[] gives each picture its measured ratio, in order', () {
+    final post = _parse({
+      'imageUrls': ['https://cdn.test/a.png', 'https://cdn.test/b.png'],
+      'images': [
+        {'url': 'https://cdn.test/a.png', 'width': 800, 'height': 1000},
+        {'url': 'https://cdn.test/b.png', 'ratio': 1.7778},
+      ],
+      'videos': [],
+    });
+    expect(post.media.map((m) => m.imageUrl).toList(), [
+      'https://cdn.test/a.png',
+      'https://cdn.test/b.png',
+    ]);
+    expect(post.media[0].ratio, closeTo(0.8, 1e-9));
+    expect(post.media[1].ratio, closeTo(1.7778, 1e-9));
+  });
+
+  test('images[] alone still renders, and imageUrls without it is unsized', () {
+    final onlySized = _parse({
+      'images': [
+        {'url': 'https://cdn.test/a.png', 'ratio': 0.5625},
+      ],
+      'videos': [],
+    });
+    expect(onlySized.media, hasLength(1));
+    expect(onlySized.media.single.ratio, closeTo(0.5625, 1e-9));
+
+    final old = _parse({
+      'imageUrls': ['https://cdn.test/a.png'],
+      'videos': [],
+    });
+    expect(old.media.single.ratio, isNull);
+  });
+
+  test('an uploaded video carries its ratio; a link has none', () {
+    final post = _parse({
+      'videos': [
+        {
+          'kind': 'file',
+          'url': 'https://cdn.test/v.mp4',
+          'width': 1080,
+          'height': 1920,
+          'ratio': 0.5625,
+          'durationSec': 12,
+          'thumbnailUrl': 'https://cdn.test/v.jpg',
+        },
+        {
+          'kind': 'youtube',
+          'url': 'https://youtu.be/dQw4w9WgXcQ',
+          'externalId': 'dQw4w9WgXcQ',
+          'ratio': null,
+        },
+      ],
+    });
+    expect(post.media[0].type, PostMediaType.nativeVideo);
+    expect(post.media[0].ratio, closeTo(0.5625, 1e-9));
+    expect(post.media[1].ratio, isNull);
+  });
+
+  test('a zero or malformed size is treated as unknown', () {
+    expect(PostMediaModel.ratioOf({'ratio': 0}), isNull);
+    expect(PostMediaModel.ratioOf({'width': 0, 'height': 10}), isNull);
+    expect(PostMediaModel.ratioOf({'ratio': 'wide'}), isNull);
+    expect(PostMediaModel.ratioOf({}), isNull);
+  });
+
   test('a duplicate across imageUrls and the body renders once', () {
     final post = _parse({
       'imageUrls': ['https://cdn.test/a.png'],

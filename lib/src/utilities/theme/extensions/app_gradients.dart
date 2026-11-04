@@ -16,8 +16,8 @@ class AppGradients extends ThemeExtension<AppGradients> {
     required this.badgeLike,
     required this.badgeLove,
     required this.badgeHaha,
-    required this.badgeWow,
-    required this.badgeAngry,
+    required this.badgeInsightful,
+    required this.badgeCelebrate,
     required this.pickerSurface,
     required this.pickerBorder,
   });
@@ -27,14 +27,14 @@ class AppGradients extends ThemeExtension<AppGradients> {
   final Color feedCard;
 
   /// Ring behind each badge in a post's reaction stack, per reaction.
-  /// Figma's colourful feed variant gives like and love directly, and its
-  /// laughing disc's teal lands on `haha`; `wow` and `angry` are reassigned
-  /// from the same palette — see `reaction_icons.dart`.
+  /// All five are Figma's own discs (colourful feed variant): blue like, red
+  /// love, amber bulb = insightful, teal laughing face = haha, green clap =
+  /// celebrate — see `reaction_icons.dart`.
   final Color badgeLike;
   final Color badgeLove;
   final Color badgeHaha;
-  final Color badgeWow;
-  final Color badgeAngry;
+  final Color badgeInsightful;
+  final Color badgeCelebrate;
 
   /// The long-press reaction picker's plate and its hairline border.
   final Color pickerSurface;
@@ -59,8 +59,8 @@ class AppGradients extends ThemeExtension<AppGradients> {
     badgeLike: AppPalette.badgeBlue,
     badgeLove: AppPalette.badgeRed,
     badgeHaha: AppPalette.badgeTeal,
-    badgeWow: AppPalette.badgeAmber,
-    badgeAngry: AppPalette.badgeOrange,
+    badgeInsightful: AppPalette.badgeAmber,
+    badgeCelebrate: AppPalette.badgeGreen,
     pickerSurface: AppPalette.pickerSurface,
     pickerBorder: AppPalette.pickerBorder,
   );
@@ -76,8 +76,8 @@ class AppGradients extends ThemeExtension<AppGradients> {
     badgeLike: AppPalette.badgeBlue,
     badgeLove: AppPalette.badgeRed,
     badgeHaha: AppPalette.badgeTeal,
-    badgeWow: AppPalette.badgeAmber,
-    badgeAngry: AppPalette.badgeOrange,
+    badgeInsightful: AppPalette.badgeAmber,
+    badgeCelebrate: AppPalette.badgeGreen,
     pickerSurface: AppPalette.darkSurfaceHigh,
     pickerBorder: AppPalette.teal800,
   );
@@ -93,8 +93,8 @@ class AppGradients extends ThemeExtension<AppGradients> {
     Color? badgeLike,
     Color? badgeLove,
     Color? badgeHaha,
-    Color? badgeWow,
-    Color? badgeAngry,
+    Color? badgeInsightful,
+    Color? badgeCelebrate,
     Color? pickerSurface,
     Color? pickerBorder,
   }) => AppGradients(
@@ -104,8 +104,8 @@ class AppGradients extends ThemeExtension<AppGradients> {
     badgeLike: badgeLike ?? this.badgeLike,
     badgeLove: badgeLove ?? this.badgeLove,
     badgeHaha: badgeHaha ?? this.badgeHaha,
-    badgeWow: badgeWow ?? this.badgeWow,
-    badgeAngry: badgeAngry ?? this.badgeAngry,
+    badgeInsightful: badgeInsightful ?? this.badgeInsightful,
+    badgeCelebrate: badgeCelebrate ?? this.badgeCelebrate,
     pickerSurface: pickerSurface ?? this.pickerSurface,
     pickerBorder: pickerBorder ?? this.pickerBorder,
   );
@@ -120,8 +120,8 @@ class AppGradients extends ThemeExtension<AppGradients> {
       badgeLike: Color.lerp(badgeLike, other.badgeLike, t)!,
       badgeLove: Color.lerp(badgeLove, other.badgeLove, t)!,
       badgeHaha: Color.lerp(badgeHaha, other.badgeHaha, t)!,
-      badgeWow: Color.lerp(badgeWow, other.badgeWow, t)!,
-      badgeAngry: Color.lerp(badgeAngry, other.badgeAngry, t)!,
+      badgeInsightful: Color.lerp(badgeInsightful, other.badgeInsightful, t)!,
+      badgeCelebrate: Color.lerp(badgeCelebrate, other.badgeCelebrate, t)!,
       pickerSurface: Color.lerp(pickerSurface, other.pickerSurface, t)!,
       pickerBorder: Color.lerp(pickerBorder, other.pickerBorder, t)!,
     );

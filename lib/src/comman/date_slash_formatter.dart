@@ -1,16 +1,17 @@
 import 'package:flutter/services.dart';
 
 /// Auto-inserts `/` while the member types a date — `DDMMYYYY` becomes
-/// `DD/MM/YYYY` (or `DD/MM/YY` if they stop at 6 digits) as they go, rather
-/// than asking them to type the slashes themselves. Used on the compliance
-/// screen's Date of Birth field, which `_dobPattern`
-/// (`compliance_validation.dart`) accepts in either length.
+/// `DD/MM/YYYY` as they go, rather than asking them to type the slashes
+/// themselves. Used on the compliance screen's Date of Birth field.
 ///
 /// Non-digit input (including a slash the member types themselves) is
-/// dropped and the slashes are rebuilt from scratch each edit — simplest
-/// correct behaviour for a field this short, and it makes backspacing
-/// through a slash just delete the digit before it, which is what someone
-/// deleting through a date expects.
+/// dropped and the slashes are rebuilt from scratch each edit.
+///
+/// **A slash is written only *before* the digit that follows it**, never after
+/// the last one. Writing it right after the 2nd and 4th digit (the first
+/// version) meant deleting the slash in `12/` left `12`, which was instantly
+/// rebuilt as `12/` — backspace appeared dead at every slash, and the member
+/// could not edit the day or month once past it.
 class DateSlashFormatter extends TextInputFormatter {
   const DateSlashFormatter();
 
@@ -24,8 +25,8 @@ class DateSlashFormatter extends TextInputFormatter {
 
     final buffer = StringBuffer();
     for (var i = 0; i < limited.length; i++) {
+      if (i == 2 || i == 4) buffer.write('/');
       buffer.write(limited[i]);
-      if (i == 1 || i == 3) buffer.write('/');
     }
 
     final text = buffer.toString();

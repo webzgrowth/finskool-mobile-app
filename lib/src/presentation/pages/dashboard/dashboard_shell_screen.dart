@@ -16,6 +16,7 @@ import 'package:finskool/src/presentation/bloc/services/catalog/services_catalog
 import 'package:finskool/src/presentation/bloc/services/filter/services_filter_bloc.dart';
 import 'package:finskool/src/presentation/bloc/profile/edit_profile/edit_profile_bloc.dart';
 import 'package:finskool/src/presentation/bloc/authentication/login_form/login_form_bloc.dart';
+import 'package:finskool/src/presentation/bloc/authentication/social_auth/social_auth_bloc.dart';
 import 'package:finskool/src/presentation/pages/dashboard/widgets/kyc_reminder.dart';
 import 'package:finskool/src/presentation/bloc/kyc/status/kyc_bloc.dart';
 import 'package:finskool/src/presentation/bloc/communities/compliance/compliance_bloc.dart';
@@ -84,9 +85,7 @@ class _DashboardShellScreenState extends State<DashboardShellScreen> {
   /// they already hold data, skip the load and its skeleton entirely.
   void _forgetSession(BuildContext context) {
     context.read<FeedBloc>().add(const FeedEvent.reset());
-    context.read<FeedFilterBloc>()
-      ..add(const FeedFilterEvent.queryChanged(''))
-      ..add(const FeedFilterEvent.filtersCleared());
+    context.read<FeedFilterBloc>().add(const FeedFilterEvent.cleared());
     context.read<CommunitiesBloc>().add(const CommunitiesEvent.reset());
     context.read<CommunityFilterBloc>().add(
       const CommunityFilterEvent.queryChanged(''),
@@ -104,6 +103,8 @@ class _DashboardShellScreenState extends State<DashboardShellScreen> {
     context.read<ComplianceBloc>().add(const ComplianceEvent.initial());
     // The password the last member typed must not outlive their session.
     context.read<LoginFormBloc>().add(const LoginFormEvent.initial());
+    // A social sign-in left half-done holds the provider's tokens.
+    context.read<SocialAuthBloc>().add(const SocialAuthEvent.reset());
   }
 
   @override

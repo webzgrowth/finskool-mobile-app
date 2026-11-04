@@ -34,3 +34,8 @@ class ApiException implements Exception {
   @override
   String toString() => 'ApiException($statusCode, $code): $message';
 }
+
+/// The member dismissed the Google / Apple sheet.
+class SocialCancelledException implements Exception {
+  const SocialCancelledException();
+}

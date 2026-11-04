@@ -12,7 +12,20 @@
           "package_name": "com.finskool21.app"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "546100684047-kr52aghuli7sriffmgec4pfl94o924k5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.finskool21.app",
+            "certificate_hash": "5e2f9348ae32e37c71de0d69c1f3027461b840a8"
+          }
+        },
+        {
+          "client_id": "546100684047-a9h0pcc9l69v0u4fihf9ok99fdmgi4hp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBUulPoIoKXca1RZtn5z79WoCeh829MO6Y"
@@ -20,7 +33,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "546100684047-a9h0pcc9l69v0u4fihf9ok99fdmgi4hp.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "546100684047-ou0thrgnk2ktu9gq2su7l1isevaeihpo.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.finskool21.app"
+              }
+            }
+          ]
         }
       }
     }

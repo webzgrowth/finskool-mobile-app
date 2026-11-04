@@ -164,6 +164,61 @@ void main() {
       },
     );
 
+    test(
+      'the contract\'s sample PANs and today\'s date are accepted',
+      () async {
+        final n = DateTime.now();
+        final today = '${n.day}/${n.month}/${n.year}';
+        for (final pan in ['ABCDE1234F', 'PQRST6789U']) {
+          fill(dob: today, pan: pan);
+          bloc.add(const ComplianceEvent.confirmationToggled());
+          bloc.add(const ComplianceEvent.submit());
+          await pump();
+          expect(bloc.state.panError, isNull, reason: pan);
+          expect(bloc.state.dateOfBirthError, isNull, reason: today);
+          bloc.add(const ComplianceEvent.initial());
+          await pump();
+        }
+      },
+    );
+
+    test(
+      'a PAN that is not 5 letters + 4 digits + 1 letter is refused',
+      () async {
+        for (final pan in [
+          'ABCDE1234',
+          'ABCDE12345',
+          '1BCDE1234F',
+          'ABC DE1234F',
+        ]) {
+          fill(pan: pan);
+          bloc.add(const ComplianceEvent.submit());
+          await pump();
+          expect(bloc.state.panError, isNotNull, reason: pan);
+          bloc.add(const ComplianceEvent.initial());
+          await pump();
+        }
+      },
+    );
+
+    test(
+      'a complete date is judged as it is typed; a partial one is not',
+      () async {
+        bloc.add(const ComplianceEvent.dateOfBirthChanged('31/02/2000'));
+        await pump();
+        expect(bloc.state.dateOfBirthError, isNotNull);
+        bloc.add(const ComplianceEvent.dateOfBirthChanged('01/01/2999'));
+        await pump();
+        expect(bloc.state.dateOfBirthError, isNotNull);
+        bloc.add(const ComplianceEvent.dateOfBirthChanged('31/0'));
+        await pump();
+        expect(bloc.state.dateOfBirthError, isNull, reason: 'still typing');
+        bloc.add(const ComplianceEvent.dateOfBirthChanged('05/04/1995'));
+        await pump();
+        expect(bloc.state.dateOfBirthError, isNull);
+      },
+    );
+
     test('409 KYC_ALREADY_SUBMITTED counts as done', () async {
       repo.submitResult = const Left(
         ServerFailure('Already submitted.', code: 'KYC_ALREADY_SUBMITTED'),

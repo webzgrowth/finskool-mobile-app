@@ -6,7 +6,7 @@ import 'package:finskool/injections/injection.dart';
 import 'package:finskool/src/presentation/bloc/authentication/authenticator_watcher/authenticator_watcher_bloc.dart';
 import 'package:finskool/src/presentation/bloc/authentication/login_form/login_form_bloc.dart';
 import 'package:finskool/src/presentation/bloc/authentication/sing_up_form/sign_up_form_bloc.dart';
-import 'package:finskool/src/presentation/bloc/authentication/google_signin/google_signin_bloc.dart';
+import 'package:finskool/src/presentation/bloc/authentication/social_auth/social_auth_bloc.dart';
 import 'package:finskool/src/presentation/bloc/authentication/password_reset/password_reset_bloc.dart';
 import 'package:finskool/src/presentation/bloc/authentication/signup_verification/signup_verification_bloc.dart';
 import 'package:finskool/src/presentation/bloc/dashboard/bottom_nav/bottom_nav_bloc.dart';
@@ -76,7 +76,7 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (_) => locator<AuthenticatorWatcherBloc>()),
         BlocProvider(create: (_) => locator<LoginFormBloc>()),
         BlocProvider(create: (_) => locator<SignUpFormBloc>()),
-        BlocProvider(create: (_) => locator<GoogleSigninBloc>()),
+        BlocProvider(create: (_) => locator<SocialAuthBloc>()),
         BlocProvider(create: (_) => locator<PasswordResetBloc>()),
         BlocProvider(create: (_) => locator<SignupVerificationBloc>()),
         // dashboard / feed

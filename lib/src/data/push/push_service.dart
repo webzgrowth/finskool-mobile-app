@@ -9,6 +9,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:injectable/injectable.dart';
 import 'package:finskool/src/data/api/api.dart';
 import 'package:finskool/src/data/api/api_client.dart';
+import 'package:finskool/src/utilities/theme/theme.dart';
 
 /// Messages that land while the app is closed. A top-level function, because
 /// FCM runs it in its own isolate. The OS draws the banner itself for a
@@ -40,6 +41,12 @@ class PushService {
 
   static const String channelId = 'finskool_default';
 
+  /// The status-bar icon: a white silhouette of the logo on transparent
+  /// (`res/drawable-*/ic_stat_finskool.png`). Android masks a small icon by its
+  /// alpha, so the opaque launcher icon this used to point at drew as a blank
+  /// square. FCM's own banners get the same drawable from the manifest.
+  static const String _smallIcon = 'ic_stat_finskool';
+
   final _local = FlutterLocalNotificationsPlugin();
   final _taps = StreamController<Map<String, dynamic>>.broadcast();
   StreamSubscription<String>? _refresh;
@@ -69,7 +76,7 @@ class PushService {
       // notification for a message that arrives while the app is open.
       await _local.initialize(
         settings: const InitializationSettings(
-          android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+          android: AndroidInitializationSettings(_smallIcon),
         ),
         onDidReceiveNotificationResponse: (r) {
           final payload = r.payload;
@@ -173,6 +180,8 @@ class PushService {
           'Finskool21',
           importance: Importance.high,
           priority: Priority.high,
+          icon: _smallIcon,
+          color: AppPalette.primary,
         ),
       ),
     );

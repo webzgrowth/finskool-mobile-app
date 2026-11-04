@@ -33,6 +33,15 @@ class Api {
   static const String logout = '/auth/mobile/logout';
   static const String selectCommunity = '/auth/mobile/select-community';
 
+  /// Sign in with Google / Apple (`social-logins.md`). None needs a session;
+  /// while the server's `SOCIAL_LOGIN_ENABLED` is off they answer
+  /// `404 SOCIAL_LOGIN_DISABLED`. `socialPhone` and `socialVerifyOtp` are the
+  /// new-member steps; resend reuses [resendOtp] with the `otpToken` as the id.
+  static const String socialLogin = '/auth/mobile/social/login';
+  static const String socialLink = '/auth/mobile/social/link';
+  static const String socialPhone = '/auth/mobile/social/phone';
+  static const String socialVerifyOtp = '/auth/mobile/social/verify-otp';
+
   /// Registers this device's FCM token against the session. One device per
   /// member: a new token replaces the old.
   static const String pushToken = '/mobile/push-token';

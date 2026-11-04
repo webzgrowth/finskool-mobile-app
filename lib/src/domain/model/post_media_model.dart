@@ -41,6 +41,7 @@ class PostMediaModel {
     this.title,
     this.videoId,
     this.durationLabel,
+    this.ratio,
   });
 
   final PostMediaType type;
@@ -62,6 +63,39 @@ class PostMediaModel {
   /// everything that isn't YouTube.
   final String? videoId;
   final String? durationLabel;
+
+  /// The file's own `width / height`, as the backend measured it from the
+  /// stored upload (`images[].ratio`, `videos[].ratio`). Lets a card take its
+  /// real shape on the very first frame instead of guessing and jumping once
+  /// the media decodes. Null means *unknown* — a YouTube/Instagram link (no
+  /// file to measure), a post saved before the backend recorded sizes, or a
+  /// URL that arrived only in the body — and the carousel falls back to its
+  /// own defaults.
+  final double? ratio;
+
+  /// A copy carrying [ratio]; used to attach a size found in `images[]` to the
+  /// item built from the matching `imageUrls` entry.
+  PostMediaModel withRatio(double? ratio) => PostMediaModel(
+    type: type,
+    imageUrl: imageUrl,
+    embedUrl: embedUrl,
+    thumbnailUrl: thumbnailUrl,
+    title: title,
+    videoId: videoId,
+    durationLabel: durationLabel,
+    ratio: ratio,
+  );
+
+  /// A positive `ratio`, or `width / height` when only the pixel size came
+  /// through. Null for anything missing, zero or non-numeric.
+  static double? ratioOf(Map<String, dynamic> json) {
+    final ratio = json['ratio'];
+    if (ratio is num && ratio > 0) return ratio.toDouble();
+    final w = json['width'];
+    final h = json['height'];
+    if (w is num && h is num && w > 0 && h > 0) return w / h;
+    return null;
+  }
 
   bool get isEmbed => type != PostMediaType.image;
 
@@ -171,6 +205,8 @@ class PostMediaModel {
       embedUrl: src,
       thumbnailUrl: json['thumbnailUrl'] as String?,
       title: json['title'] as String?,
+      // Only an uploaded file has a measured size; a link's is null.
+      ratio: ratioOf(json),
       // `externalId` straight off the payload; the URL parse is only the
       // fallback for a payload that omits it.
       videoId: kind == 'youtube'
@@ -189,6 +225,7 @@ class PostMediaModel {
     title: json['title'] as String?,
     videoId: json['videoId'] as String?,
     durationLabel: json['durationLabel'] as String?,
+    ratio: (json['ratio'] as num?)?.toDouble(),
   );
 
   Map<String, dynamic> toJson() => {
@@ -199,5 +236,6 @@ class PostMediaModel {
     'title': title,
     'videoId': videoId,
     'durationLabel': durationLabel,
+    'ratio': ratio,
   };
 }
