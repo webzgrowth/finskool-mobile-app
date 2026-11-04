@@ -13,7 +13,8 @@ import 'widgets/segment_tabs.dart';
 import 'widgets/swing_summary_card.dart';
 import 'widgets/trade_list.dart';
 import 'widgets/trades_summary_card.dart';
-import 'widgets/unlock_banner.dart';
+import 'widgets/unlock_copy.dart';
+import 'widgets/unlock_section.dart';
 
 /// Everything under the header: the first-load skeleton, a failure, or the
 /// board — segment tabs, the summary, the month filter, the trades and, for a
@@ -132,6 +133,12 @@ class PerformanceBody extends StatelessWidget {
                     : '${board.communityName} Dashboard',
                 trades: state.items,
                 hasMore: state.hasMore,
+                subtitle: board.isPaid
+                    ? null
+                    : UnlockCopy.of(
+                        board,
+                        shown: state.items.length,
+                      ).listSubtitle,
               ),
             if (state.isLoadingMore)
               const Padding(
@@ -143,8 +150,8 @@ class PerformanceBody extends StatelessWidget {
             // a free member who picks an old month sees none and a banner.
             if (!board.isPaid && (board.hiddenCount ?? 0) > 0) ...[
               const SizedBox(height: 14),
-              UnlockBanner(
-                hidden: board.hiddenCount!,
+              UnlockSection(
+                copy: UnlockCopy.of(board, shown: state.items.length),
                 // The plans are on the community's own card in the list this
                 // screen was opened from.
                 onTap: () => context.pop(),

@@ -316,6 +316,15 @@ class AppPalette {
   static const Color perfSellPlate = Color(0xFFFFF4E5);
   static const Color perfShadow = Color(0x0D0F3D3B);
 
+  // Free-member unlock card (Final page `1639:4211`). The badge fill is
+  // `cardTitle`, its ink and the button's lime end are `perfCountPill`, the
+  // perks plate is `perfDetail`, the check disc `infoVerifiedPlate` and the
+  // button's teal end `badgeTeal` — only these are new.
+  static const Color perfUnlockBody = Color(0xFF6B7874);
+  static const Color perfPerkInk = Color(0xFF1A2E2C);
+  static const Color perfUnlockBorder = Color(0x0F153D3A);
+  static const Color perfUnlockShadow = Color(0x290B2826);
+
   // Stock-logo tiles: a pale plate with a same-hue ink and a 12% hairline.
   static const Color logoRedInk = Color(0xFFC2413B);
   static const Color logoRedPlate = Color(0xFFFDECEC);

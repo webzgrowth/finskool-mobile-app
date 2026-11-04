@@ -189,14 +189,16 @@ void main() {
     expect(find.text('BLS International'), findsOneWidget);
     expect(find.text('Target Met'), findsOneWidget);
     expect(find.text('Oct25 to Aug26'), findsOneWidget);
-    expect(find.text('41 more trades for subscribers'), findsOneWidget);
+    expect(find.text('Members only'), findsOneWidget);
+    expect(find.text('Unlock live trades'), findsOneWidget);
+    expect(find.text('Past trades'), findsOneWidget);
   });
 
-  testWidgets('See plans goes back to the list the screen came from', (
+  testWidgets('View plans goes back to the list the screen came from', (
     tester,
   ) async {
     await pumpScreen(tester);
-    await tester.tap(find.text('See plans'));
+    await tester.tap(find.text('View plans  →'));
     await settle(tester);
     expect(find.text('plans list'), findsOneWidget);
   });
@@ -204,7 +206,7 @@ void main() {
   testWidgets('a paid member has no banner', (tester) async {
     repo.answer = (_, _) async => Right(_board(paid: true));
     await pumpScreen(tester);
-    expect(find.textContaining('more trades for subscribers'), findsNothing);
+    expect(find.text('Members only'), findsNothing);
     expect(find.text('BLS International'), findsOneWidget);
   });
 
@@ -348,7 +350,7 @@ void main() {
       await pick(tester, 'From:', 'August 2026');
       await pick(tester, 'To:', 'August 2026');
       expect(find.text('No trades to preview yet'), findsOneWidget);
-      expect(find.text('7 more trades for subscribers'), findsOneWidget);
+      expect(find.text('Unlock live trades'), findsOneWidget);
     });
   });
 

@@ -50,6 +50,11 @@ class PerformanceTypography extends ThemeExtension<PerformanceTypography> {
     required this.resultPct,
     required this.detailLabel,
     required this.detailValue,
+    required this.unlockBadge,
+    required this.unlockTitle,
+    required this.unlockBody,
+    required this.perk,
+    required this.planButton,
   });
 
   final TextStyle heroTitle;
@@ -76,6 +81,11 @@ class PerformanceTypography extends ThemeExtension<PerformanceTypography> {
   final TextStyle resultPct;
   final TextStyle detailLabel;
   final TextStyle detailValue;
+  final TextStyle unlockBadge;
+  final TextStyle unlockTitle;
+  final TextStyle unlockBody;
+  final TextStyle perk;
+  final TextStyle planButton;
 
   static const Color _ink = AppPalette.cardTitle;
 
@@ -104,6 +114,11 @@ class PerformanceTypography extends ThemeExtension<PerformanceTypography> {
     resultPct: _i(11.5, 500, 14 / 11.5, AppPalette.perfProfit),
     detailLabel: _i(11, 400, 13 / 11, AppPalette.perfMuted),
     detailValue: _i(13.5, 600, 16 / 13.5, _ink),
+    unlockBadge: _i(11, 600, 13 / 11, AppPalette.perfCountPill),
+    unlockTitle: _m(19, 700, 26 / 19, _ink),
+    unlockBody: _i(12.5, 400, 18 / 12.5, AppPalette.perfUnlockBody),
+    perk: _i(12.5, 500, 15 / 12.5, AppPalette.perfPerkInk),
+    planButton: _i(14, 600, 17 / 14, AppPalette.white),
   );
 
   static PerformanceTypography of(Brightness _) => light;

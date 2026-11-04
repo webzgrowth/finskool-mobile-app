@@ -2075,9 +2075,20 @@ Rules worth not "fixing":
 
 * **Free is not an error.** `access` decides the screen, never the app's own
   subscription list. A free member sees a short trade list, the **same summary**
-  as a paid one, and — when `hiddenCount > 0` — an `UnlockBanner`
-  ("N more trades for subscribers"). *See plans* just pops: the plans are on the
-  community's card in the list the screen was opened from.
+  as a paid one, and — when `hiddenCount > 0` — the `UnlockSection` (Figma
+  `Performance – Intraday (Free)` `1639:2820` / `– Swing Alpha (Free)` `1639:4211`):
+  a blurred stand-in list (`LockedPreview` — neutral row shapes, **not** invented
+  stock names; blur sigma 3.5 = Figma's 7px radius) under a vertical wash (white ~90% at the top → the page colour `feedBase` at the
+  bottom, so the section has **no lower edge or rounded bottom** — it melts into the
+  background, as in Figma), with a "Members only" card on top (badge, title, body, three perks, lime→teal
+  *View plans →* pill). The words are `UnlockCopy.of(board, shown:)`: intraday
+  sells *more trades* ("Unlock N more trades", total = shown + `hiddenCount`),
+  swing/investor sell *live* trades. The free list header is the title over
+  "Past trades" (swing) or "Showing N of M trades" (intraday) **instead of the
+  count pill**, and its rows start collapsed (paid opens the first). *View plans*
+  just pops: the plans are on the community's card in the list the screen was
+  opened from. Figma's free layout also shows the date range as a dropdown inside
+  the summary card; ours keeps the separate From/To row, unchanged.
 * **The numbers are the server's.** Nothing is recomputed. The only app-side
   arithmetic is layout (`IntradaySummary.grossFraction`/`chargesFraction`, the
   bar widths) and the donut, which draws both server shares and leaves the rest
