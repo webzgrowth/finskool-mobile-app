@@ -27,7 +27,7 @@ class ServiceChatEvent with _$ServiceChatEvent {
 
   /// Resolves with the invoice PDF's signed link, or null on failure.
   const factory ServiceChatEvent.invoiceRequested(
-    Completer<InvoiceLink?> result,
+    Completer<InvoiceFile?> result,
   ) = _InvoiceRequested;
 
   /// Refetch the request — a quote went stale under the member.

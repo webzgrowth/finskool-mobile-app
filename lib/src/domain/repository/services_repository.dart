@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:dartz/dartz.dart';
+import 'package:finskool/src/domain/model/community/invoice_file.dart';
 import 'package:finskool/src/comman/failure.dart';
 import 'package:finskool/src/domain/model/service/service_model.dart';
 import 'package:finskool/src/domain/model/service/service_quote_model.dart';
@@ -85,7 +86,7 @@ abstract class ServicesRepository {
     required PaymentProof proof,
   });
 
-  Future<Either<Failure, InvoiceLink>> getInvoice(String requestId);
+  Future<Either<Failure, InvoiceFile>> getInvoice(String requestId);
 
   Future<Either<Failure, ServiceRequestModel>> rate({
     required String requestId,

@@ -1502,17 +1502,25 @@ it across from `/me` (the catalog row never has it). The tap does **not** use th
 `downloadUrl` in `/me`: that signed link lives ~5 minutes from when `/me` was read
 and can be null, so `InvoiceDownloadBloc` (`@injectable`, route-scoped on
 `SubscriptionDetailScreen` beside `WelcomeKitBloc`) asks
-`GET /payments/receipts/{id}/download` → `{url, fileName}` **on every tap** and the
-button's listener opens it with `url_launcher` (`LaunchMode.externalApplication` —
-the system viewer/browser is what saves or shares it, the same as the services
-invoice). Rules: one request at a time (the button shows a spinner and a second
-tap asks for nothing); the bloc is `reset` right after the link is opened so it
-never holds a signed link; `SubscriptionInvoice.toJson` omits `downloadUrl`; the
-log interceptor masks `downloadUrl` and the receipts `download` response. Invoices
-have their own `InvoiceRepository` / `InvoiceRemoteDatasource` / `GetInvoiceLink`
-rather than widening `CommunitiesRepository` (several test fakes implement it).
-Pinned by `test/invoice_download_test.dart`. Not built: an in-app PDF viewer or a
-saved copy (no `share_plus` / `path_provider`), and showing the invoice's own
+`GET /payments/receipts/{id}/download` → `{url, fileName}` **on every tap**.
+
+**The file is downloaded inside the app and saved on the device — never opened in
+a browser.** `InvoiceRemoteDatasource.download` fetches the link, then the PDF
+itself via `ApiClient.downloadBytes` (its own `Dio`, like `putBytes`: **no
+session cookie** reaches the storage host; a non-2xx — an expired link — or an
+empty body throws rather than saving an error page). The bloc state carries
+`InvoiceFile {fileName, bytes}`; the button's listener hands it to
+`FilePicker.saveFile(bytes:, mimeType: 'application/pdf')`, which is the OS's own
+save dialog (Files/"Save to Files" on iOS, the system create-document picker on
+Android — no storage permission needed). A cancelled dialog is silent, success
+says "Invoice saved.", and the bloc is `reset` right after so it never holds the
+bytes. Rules: one request at a time (spinner; a second tap asks for nothing);
+`SubscriptionInvoice.toJson` omits `downloadUrl`; the log interceptor masks
+`downloadUrl` and the receipts `download` response. Invoices have their own
+`InvoiceRepository` / `InvoiceRemoteDatasource` / `DownloadInvoice` rather than
+widening `CommunitiesRepository` (several test fakes implement it). Pinned by
+`test/invoice_download_test.dart` and `test/invoice_file_download_test.dart` (a
+real local HTTP server). The services invoice saves the same way (see "Services"). Not built: an in-app PDF viewer, and showing the invoice's own
 number / date / amount in the Transaction card — it still shows the stand-in
 receipt from `DemoSubscriptionDatasource`, which the real invoice could replace
 in part.
@@ -1843,7 +1851,10 @@ and stops unread with the session) and the route-scoped `@injectable`
     again"; **never offer a second payment**. A "Confirming your payment…" overlay
     covers `verifying`.
   * **Invoice:** `GET /:id/invoice` returns a *minutes-long* link, so it is
-    requested on the tap and opened at once (`downloadInvoice`), never cached.
+    requested on the tap, never cached. `ServicesRemoteDatasource.getInvoice`
+    downloads the PDF at once (`ApiClient.downloadBytes`, no cookie) and
+    `downloadInvoice` hands the bytes to `FilePicker.saveFile` — the device's
+    save dialog, **not a browser** (same as the community invoice).
   * **Checkout options** follow the guide: `order_id` always passed, theme
     `#108B8B`, `retry {enabled, max_count: 3}`; cancel is `Razorpay
     .PAYMENT_CANCELLED` (code 2 in this plugin) → quiet idle, not an error.

@@ -4,6 +4,7 @@ import 'package:injectable/injectable.dart';
 import 'package:finskool/src/comman/exception.dart';
 import 'package:finskool/src/data/api/api.dart';
 import 'package:finskool/src/data/api/api_client.dart';
+import 'package:finskool/src/domain/model/community/invoice_file.dart';
 import 'package:finskool/src/domain/model/service/service_model.dart';
 import 'package:finskool/src/domain/model/service/service_payment_model.dart';
 import 'package:finskool/src/domain/model/service/service_request_model.dart';
@@ -124,9 +125,14 @@ class ServicesRemoteDatasource {
     return ServiceRequestModel.fromJson(_require(data, path));
   }
 
-  Future<InvoiceLink> getInvoice(String requestId) async {
+  /// The link is short-lived, so it is fetched and spent at once: the PDF
+  /// itself is downloaded here (own `Dio`, no session cookie) and handed back
+  /// as bytes for the device's save dialog.
+  Future<InvoiceFile> getInvoice(String requestId) async {
     final path = Api.serviceInvoice(requestId);
-    return InvoiceLink.fromJson(_require(await _client.get(path), path));
+    final link = InvoiceLink.fromJson(_require(await _client.get(path), path));
+    final bytes = await ApiClient.downloadBytes(link.url);
+    return InvoiceFile(fileName: link.fileName, bytes: bytes);
   }
 
   Future<ServiceRequestModel> rate({

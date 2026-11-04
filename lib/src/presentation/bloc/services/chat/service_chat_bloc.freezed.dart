@@ -159,7 +159,7 @@ return socketStatus(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String requestId)?  started,TResult Function()?  loadEarlier,TResult Function( String text)?  sent,TResult Function( String clientMessageId)?  retried,TResult Function( File file,  String? name)?  attachmentPicked,TResult Function( String draftId)?  attachmentRemoved,TResult Function( String attachmentId,  Completer<String?> result)?  attachmentOpened,TResult Function()?  cancelled,TResult Function( int rating,  String? comment)?  rated,TResult Function( Completer<InvoiceLink?> result)?  invoiceRequested,TResult Function()?  refreshed,TResult Function( ServiceRequestModel request)?  paid,TResult Function( SocketEvent event)?  socketEvent,TResult Function( SocketStatus status)?  socketStatus,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String requestId)?  started,TResult Function()?  loadEarlier,TResult Function( String text)?  sent,TResult Function( String clientMessageId)?  retried,TResult Function( File file,  String? name)?  attachmentPicked,TResult Function( String draftId)?  attachmentRemoved,TResult Function( String attachmentId,  Completer<String?> result)?  attachmentOpened,TResult Function()?  cancelled,TResult Function( int rating,  String? comment)?  rated,TResult Function( Completer<InvoiceFile?> result)?  invoiceRequested,TResult Function()?  refreshed,TResult Function( ServiceRequestModel request)?  paid,TResult Function( SocketEvent event)?  socketEvent,TResult Function( SocketStatus status)?  socketStatus,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Started() when started != null:
 return started(_that.requestId);case _LoadEarlier() when loadEarlier != null:
@@ -193,7 +193,7 @@ return socketStatus(_that.status);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String requestId)  started,required TResult Function()  loadEarlier,required TResult Function( String text)  sent,required TResult Function( String clientMessageId)  retried,required TResult Function( File file,  String? name)  attachmentPicked,required TResult Function( String draftId)  attachmentRemoved,required TResult Function( String attachmentId,  Completer<String?> result)  attachmentOpened,required TResult Function()  cancelled,required TResult Function( int rating,  String? comment)  rated,required TResult Function( Completer<InvoiceLink?> result)  invoiceRequested,required TResult Function()  refreshed,required TResult Function( ServiceRequestModel request)  paid,required TResult Function( SocketEvent event)  socketEvent,required TResult Function( SocketStatus status)  socketStatus,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String requestId)  started,required TResult Function()  loadEarlier,required TResult Function( String text)  sent,required TResult Function( String clientMessageId)  retried,required TResult Function( File file,  String? name)  attachmentPicked,required TResult Function( String draftId)  attachmentRemoved,required TResult Function( String attachmentId,  Completer<String?> result)  attachmentOpened,required TResult Function()  cancelled,required TResult Function( int rating,  String? comment)  rated,required TResult Function( Completer<InvoiceFile?> result)  invoiceRequested,required TResult Function()  refreshed,required TResult Function( ServiceRequestModel request)  paid,required TResult Function( SocketEvent event)  socketEvent,required TResult Function( SocketStatus status)  socketStatus,}) {final _that = this;
 switch (_that) {
 case _Started():
 return started(_that.requestId);case _LoadEarlier():
@@ -226,7 +226,7 @@ return socketStatus(_that.status);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String requestId)?  started,TResult? Function()?  loadEarlier,TResult? Function( String text)?  sent,TResult? Function( String clientMessageId)?  retried,TResult? Function( File file,  String? name)?  attachmentPicked,TResult? Function( String draftId)?  attachmentRemoved,TResult? Function( String attachmentId,  Completer<String?> result)?  attachmentOpened,TResult? Function()?  cancelled,TResult? Function( int rating,  String? comment)?  rated,TResult? Function( Completer<InvoiceLink?> result)?  invoiceRequested,TResult? Function()?  refreshed,TResult? Function( ServiceRequestModel request)?  paid,TResult? Function( SocketEvent event)?  socketEvent,TResult? Function( SocketStatus status)?  socketStatus,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String requestId)?  started,TResult? Function()?  loadEarlier,TResult? Function( String text)?  sent,TResult? Function( String clientMessageId)?  retried,TResult? Function( File file,  String? name)?  attachmentPicked,TResult? Function( String draftId)?  attachmentRemoved,TResult? Function( String attachmentId,  Completer<String?> result)?  attachmentOpened,TResult? Function()?  cancelled,TResult? Function( int rating,  String? comment)?  rated,TResult? Function( Completer<InvoiceFile?> result)?  invoiceRequested,TResult? Function()?  refreshed,TResult? Function( ServiceRequestModel request)?  paid,TResult? Function( SocketEvent event)?  socketEvent,TResult? Function( SocketStatus status)?  socketStatus,}) {final _that = this;
 switch (_that) {
 case _Started() when started != null:
 return started(_that.requestId);case _LoadEarlier() when loadEarlier != null:
@@ -803,7 +803,7 @@ class _InvoiceRequested implements ServiceChatEvent {
   const _InvoiceRequested(this.result);
   
 
- final  Completer<InvoiceLink?> result;
+ final  Completer<InvoiceFile?> result;
 
 /// Create a copy of ServiceChatEvent
 /// with the given fields replaced by the non-null parameter values.
@@ -837,7 +837,7 @@ abstract mixin class _$InvoiceRequestedCopyWith<$Res> implements $ServiceChatEve
   factory _$InvoiceRequestedCopyWith(_InvoiceRequested value, $Res Function(_InvoiceRequested) _then) = __$InvoiceRequestedCopyWithImpl;
 @useResult
 $Res call({
- Completer<InvoiceLink?> result
+ Completer<InvoiceFile?> result
 });
 
 
@@ -857,7 +857,7 @@ class __$InvoiceRequestedCopyWithImpl<$Res>
 @pragma('vm:prefer-inline') $Res call({Object? result = null,}) {
   return _then(_InvoiceRequested(
 null == result ? _self.result : result // ignore: cast_nullable_to_non_nullable
-as Completer<InvoiceLink?>,
+as Completer<InvoiceFile?>,
   ));
 }
 

@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:dartz/dartz.dart';
 import 'package:injectable/injectable.dart';
+import 'package:finskool/src/domain/model/community/invoice_file.dart';
 import 'package:finskool/src/comman/error_handler.dart';
 import 'package:finskool/src/comman/exception.dart';
 import 'package:finskool/src/comman/failure.dart';
@@ -109,7 +110,7 @@ class ServicesRepositoryImpl implements ServicesRepository {
   );
 
   @override
-  Future<Either<Failure, InvoiceLink>> getInvoice(String requestId) =>
+  Future<Either<Failure, InvoiceFile>> getInvoice(String requestId) =>
       handleErrors(() => _remote.getInvoice(requestId));
 
   @override

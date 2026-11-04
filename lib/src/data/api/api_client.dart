@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
 import 'package:finskool/src/comman/exception.dart';
@@ -99,6 +101,30 @@ class ApiClient {
     if (response.statusCode == null) {
       throw ApiException('The upload did not complete. Please try again.');
     }
+  }
+
+  /// Downloads a file from an **absolute, signed** URL — an invoice PDF.
+  ///
+  /// On its **own `Dio`**, for the same reason as [putBytes]: the shared one
+  /// would attach our `mobile_session_id` cookie and send the app's credential
+  /// to a storage host. The link carries its own authority and is valid for
+  /// only a few minutes, so call this right after getting it.
+  static Future<Uint8List> downloadBytes(String url) async {
+    final response = await Dio().get<List<int>>(
+      url,
+      options: Options(
+        responseType: ResponseType.bytes,
+        receiveTimeout: const Duration(seconds: 60),
+        // Anything but a 2xx is a failure we want as an exception, not an
+        // error page saved as "invoice.pdf".
+        validateStatus: (status) => status != null && status < 300,
+      ),
+    );
+    final data = response.data;
+    if (data == null || data.isEmpty) {
+      throw ApiException('The invoice file was empty. Please try again.');
+    }
+    return Uint8List.fromList(data);
   }
 
   /// Returns the `data` object on success, throws `ApiException` otherwise.

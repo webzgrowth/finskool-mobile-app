@@ -99,10 +99,10 @@ import 'package:finskool/src/domain/usecases/auth/set_post_notifications_enabled
 import 'package:finskool/src/domain/usecases/auth/update_avatar.dart' as _i95;
 import 'package:finskool/src/domain/usecases/auth/update_profile.dart' as _i690;
 import 'package:finskool/src/domain/usecases/auth/verify_otp.dart' as _i584;
+import 'package:finskool/src/domain/usecases/community/download_invoice.dart'
+    as _i370;
 import 'package:finskool/src/domain/usecases/community/get_communities.dart'
     as _i229;
-import 'package:finskool/src/domain/usecases/community/get_invoice_link.dart'
-    as _i40;
 import 'package:finskool/src/domain/usecases/community/get_subscription_expiry.dart'
     as _i632;
 import 'package:finskool/src/domain/usecases/community/get_welcome_kit.dart'
@@ -414,8 +414,8 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i365.PostsRepository>(
       () => _i1039.PostsRepositoryImpl(gh<_i45.PostsRemoteDatasource>()),
     );
-    gh.lazySingleton<_i40.GetInvoiceLink>(
-      () => _i40.GetInvoiceLink(gh<_i121.InvoiceRepository>()),
+    gh.lazySingleton<_i370.DownloadInvoice>(
+      () => _i370.DownloadInvoice(gh<_i121.InvoiceRepository>()),
     );
     gh.factory<_i1032.NotificationsInboxBloc>(
       () => _i1032.NotificationsInboxBloc(
@@ -439,9 +439,6 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i427.KycRepository>(
       () => _i116.KycRepositoryImpl(gh<_i236.KycRemoteDatasource>()),
-    );
-    gh.factory<_i697.InvoiceDownloadBloc>(
-      () => _i697.InvoiceDownloadBloc(gh<_i40.GetInvoiceLink>()),
     );
     gh.lazySingleton<_i229.GetCommunities>(
       () => _i229.GetCommunities(gh<_i122.CommunitiesRepository>()),
@@ -543,6 +540,9 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i229.GetCommunities>(),
         gh<_i999.RequestPricing>(),
       ),
+    );
+    gh.factory<_i697.InvoiceDownloadBloc>(
+      () => _i697.InvoiceDownloadBloc(gh<_i370.DownloadInvoice>()),
     );
     gh.singleton<_i142.TicketsUnreadBloc>(
       () => _i142.TicketsUnreadBloc(

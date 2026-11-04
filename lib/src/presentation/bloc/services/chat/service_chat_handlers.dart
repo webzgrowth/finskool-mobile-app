@@ -333,7 +333,7 @@ extension ServiceChatHandlers on ServiceChatBloc {
   }
 
   Future<void> _openInvoice(
-    Completer<InvoiceLink?> result,
+    Completer<InvoiceFile?> result,
     Emitter<ServiceChatState> emit,
   ) async {
     final fetched = await _invoice.execute(_requestId);

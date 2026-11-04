@@ -1,12 +1,12 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:finskool/src/comman/enum.dart';
 import 'package:finskool/src/comman/widgets/app_snack.dart';
 import 'package:finskool/src/comman/widgets/detail_cell.dart';
 import 'package:finskool/src/comman/widgets/teal_section_card.dart';
+import 'package:finskool/src/domain/model/community/invoice_file.dart';
 import 'package:finskool/src/domain/model/community/subscription_info.dart';
 import 'package:finskool/src/domain/model/community/subscription_invoice.dart';
 import 'package:finskool/src/presentation/bloc/communities/invoice/invoice_download_bloc.dart';
@@ -14,12 +14,14 @@ import 'package:finskool/src/utilities/theme/theme.dart';
 
 /// Transaction Details — the receipt, then Download Invoice (a 32px teal bar).
 ///
-/// The button is real: it asks the server for a **fresh** link to the invoice
-/// PDF (`GET /payments/receipts/{id}/download`) and opens it, via
-/// [InvoiceDownloadBloc]. It is always drawn, as in Figma; when [invoice] is
-/// null — a member an admin added never paid through the app, or the server
-/// has none for this purchase — it is dimmed and a tap says so, rather than
-/// vanishing and leaving the member wondering where it went.
+/// The button is real: it downloads the invoice PDF inside the app
+/// (`GET /payments/receipts/{id}/download` for a **fresh** signed link, then the
+/// file itself, via [InvoiceDownloadBloc]) and opens the device's own save
+/// dialog — Files on iPhone, the Downloads picker on Android — so it ends up on
+/// the phone rather than in a browser tab. It is always drawn, as in Figma;
+/// when [invoice] is null — a member an admin added never paid through the app,
+/// or the server has none for this purchase — it is dimmed and a tap says so,
+/// rather than vanishing and leaving the member wondering where it went.
 class SubscriptionTransactionSection extends StatelessWidget {
   const SubscriptionTransactionSection({
     super.key,
@@ -32,7 +34,6 @@ class SubscriptionTransactionSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final type = context.subscriptionType;
     return TealSectionCard(
       title: 'Transaction Details',
       padding: const EdgeInsets.fromLTRB(10, 15, 10, 15),
@@ -130,23 +131,25 @@ class _InvoiceButton extends StatelessWidget {
 
   final SubscriptionInvoice invoice;
 
-  /// Opens the PDF link in the system viewer / browser, which is what saves or
-  /// shares it. Says so when the device can't.
-  Future<void> _open(BuildContext context, String url) async {
-    var opened = false;
+  /// Hands the downloaded PDF to the device's save dialog. `null` back means
+  /// the member dismissed it, which needs no message. Either way the bytes are
+  /// dropped from the bloc afterwards.
+  Future<void> _save(BuildContext context, InvoiceFile file) async {
+    final bloc = context.read<InvoiceDownloadBloc>();
     try {
-      opened = await launchUrl(
-        Uri.parse(url),
-        mode: LaunchMode.externalApplication,
+      final saved = await FilePicker.saveFile(
+        dialogTitle: 'Save invoice',
+        fileName: file.fileName,
+        bytes: file.bytes,
+        mimeType: 'application/pdf',
+        type: FileType.custom,
+        allowedExtensions: const ['pdf'],
       );
-    } catch (_) {}
-    if (!opened) AppSnack.show('Could not open the invoice.');
-    // The link is good for minutes; don't keep holding it.
-    if (context.mounted) {
-      context.read<InvoiceDownloadBloc>().add(
-        const InvoiceDownloadEvent.reset(),
-      );
+      if (saved != null) AppSnack.show('Invoice saved.');
+    } catch (_) {
+      AppSnack.show('Could not save the invoice.');
     }
+    bloc.add(const InvoiceDownloadEvent.reset());
   }
 
   @override
@@ -155,9 +158,9 @@ class _InvoiceButton extends StatelessWidget {
     return BlocConsumer<InvoiceDownloadBloc, InvoiceDownloadState>(
       listenWhen: (p, c) => p.state != c.state,
       listener: (context, state) {
-        final link = state.link;
-        if (state.state.isLoaded && link != null) {
-          _open(context, link.url);
+        final file = state.file;
+        if (state.state.isLoaded && file != null) {
+          _save(context, file);
         } else if (state.state.isError) {
           AppSnack.show(state.message);
           context.read<InvoiceDownloadBloc>().add(

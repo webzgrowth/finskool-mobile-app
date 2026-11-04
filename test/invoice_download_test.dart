@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
@@ -10,22 +11,27 @@ import 'package:finskool/src/domain/model/community/community_model.dart';
 import 'package:finskool/src/domain/model/community/subscription_info.dart';
 import 'package:finskool/src/domain/model/community/subscription_invoice.dart';
 import 'package:finskool/src/domain/model/community/community_plan_model.dart';
-import 'package:finskool/src/domain/model/service/service_payment_model.dart';
+import 'package:finskool/src/domain/model/community/invoice_file.dart';
 import 'package:finskool/src/domain/repository/invoice_repository.dart';
-import 'package:finskool/src/domain/usecases/community/get_invoice_link.dart';
+import 'package:finskool/src/domain/usecases/community/download_invoice.dart';
 import 'package:finskool/src/presentation/bloc/communities/invoice/invoice_download_bloc.dart';
 import 'package:finskool/src/presentation/pages/communities/subscription_detail/widgets/subscription_transaction_section.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
 
 import 'support/ticket_fakes.dart';
 
+final _file = InvoiceFile(
+  fileName: 'a.pdf',
+  bytes: Uint8List.fromList([37, 80, 68, 70]),
+);
+
 class _Repo implements InvoiceRepository {
-  Future<Either<Failure, InvoiceLink>> Function(String) answer = (_) async =>
-      const Right(InvoiceLink(url: 'https://x.test/a.pdf', fileName: 'a.pdf'));
+  Future<Either<Failure, InvoiceFile>> Function(String) answer = (_) async =>
+      Right(_file);
   final asked = <String>[];
 
   @override
-  Future<Either<Failure, InvoiceLink>> getDownloadLink(String invoiceId) {
+  Future<Either<Failure, InvoiceFile>> download(String invoiceId) {
     asked.add(invoiceId);
     return answer(invoiceId);
   }
@@ -106,22 +112,23 @@ void main() {
 
     setUp(() {
       repo = _Repo();
-      bloc = InvoiceDownloadBloc(GetInvoiceLink(repo));
+      bloc = InvoiceDownloadBloc(DownloadInvoice(repo));
       addTearDown(bloc.close);
     });
 
     test(
-      'asks for a fresh link by invoice id and holds it for the screen',
+      'downloads the file by invoice id and holds it for the screen',
       () async {
         bloc.add(const InvoiceDownloadEvent.requested('inv-1'));
         await pump();
         expect(repo.asked, ['inv-1']);
         expect(bloc.state.state, RequestState.loaded);
-        expect(bloc.state.link!.url, 'https://x.test/a.pdf');
+        expect(bloc.state.file!.fileName, 'a.pdf');
+        expect(bloc.state.file!.bytes, isNotEmpty);
       },
     );
 
-    test('every tap asks again — the link is never reused', () async {
+    test('every tap downloads again — nothing is reused', () async {
       bloc.add(const InvoiceDownloadEvent.requested('inv-1'));
       await pump();
       bloc.add(const InvoiceDownloadEvent.reset());
@@ -130,20 +137,20 @@ void main() {
       expect(repo.asked, ['inv-1', 'inv-1']);
     });
 
-    test('a failure carries the server\'s words and no link', () async {
+    test('a failure carries the server\'s words and no file', () async {
       repo.answer = (_) async =>
           const Left(ServerFailure('Receipt not found.', code: 'NOT_FOUND'));
       bloc.add(const InvoiceDownloadEvent.requested('inv-1'));
       await pump();
       expect(bloc.state.state, RequestState.error);
       expect(bloc.state.message, 'Receipt not found.');
-      expect(bloc.state.link, isNull);
+      expect(bloc.state.file, isNull);
     });
 
     test(
       'a second tap while the first is in flight asks for nothing',
       () async {
-        final slow = Completer<Either<Failure, InvoiceLink>>();
+        final slow = Completer<Either<Failure, InvoiceFile>>();
         repo.answer = (_) => slow.future;
         bloc.add(const InvoiceDownloadEvent.requested('inv-1'));
         await pump();
@@ -151,19 +158,17 @@ void main() {
         bloc.add(const InvoiceDownloadEvent.requested('inv-1'));
         await pump();
         expect(repo.asked, hasLength(1));
-        slow.complete(
-          const Right(InvoiceLink(url: 'https://x.test/a.pdf', fileName: 'a')),
-        );
+        slow.complete(Right(_file));
         await pump();
       },
     );
 
-    test('reset drops the link', () async {
+    test('reset drops the file', () async {
       bloc.add(const InvoiceDownloadEvent.requested('inv-1'));
       await pump();
       bloc.add(const InvoiceDownloadEvent.reset());
       await pump();
-      expect(bloc.state.link, isNull);
+      expect(bloc.state.file, isNull);
       expect(bloc.state.state, RequestState.empty);
     });
   });
@@ -180,11 +185,11 @@ void main() {
     Future<_Repo> pumpSection(
       WidgetTester tester, {
       required SubscriptionInvoice? invoice,
-      Future<Either<Failure, InvoiceLink>> Function(String)? answer,
+      Future<Either<Failure, InvoiceFile>> Function(String)? answer,
     }) async {
       final repo = _Repo();
       if (answer != null) repo.answer = answer;
-      final bloc = InvoiceDownloadBloc(GetInvoiceLink(repo));
+      final bloc = InvoiceDownloadBloc(DownloadInvoice(repo));
       addTearDown(bloc.close);
       await tester.pumpWidget(
         MaterialApp(
@@ -223,10 +228,10 @@ void main() {
       },
     );
 
-    testWidgets('a tap asks for that invoice\'s link, and shows progress', (
+    testWidgets('a tap downloads that invoice, and shows progress', (
       tester,
     ) async {
-      final slow = Completer<Either<Failure, InvoiceLink>>();
+      final slow = Completer<Either<Failure, InvoiceFile>>();
       final repo = await pumpSection(
         tester,
         invoice: SubscriptionInvoice.fromJson(_row),
@@ -244,11 +249,10 @@ void main() {
       expect(repo.asked, hasLength(1));
 
       // Answer it inside the test, so nothing is left in flight when the bloc
-      // is closed (`close()` would wait on it). The screen then tries to open
-      // the link — there is no browser in a test, and it says so quietly.
-      slow.complete(
-        const Right(InvoiceLink(url: 'https://x.test/a.pdf', fileName: 'a')),
-      );
+      // is closed (`close()` would wait on it). The screen then hands the file
+      // to the save dialog — there is no platform dialog in a test, so it
+      // reports that quietly and the button comes back.
+      slow.complete(Right(_file));
       await tester.pump();
       await tester.pump();
       expect(find.text('Download Invoice'), findsOneWidget);

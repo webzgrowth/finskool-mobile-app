@@ -282,10 +282,10 @@ String toString() {
 mixin _$InvoiceDownloadState {
 
  RequestState get state;/// The server's own words for a failure, shown as a snackbar.
- String get message;/// The link the screen should open **right now**. Set only on the
-/// `loading → loaded` step and cleared by the next tap's `loading`, so it
-/// is never a thing to read later: it expires in minutes.
- InvoiceLink? get link;
+ String get message;/// The PDF the screen should hand to the device's save dialog **right now**.
+/// Set only on the `loading → loaded` step and cleared by `reset`, so the
+/// bytes are never held past their use.
+ InvoiceFile? get file;
 /// Create a copy of InvoiceDownloadState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -297,20 +297,20 @@ $InvoiceDownloadStateCopyWith<InvoiceDownloadState> get copyWith => _$InvoiceDow
 @override
 bool operator ==(Object other) {
   final _this = this as InvoiceDownloadState;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is InvoiceDownloadState&&(identical(other.state, _this.state) || other.state == _this.state)&&(identical(other.message, _this.message) || other.message == _this.message)&&(identical(other.link, _this.link) || other.link == _this.link));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is InvoiceDownloadState&&(identical(other.state, _this.state) || other.state == _this.state)&&(identical(other.message, _this.message) || other.message == _this.message)&&(identical(other.file, _this.file) || other.file == _this.file));
 }
 
 
 @override
 int get hashCode {
   final _this = this as InvoiceDownloadState;
-  return Object.hash(runtimeType,_this.state,_this.message,_this.link);
+  return Object.hash(runtimeType,_this.state,_this.message,_this.file);
 }
 
 @override
 String toString() {
   final _this = this as InvoiceDownloadState;
-  return 'InvoiceDownloadState(state: ${_this.state}, message: ${_this.message}, link: ${_this.link})';
+  return 'InvoiceDownloadState(state: ${_this.state}, message: ${_this.message}, file: ${_this.file})';
 }
 
 
@@ -321,7 +321,7 @@ abstract mixin class $InvoiceDownloadStateCopyWith<$Res>  {
   factory $InvoiceDownloadStateCopyWith(InvoiceDownloadState value, $Res Function(InvoiceDownloadState) _then) = _$InvoiceDownloadStateCopyWithImpl;
 @useResult
 $Res call({
- RequestState state, String message, InvoiceLink? link
+ RequestState state, String message, InvoiceFile? file
 });
 
 
@@ -338,12 +338,12 @@ class _$InvoiceDownloadStateCopyWithImpl<$Res>
 
 /// Create a copy of InvoiceDownloadState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? state = null,Object? message = null,Object? link = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? state = null,Object? message = null,Object? file = freezed,}) {
   return _then(InvoiceDownloadState(
 state: null == state ? _self.state : state // ignore: cast_nullable_to_non_nullable
 as RequestState,message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
-as String,link: freezed == link ? _self.link : link // ignore: cast_nullable_to_non_nullable
-as InvoiceLink?,
+as String,file: freezed == file ? _self.file : file // ignore: cast_nullable_to_non_nullable
+as InvoiceFile?,
   ));
 }
 
@@ -425,10 +425,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( RequestState state,  String message,  InvoiceLink? link)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( RequestState state,  String message,  InvoiceFile? file)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _InvoiceDownloadState() when $default != null:
-return $default(_that.state,_that.message,_that.link);case _:
+return $default(_that.state,_that.message,_that.file);case _:
   return orElse();
 
 }
@@ -446,10 +446,10 @@ return $default(_that.state,_that.message,_that.link);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( RequestState state,  String message,  InvoiceLink? link)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( RequestState state,  String message,  InvoiceFile? file)  $default,) {final _that = this;
 switch (_that) {
 case _InvoiceDownloadState():
-return $default(_that.state,_that.message,_that.link);}
+return $default(_that.state,_that.message,_that.file);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -463,10 +463,10 @@ return $default(_that.state,_that.message,_that.link);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( RequestState state,  String message,  InvoiceLink? link)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( RequestState state,  String message,  InvoiceFile? file)?  $default,) {final _that = this;
 switch (_that) {
 case _InvoiceDownloadState() when $default != null:
-return $default(_that.state,_that.message,_that.link);case _:
+return $default(_that.state,_that.message,_that.file);case _:
   return null;
 
 }
@@ -478,16 +478,16 @@ return $default(_that.state,_that.message,_that.link);case _:
 
 
 class _InvoiceDownloadState implements InvoiceDownloadState {
-  const _InvoiceDownloadState({this.state = RequestState.empty, this.message = '', this.link});
+  const _InvoiceDownloadState({this.state = RequestState.empty, this.message = '', this.file});
   
 
 @override@JsonKey() final  RequestState state;
 /// The server's own words for a failure, shown as a snackbar.
 @override@JsonKey() final  String message;
-/// The link the screen should open **right now**. Set only on the
-/// `loading → loaded` step and cleared by the next tap's `loading`, so it
-/// is never a thing to read later: it expires in minutes.
-@override final  InvoiceLink? link;
+/// The PDF the screen should hand to the device's save dialog **right now**.
+/// Set only on the `loading → loaded` step and cleared by `reset`, so the
+/// bytes are never held past their use.
+@override final  InvoiceFile? file;
 
 /// Create a copy of InvoiceDownloadState
 /// with the given fields replaced by the non-null parameter values.
@@ -499,18 +499,18 @@ _$InvoiceDownloadStateCopyWith<_InvoiceDownloadState> get copyWith => __$Invoice
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _InvoiceDownloadState&&(identical(other.state, state) || other.state == state)&&(identical(other.message, message) || other.message == message)&&(identical(other.link, link) || other.link == link));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _InvoiceDownloadState&&(identical(other.state, state) || other.state == state)&&(identical(other.message, message) || other.message == message)&&(identical(other.file, file) || other.file == file));
 }
 
 
 @override
 int get hashCode {
-    return Object.hash(runtimeType,state,message,link);
+    return Object.hash(runtimeType,state,message,file);
 }
 
 @override
 String toString() {
-    return 'InvoiceDownloadState(state: $state, message: $message, link: $link)';
+    return 'InvoiceDownloadState(state: $state, message: $message, file: $file)';
 }
 
 
@@ -521,7 +521,7 @@ abstract mixin class _$InvoiceDownloadStateCopyWith<$Res> implements $InvoiceDow
   factory _$InvoiceDownloadStateCopyWith(_InvoiceDownloadState value, $Res Function(_InvoiceDownloadState) _then) = __$InvoiceDownloadStateCopyWithImpl;
 @override @useResult
 $Res call({
- RequestState state, String message, InvoiceLink? link
+ RequestState state, String message, InvoiceFile? file
 });
 
 
@@ -538,12 +538,12 @@ class __$InvoiceDownloadStateCopyWithImpl<$Res>
 
 /// Create a copy of InvoiceDownloadState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? state = null,Object? message = null,Object? link = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? state = null,Object? message = null,Object? file = freezed,}) {
   return _then(_InvoiceDownloadState(
 state: null == state ? _self.state : state // ignore: cast_nullable_to_non_nullable
 as RequestState,message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
-as String,link: freezed == link ? _self.link : link // ignore: cast_nullable_to_non_nullable
-as InvoiceLink?,
+as String,file: freezed == file ? _self.file : file // ignore: cast_nullable_to_non_nullable
+as InvoiceFile?,
   ));
 }
 

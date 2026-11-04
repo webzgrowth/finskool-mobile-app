@@ -8,10 +8,10 @@ sealed class InvoiceDownloadState with _$InvoiceDownloadState {
     /// The server's own words for a failure, shown as a snackbar.
     @Default('') String message,
 
-    /// The link the screen should open **right now**. Set only on the
-    /// `loading → loaded` step and cleared by the next tap's `loading`, so it
-    /// is never a thing to read later: it expires in minutes.
-    InvoiceLink? link,
+    /// The PDF the screen should hand to the device's save dialog **right now**.
+    /// Set only on the `loading → loaded` step and cleared by `reset`, so the
+    /// bytes are never held past their use.
+    InvoiceFile? file,
   }) = _InvoiceDownloadState;
 
   factory InvoiceDownloadState.initial() => const InvoiceDownloadState();

@@ -8,6 +8,7 @@ import 'package:uuid/uuid.dart';
 import 'package:finskool/src/comman/enum.dart';
 import 'package:finskool/src/data/socket/socket_frames.dart';
 import 'package:finskool/src/data/socket/tickets_socket.dart';
+import 'package:finskool/src/domain/model/community/invoice_file.dart';
 import 'package:finskool/src/domain/model/service/service_payment_model.dart';
 import 'package:finskool/src/domain/model/service/service_quote_model.dart';
 import 'package:finskool/src/domain/model/service/service_request_model.dart';

@@ -1,10 +1,10 @@
 import 'dart:async';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:finskool/src/comman/widgets/app_snack.dart';
 import 'package:finskool/src/comman/widgets/success_animation.dart';
-import 'package:finskool/src/domain/model/service/service_payment_model.dart';
+import 'package:finskool/src/domain/model/community/invoice_file.dart';
 import 'package:finskool/src/domain/model/service/service_request_model.dart';
 import 'package:finskool/src/presentation/bloc/services/chat/service_chat_bloc.dart';
 import 'package:finskool/src/presentation/pages/tickets/widgets/ticket_button.dart';
@@ -12,21 +12,29 @@ import 'package:finskool/src/utilities/theme/theme.dart';
 
 import 'quote_card.dart';
 
-/// Asks the chat bloc for the invoice's **short-lived** link and opens it
-/// straight away in the system PDF viewer. Requested on the tap, never cached
-/// — the link expires in minutes, and the first call after payment can take a
+/// Asks the chat bloc for the invoice PDF (it fetches the **short-lived** link
+/// and downloads the file at once) and hands it to the device's save dialog —
+/// Files on iPhone, the Downloads picker on Android — rather than a browser.
+/// Requested on the tap, never cached; the first call after payment can take a
 /// moment because the PDF is made on demand.
 Future<void> downloadInvoice(BuildContext context, ServiceChatBloc chat) async {
-  final result = Completer<InvoiceLink?>();
+  final result = Completer<InvoiceFile?>();
   chat.add(ServiceChatEvent.invoiceRequested(result));
-  final link = await result.future;
-  if (link == null) return; // the bloc already said why
-  final opened = await launchUrl(
-    Uri.parse(link.url),
-    mode: LaunchMode.externalApplication,
-  );
-  if (!opened) {
-    AppSnack.show('Could not open the invoice.');
+  AppSnack.show('Preparing your invoice…');
+  final file = await result.future;
+  if (file == null) return; // the bloc already said why
+  try {
+    final saved = await FilePicker.saveFile(
+      dialogTitle: 'Save invoice',
+      fileName: file.fileName,
+      bytes: file.bytes,
+      mimeType: 'application/pdf',
+      type: FileType.custom,
+      allowedExtensions: const ['pdf'],
+    );
+    if (saved != null) AppSnack.show('Invoice saved.');
+  } catch (_) {
+    AppSnack.show('Could not save the invoice.');
   }
 }
 
