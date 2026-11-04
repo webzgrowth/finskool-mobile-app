@@ -1,31 +1,59 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
 
-/// The pale plate, same-hue ink and 12% hairline behind a stock's initials
-/// (Figma `Logo / …`, 38px, r12). The design tints each stock its own hue;
-/// there are eight, picked by [_toneFor].
+/// A stock's mark: its **logo** when the server has one ([logoUrl]), otherwise
+/// the pale plate, same-hue ink and 12% hairline behind its initials (Figma
+/// `Logo / …`, 38px, r12; the design tints each stock its own hue — eight,
+/// picked by [_toneFor]).
+///
+/// Same 38px footprint either way. The logo is scaled to fit (`contain`) on a
+/// white plate so a wide one isn't cropped, and the initials show while it
+/// loads and if it fails — a broken URL must never draw a broken image. A null
+/// [logoUrl] is normal (the stock isn't in the server's table), not an error.
 class StockLogo extends StatelessWidget {
-  const StockLogo({super.key, required this.stock, required this.initials});
+  const StockLogo({
+    super.key,
+    required this.stock,
+    required this.initials,
+    this.logoUrl,
+  });
 
   final String stock;
   final String initials;
+  final String? logoUrl;
 
   @override
   Widget build(BuildContext context) {
     final tone = _toneFor(stock);
+    final fallback = Text(
+      initials,
+      style: context.performanceType.logo.copyWith(color: tone.ink),
+    );
+    final url = logoUrl;
+    final hasLogo = url != null && url.isNotEmpty;
     return Container(
       height: 38,
       width: 38,
       alignment: Alignment.center,
+      clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
-        color: tone.plate,
+        color: hasLogo ? AppPalette.white : tone.plate,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: tone.ink.withValues(alpha: 0.12)),
       ),
-      child: Text(
-        initials,
-        style: context.performanceType.logo.copyWith(color: tone.ink),
-      ),
+      child: hasLogo
+          ? Padding(
+              padding: const EdgeInsets.all(4),
+              // Cached by URL, so a row scrolled back into view doesn't refetch.
+              child: CachedNetworkImage(
+                imageUrl: url,
+                fit: BoxFit.contain,
+                placeholder: (_, _) => fallback,
+                errorWidget: (_, _, _) => fallback,
+              ),
+            )
+          : fallback,
     );
   }
 }

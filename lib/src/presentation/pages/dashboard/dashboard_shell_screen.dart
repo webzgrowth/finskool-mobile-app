@@ -19,6 +19,7 @@ import 'package:finskool/src/presentation/bloc/authentication/login_form/login_f
 import 'package:finskool/src/presentation/bloc/authentication/social_auth/social_auth_bloc.dart';
 import 'package:finskool/src/presentation/pages/dashboard/widgets/kyc_reminder.dart';
 import 'package:finskool/src/presentation/bloc/kyc/status/kyc_bloc.dart';
+import 'package:finskool/src/presentation/bloc/performance/boards/performance_boards_bloc.dart';
 import 'package:finskool/src/presentation/bloc/communities/compliance/compliance_bloc.dart';
 import 'package:finskool/src/presentation/bloc/communities/list/communities_bloc.dart';
 import 'package:finskool/src/presentation/bloc/notifications/settings/push_settings_bloc.dart';
@@ -99,6 +100,9 @@ class _DashboardShellScreenState extends State<DashboardShellScreen> {
     );
     context.read<EditProfileBloc>().add(const EditProfileEvent.prefill(null));
     context.read<KycBloc>().add(const KycEvent.reset());
+    context.read<PerformanceBoardsBloc>().add(
+      const PerformanceBoardsEvent.reset(),
+    );
     // A half-typed PAN must not wait for the next member.
     context.read<ComplianceBloc>().add(const ComplianceEvent.initial());
     // The password the last member typed must not outlive their session.
@@ -145,6 +149,9 @@ class _DashboardShellScreenState extends State<DashboardShellScreen> {
             // login and launch. The Profile shows the answer and the purchase
             // flow decides from the server, not from a local flag.
             context.read<KycBloc>().add(const KycEvent.load());
+            context.read<PerformanceBoardsBloc>().add(
+              const PerformanceBoardsEvent.load(),
+            );
             context.read<TicketsUnreadBloc>().add(
               const TicketsUnreadEvent.started(),
             );

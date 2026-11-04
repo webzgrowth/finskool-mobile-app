@@ -15,12 +15,16 @@ import 'package:finskool/src/data/datasource/auth_remote_datasource.dart'
     as _i10;
 import 'package:finskool/src/data/datasource/communities_remote_datasource.dart'
     as _i1023;
+import 'package:finskool/src/data/datasource/invoice_remote_datasource.dart'
+    as _i238;
 import 'package:finskool/src/data/datasource/kyc_remote_datasource.dart'
     as _i236;
 import 'package:finskool/src/data/datasource/notifications_remote_datasource.dart'
     as _i469;
 import 'package:finskool/src/data/datasource/password_reset_remote_datasource.dart'
     as _i44;
+import 'package:finskool/src/data/datasource/performance_remote_datasource.dart'
+    as _i765;
 import 'package:finskool/src/data/datasource/posts_remote_datasource.dart'
     as _i45;
 import 'package:finskool/src/data/datasource/reaction_type_catalog.dart'
@@ -36,6 +40,8 @@ import 'package:finskool/src/data/repository/auth_repository_impl.dart'
     as _i141;
 import 'package:finskool/src/data/repository/communities_repository_impl.dart'
     as _i494;
+import 'package:finskool/src/data/repository/invoice_repository_impl.dart'
+    as _i811;
 import 'package:finskool/src/data/repository/kyc_repository_impl.dart' as _i116;
 import 'package:finskool/src/data/repository/notifications_repository_impl.dart'
     as _i646;
@@ -60,6 +66,8 @@ import 'package:finskool/src/data/socket/tickets_socket.dart' as _i916;
 import 'package:finskool/src/domain/repository/auth_repository.dart' as _i505;
 import 'package:finskool/src/domain/repository/communities_repository.dart'
     as _i122;
+import 'package:finskool/src/domain/repository/invoice_repository.dart'
+    as _i121;
 import 'package:finskool/src/domain/repository/kyc_repository.dart' as _i427;
 import 'package:finskool/src/domain/repository/notifications_repository.dart'
     as _i560;
@@ -93,6 +101,8 @@ import 'package:finskool/src/domain/usecases/auth/update_profile.dart' as _i690;
 import 'package:finskool/src/domain/usecases/auth/verify_otp.dart' as _i584;
 import 'package:finskool/src/domain/usecases/community/get_communities.dart'
     as _i229;
+import 'package:finskool/src/domain/usecases/community/get_invoice_link.dart'
+    as _i40;
 import 'package:finskool/src/domain/usecases/community/get_subscription_expiry.dart'
     as _i632;
 import 'package:finskool/src/domain/usecases/community/get_welcome_kit.dart'
@@ -127,6 +137,10 @@ import 'package:finskool/src/domain/usecases/password_reset/send_reset_code.dart
     as _i402;
 import 'package:finskool/src/domain/usecases/password_reset/verify_reset_code.dart'
     as _i528;
+import 'package:finskool/src/domain/usecases/performance/get_performance_board.dart'
+    as _i530;
+import 'package:finskool/src/domain/usecases/performance/get_performance_boards.dart'
+    as _i418;
 import 'package:finskool/src/domain/usecases/services/cancel_service_request.dart'
     as _i281;
 import 'package:finskool/src/domain/usecases/services/create_service_request.dart'
@@ -206,6 +220,8 @@ import 'package:finskool/src/presentation/bloc/communities/compliance/compliance
     as _i967;
 import 'package:finskool/src/presentation/bloc/communities/filter/community_filter_bloc.dart'
     as _i0;
+import 'package:finskool/src/presentation/bloc/communities/invoice/invoice_download_bloc.dart'
+    as _i697;
 import 'package:finskool/src/presentation/bloc/communities/list/communities_bloc.dart'
     as _i541;
 import 'package:finskool/src/presentation/bloc/communities/purchase/community_purchase_bloc.dart'
@@ -226,6 +242,10 @@ import 'package:finskool/src/presentation/bloc/notifications/settings/push_setti
     as _i1011;
 import 'package:finskool/src/presentation/bloc/notifications/unread/notifications_unread_bloc.dart'
     as _i789;
+import 'package:finskool/src/presentation/bloc/performance/board/performance_bloc.dart'
+    as _i531;
+import 'package:finskool/src/presentation/bloc/performance/boards/performance_boards_bloc.dart'
+    as _i514;
 import 'package:finskool/src/presentation/bloc/profile/edit_profile/edit_profile_bloc.dart'
     as _i1036;
 import 'package:finskool/src/presentation/bloc/services/catalog/services_catalog_bloc.dart'
@@ -275,14 +295,14 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i593.SocialCredentialSource>(
       () => _i593.PlatformSocialCredentialSource(),
     );
-    gh.lazySingleton<_i686.PerformanceRepository>(
-      () => _i679.PerformanceRepositoryImpl(),
-    );
     gh.lazySingleton<_i10.AuthRemoteDatasource>(
       () => _i10.AuthRemoteDatasource(gh<_i373.ApiClient>()),
     );
     gh.lazySingleton<_i1023.CommunitiesRemoteDatasource>(
       () => _i1023.CommunitiesRemoteDatasource(gh<_i373.ApiClient>()),
+    );
+    gh.lazySingleton<_i238.InvoiceRemoteDatasource>(
+      () => _i238.InvoiceRemoteDatasource(gh<_i373.ApiClient>()),
     );
     gh.lazySingleton<_i236.KycRemoteDatasource>(
       () => _i236.KycRemoteDatasource(gh<_i373.ApiClient>()),
@@ -292,6 +312,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i44.PasswordResetRemoteDatasource>(
       () => _i44.PasswordResetRemoteDatasource(gh<_i373.ApiClient>()),
+    );
+    gh.lazySingleton<_i765.PerformanceRemoteDatasource>(
+      () => _i765.PerformanceRemoteDatasource(gh<_i373.ApiClient>()),
     );
     gh.lazySingleton<_i867.ReactionTypeCatalog>(
       () => _i867.ReactionTypeCatalog(gh<_i373.ApiClient>()),
@@ -305,6 +328,11 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i560.NotificationsRepository>(
       () => _i646.NotificationsRepositoryImpl(
         gh<_i469.NotificationsRemoteDatasource>(),
+      ),
+    );
+    gh.lazySingleton<_i686.PerformanceRepository>(
+      () => _i679.PerformanceRepositoryImpl(
+        gh<_i765.PerformanceRemoteDatasource>(),
       ),
     );
     gh.lazySingleton<_i45.PostsRemoteDatasource>(
@@ -358,6 +386,18 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i548.PushService>(
       () => _i548.PushService(gh<_i373.ApiClient>()),
     );
+    gh.lazySingleton<_i530.GetPerformanceBoard>(
+      () => _i530.GetPerformanceBoard(gh<_i686.PerformanceRepository>()),
+    );
+    gh.lazySingleton<_i418.GetPerformanceBoards>(
+      () => _i418.GetPerformanceBoards(gh<_i686.PerformanceRepository>()),
+    );
+    gh.singleton<_i514.PerformanceBoardsBloc>(
+      () => _i514.PerformanceBoardsBloc(gh<_i418.GetPerformanceBoards>()),
+    );
+    gh.lazySingleton<_i121.InvoiceRepository>(
+      () => _i811.InvoiceRepositoryImpl(gh<_i238.InvoiceRemoteDatasource>()),
+    );
     gh.lazySingleton<_i360.ResetPassword>(
       () => _i360.ResetPassword(gh<_i901.PasswordResetRepository>()),
     );
@@ -369,6 +409,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i365.PostsRepository>(
       () => _i1039.PostsRepositoryImpl(gh<_i45.PostsRemoteDatasource>()),
+    );
+    gh.lazySingleton<_i40.GetInvoiceLink>(
+      () => _i40.GetInvoiceLink(gh<_i121.InvoiceRepository>()),
     );
     gh.factory<_i1032.NotificationsInboxBloc>(
       () => _i1032.NotificationsInboxBloc(
@@ -387,8 +430,14 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i505.AuthRepository>(
       () => _i141.AuthRepositoryImpl(gh<_i10.AuthRemoteDatasource>()),
     );
+    gh.factory<_i531.PerformanceBloc>(
+      () => _i531.PerformanceBloc(gh<_i530.GetPerformanceBoard>()),
+    );
     gh.lazySingleton<_i427.KycRepository>(
       () => _i116.KycRepositoryImpl(gh<_i236.KycRemoteDatasource>()),
+    );
+    gh.factory<_i697.InvoiceDownloadBloc>(
+      () => _i697.InvoiceDownloadBloc(gh<_i40.GetInvoiceLink>()),
     );
     gh.lazySingleton<_i229.GetCommunities>(
       () => _i229.GetCommunities(gh<_i122.CommunitiesRepository>()),

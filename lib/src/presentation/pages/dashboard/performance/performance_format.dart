@@ -25,3 +25,30 @@ const _months = [
 /// "24 Aug 2026".
 String formatTradeDate(DateTime d) =>
     '${d.day} ${_months[d.month - 1]} ${d.year}';
+
+/// "1,231.50"-style price, two decimals.
+String formatPrice(num value) => value.toStringAsFixed(2);
+
+/// "-3.39%".
+String formatPct(num value) => '${value.toStringAsFixed(2)}%';
+
+/// "Oct 26" for `2026-10`.
+String formatMonth(String yearMonth) {
+  final parts = yearMonth.split('-');
+  final month = int.tryParse(parts.length > 1 ? parts[1] : '');
+  if (month == null || month < 1 || month > 12) return yearMonth;
+  return '${_months[month - 1]} ${parts[0].substring(2)}';
+}
+
+const _longMonths = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December', //
+];
+
+/// "August 2026" for `2026-08` — how the month pickers name a month.
+String formatMonthLong(String yearMonth) {
+  final parts = yearMonth.split('-');
+  final month = int.tryParse(parts.length > 1 ? parts[1] : '');
+  if (month == null || month < 1 || month > 12) return yearMonth;
+  return '${_longMonths[month - 1]} ${parts[0]}';
+}

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:finskool/src/domain/model/performance/performance_report.dart';
+import 'package:finskool/src/domain/model/performance/performance_summary.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
 
 import '../performance_format.dart';
@@ -8,14 +8,14 @@ import 'perf_card.dart';
 /// Figma `Summary / Overall P/L` (`1554:6533`): the headline figure, the
 /// gross-versus-charges bars and the capital line.
 class OverallPlCard extends StatelessWidget {
-  const OverallPlCard({super.key, required this.report});
+  const OverallPlCard({super.key, required this.summary});
 
-  final PerformanceReport report;
+  final IntradaySummary summary;
 
   @override
   Widget build(BuildContext context) {
     final type = context.performanceType;
-    final overall = report.overallPnl;
+    final overall = summary.overallPnl;
     return PerfCard(
       padding: const EdgeInsets.all(20),
       child: Column(
@@ -24,17 +24,6 @@ class OverallPlCard extends StatelessWidget {
           Row(
             children: [
               Expanded(child: Text('Overall P/L', style: type.cardLabel)),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 4,
-                ),
-                decoration: const BoxDecoration(
-                  color: AppPalette.perfChip,
-                  borderRadius: BorderRadius.all(Radius.circular(999)),
-                ),
-                child: Text(report.marginLabel, style: type.chip),
-              ),
             ],
           ),
           const SizedBox(height: 6),
@@ -53,14 +42,15 @@ class OverallPlCard extends StatelessWidget {
           const SizedBox(height: 18),
           _Bar(
             label: 'Gross P/L',
-            value: report.grossPnl,
-            fraction: report.grossFraction,
+            value: summary.grossPnl,
+            fraction: summary.grossFraction,
           ),
           const SizedBox(height: 14),
           _Bar(
             label: 'Total Charges',
-            value: report.totalCharges,
-            fraction: report.chargesFraction,
+            // A positive cost on the wire; drawn as a deduction.
+            value: -summary.totalCharges,
+            fraction: summary.chargesFraction,
           ),
           const SizedBox(height: 18),
           const Divider(height: 1, thickness: 1, color: AppPalette.perfTrack),
@@ -69,7 +59,7 @@ class OverallPlCard extends StatelessWidget {
             children: [
               Expanded(child: Text('Capital Deployed', style: type.barLabel)),
               Text(
-                formatAmount(report.capitalDeployed),
+                formatAmount(summary.capitalDeployed),
                 style: type.capitalValue,
               ),
             ],

@@ -1,118 +1,76 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:finskool/src/domain/model/performance/performance_trade.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
 
 import '../performance_format.dart';
-import 'stock_logo.dart';
 import 'trade_details.dart';
+import 'trade_row.dart';
 
-/// One trade row (Figma `Trade / n`): logo, name, "#01 · date" with a Buy/Sell
-/// tag, the result and a chevron. Tapping opens the details panel. Expansion
-/// is local `State` — transient UI, not app state (CLAUDE.md "Not everything
-/// is a bloc").
-class TradeTile extends StatefulWidget {
-  const TradeTile({super.key, required this.trade, this.initiallyOpen = false});
+/// An intraday trade: net P&L and return on the right; entry, exit, P/L,
+/// P&L, charges and net P&L when opened.
+class IntradayTradeTile extends StatelessWidget {
+  const IntradayTradeTile({
+    super.key,
+    required this.trade,
+    required this.number,
+    this.initiallyOpen = false,
+  });
 
-  final PerformanceTrade trade;
+  final IntradayTrade trade;
+
+  /// 1-based position in the list — the API sends no serial number.
+  final int number;
   final bool initiallyOpen;
 
   @override
-  State<TradeTile> createState() => _TradeTileState();
-}
-
-class _TradeTileState extends State<TradeTile> {
-  late bool _open = widget.initiallyOpen;
-
-  @override
   Widget build(BuildContext context) {
-    final t = widget.trade;
+    final t = trade;
     final type = context.performanceType;
     final color = pnlColor(t.netPnl);
-    final number = t.number.toString().padLeft(2, '0');
-
-    return Semantics(
-      button: true,
-      expanded: _open,
-      child: InkWell(
-        onTap: () => setState(() => _open = !_open),
-        splashColor: Colors.transparent,
-        highlightColor: Colors.transparent,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 14),
-          child: Column(
-            children: [
-              Row(
-                children: [
-                  StockLogo(stock: t.stock, initials: t.initials),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          t.stock,
-                          style: type.stock,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(height: 3),
-                        Row(
-                          children: [
-                            Flexible(
-                              child: Text(
-                                '#$number  ·  ${formatTradeDate(t.date)}',
-                                style: type.meta,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            _SideTag(side: t.side),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        formatAmount(t.netPnl),
-                        style: type.result.copyWith(color: color),
-                      ),
-                      Text(
-                        '${t.returnPct.toStringAsFixed(2)}%',
-                        style: type.resultPct.copyWith(color: color),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(width: 12),
-                  AnimatedRotation(
-                    turns: _open ? 0 : 0.5,
-                    duration: const Duration(milliseconds: 180),
-                    child: SvgPicture.asset(
-                      'assets/icons/perf_chevron.svg',
-                      width: 12,
-                    ),
-                  ),
-                ],
-              ),
-              AnimatedSize(
-                duration: const Duration(milliseconds: 180),
-                curve: Curves.easeOut,
-                alignment: Alignment.topCenter,
-                child: _open
-                    ? Padding(
-                        padding: const EdgeInsets.only(top: 12),
-                        child: TradeDetails(trade: t),
-                      )
-                    : const SizedBox(width: double.infinity),
-              ),
-            ],
+    return TradeRow(
+      name: t.name,
+      initials: t.initials,
+      logoUrl: t.logoUrl,
+      meta:
+          '#${number.toString().padLeft(2, '0')}  ·  '
+          '${formatTradeDate(t.tradeDate)}',
+      tag: _SideTag(side: t.side),
+      initiallyOpen: initiallyOpen,
+      result: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Text(
+            formatAmount(t.netPnl),
+            style: type.result.copyWith(color: color),
           ),
-        ),
+          Text(
+            formatPct(t.plPct),
+            style: type.resultPct.copyWith(color: color),
+          ),
+        ],
+      ),
+      details: TradeDetailsGrid(
+        rows: [
+          [
+            DetailCell('Entry', formatPrice(t.entryPrice)),
+            DetailCell('Exit', formatPrice(t.exitPrice)),
+            DetailCell(
+              'P/L',
+              formatPrice(t.plPerShare),
+              pnlColor(t.plPerShare),
+            ),
+          ],
+          [
+            DetailCell('P&L', formatAmount(t.grossPnl), pnlColor(t.grossPnl)),
+            // Charges are a positive cost on the wire; shown as a deduction.
+            DetailCell(
+              'Charges',
+              formatAmount(-t.charges),
+              AppPalette.perfMuted,
+            ),
+            DetailCell('Net P&L', formatAmount(t.netPnl), color),
+          ],
+        ],
       ),
     );
   }

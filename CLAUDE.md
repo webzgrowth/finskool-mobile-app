@@ -1472,7 +1472,31 @@ on the left, so a vertical fade would wash out the name while leaving the
 right side unreadable. The "Active" pill is green-on-white, not the
 white-on-green the community cards use.
 
-"Download Invoice" is a no-op placeholder — no invoice generation exists.
+**Download Invoice is real.** Each community row of `GET /auth/mobile/me`
+carries `invoice {id, number, issuedAt, amount, currency, downloadUrl, fileName}`
+for the member's **latest purchase** — or `null` when an admin added them and
+they never paid through the app. **The button is always drawn** (Figma has it
+there, and hiding it made members ask where it went): with no invoice it is dimmed
+and a tap says 'No invoice is available for this subscription yet.' It lands on `CommunityModel.invoice`
+(`SubscriptionInvoice`) via `fromMembershipJson`, and the repository merge copies
+it across from `/me` (the catalog row never has it). The tap does **not** use the
+`downloadUrl` in `/me`: that signed link lives ~5 minutes from when `/me` was read
+and can be null, so `InvoiceDownloadBloc` (`@injectable`, route-scoped on
+`SubscriptionDetailScreen` beside `WelcomeKitBloc`) asks
+`GET /payments/receipts/{id}/download` → `{url, fileName}` **on every tap** and the
+button's listener opens it with `url_launcher` (`LaunchMode.externalApplication` —
+the system viewer/browser is what saves or shares it, the same as the services
+invoice). Rules: one request at a time (the button shows a spinner and a second
+tap asks for nothing); the bloc is `reset` right after the link is opened so it
+never holds a signed link; `SubscriptionInvoice.toJson` omits `downloadUrl`; the
+log interceptor masks `downloadUrl` and the receipts `download` response. Invoices
+have their own `InvoiceRepository` / `InvoiceRemoteDatasource` / `GetInvoiceLink`
+rather than widening `CommunitiesRepository` (several test fakes implement it).
+Pinned by `test/invoice_download_test.dart`. Not built: an in-app PDF viewer or a
+saved copy (no `share_plus` / `path_provider`), and showing the invoice's own
+number / date / amount in the Transaction card — it still shows the stand-in
+receipt from `DemoSubscriptionDatasource`, which the real invoice could replace
+in part.
 "Need help with this plan?" navigates to the Help & support placeholder.
 
 ## Profile
@@ -1979,37 +2003,105 @@ you mean (`get_metadata` returns its name).
 
 ## Performance
 
-`pages/dashboard/performance/` — Final page `1554:6103`, pushed from the
-community card's Performance button (the route passes the community name in
-`extra`). Header, "Overall P/L" card (headline, gross/charges bars, capital),
-"Trades" donut card, the assumptions note, then a trade list whose rows expand
-(local `State`, not a bloc) into Entry / Exit / P/L / P&L / Charges / Net P&L.
+`pages/dashboard/performance/` — pushed from the community card's Performance
+button at `/community/:id/performance` (the route passes the community id in
+the path and the name in `extra`). **Wired to the real API**
+(`mobile-performance-integration.md`): `PerformanceRemoteDatasource` →
+`PerformanceRepository` → `GetPerformanceBoards` / `GetPerformanceBoard` →
+two blocs. The old `PerformanceDemoDatasource` / `PerformanceReport` are gone.
 
-**All data is placeholder.** There is no performance endpoint (checked in the
-spec). `PerformanceDemoDatasource` → `PerformanceRepositoryImpl` →
-`PerformanceReport`, sync like the Profile info screens; becomes a
-`Future<Either>` + bloc when a backend exists. Stock names, dates, sides, net
-P&L and return % are transcribed from Figma; **only trade #1's entry/exit is
-drawn there**, so every other trade's entry price is invented and its
-exit/per-share derived (5X margin on ₹50,000 ⇒ `250000 / entry` shares).
-Figma's own rows sum to -184, not its headline -186, so the headline totals
-are stated, not summed. Delete the datasource when a real source lands.
-Everything else — overall P/L, win/loss shares, bar fractions — is **derived in
-`PerformanceReport`**, so a real feed only supplies the raw figures.
+* **`PerformanceBoardsBloc`** (`@singleton`, `GET /mobile/performance/boards`):
+  which communities have a board. Loaded by the shell on `authenticated`, reset
+  in `_forgetSession`. `CommunitiesScreen` reads it, so **the Performance button
+  appears on any card whose community has a board — subscribed or not**: a free
+  member opens the preview. It used to show only on subscribed cards. A failed
+  load is quiet (buttons stay hidden) and never blanks a list already held.
+* **`PerformanceBloc`** (`@injectable`, route-scoped on `PerformanceScreen`, so
+  one community's trades can't show under the next): one board's query —
+  `load`, `segmentChanged`, `filterChanged`, `loadMore` — with a `_generation`
+  guard that drops a slow answer for a list the member has left.
+  **A month filter narrows the summary, the trades and `hiddenCount` together**
+  (guide, 2026-11-04 revision — the first version said the month never changed
+  the summary; it does). So `state.board` is the **first page of the current
+  query** and **every filter change replaces it whole**: the cards and the list
+  can never describe different months. `loadMore` only extends `items`. A failed
+  filter puts the old filter back and keeps the board. A segment change replaces
+  everything and clears the filter (each tab has its own `months`).
+  `INVALID_CURSOR` restarts from page one; `PERFORMANCE_BOARD_NOT_FOUND` is
+  "nothing to show", not "try again".
 
-Design notes worth keeping: styles live in `PerformanceTypography`
-(`context.performanceType`) and the `AppPalette` "Performance screen" block;
-the header subtitle is Nunito in Figma (not bundled → Inter). The header
-raster `assets/images/performance_header_bg.png` was cut from Figma's own
-render and **cleaned** — the status-bar row interpolated and the back
-button/title block patched from a grid-period-shifted clean region — so no
-text is baked in; regenerate it the same way if the design changes. The donut
-is a `CustomPainter` (`TradeDonut`). Stock-logo tones are eight pale
-plate/ink pairs, hand-mapped for Figma's stocks and hashed for any other.
-`test/performance_goldens_test.dart` (tag `golden`) writes
-`build/performance_goldens/performance.png` beside Figma's export in
-`build/figma_perf/full.png`; offsets were checked numerically against the
-frame (e.g. "Total Trades" at y 507.5, list title at 648).
+Three kinds, one screen: `intraday` (`OverallPlCard`, the donut card, the note,
+`IntradayTradeTile`), `swing` and `investor` (`SwingSummaryCard` with a
+hit-rate card per period, `SwingTradeTile`). An `investor` board draws
+`SegmentTabs` (Investor / Long Term / US Investment) — the summary, trades and
+`hiddenCount` are all per segment. Both kinds share `TradeRow` (the expandable
+chrome) and `TradeDetailsGrid`. The summary models are a sealed
+`PerformanceSummary` (`IntradaySummary` / `SwingSummary`) and trades a sealed
+`PerformanceTrade`; `PerformanceKind` / `PerformanceSegment` parse with a
+nullable `from…` like `ReactionTypeX`, so an unknown kind drops that board
+rather than failing the list (an unknown *summary* kind is an `ApiException`).
+
+Rules worth not "fixing":
+
+* **Free is not an error.** `access` decides the screen, never the app's own
+  subscription list. A free member sees a short trade list, the **same summary**
+  as a paid one, and — when `hiddenCount > 0` — an `UnlockBanner`
+  ("N more trades for subscribers"). *See plans* just pops: the plans are on the
+  community's card in the list the screen was opened from.
+* **The numbers are the server's.** Nothing is recomputed. The only app-side
+  arithmetic is layout (`IntradaySummary.grossFraction`/`chargesFraction`, the
+  bar widths) and the donut, which draws both server shares and leaves the rest
+  a neutral track — a flat trade is neither profit nor loss, so the shares can
+  sum to under 100 and the loss arc must not be "whatever profit isn't".
+  `totalCharges` and a trade's `charges` are **positive costs** on the wire and
+  are shown negated. With a filter on, `capitalDeployed` stays the same; with no
+  trades in the months everything else is `0` and the donut is a bare track.
+* **Swing "Target Met" is the exit date, never the CMP**; `cmp` is as of the
+  admin's last upload, not live; a null return / CMP / holding days is a dash and
+  a null exit date is "Open".
+* **Rows have no serial number**, so the `#01` is the position in the loaded
+  list (newest first). Dates are calendar dates (`asDate` builds them from the
+  parts, no zone).
+* **The month filter is the API's, not a calendar.** `PerformanceMonthFilter`
+  (`from`/`to`, `YYYY-MM`, inclusive; a single month is `from == to`) goes out as
+  `month=` for one month and `fromMonth`+`toMonth` for a run — never both (422).
+  The months offered are `board.months` ("months that have trades, newest first,
+  whatever the filter and access"), so an empty month is never offered.
+  **Intraday** gets one picker (`All months` or a month); **swing and investor**
+  get From / To and a ✕. `MonthFilter` reports a range only once **both** ends
+  are set, disables To months before From, and pulls To up if From moves past
+  it; the half-chosen state is local widget state, and the screen keys it by
+  segment so a tab change starts afresh. While a filter is on, the swing summary
+  shows `summary.range` **instead of** the admin's `periods` cards (which never
+  change with the filter), and back again when it clears. The cards stay up,
+  dimmed, until the filtered answer replaces them.
+* **Free + filter**: `hiddenCount` counts only the hidden trades inside the
+  picked months, and the free limits are over the whole board, so an old month
+  can be an **empty list with `hiddenCount > 0`** — correct; the banner shows.
+* **Stock logos**: every row has `logoUrl` (null = the stock isn't in the
+  server's table, normal). `StockLogo` keeps its 38px r12 footprint, draws the
+  logo with `contain` on white, and shows the initials while it loads and if it
+  fails (`CachedNetworkImage`, cached by URL). The guide says "round avatar";
+  the intraday design's tile is r12, so that shape is kept for both.
+* The margin chip ("5X margin") on the P/L card is **gone**: the API has no such
+  field, only `noteText`, which is shown as the banner as sent.
+
+**Not in Figma:** the swing/investor summary, the segment tabs, the month chips,
+the free-member banner and the empty/error states are built from the intraday
+screen's own tokens (`PerformanceTypography`, the `AppPalette` "Performance
+screen" block). Flag them for the designer. The header raster
+`assets/images/performance_header_bg.png` was cut from Figma's render and
+cleaned; regenerate it the same way if the design changes.
+
+Tests: `performance_models_test` (every payload shape in the guide, including
+the filter, `months`, `range` and `logoUrl`), `performance_bloc_test` (paging,
+a filter replacing the whole board, segment, stale answers, the cursor and
+not-found failures, the boards list), `performance_screen_test` (the banner,
+tabs, the intraday and From/To pickers, range card swap, disabled To months)
+and `performance_goldens_test` (tag `golden`, renders an intraday and a filtered
+free swing board to `build/performance_goldens/`; its pickers read "Select"
+because the golden injects a filtered answer without the request that would set
+them). The `TradesSummaryCard` also shows each side's trade *count* beside its %.
 
 ## Push notifications, the inbox and the in-app banner
 
@@ -2139,7 +2231,7 @@ on** (debug too) with no per-screen exceptions.
 
 The tab blocs (`FeedBloc`, `CommunitiesBloc`, `ServicesCatalogBloc`, the three
 filter blocs, `CommunityPurchaseBloc`, `EditProfileBloc`, `LoginFormBloc`,
-`KycBloc`, `ComplianceBloc`, `SocialAuthBloc`) are
+`KycBloc`, `ComplianceBloc`, `SocialAuthBloc`, `PerformanceBoardsBloc`) are
 built once for the whole app, so **they outlive a logout**. Left alone they
 handed the previous member's feed, subscriptions, services and profile to the
 next login — and, because they already held data, skipped the load and its
@@ -2147,7 +2239,7 @@ skeleton entirely (`FeedScreen` loads only when `posts.isEmpty`;
 `ServicesCatalogBloc` returns early when `isLoaded`). The shell's
 `unauthenticated` listener now calls `_forgetSession`, which resets each of them
 (`FeedEvent.reset`, `CommunitiesEvent.reset`, `ServicesCatalogEvent.reset`, the
-filters' queries, `cleared`, `prefill(null)`, `LoginFormEvent.initial`, `KycEvent.reset`, `ComplianceEvent.initial`, `SocialAuthEvent.reset`). A load
+filters' queries, `cleared`, `prefill(null)`, `LoginFormEvent.initial`, `KycEvent.reset`, `ComplianceEvent.initial`, `SocialAuthEvent.reset`, `PerformanceBoardsEvent.reset`). A load
 still in flight at sign-out is dropped by a generation/epoch counter so it can't
 repopulate the next session. **Any new app-lifetime bloc that holds
 account data must be added there**; route-scoped blocs need nothing.

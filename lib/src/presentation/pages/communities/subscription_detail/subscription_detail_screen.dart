@@ -6,6 +6,7 @@ import 'package:finskool/src/comman/enum.dart';
 import 'package:finskool/src/comman/routes.dart';
 import 'package:finskool/src/comman/widgets/teal_sheet_scaffold.dart';
 import 'package:finskool/src/domain/model/community/community_model.dart';
+import 'package:finskool/src/presentation/bloc/communities/invoice/invoice_download_bloc.dart';
 import 'package:finskool/src/presentation/bloc/communities/welcome_kit/welcome_kit_bloc.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
 
@@ -22,7 +23,8 @@ import 'widgets/welcome_kit_skeleton.dart';
 ///
 /// The Welcome Kit is **fetched** (`GET /mobile/communities/{id}/welcome-kit`)
 /// by a [WelcomeKitBloc] scoped to this screen, so each subscription shows its
-/// own admin-published kit — not a design sample keyed by community name.
+/// own admin-published kit — not a design sample keyed by community name. An
+/// [InvoiceDownloadBloc] scoped here too backs Download Invoice.
 class SubscriptionDetailScreen extends StatelessWidget {
   const SubscriptionDetailScreen({super.key, required this.community});
 
@@ -30,9 +32,16 @@ class SubscriptionDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) =>
-          locator<WelcomeKitBloc>()..add(WelcomeKitEvent.load(community.id)),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (_) =>
+              locator<WelcomeKitBloc>()
+                ..add(WelcomeKitEvent.load(community.id)),
+        ),
+        // Route-scoped: it holds a short-lived signed link.
+        BlocProvider(create: (_) => locator<InvoiceDownloadBloc>()),
+      ],
       child: SubscriptionDetailView(community: community),
     );
   }
@@ -67,7 +76,10 @@ class SubscriptionDetailView extends StatelessWidget {
         if (info != null) ...[
           SubscriptionPlanSection(community: community, info: info),
           const SizedBox(height: 16),
-          SubscriptionTransactionSection(info: info),
+          SubscriptionTransactionSection(
+            info: info,
+            invoice: community.invoice,
+          ),
           const SizedBox(height: 20),
         ],
         // The kit brackets "What You get": its cards and notices come before,

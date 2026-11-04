@@ -23,6 +23,9 @@ class ApiLoggingInterceptor extends Interceptor {
     'signupToken',
     'linkToken',
     'otpToken',
+    // A signed link to an invoice PDF (valid minutes): anyone holding it can
+    // read the invoice, so it is masked like a credential.
+    'downloadUrl',
     // A Razorpay proof — not needed in a log line, and the signature is what
     // authorises a payment.
     'razorpaySignature',
@@ -51,8 +54,12 @@ class ApiLoggingInterceptor extends Interceptor {
   void onResponse(Response response, ResponseInterceptorHandler handler) {
     // The checkout URL's `#t=` token is a credential (single use, but live
     // for two minutes), so that body is never printed.
-    final body = response.requestOptions.path.contains('checkout-sessions')
+    final path = response.requestOptions.path;
+    final body = path.contains('checkout-sessions')
         ? '<checkout session redacted>'
+        // `{url, fileName}` — the url is the signed PDF link itself.
+        : path.contains('/receipts/') && path.endsWith('/download')
+        ? '<invoice link redacted>'
         : _redact(response.data);
     logger.debug(
       '← ${response.statusCode} ${response.requestOptions.uri}  $body',

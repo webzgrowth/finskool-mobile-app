@@ -184,8 +184,9 @@ class _CommunityCardState extends State<CommunityCard> {
                                   widget.onCta(showPricing ? _plan : null),
                             ),
                           ),
-                          if (widget.onPerformance != null &&
-                              community.access.isSubscribed) ...[
+                          // Offered whenever the community has a board — the
+                          // screen decides what a free member may see.
+                          if (widget.onPerformance != null) ...[
                             const SizedBox(width: AppSpacing.md),
                             PerformanceButton(onPressed: widget.onPerformance!),
                           ],

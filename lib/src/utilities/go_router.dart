@@ -152,8 +152,10 @@ GoRouter routerinit = GoRouter(
     GoRoute(
       name: AppRoutes.COMMUNITY_PERFORMANCE_ROUTE_NAME,
       path: AppRoutes.COMMUNITY_PERFORMANCE_ROUTE_PATH,
-      builder: (BuildContext context, GoRouterState state) =>
-          PerformanceScreen(communityName: state.extra as String?),
+      builder: (BuildContext context, GoRouterState state) => PerformanceScreen(
+        communityId: state.pathParameters['id']!,
+        communityName: state.extra as String?,
+      ),
     ),
     GoRoute(
       name: AppRoutes.SUBSCRIPTION_DETAIL_ROUTE_NAME,

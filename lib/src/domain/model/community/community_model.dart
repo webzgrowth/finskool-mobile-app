@@ -1,6 +1,7 @@
 import 'package:finskool/src/domain/model/community/community_access.dart';
 import 'package:finskool/src/domain/model/community/community_plan_model.dart';
 import 'package:finskool/src/domain/model/community/subscription_info.dart';
+import 'package:finskool/src/domain/model/community/subscription_invoice.dart';
 
 /// A community, in both the shapes the app sees it.
 ///
@@ -33,6 +34,7 @@ class CommunityModel {
     this.benefits = const [],
     this.subscribedUntil,
     this.subscriptionInfo,
+    this.invoice,
   });
 
   final String id;
@@ -68,6 +70,10 @@ class CommunityModel {
   /// Plan, transaction and auto-renew details for the Subscription Detail
   /// screen. Only set on subscribed communities with known purchase data.
   final SubscriptionInfo? subscriptionInfo;
+
+  /// The invoice for the latest purchase, from `/auth/mobile/me`. Null when the
+  /// member never paid through the app — then there is nothing to download.
+  final SubscriptionInvoice? invoice;
 
   /// A membership the member **paid** for: subscribed, and a community that
   /// has plans. The free community every account is auto-joined to is excluded
@@ -137,6 +143,7 @@ class CommunityModel {
     int? newAnnouncements,
     DateTime? subscribedUntil,
     SubscriptionInfo? subscriptionInfo,
+    SubscriptionInvoice? invoice,
   }) => CommunityModel(
     id: id,
     name: name,
@@ -154,6 +161,7 @@ class CommunityModel {
     benefits: benefits,
     subscribedUntil: subscribedUntil ?? this.subscribedUntil,
     subscriptionInfo: subscriptionInfo ?? this.subscriptionInfo,
+    invoice: invoice ?? this.invoice,
   );
 
   /// One row of `GET /mobile/communities` — the purchasable catalog.
@@ -217,6 +225,7 @@ class CommunityModel {
         badgeUrl: json['badgeUrl'] as String?,
         access: CommunityAccess.subscribed,
         subscribedUntil: _date(json['expiresAt']),
+        invoice: SubscriptionInvoice.fromJson(json['invoice']),
       );
 
   static DateTime? _date(Object? value) =>
@@ -259,6 +268,7 @@ class CommunityModel {
         : SubscriptionInfo.fromJson(
             json['subscriptionInfo'] as Map<String, dynamic>,
           ),
+    invoice: SubscriptionInvoice.fromJson(json['invoice']),
   );
 
   Map<String, dynamic> toJson() => {
@@ -278,5 +288,6 @@ class CommunityModel {
     'benefits': benefits,
     'subscribedUntil': subscribedUntil?.toIso8601String(),
     'subscriptionInfo': subscriptionInfo?.toJson(),
+    'invoice': invoice?.toJson(),
   };
 }

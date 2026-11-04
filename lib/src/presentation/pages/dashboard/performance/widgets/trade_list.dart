@@ -1,22 +1,30 @@
 import 'package:flutter/material.dart';
-import 'package:finskool/src/domain/model/performance/performance_report.dart';
+import 'package:finskool/src/domain/model/performance/performance_trade.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
 
 import 'perf_card.dart';
+import 'swing_trade_tile.dart';
 import 'trade_tile.dart';
 
-/// Figma `List header` + `Trades` (`1554:6585` / `1554:6589`): the dashboard
-/// title with a lime count pill, then every trade in one card split by
-/// hairlines. The first trade opens by default, as Figma draws it.
+/// The trades a member can see: a title with a count pill, then the rows.
+/// Intraday and swing rows differ; the list itself does not.
 class TradeList extends StatelessWidget {
-  const TradeList({super.key, required this.report});
+  const TradeList({
+    super.key,
+    required this.title,
+    required this.trades,
+    required this.hasMore,
+  });
 
-  final PerformanceReport report;
+  final String title;
+  final List<PerformanceTrade> trades;
+
+  /// More pages exist, so the count is "N+".
+  final bool hasMore;
 
   @override
   Widget build(BuildContext context) {
     final type = context.performanceType;
-    final trades = report.trades;
     return Column(
       children: [
         Padding(
@@ -25,7 +33,7 @@ class TradeList extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  '${report.communityName} Dashboard',
+                  title,
                   style: type.listTitle,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -37,28 +45,45 @@ class TradeList extends StatelessWidget {
                   color: AppPalette.perfCountPill,
                   borderRadius: BorderRadius.circular(999),
                 ),
-                child: Text('${trades.length} trades', style: type.count),
+                child: Text(
+                  '${trades.length}${hasMore ? '+' : ''} trades',
+                  style: type.count,
+                ),
               ),
             ],
           ),
         ),
         const SizedBox(height: 14),
-        PerfCard(
-          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 4),
-          child: Column(
-            children: [
-              for (var i = 0; i < trades.length; i++) ...[
-                if (i > 0)
-                  const Divider(
-                    height: 1,
-                    thickness: 1,
-                    color: AppPalette.perfRowRule,
-                  ),
-                TradeTile(trade: trades[i], initiallyOpen: i == 0),
+        if (trades.isNotEmpty)
+          PerfCard(
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 4),
+            child: Column(
+              children: [
+                for (var i = 0; i < trades.length; i++) ...[
+                  if (i > 0)
+                    const Divider(
+                      height: 1,
+                      thickness: 1,
+                      color: AppPalette.perfRowRule,
+                    ),
+                  switch (trades[i]) {
+                    final IntradayTrade t => IntradayTradeTile(
+                      key: ValueKey(t.id),
+                      trade: t,
+                      number: i + 1,
+                      initiallyOpen: i == 0,
+                    ),
+                    final SwingTrade t => SwingTradeTile(
+                      key: ValueKey(t.id),
+                      trade: t,
+                      number: i + 1,
+                      initiallyOpen: i == 0,
+                    ),
+                  },
+                ],
               ],
-            ],
+            ),
           ),
-        ),
       ],
     );
   }

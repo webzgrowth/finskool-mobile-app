@@ -20,6 +20,7 @@ import 'package:finskool/src/presentation/bloc/communities/list/communities_bloc
 import 'package:finskool/src/presentation/bloc/communities/filter/community_filter_bloc.dart';
 import 'package:finskool/src/presentation/bloc/communities/purchase/community_purchase_bloc.dart';
 import 'package:finskool/src/presentation/bloc/kyc/status/kyc_bloc.dart';
+import 'package:finskool/src/presentation/bloc/performance/boards/performance_boards_bloc.dart';
 import 'package:finskool/src/comman/storage_keys.dart';
 import 'package:finskool/src/presentation/bloc/communities/compliance/compliance_bloc.dart';
 import 'package:finskool/src/presentation/bloc/profile/edit_profile/edit_profile_bloc.dart';
@@ -101,6 +102,7 @@ class MyApp extends StatelessWidget {
         // What the server holds of the member's DOB + PAN (masked), for the
         // Profile. In memory only.
         BlocProvider(create: (_) => locator<KycBloc>()),
+        BlocProvider(create: (_) => locator<PerformanceBoardsBloc>()),
         BlocProvider(create: (_) => locator<EditProfileBloc>()),
       ],
       child: MaterialApp.router(

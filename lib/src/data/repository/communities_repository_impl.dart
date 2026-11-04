@@ -52,6 +52,8 @@ class CommunitiesRepositoryImpl implements CommunitiesRepository {
               community.copyWith(
                 access: CommunityAccess.subscribed,
                 subscribedUntil: subscription.subscribedUntil,
+                // Only `/me` knows the member's invoice.
+                invoice: subscription.invoice,
               ),
             );
           }

@@ -9,6 +9,7 @@ import 'package:finskool/src/domain/model/community/community_access.dart';
 import 'package:finskool/src/domain/model/community/community_model.dart';
 import 'package:finskool/src/domain/model/community/community_plan_model.dart';
 import 'package:finskool/src/presentation/bloc/communities/filter/community_filter_bloc.dart';
+import 'package:finskool/src/presentation/bloc/performance/boards/performance_boards_bloc.dart';
 import 'package:finskool/src/presentation/bloc/communities/list/communities_bloc.dart';
 import 'package:finskool/src/presentation/bloc/notifications/unread/notifications_unread_bloc.dart';
 
@@ -69,6 +70,7 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
               return BlocBuilder<CommunitiesBloc, CommunitiesState>(
                 builder: (context, state) {
                   final communities = _visible(state, filterState.query);
+                  final boards = context.watch<PerformanceBoardsBloc>().state;
                   return CustomScrollView(
                     slivers: [
                       SliverAppBar(
@@ -120,10 +122,14 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
                           itemBuilder: (context, i) => CommunityCard(
                             community: communities[i],
                             onCta: (plan) => _onCta(communities[i], plan),
-                            onPerformance: () => context.push(
-                              '/community/${communities[i].id}/performance',
-                              extra: communities[i].name,
-                            ),
+                            // Only a community the server says has a board —
+                            // subscribed or not: a free member opens the preview.
+                            onPerformance: boards.hasBoard(communities[i].id)
+                                ? () => context.push(
+                                    '/community/${communities[i].id}/performance',
+                                    extra: communities[i].name,
+                                  )
+                                : null,
                           ),
                         ),
                       const SliverToBoxAdapter(child: SizedBox(height: 20)),

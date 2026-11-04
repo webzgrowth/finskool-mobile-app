@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:finskool/src/domain/model/performance/performance_report.dart';
+import 'package:finskool/src/domain/model/performance/performance_summary.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
 
 import 'perf_card.dart';
@@ -8,9 +8,9 @@ import 'trade_donut.dart';
 /// Figma `Summary / Trades` (`1554:6562`): the donut beside the profit and
 /// loss shares.
 class TradesSummaryCard extends StatelessWidget {
-  const TradesSummaryCard({super.key, required this.report});
+  const TradesSummaryCard({super.key, required this.summary});
 
-  final PerformanceReport report;
+  final IntradaySummary summary;
 
   @override
   Widget build(BuildContext context) {
@@ -19,8 +19,9 @@ class TradesSummaryCard extends StatelessWidget {
       child: Row(
         children: [
           TradeDonut(
-            total: report.trades.length,
-            profitShare: report.profitShare,
+            total: summary.totalTrades,
+            profitShare: summary.profitMakingPct / 100,
+            lossShare: summary.lossMakingPct / 100,
           ),
           const SizedBox(width: 20),
           Expanded(
@@ -28,7 +29,8 @@ class TradesSummaryCard extends StatelessWidget {
               children: [
                 _Share(
                   label: 'Profit Making Trades',
-                  share: report.profitShare,
+                  count: summary.profitMakingTrades,
+                  share: summary.profitMakingPct / 100,
                   color: AppPalette.perfProfit,
                 ),
                 const Padding(
@@ -41,7 +43,8 @@ class TradesSummaryCard extends StatelessWidget {
                 ),
                 _Share(
                   label: 'Loss Making Trades',
-                  share: report.lossShare,
+                  count: summary.lossMakingTrades,
+                  share: summary.lossMakingPct / 100,
                   color: AppPalette.ticketRed,
                 ),
               ],
@@ -54,9 +57,15 @@ class TradesSummaryCard extends StatelessWidget {
 }
 
 class _Share extends StatelessWidget {
-  const _Share({required this.label, required this.share, required this.color});
+  const _Share({
+    required this.label,
+    required this.count,
+    required this.share,
+    required this.color,
+  });
 
   final String label;
+  final int count;
   final double share;
   final Color color;
 
@@ -82,6 +91,7 @@ class _Share extends StatelessWidget {
           '${(share * 100).toStringAsFixed(2)}%',
           style: type.legendValue.copyWith(color: color),
         ),
+        Text(count == 1 ? '1 trade' : '$count trades', style: type.meta),
       ],
     );
   }

@@ -68,6 +68,12 @@ class Api {
   /// carries a one-time token — never log or store it.
   static const String checkoutSessions = '/payments/checkout-sessions';
 
+  /// A **fresh** signed link (`{url, fileName}`, good for a few minutes) to a
+  /// subscription invoice. The `downloadUrl` inside `/me` is the same kind of
+  /// link but may be stale or null by the time the member taps.
+  static String receiptDownload(String receiptId) =>
+      '/payments/receipts/$receiptId/download';
+
   ///  =================================================================
   ///  ********************** Forgot password **************************
   ///  =================================================================
@@ -87,6 +93,13 @@ class Api {
   /// sends them once (a second call is `409 KYC_ALREADY_SUBMITTED`); `PUT`
   /// edits them. The full PAN is never returned.
   static const String kyc = '/auth/mobile/me/kyc';
+
+  /// Performance (`mobile-performance-integration.md`): which communities have
+  /// a board, and one board's summary + trades (`segment`, `month`, `cursor`,
+  /// `limit`). Every member may call both — a free member gets a preview.
+  static const String performanceBoards = '/mobile/performance/boards';
+  static String performanceBoard(String communityId) =>
+      '/mobile/performance/communities/$communityId';
 
   ///  =================================================================
   ///  ************************* Communities ***************************
