@@ -12,14 +12,12 @@ class SubscriptionInfo {
     required this.startedOn,
     required this.transactionId,
     required this.paidOn,
-    required this.paymentMethod,
   });
 
   final CommunityPlanModel plan;
   final DateTime startedOn;
   final String transactionId;
   final DateTime paidOn;
-  final String paymentMethod;
 
   factory SubscriptionInfo.fromJson(Map<String, dynamic> json) =>
       SubscriptionInfo(
@@ -27,7 +25,6 @@ class SubscriptionInfo {
         startedOn: DateTime.parse(json['startedOn'] as String),
         transactionId: json['transactionId'] as String,
         paidOn: DateTime.parse(json['paidOn'] as String),
-        paymentMethod: json['paymentMethod'] as String,
       );
 
   Map<String, dynamic> toJson() => {
@@ -35,6 +32,5 @@ class SubscriptionInfo {
     'startedOn': startedOn.toIso8601String(),
     'transactionId': transactionId,
     'paidOn': paidOn.toIso8601String(),
-    'paymentMethod': paymentMethod,
   };
 }

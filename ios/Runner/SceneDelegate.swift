@@ -13,7 +13,9 @@ import UIKit
 ///
 /// Set `blockCapture` to `false` to turn all of it off.
 class SceneDelegate: FlutterSceneDelegate {
-  private let blockCapture = true
+  // TEMPORARILY OFF so testers can screenshot and screen-record bugs to send
+  // back. Set to `true` before an App Store release.
+  private let blockCapture = false
   private var secureField: UITextField?
   private var cover: UIVisualEffectView?
 

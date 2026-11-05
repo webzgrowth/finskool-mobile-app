@@ -11,6 +11,7 @@ class PostAuthorRow extends StatelessWidget {
     required this.name,
     required this.avatarUrl,
     required this.postedAt,
+    this.pinned = false,
   });
 
   final String name;
@@ -19,6 +20,10 @@ class PostAuthorRow extends StatelessWidget {
   /// rather than firing a request that's guaranteed to 404.
   final String? avatarUrl;
   final DateTime postedAt;
+
+  /// The post carries a `pinOrder`: a "Pinned" tag sits at the far end of the
+  /// row. Not in Figma — built from the card's own tokens; flag for the designer.
+  final bool pinned;
 
   /// Both sides are converted to IST before anything is read off them. The
   /// API sends UTC, so formatting `postedAt` raw printed UTC — and comparing
@@ -60,7 +65,38 @@ class PostAuthorRow extends StatelessWidget {
             Text(_timeLabel, style: type.timestamp),
           ],
         ),
+        if (pinned) ...[const Spacer(), _PinnedTag(style: type.timestamp)],
       ],
+    );
+  }
+}
+
+/// A small teal "Pinned" tag: the push-pin glyph and the word on a pale plate.
+class _PinnedTag extends StatelessWidget {
+  const _PinnedTag({required this.style});
+
+  final TextStyle style;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: AppPalette.infoVerifiedPlate,
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(
+            Icons.push_pin_rounded,
+            size: 11,
+            color: AppPalette.badgeTeal,
+          ),
+          const SizedBox(width: 4),
+          Text('Pinned', style: style.copyWith(color: AppPalette.badgeTeal)),
+        ],
+      ),
     );
   }
 }

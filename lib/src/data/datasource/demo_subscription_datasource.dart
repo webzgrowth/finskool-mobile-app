@@ -59,9 +59,6 @@ class DemoSubscriptionDatasource {
           ? 'INCLUDED-${_reference(community.id)}'
           : 'PAY-${started.year}-${_reference(community.id)}',
       paidOn: started,
-      paymentMethod: plan.price == 0
-          ? 'Included with your account'
-          : 'UPI · PayU',
     );
   }
 

@@ -63,15 +63,6 @@ class SubscriptionTransactionSection extends StatelessWidget {
                           .format(info.paidOn),
                     ),
                   ),
-                  const GridVRule(),
-                  Expanded(
-                    flex: 100,
-                    child: DetailCell(
-                      glyph: 'assets/icons/sub_card.svg',
-                      label: 'Payment method',
-                      value: info.paymentMethod,
-                    ),
-                  ),
                 ],
               ),
             ),

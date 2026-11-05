@@ -179,7 +179,6 @@ void main() {
       startedOn: DateTime(2026, 9, 1),
       transactionId: 'TXN1',
       paidOn: DateTime(2026, 9, 1),
-      paymentMethod: 'UPI',
     );
 
     Future<_Repo> pumpSection(

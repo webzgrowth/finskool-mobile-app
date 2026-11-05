@@ -49,9 +49,25 @@ class FeedPostModel {
   final List<PostMediaModel> media;
   final List<String> hashtags;
 
-  /// 1-3 when pinned. The API already sorts pinned posts first, so this is
-  /// only here for a future "Pinned" ribbon.
+  /// 1-3 when pinned (`pinOrder`, nullable). The API sorts pinned posts first
+  /// too, but the feed re-asserts it with [pinnedFirst] so a pinned post is on
+  /// top whatever order pages and updates arrive in.
   final int? pinOrder;
+
+  /// Pinned posts first, by `pinOrder` (1, 2, 3), then everything else in the
+  /// order given. **Stable** — Dart's `List.sort` is not, and the unpinned
+  /// posts must keep the server's newest-first order.
+  static List<FeedPostModel> pinnedFirst(List<FeedPostModel> posts) {
+    final indexed = [for (var i = 0; i < posts.length; i++) (i, posts[i])];
+    indexed.sort((a, b) {
+      final pa = a.$2.pinOrder, pb = b.$2.pinOrder;
+      if (pa != null && pb != null && pa != pb) return pa.compareTo(pb);
+      if (pa != null && pb == null) return -1;
+      if (pa == null && pb != null) return 1;
+      return a.$1.compareTo(b.$1);
+    });
+    return [for (final e in indexed) e.$2];
+  }
 
   /// No comments endpoint exists yet — carried so the card can grow a
   /// comment affordance later without a model change.

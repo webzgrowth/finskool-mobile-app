@@ -44,6 +44,7 @@ class FeedPostCard extends StatelessWidget {
             name: post.authorName,
             avatarUrl: post.authorAvatarUrl,
             postedAt: post.postedAt,
+            pinned: post.isPinned,
           ),
           const SizedBox(height: 12),
           Text(post.title, style: type.title),

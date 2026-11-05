@@ -23,7 +23,6 @@ void main() {
     // Counted back from the real expiry by the plan's own duration.
     expect(info.startedOn, DateTime(2026, 4, 1));
     expect(info.transactionId, startsWith('PAY-2026-'));
-    expect(info.paymentMethod, 'UPI · PayU');
   });
 
   test('the free community gets a truthful zero-rupee card, not a price', () {
@@ -36,7 +35,6 @@ void main() {
     final info = DemoSubscriptionDatasource.forCommunity(free)!;
     expect(info.plan.price, 0);
     expect(info.plan.label, 'Free membership');
-    expect(info.paymentMethod, 'Included with your account');
     expect(info.transactionId, startsWith('INCLUDED-'));
   });
 

@@ -514,6 +514,15 @@ dropped event per tick. The
 endpoint's `date`/`order` params are plumbed through `GetPosts` but have no
 UI.
 
+**Pinned posts.** A post carries `pinOrder` (1–3, null = not pinned). The server
+sorts pinned posts first, and `FeedPostModel.pinnedFirst` re-asserts it on every
+load and every appended page (a **stable** sort — Dart's `List.sort` isn't, and
+the unpinned posts must keep the server's order), so a pinned post is on top
+however pages arrive. A pinned card shows a teal **Pinned** tag at the far end of
+the author row (`PostAuthorRow.pinned`; not in Figma — flag for the designer).
+It is the same feed everywhere, so this holds in the Feed tab and inside a
+community. Pinned by `test/pinned_posts_test.dart`.
+
 The feed is always scoped to **exactly one community**. `communityId` is
 omitted, which asks for the one free community every account is subscribed
 to at registration. `FeedEvent.loadFeed({communityId})` carries it for when
@@ -1366,7 +1375,8 @@ different versions of these screens.
 "My Subscription" rows, routed at `/subscription-detail`. Receives the full
 `CommunityModel` via `state.extra`. Shows four sections: a community card
 header (cover image + name + "Active" pill), Plan Details (plan, amount,
-dates, auto-renew toggle), Transaction Details (ID, paid date, method,
+dates, auto-renew toggle), Transaction Details (ID, paid date — the payment-method cell was removed on
+request, along with `SubscriptionInfo.paymentMethod`,
 Download Invoice), and What You Get (reuses `BenefitCheck` + `boldSpans`).
 
 `SubscriptionInfo` (`domain/model/community/subscription_info.dart`) is a
@@ -2240,8 +2250,12 @@ pull-to-refresh and on every return to the foreground.
 
 ## Screenshot and recording protection
 
-The app shows invoices, P&L and billing details, so capture is blocked, **always
-on** (debug too) with no per-screen exceptions.
+**Currently switched OFF** so testers can screenshot and screen-record bugs to
+send back. The code is intact behind one switch per platform
+(`MainActivity.blockCapture`, `SceneDelegate.blockCapture`) — **set both back to
+`true` before any store release**: the app shows invoices, P&L and billing
+details. When on, capture is blocked **always** (debug too) with no per-screen
+exceptions.
 
 * **Android** — `MainActivity` sets `FLAG_SECURE` before the first frame:
   screenshots are refused, recordings and casting go black, and the recents card

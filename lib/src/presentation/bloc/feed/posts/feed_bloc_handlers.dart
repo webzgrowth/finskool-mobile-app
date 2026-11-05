@@ -27,7 +27,7 @@ extension FeedBlocHandlers on FeedBloc {
           state.copyWith(
             state: RequestState.loaded,
             message: '',
-            posts: page.posts,
+            posts: FeedPostModel.pinnedFirst(page.posts),
             page: page.page,
             hasMore: page.hasMore,
             isLoadingMore: false,
@@ -56,7 +56,7 @@ extension FeedBlocHandlers on FeedBloc {
       (page) {
         emit(
           state.copyWith(
-            posts: [...state.posts, ...page.posts],
+            posts: FeedPostModel.pinnedFirst([...state.posts, ...page.posts]),
             page: page.page,
             hasMore: page.hasMore,
             isLoadingMore: false,

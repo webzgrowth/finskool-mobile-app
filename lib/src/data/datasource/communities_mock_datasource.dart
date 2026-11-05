@@ -75,7 +75,6 @@ class CommunitiesMockDatasource {
         startedOn: DateTime(2026, 1, 1),
         transactionId: 'PAY-2026-0041872',
         paidOn: DateTime(2026, 1, 1, 11, 42),
-        paymentMethod: 'UPI · PayU',
       ),
     ),
     CommunityModel(
@@ -123,7 +122,6 @@ class CommunitiesMockDatasource {
         startedOn: DateTime(2025, 7, 1),
         transactionId: 'PAY-2025-0038941',
         paidOn: DateTime(2025, 7, 1, 9, 15),
-        paymentMethod: 'UPI · Razorpay',
       ),
     ),
     const CommunityModel(
@@ -249,7 +247,6 @@ class CommunitiesMockDatasource {
         startedOn: DateTime(2026, 3, 15),
         transactionId: 'PAY-2026-0045210',
         paidOn: DateTime(2026, 3, 15, 14, 30),
-        paymentMethod: 'Card · HDFC',
       ),
     ),
   ];
