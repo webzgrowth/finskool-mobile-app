@@ -7,15 +7,21 @@ import 'package:url_launcher/url_launcher.dart';
 /// in a snackbar when the device has nothing to handle it — an emulator with
 /// no dialer, say — rather than a silent dead tap.
 Future<void> openExternal(BuildContext context, String uri) async {
-  var opened = false;
+  if (!await tryOpenExternal(uri)) {
+    AppSnack.show('Could not open that.');
+  }
+}
+
+/// [openExternal] without the snackbar, for a caller with a better fallback.
+/// True when something handled [uri].
+Future<bool> tryOpenExternal(String uri) async {
   try {
-    opened = await launchUrl(
+    return await launchUrl(
       Uri.parse(uri),
       mode: LaunchMode.externalApplication,
     );
-  } catch (_) {}
-  if (!opened) {
-    AppSnack.show('Could not open that.');
+  } catch (_) {
+    return false;
   }
 }
 

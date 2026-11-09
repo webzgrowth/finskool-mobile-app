@@ -17,7 +17,8 @@ class ReactionIcons {
   /// `thumbs-up-fill_svgrepo.com` — 16x16 inside Figma's 24x24 Like control.
   static const String likeButton = 'assets/icons/reaction_like_fill.svg';
 
-  /// The picker's order: the API's `sortOrder` — 👍 ❤️ 💡 😂 👏. Only types the
+  /// The picker's order: the API's `sortOrder` — 👍 ❤️ 🔥 😂 🚀
+  /// (🔥 is the backend's `insightful`, 🚀 its `celebrate`). Only types the
   /// server actually returns are shown (see [available]).
   static const List<ReactionType> pickerOrder = [
     ReactionType.like,
@@ -42,8 +43,8 @@ class ReactionIcons {
   /// The coloured disc behind a reaction in the post card's badge stack.
   ///
   /// Figma's colourful feed variant (`605:15302`) draws blue thumbs-up
-  /// (`#388FE7`), red heart (`#F15759`), amber bulb (`#FFDA56`), teal laughing
-  /// face (`#108B8B`) and green clap (`#6DAE53`) — exactly the backend's five,
+  /// (`#388FE7`), red heart (`#F15759`), amber fire (`#FFDA56`), teal laughing
+  /// face (`#108B8B`) and green rocket (`#6DAE53`) — exactly the backend's five,
   /// so every disc is Figma's own.
   static Color badgeColor(BuildContext context, ReactionType reaction) {
     final g = context.gradients;

@@ -245,7 +245,7 @@ void main() {
   });
 
   test('the picker follows the API order, and only what the server offers', () {
-    // 👍 ❤️ 💡 😂 👏 — the backend's `sortOrder`.
+    // 👍 ❤️ 🔥 😂 🚀 — the backend's `sortOrder`.
     expect(ReactionIcons.pickerOrder, [
       ReactionType.like,
       ReactionType.love,

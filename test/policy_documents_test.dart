@@ -100,6 +100,16 @@ void main() {
       expect(tester.takeException(), isNull);
     });
 
+    testWidgets('Refund policy shows the no-refund clause', (tester) async {
+      await open(tester, PolicyKind.refund);
+      expect(find.text('Refund policy'), findsWidgets);
+      expect(
+        find.textContaining('All payments are final', skipOffstage: false),
+        findsOneWidget,
+      );
+      expect(tester.takeException(), isNull);
+    });
+
     testWidgets('Terms and Privacy render without overflow', (tester) async {
       for (final k in [PolicyKind.terms, PolicyKind.privacy]) {
         await open(tester, k);

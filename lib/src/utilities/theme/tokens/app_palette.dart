@@ -28,8 +28,8 @@ class AppPalette {
 
   /// Per-reaction badge rings, from Figma's colourful feed variant
   /// (`605:15302`). Blue and red map 1:1 onto like/love and teal onto haha
-  /// (Figma's laughing disc), amber onto insightful (its bulb) and green onto
-  /// celebrate (its clap) — see `reaction_icons.dart`.
+  /// (Figma's laughing disc), amber onto insightful (drawn as 🔥) and green onto
+  /// celebrate (drawn as 🚀) — see `reaction_icons.dart`.
   static const Color badgeBlue = Color(0xFF388FE7);
   static const Color badgeRed = Color(0xFFF15759);
   static const Color badgeAmber = Color(0xFFFFDA56);

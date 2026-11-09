@@ -401,8 +401,22 @@ code screen and never stacks a second phone screen (pinned by
   server, not the member, so it **survives `reset` and sign-out** (`_fresh()`
   carries it) and is re-learned on the next launch. The code screen also says how
   long the code is good for (`otpExpiresInSeconds`, 600 → "10 minutes").
-* **Not built:** Apple's rule that an app with sign-in lets people **delete their
-  account in-app**, and sending the optional `deviceId` / `appVersion` metadata.
+* **Account deletion is an email request, not an in-app delete.** Profile →
+  Account → **Delete account** (`/profile/delete-account`, `DeleteAccountScreen`)
+  shows what the Privacy policy and Terms say happens (personal data deleted;
+  KYC / subscription / communication records kept per SEBI; payments final), asks
+  to confirm, then opens a `mailto:` to support@finskool21.com prefilled with the
+  member's name, email and phone (`delete_account_request.dart`). With **no email app** (an emulator
+  has none) `tryOpenExternal` returns false and the screen copies the support address
+  and says so, instead of the generic "Could not open that."; the manifest's
+  `<queries>` carries a `SENDTO mailto` entry so a real Android 11+ phone can find
+  its mail app. It exists
+  because the compliance PDF promises "Profile > Delete account" and gives **no
+  steps or endpoint**; there is no delete API in `docs/` or the spec. **Apple's
+  rule (5.1.1(v)) wants deletion startable in-app, and "write an email" may not
+  pass review** — if it is rejected, the fix is a backend delete endpoint, then a
+  `DeleteAccount` usecase here with the same screen and confirm dialog. **Not
+  built:** sending the optional `deviceId` / `appVersion` metadata.
   The buttons are shown until the server says it is off. Pinned by
   `social_auth_test`.
 * **iOS: the Google SDK crashes the app unless it has a client ID — and
@@ -788,7 +802,17 @@ on a soft plate, and a tap anywhere else dismisses it. Choosing the reaction you
 already have **takes it back** (`removeReaction`); choosing another sends it.
 Long-press still works as drag-and-release. (Before, a tap sent an instant 👍.)
 
-**The picker is the backend's five, in its order** — 👍 ❤️ 💡 😂 👏
+**🔥 and 🚀 stand in for the backend's `insightful` and `celebrate`.** The design
+asked for fire and rocket; the backend has no such types, so those two wire names
+are *drawn* as 🔥 and 🚀 (`ReactionTypeX.emoji`/`label` only — the enum values,
+ids and counts are untouched, and a member who reacted 🔥 shows as `insightful`
+to the backend and in any other client). When the backend adds real `fire` /
+`rocket` types, rename the values and delete this paragraph. The notes below that
+say 💡 / 👏 describe the wire types; on screen read them as 🔥 / 🚀. The badge
+discs are still amber and green, and `ReactionGlyph._emojiInkRise` was measured
+on other glyphs — **eyeball the two new ones in a disc**.
+
+**The picker is the backend's five, in its order** — 👍 ❤️ 💡(🔥) 😂 👏(🚀)
 (`ReactionIcons.pickerOrder`; `available()` limits it to the types
 `GET /mobile/reaction-types` actually returned, so a type the backend drops
 disappears without a release). Figma's own picker drew 👍 ❤️ 🔥 👏 ✅ 😮 — that
@@ -1757,11 +1781,13 @@ approved copy before release.** Same category as
   "Finskool21 App – Compliance Documents" (7 Nov 2026) supplies all of it. The
   About screen's old *Documents* list is **gone** (it moved to Settings, and
   `SebiInfo.documents` was deleted): Settings now holds **Disclosures**,
-  **Investor charter** and **Terms & privacy policy**. The first two, and the
+  **Investor charter**, **Refund policy** and **Terms & privacy policy**. The PDF has
+  **no standalone refund policy**: `refund_text.dart` is its "5. No refunds" Terms
+  clause verbatim — swap it if a separate policy is written. The first two, and the
   *full* Terms & conditions and Privacy policy (reached from "Read the full text"
   under the short tabs), are one screen, `PolicyDocumentScreen`, routed at
   `/profile/documents/:kind` (`PolicyKind.slug`: `disclosures`,
-  `investor-charter`, `terms`, `privacy`). A document is a list of `PolicyBlock`s
+  `investor-charter`, `refund`, `terms`, `privacy`). A document is a list of `PolicyBlock`s
   (heading / label / paragraph / bullets / links) in `data/datasource/policy_texts/`,
   read through `ProfileInfoRepository.policy(kind)`. The short two-tab screen
   carries the PDF's section 5 verbatim. Text is the PDF's, so a change to the
@@ -1769,8 +1795,8 @@ approved copy before release.** Same category as
   release:** the Disclosures bullet that says the analyst "*have received* any
   compensation for products or services other than investment banking…" (missing
   "not", unlike every bullet around it) is transcribed as written; the Privacy
-  policy points to **Profile > Delete account**, which the app does not have yet;
-  and the SEBI "list of registered RAs" link is the general intermediaries page,
+  policy points to **Profile > Delete account** (now a real row — see below, but
+  it is an email request, not an API call); and the SEBI "list of registered RAs" link is the general intermediaries page,
   since the PDF gives no URL. Pinned by `test/policy_documents_test.dart`.
 
 **Logout** is drawn like the cards around it (a red-tinted 48px plate, red icon

@@ -24,7 +24,7 @@ class ReactionGlyph extends StatelessWidget {
   /// Measured, not guessed — but against an *earlier* reaction set: all six
   /// badges rendered at a 60pt disc, each glyph's ink centroid compared to the
   /// disc centre; the two symmetric glyphs (✅ and 😮) both landed 3.58pt high,
-  /// i.e. 9.94% of the 36pt art box. The set is now 💡 and 👏 as emoji, so
+  /// i.e. 9.94% of the 36pt art box. The set is now 🔥 and 🚀 as emoji, so
   /// **re-measure** against those — and on Android (Noto Color Emoji), since
   /// this figure came from Apple Color Emoji.
   static const double _emojiInkRise = 0.0994;
@@ -53,7 +53,7 @@ class ReactionGlyph extends StatelessWidget {
 /// A [ReactionGlyph] on the coloured disc Figma puts it on — used in the
 /// post card's badge stack and the Reactions sheet's filter row.
 ///
-/// Each reaction gets its own colour (blue like, red love, green clap, …)
+/// Each reaction gets its own colour (blue like, red love, green rocket, …)
 /// per Figma's colourful feed variant; see [ReactionIcons.badgeColor].
 class ReactionBadge extends StatelessWidget {
   const ReactionBadge({

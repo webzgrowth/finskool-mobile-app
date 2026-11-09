@@ -111,6 +111,7 @@ class PolicyDocument {
 enum PolicyKind {
   disclosures('disclosures'),
   investorCharter('investor-charter'),
+  refund('refund'),
   terms('terms'),
   privacy('privacy');
 

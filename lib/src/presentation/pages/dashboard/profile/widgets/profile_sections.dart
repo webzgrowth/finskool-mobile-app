@@ -73,6 +73,12 @@ class ProfileSections extends StatelessWidget {
                 subtitle: 'Name, email and phone',
                 onTap: () => go(AppRoutes.EDIT_PROFILE_ROUTE_PATH),
               ),
+              ProfileMenuRow(
+                glyph: ProfileGlyphs.user,
+                title: 'Delete account',
+                subtitle: 'Ask us to remove your data',
+                onTap: () => go(AppRoutes.DELETE_ACCOUNT_ROUTE_PATH),
+              ),
             ],
           ),
         ),
@@ -164,6 +170,13 @@ class ProfileSections extends StatelessWidget {
                 onTap: () => go(
                   AppRoutes.policyDocument(PolicyKind.investorCharter.slug),
                 ),
+              ),
+              ProfileMenuRow(
+                glyph: ProfileGlyphs.document,
+                title: 'Refund policy',
+                subtitle: 'Cancellations and refunds',
+                onTap: () =>
+                    go(AppRoutes.policyDocument(PolicyKind.refund.slug)),
               ),
               ProfileMenuRow(
                 glyph: ProfileGlyphs.document,

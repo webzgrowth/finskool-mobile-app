@@ -28,7 +28,7 @@ class AppGradients extends ThemeExtension<AppGradients> {
 
   /// Ring behind each badge in a post's reaction stack, per reaction.
   /// All five are Figma's own discs (colourful feed variant): blue like, red
-  /// love, amber bulb = insightful, teal laughing face = haha, green clap =
+  /// love, amber fire = insightful, teal laughing face = haha, green rocket =
   /// celebrate — see `reaction_icons.dart`.
   final Color badgeLike;
   final Color badgeLove;

@@ -144,6 +144,9 @@ class AppRoutes {
   static const String TERMS_PRIVACY_ROUTE_NAME = "terms-privacy";
   static const String TERMS_PRIVACY_ROUTE_PATH = "/profile/terms-privacy";
 
+  static const String DELETE_ACCOUNT_ROUTE_NAME = "delete-account";
+  static const String DELETE_ACCOUNT_ROUTE_PATH = "/profile/delete-account";
+
   // Disclosures, Investor charter and the full Terms / Privacy policy share one
   // screen, keyed by `PolicyKind.slug`.
   static const String POLICY_DOCUMENT_ROUTE_NAME = "policy-document";

@@ -4,8 +4,15 @@
 /// Declaration order is the API's `sortOrder`, because it drives both the
 /// long-press picker's row order and the badge stack's tie-break in
 /// `FeedPostModel.rankedReactions`. The set is the backend's, which replaced
-/// wow / sad / angry with insightful (id 7) and celebrate (id 8); Figma's
-/// bulb and clap discs are those two. The integer `reactionTypeId` is never
+/// wow / sad / angry with insightful (id 7) and celebrate (id 8).
+///
+/// **The app draws them as 🔥 and 🚀**, not the 💡 and 👏 the backend's names
+/// suggest: the design asked for fire and rocket and the backend has no such
+/// types yet, so `insightful` is shown as 🔥 and `celebrate` as 🚀. Only
+/// [ReactionTypeX.emoji] and [ReactionTypeX.label] change; the wire names stay,
+/// so reacting, counts and the reactor list are unaffected. When the backend
+/// adds real `fire` / `rocket` types, rename the enum values and drop this
+/// note. The integer `reactionTypeId` is never
 /// hardcoded — `ReactionTypeCatalog` resolves it from
 /// `GET /mobile/reaction-types`.
 ///
@@ -25,17 +32,17 @@ extension ReactionTypeX on ReactionType {
   String get emoji => switch (this) {
     ReactionType.like => '👍',
     ReactionType.love => '❤️',
-    ReactionType.insightful => '💡',
+    ReactionType.insightful => '🔥',
     ReactionType.haha => '😂',
-    ReactionType.celebrate => '👏',
+    ReactionType.celebrate => '🚀',
   };
 
   String get label => switch (this) {
     ReactionType.like => 'Like',
     ReactionType.love => 'Love',
-    ReactionType.insightful => 'Insightful',
+    ReactionType.insightful => 'Fire',
     ReactionType.haha => 'Haha',
-    ReactionType.celebrate => 'Celebrate',
+    ReactionType.celebrate => 'Rocket',
   };
 
   /// Nullable on purpose. Every reaction name in the app now arrives from the

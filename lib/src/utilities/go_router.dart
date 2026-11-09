@@ -24,6 +24,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:finskool/src/domain/model/community/community_access.dart';
 import 'package:finskool/src/presentation/pages/dashboard/profile/info/about_sebi_screen.dart';
 import 'package:finskool/src/presentation/pages/dashboard/profile/info/help_support_screen.dart';
+import 'package:finskool/src/presentation/pages/dashboard/profile/info/delete_account_screen.dart';
 import 'package:finskool/src/presentation/pages/dashboard/profile/info/policy_document_screen.dart';
 import 'package:finskool/src/domain/model/profile/profile_info.dart';
 import 'package:finskool/src/presentation/pages/dashboard/profile/info/terms_privacy_screen.dart';
@@ -311,6 +312,12 @@ GoRouter routerinit = GoRouter(
       builder: (BuildContext context, GoRouterState state) {
         return const ProfilePlaceholderScreen(title: 'Privacy & security');
       },
+    ),
+    GoRoute(
+      name: AppRoutes.DELETE_ACCOUNT_ROUTE_NAME,
+      path: AppRoutes.DELETE_ACCOUNT_ROUTE_PATH,
+      builder: (BuildContext context, GoRouterState state) =>
+          const DeleteAccountScreen(),
     ),
     GoRoute(
       name: AppRoutes.POLICY_DOCUMENT_ROUTE_NAME,
