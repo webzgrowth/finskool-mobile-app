@@ -1,10 +1,9 @@
 import 'package:finskool/src/domain/model/profile/profile_info.dart';
 
-/// **Placeholder content** for the Profile info screens. About & SEBI and the
-/// Terms of use copy are transcribed from Figma (`1554:8149`, `1554:8682`);
-/// the Privacy policy and the Help FAQs have no design, so their text here is
-/// written to look right and **must be replaced with approved copy** (the
-/// legal text especially) before release.
+/// Content for the Profile info screens. The About copy, the short Terms /
+/// Privacy tabs and the long documents (`policy_texts/`) come from
+/// "Finskool21 App – Compliance Documents" (7 Nov 2026). The **Help FAQs are
+/// still invented** and must be replaced with approved copy before release.
 class ProfileInfoDemoDatasource {
   ProfileInfoDemoDatasource._();
 
@@ -15,26 +14,15 @@ class ProfileInfoDemoDatasource {
     analystName: 'Ritesh Kumar',
     designation: 'Proprietor',
     about:
-        'Finskool21 shares stock market research, trade calls and learning '
-        'content with members through its communities and services.',
+        'Finskool21 is a SEBI Registered Research Analyst. Research and '
+        'recommendations are shared with subscribers inside the app through '
+        'its communities — Intraday, Swing Alpha and Investor.',
     phone: '+91 92113 09647',
     email: 'support@finskool21.com',
     address: 'C9 803, Srs Residency, Sector 88, Faridabad, Haryana 121002',
     mapsUrl:
         'https://www.google.com/maps/search/?api=1&query='
         'C9+803+Srs+Residency+Sector+88+Faridabad+Haryana+121002',
-    documents: [
-      InfoDocument(title: 'Disclosures', url: 'https://www.sebi.gov.in/'),
-      InfoDocument(title: 'Investor charter', url: 'https://www.sebi.gov.in/'),
-      InfoDocument(
-        title: 'Terms & conditions',
-        route: '/profile/terms-privacy',
-      ),
-      InfoDocument(
-        title: 'Privacy policy',
-        route: '/profile/terms-privacy?tab=privacy',
-      ),
-    ],
     disclaimer: [
       'Investment in securities market are subject to market risks. Read all '
           'the related documents carefully before investing.',
@@ -46,71 +34,130 @@ class ProfileInfoDemoDatasource {
 
   static const terms = LegalDocument(
     tabLabel: 'Terms of use',
-    lastUpdated: '1 Oct 2026',
-    minutes: 6,
+    lastUpdated: '7 Nov 2026',
+    minutes: 2,
     sections: [
       LegalSection(
         title: 'Using the app',
         body:
-            'By creating an account you agree to these terms. The app is '
-            'meant for your personal use. Do not share your login or the '
-            'content of paid communities with others.',
+            'By creating an account you agree to these terms. The '
+            'app is meant for your personal use. Do not share your '
+            'login or the content of paid communities with others.',
       ),
       LegalSection(
         title: 'Subscriptions and payments',
         body:
-            'Plans are billed for the period you choose at checkout. Prices '
-            'include applicable taxes. Your access starts once the payment '
-            'is confirmed.',
+            'Plans are billed for the period you choose at checkout. '
+            'Prices include applicable taxes. Your access starts '
+            'once the payment is confirmed. Plans do not renew '
+            'automatically. Pay only through the app checkout, never '
+            'to an individual’s account.',
       ),
       LegalSection(
-        title: 'Research and trade calls',
+        title: 'Research and recommendations',
         body:
-            'Research and trade calls are shared for information. Investment '
-            'in securities market are subject to market risks. Read all the '
+            'Research and recommendations are shared in the '
+            'communities for information. Investment in securities '
+            'market are subject to market risks. Read all the '
             'related documents carefully before investing.',
       ),
       LegalSection(
-        title: 'Refunds and cancellations',
+        title: 'No guaranteed returns',
         body:
-            'You can cancel renewal at any time from My subscription. Refund '
-            'requests are reviewed as per the refund policy shared at the '
-            'time of purchase.',
+            'We do not promise or guarantee any returns. The '
+            'decision to act on a recommendation is yours, and '
+            'Finskool21 is not liable for any gains or losses from '
+            'it.',
+      ),
+      LegalSection(
+        title: 'No refunds',
+        body:
+            'All payments are final. Once a subscription is '
+            'purchased, it cannot be cancelled and no refund will be '
+            'issued.',
+      ),
+      LegalSection(
+        title: 'Your trading account',
+        body:
+            'We do not manage demat or trading accounts. Never share '
+            'your login, password or OTP with anyone, including our '
+            'staff.',
+      ),
+      LegalSection(
+        title: 'Changes to these terms',
+        body:
+            'We may update these terms from time to time. We will '
+            'notify you in the app when they change.',
+      ),
+      LegalSection(
+        title: 'Contact',
+        body:
+            'Write to support@finskool21.com or call +91 92113 '
+            '09647. For complaints, see the Investor charter.',
       ),
     ],
   );
 
   static const privacy = LegalDocument(
     tabLabel: 'Privacy policy',
-    lastUpdated: '1 Oct 2026',
-    minutes: 5,
+    lastUpdated: '7 Nov 2026',
+    minutes: 2,
     sections: [
       LegalSection(
         title: 'What we collect',
         body:
-            'Your name, email and phone number when you sign up, the '
-            'communities you join, and the details needed to verify your '
-            'identity as required by SEBI.',
+            'Your name, mobile number and email, the KYC details '
+            'SEBI requires, your subscription and payment records, '
+            'and basic device details used to send you '
+            'notifications.',
       ),
       LegalSection(
         title: 'How we use it',
         body:
-            'To run your account, deliver research and notifications you '
-            'asked for, process payments and keep the service secure. We do '
-            'not sell your personal data.',
+            'To run your account, give you access to your '
+            'communities, send post notifications, invoices and '
+            'reminders, and meet our obligations under SEBI '
+            'regulations.',
       ),
       LegalSection(
-        title: 'Sharing and storage',
+        title: 'Payments',
         body:
-            'We share data only with providers that help us operate — '
-            'payments, messaging and hosting — under strict confidentiality, '
-            'or where the law requires it. Data is stored securely in India.',
+            'Payments are processed by our payment gateway, '
+            'Razorpay. We do not see or store your card, UPI PIN or '
+            'bank login details.',
       ),
       LegalSection(
-        title: 'Your choices',
+        title: 'Who we share it with',
         body:
-            'You can update your details from Edit Profile, turn off '
-            'notifications, or write to us to access or delete your data.',
+            'We never sell your data. We share it only with service '
+            'providers who help us run the app, and with regulators '
+            'when the law requires it.',
+      ),
+      LegalSection(
+        title: 'Updates from us',
+        body:
+            'We may contact you by call, SMS, WhatsApp or email '
+            'about our services. To stop promotional messages, write '
+            'to support@finskool21.com.',
+      ),
+      LegalSection(
+        title: 'How long we keep it',
+        body:
+            'We keep your data while your account is active. Records '
+            'SEBI requires us to maintain are kept for the period '
+            'the regulations require.',
+      ),
+      LegalSection(
+        title: 'Deleting your account',
+        body:
+            'Delete your account from Profile > Delete account, or '
+            'write to support@finskool21.com.',
+      ),
+      LegalSection(
+        title: 'Contact',
+        body:
+            'For privacy questions, write to support@finskool21.com '
+            'or call +91 92113 09647.',
       ),
     ],
   );

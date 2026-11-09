@@ -7,6 +7,8 @@ import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
 import 'package:finskool/src/comman/embed_urls.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
 
+import 'embed_navigation.dart';
+
 /// Renders an Instagram post — or any embed kind added server-side later —
 /// inline in the card. YouTube does **not** come through here; it has its own
 /// native player (`youtube_embed_player.dart`).
@@ -35,6 +37,10 @@ class _EmbedPlayerState extends State<EmbedPlayer> {
   bool _loading = true;
   bool _failed = false;
 
+  /// The embed has painted once. From then on a tap that navigates leaves the
+  /// WebView (see [shouldOpenOutside]) and a late error can't blank the post.
+  bool _loaded = false;
+
   /// Instagram's embed is served to browsers; an unrecognised agent gets a
   /// login wall or nothing at all.
   static const _userAgent =
@@ -60,7 +66,22 @@ class _EmbedPlayerState extends State<EmbedPlayer> {
       ..setUserAgent(_userAgent)
       ..setNavigationDelegate(
         NavigationDelegate(
+          // "View profile", the caption, a tap on the post itself: Instagram
+          // answers each with its own page, which can't render here and used to
+          // replace the post with "can't be shown". Open those outside instead.
+          onNavigationRequest: (request) {
+            if (shouldOpenOutside(
+              url: request.url,
+              isMainFrame: request.isMainFrame,
+              pageLoaded: _loaded,
+            )) {
+              openOutside(request.url);
+              return NavigationDecision.prevent;
+            }
+            return NavigationDecision.navigate;
+          },
           onPageFinished: (_) {
+            if (_loaded) return;
             _controller.runJavaScript(_autoplayScript);
             _settle(failed: false);
           },
@@ -179,11 +200,13 @@ class _EmbedPlayerState extends State<EmbedPlayer> {
 
   void _settle({required bool failed}) {
     if (!mounted) return;
+    // A late sub-resource failure must not blank a frame that already
+    // painted, so only the first outcome counts.
+    if (_loaded) return;
     setState(() {
       _loading = false;
-      // A late sub-resource failure must not blank a frame that already
-      // painted, so only the first outcome counts.
-      _failed = _failed || failed;
+      _loaded = !failed;
+      _failed = failed;
     });
   }
 

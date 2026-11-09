@@ -144,6 +144,12 @@ class AppRoutes {
   static const String TERMS_PRIVACY_ROUTE_NAME = "terms-privacy";
   static const String TERMS_PRIVACY_ROUTE_PATH = "/profile/terms-privacy";
 
+  // Disclosures, Investor charter and the full Terms / Privacy policy share one
+  // screen, keyed by `PolicyKind.slug`.
+  static const String POLICY_DOCUMENT_ROUTE_NAME = "policy-document";
+  static const String POLICY_DOCUMENT_ROUTE_PATH = "/profile/documents/:kind";
+  static String policyDocument(String slug) => "/profile/documents/$slug";
+
   static const String SHIPPING_ROUTE_NAME = "MyShipping";
   static const String SHIPPING_ROUTE_PATH = "/shipping";
 

@@ -24,6 +24,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:finskool/src/domain/model/community/community_access.dart';
 import 'package:finskool/src/presentation/pages/dashboard/profile/info/about_sebi_screen.dart';
 import 'package:finskool/src/presentation/pages/dashboard/profile/info/help_support_screen.dart';
+import 'package:finskool/src/presentation/pages/dashboard/profile/info/policy_document_screen.dart';
+import 'package:finskool/src/domain/model/profile/profile_info.dart';
 import 'package:finskool/src/presentation/pages/dashboard/profile/info/terms_privacy_screen.dart';
 import 'package:finskool/src/presentation/pages/services/chat/service_chat_screen.dart';
 import 'package:finskool/src/presentation/pages/services/requests/service_requests_screen.dart';
@@ -308,6 +310,16 @@ GoRouter routerinit = GoRouter(
       path: AppRoutes.PRIVACY_SECURITY_ROUTE_PATH,
       builder: (BuildContext context, GoRouterState state) {
         return const ProfilePlaceholderScreen(title: 'Privacy & security');
+      },
+    ),
+    GoRoute(
+      name: AppRoutes.POLICY_DOCUMENT_ROUTE_NAME,
+      path: AppRoutes.POLICY_DOCUMENT_ROUTE_PATH,
+      builder: (BuildContext context, GoRouterState state) {
+        final kind = PolicyKind.fromSlug(state.pathParameters['kind']);
+        return kind == null
+            ? const ProfilePlaceholderScreen(title: 'Document')
+            : PolicyDocumentScreen(kind: kind);
       },
     ),
     GoRoute(

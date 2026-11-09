@@ -8,4 +8,7 @@ abstract class ProfileInfoRepository {
   LegalDocument get terms;
   LegalDocument get privacy;
   HelpContent get help;
+
+  /// The long compliance texts, by [PolicyKind].
+  PolicyDocument policy(PolicyKind kind);
 }

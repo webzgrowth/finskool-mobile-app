@@ -589,6 +589,18 @@ drags still scroll the feed. Cost: swiping to the next carousel item can't start
 on an Instagram embed. The bar's selectors depend on Instagram's page (`video`,
 `PlayButton`) and may need updating if it changes.
 
+**Taps on the embed leave the WebView.** "View profile", the caption or the post
+itself navigate the page to Instagram's own site, which is a login wall or an
+error and can't render in the card — it used to replace the post with "This post
+can't be shown". `EmbedPlayer`'s `onNavigationRequest` now lets the first load and
+the embed's own sub-frames through, and once the embed has loaded hands any
+**main-frame** navigation to the system (`embed_navigation.dart`: the Instagram
+app or the browser, http/https/instagram schemes only) and cancels it in the
+page. Also `_loaded` makes a late error harmless — only a failure **before** the
+first paint blanks the card (the old `_failed || failed` let any later one do it).
+Pinned by `test/embed_navigation_test.dart` (the WebView itself can't run under
+`flutter_test`); verify on a device by tapping the profile name and the post.
+
 Instagram **cannot be autoplayed unmuted** — its embed exposes no play API to drive
 — so its post renders automatically and the video inside still needs a tap.
 It also has **no poster frame at all** (the API supplies none, and its embed
@@ -1729,9 +1741,9 @@ info screens" block; the `info_*.svg` glyphs are Figma's own exports.
 **All content is placeholder.** There is no endpoint, so
 `ProfileInfoDemoDatasource` supplies it behind `ProfileInfoRepository` (sync,
 read with `locator<…>()`; becomes `Future<Either>` + a bloc when a backend
-exists). The About copy and Terms of use are transcribed from Figma; **the
-Privacy policy text and the Help FAQs are invented and must be replaced with
-approved copy before release** — the legal text especially. Same category as
+exists). The About copy and the legal texts come from the compliance PDF
+(see below); **the Help FAQs are still invented and must be replaced with
+approved copy before release.** Same category as
 `DemoSubscriptionDatasource`: delete it when the real source lands.
 
 * The Terms screen's two tabs (`LegalTabs`) and the FAQ accordion (`FaqList`)
@@ -1741,7 +1753,25 @@ approved copy before release** — the legal text especially. Same category as
 * Call / email / directions go through `url_launcher` (`openExternal`) and say
   so in a snackbar when the device can't handle the link. The registration
   number copies to the clipboard.
-* **Disclosures and Investor charter open `sebi.gov.in`** as a stand-in link.
+* **The compliance documents are in the app, under Profile → Settings.**
+  "Finskool21 App – Compliance Documents" (7 Nov 2026) supplies all of it. The
+  About screen's old *Documents* list is **gone** (it moved to Settings, and
+  `SebiInfo.documents` was deleted): Settings now holds **Disclosures**,
+  **Investor charter** and **Terms & privacy policy**. The first two, and the
+  *full* Terms & conditions and Privacy policy (reached from "Read the full text"
+  under the short tabs), are one screen, `PolicyDocumentScreen`, routed at
+  `/profile/documents/:kind` (`PolicyKind.slug`: `disclosures`,
+  `investor-charter`, `terms`, `privacy`). A document is a list of `PolicyBlock`s
+  (heading / label / paragraph / bullets / links) in `data/datasource/policy_texts/`,
+  read through `ProfileInfoRepository.policy(kind)`. The short two-tab screen
+  carries the PDF's section 5 verbatim. Text is the PDF's, so a change to the
+  legal copy is a change to that PDF first. **Check with the owner before
+  release:** the Disclosures bullet that says the analyst "*have received* any
+  compensation for products or services other than investment banking…" (missing
+  "not", unlike every bullet around it) is transcribed as written; the Privacy
+  policy points to **Profile > Delete account**, which the app does not have yet;
+  and the SEBI "list of registered RAs" link is the general intermediaries page,
+  since the PDF gives no URL. Pinned by `test/policy_documents_test.dart`.
 
 **Logout** is drawn like the cards around it (a red-tinted 48px plate, red icon
 and label — `LogoutButton`) and asks first: `showLogoutDialog` resolves `true`

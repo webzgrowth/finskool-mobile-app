@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:finskool/src/comman/routes.dart';
+import 'package:finskool/src/domain/model/profile/profile_info.dart';
 import 'package:finskool/injections/injection.dart';
 import 'package:finskool/src/domain/repository/profile_info_repository.dart';
 
@@ -44,6 +47,29 @@ class _TermsPrivacyScreenState extends State<TermsPrivacyScreen> {
           child: KeyedSubtree(
             key: ValueKey(_tab),
             child: LegalArticle(document: docs[_tab]),
+          ),
+        ),
+        const InfoSectionLabel('Read the full text'),
+        InfoPlate(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Column(
+            children: [
+              InfoRow(
+                icon: 'assets/icons/info_doc.svg',
+                title: 'Terms & conditions',
+                onTap: () => context.push(
+                  AppRoutes.policyDocument(PolicyKind.terms.slug),
+                ),
+              ),
+              const InfoHairline(),
+              InfoRow(
+                icon: 'assets/icons/info_doc.svg',
+                title: 'Privacy policy',
+                onTap: () => context.push(
+                  AppRoutes.policyDocument(PolicyKind.privacy.slug),
+                ),
+              ),
+            ],
           ),
         ),
         const SizedBox(height: 22),

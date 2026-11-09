@@ -16,7 +16,6 @@ class SebiInfo {
     required this.email,
     required this.address,
     required this.mapsUrl,
-    required this.documents,
     required this.disclaimer,
   });
 
@@ -32,14 +31,13 @@ class SebiInfo {
   final String email;
   final String address;
   final String mapsUrl;
-  final List<InfoDocument> documents;
 
   /// One paragraph per entry.
   final List<String> disclaimer;
 }
 
-/// A row under "Documents". [route] opens an in-app screen; [url] an external
-/// page; both null leaves the row inert rather than a dead link.
+/// A tappable link. [route] opens an in-app screen; [url] an external page;
+/// both null leaves the row inert rather than a dead link.
 class InfoDocument {
   const InfoDocument({required this.title, this.route, this.url});
 
@@ -91,4 +89,80 @@ class Faq {
 
   final String question;
   final String answer;
+}
+
+/// A long compliance text (Disclosures, Investor charter, the full Terms and
+/// Privacy policy) as an ordered list of [PolicyBlock]s, so one screen can draw
+/// any of them. [kind] is the route key — see `PolicyKind`.
+class PolicyDocument {
+  const PolicyDocument({
+    required this.kind,
+    required this.title,
+    required this.subtitle,
+    required this.blocks,
+  });
+
+  final PolicyKind kind;
+  final String title;
+  final String subtitle;
+  final List<PolicyBlock> blocks;
+}
+
+enum PolicyKind {
+  disclosures('disclosures'),
+  investorCharter('investor-charter'),
+  terms('terms'),
+  privacy('privacy');
+
+  const PolicyKind(this.slug);
+
+  /// The `:kind` segment of `/profile/documents/:kind`.
+  final String slug;
+
+  static PolicyKind? fromSlug(String? slug) {
+    for (final k in values) {
+      if (k.slug == slug) return k;
+    }
+    return null;
+  }
+}
+
+sealed class PolicyBlock {
+  const PolicyBlock();
+}
+
+/// A numbered or lettered section title — "1. Disclosures", "A. Vision…".
+class PolicyHeading extends PolicyBlock {
+  const PolicyHeading(this.text, {this.major = false});
+
+  final String text;
+
+  /// A top-level part of the document (1., 2.) rather than a lettered one.
+  final bool major;
+}
+
+/// A bold run-in label — "Do's", "Disciplinary history".
+class PolicyLabel extends PolicyBlock {
+  const PolicyLabel(this.text);
+
+  final String text;
+}
+
+class PolicyParagraph extends PolicyBlock {
+  const PolicyParagraph(this.text);
+
+  final String text;
+}
+
+class PolicyBullets extends PolicyBlock {
+  const PolicyBullets(this.items);
+
+  final List<String> items;
+}
+
+/// Tappable web links (SCORES, SMARTODR…), drawn as info rows.
+class PolicyLinks extends PolicyBlock {
+  const PolicyLinks(this.links);
+
+  final List<InfoDocument> links;
 }

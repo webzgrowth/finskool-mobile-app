@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:finskool/src/comman/routes.dart';
 import 'package:finskool/src/comman/widgets/fade_slide_in.dart';
 import 'package:finskool/src/domain/model/community/community_model.dart';
+import 'package:finskool/src/domain/model/profile/profile_info.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
 
 import 'profile_glyphs.dart';
@@ -149,6 +150,21 @@ class ProfileSections extends StatelessWidget {
                     onChanged: onTogglePostAlerts!,
                   ),
                 ),
+              ProfileMenuRow(
+                glyph: ProfileGlyphs.document,
+                title: 'Disclosures',
+                subtitle: 'SEBI research analyst disclosures',
+                onTap: () =>
+                    go(AppRoutes.policyDocument(PolicyKind.disclosures.slug)),
+              ),
+              ProfileMenuRow(
+                glyph: ProfileGlyphs.document,
+                title: 'Investor charter',
+                subtitle: 'Your rights and how to complain',
+                onTap: () => go(
+                  AppRoutes.policyDocument(PolicyKind.investorCharter.slug),
+                ),
+              ),
               ProfileMenuRow(
                 glyph: ProfileGlyphs.document,
                 title: 'Terms & privacy policy',

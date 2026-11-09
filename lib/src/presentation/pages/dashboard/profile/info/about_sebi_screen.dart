@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:go_router/go_router.dart';
 import 'package:finskool/injections/injection.dart';
-import 'package:finskool/src/domain/model/profile/profile_info.dart';
 import 'package:finskool/src/domain/repository/profile_info_repository.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
 
@@ -67,34 +65,10 @@ class AboutSebiScreen extends StatelessWidget {
             ],
           ),
         ),
-        const InfoSectionLabel('Documents'),
-        InfoPlate(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Column(
-            children: [
-              for (var i = 0; i < info.documents.length; i++) ...[
-                if (i > 0) const InfoHairline(),
-                InfoRow(
-                  icon: 'assets/icons/info_doc.svg',
-                  title: info.documents[i].title,
-                  onTap: () => _open(context, info.documents[i]),
-                ),
-              ],
-            ],
-          ),
-        ),
         const SizedBox(height: 22),
         _Disclaimer(paragraphs: info.disclaimer),
       ],
     );
-  }
-
-  void _open(BuildContext context, InfoDocument doc) {
-    if (doc.route != null) {
-      context.push(doc.route!);
-    } else if (doc.url != null) {
-      openExternal(context, doc.url!);
-    }
   }
 }
 
