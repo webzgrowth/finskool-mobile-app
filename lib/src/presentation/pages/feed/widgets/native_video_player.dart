@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
+import 'native_video_controls.dart';
+
 /// A genuine uploaded video file — not an embed page — played by a real
 /// decoder (`video_player`) rather than a WebView, which was never built to
 /// open a raw media URL and is why these posts weren't opening at all. See
@@ -14,9 +16,19 @@ import 'package:video_player/video_player.dart';
 /// and the viewer turns sound on themselves, via the speaker button this
 /// widget draws — `video_player` has no built-in controls at all, embedded
 /// or otherwise, so unlike the YouTube path this one was never going to come
-/// with a mute button for free.
+/// with a mute button for free. The bottom bar (`NativeVideoControls`) is that
+/// button plus play/pause and a seek bar; tapping the picture also toggles
+/// play/pause.
 class NativeVideoPlayer extends StatefulWidget {
-  const NativeVideoPlayer({super.key, required this.url, this.onRatio});
+  const NativeVideoPlayer({
+    super.key,
+    required this.url,
+    this.onRatio,
+    this.controlsInset = 8,
+  });
+
+  /// Space between the control bar and the bottom edge of the video.
+  final double controlsInset;
 
   final String url;
 
@@ -37,6 +49,9 @@ class _NativeVideoPlayerState extends State<NativeVideoPlayer> {
       VideoPlayerController.networkUrl(Uri.parse(widget.url));
   _Status _status = _Status.loading;
   bool _muted = true;
+
+  /// Whether the clip was playing when a seek-drag began, so it resumes after.
+  bool _resumeAfterSeek = false;
 
   @override
   void initState() {
@@ -73,6 +88,19 @@ class _NativeVideoPlayerState extends State<NativeVideoPlayer> {
   void _toggleMute() {
     setState(() => _muted = !_muted);
     _controller.setVolume(_muted ? 0 : 1);
+  }
+
+  void _togglePlay() =>
+      _controller.value.isPlaying ? _controller.pause() : _controller.play();
+
+  void _seekStart() {
+    _resumeAfterSeek = _controller.value.isPlaying;
+    _controller.pause();
+  }
+
+  Future<void> _seekEnd(Duration to) async {
+    await _controller.seekTo(to);
+    if (_resumeAfterSeek) await _controller.play();
   }
 
   @override
@@ -125,49 +153,38 @@ class _NativeVideoPlayerState extends State<NativeVideoPlayer> {
             // black bar on the black plate for a ratio clamped at the extreme.
             // `AspectRatio` is the simplest correct `contain` here, and the
             // `ClipRect` keeps it inside the box during the resize animation.
-            ClipRect(
-              child: Center(
-                child: AspectRatio(
-                  aspectRatio: _controller.value.aspectRatio,
-                  child: VideoPlayer(_controller),
+            GestureDetector(
+              onTap: _togglePlay,
+              behavior: HitTestBehavior.opaque,
+              child: ClipRect(
+                child: Center(
+                  child: AspectRatio(
+                    aspectRatio: _controller.value.aspectRatio,
+                    child: VideoPlayer(_controller),
+                  ),
                 ),
               ),
             ),
             Positioned(
+              left: 8,
               right: 8,
-              bottom: 8,
-              child: _MuteButton(muted: _muted, onTap: _toggleMute),
+              bottom: widget.controlsInset,
+              child: ValueListenableBuilder<VideoPlayerValue>(
+                valueListenable: _controller,
+                builder: (_, v, _) => NativeVideoControls(
+                  position: v.position,
+                  duration: v.duration,
+                  playing: v.isPlaying,
+                  muted: _muted,
+                  onTogglePlay: _togglePlay,
+                  onToggleMute: _toggleMute,
+                  onSeekStart: _seekStart,
+                  onSeekEnd: _seekEnd,
+                ),
+              ),
             ),
           ],
         );
     }
-  }
-}
-
-class _MuteButton extends StatelessWidget {
-  const _MuteButton({required this.muted, required this.onTap});
-
-  final bool muted;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: Container(
-        height: 28,
-        width: 28,
-        decoration: BoxDecoration(
-          color: Colors.black.withValues(alpha: 0.45),
-          shape: BoxShape.circle,
-        ),
-        child: Icon(
-          muted ? Icons.volume_off_rounded : Icons.volume_up_rounded,
-          color: Colors.white,
-          size: 16,
-        ),
-      ),
-    );
   }
 }

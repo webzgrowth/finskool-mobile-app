@@ -706,6 +706,17 @@ the two states `video_player` otherwise fails silently on — a load error and
 a 0×0 "successful" decode — with a visible tile instead of the blank white
 that read as "nothing happened".
 
+**`NativeVideoPlayer` has a control bar** (`native_video_controls.dart`):
+play/pause, elapsed, a draggable seek bar, length and the speaker; tapping the
+picture also toggles play/pause. The bar is a plain widget over values (testable
+without a platform video). Dragging **pauses, then seeks once on release** and
+resumes if it was playing — seeking on every tick stutters the decoder. The
+carousel passes `controlsInset` so the bar sits above the page dots on a
+multi-item post. **Known, unresolved: on some Android devices the picture is torn
+into diagonal stripes with green pixels** (a row-stride mismatch in the decoder →
+texture path, not layout). Not reproduced here; see the open question before
+changing `viewType` or Impeller.
+
 **Instagram and everything else → `EmbedPlayer`**, a WebView. It
 **loads the embed URL directly** — it does *not* wrap it in an `<iframe>`
 inside a `loadHtmlString` document, which is what it used to do for

@@ -105,6 +105,9 @@ class _PostMediaCarouselState extends State<PostMediaCarousel> {
                     itemBuilder: (context, i) => _MediaItem(
                       item: widget.media[i],
                       onRatio: (r) => _onResolvedRatio(i, r),
+                      // The page dots sit along the bottom edge; a video's
+                      // control bar goes above them, not under.
+                      controlsInset: widget.media.length > 1 ? 28 : 8,
                     ),
                   ),
                   if (widget.media.length > 1)
@@ -154,7 +157,14 @@ class _PostMediaCarouselState extends State<PostMediaCarousel> {
 }
 
 class _MediaItem extends StatelessWidget {
-  const _MediaItem({required this.item, required this.onRatio});
+  const _MediaItem({
+    required this.item,
+    required this.onRatio,
+    required this.controlsInset,
+  });
+
+  /// Gap under a video's control bar — clear of the page dots when present.
+  final double controlsInset;
 
   final PostMediaModel item;
 
@@ -182,6 +192,7 @@ class _MediaItem extends StatelessWidget {
         player: (_) => NativeVideoPlayer(
           url: item.embedUrl ?? item.imageUrl,
           onRatio: onRatio,
+          controlsInset: controlsInset,
         ),
       );
     }
