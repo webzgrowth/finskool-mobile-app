@@ -95,14 +95,28 @@ class SwingSummary extends PerformanceSummary {
   factory SwingSummary.fromJson(Map<String, dynamic> json) => SwingSummary(
     averageHoldingDays: asDouble(json['averageHoldingDays']),
     totalTrades: asInt(json['totalTrades']),
-    periods: [
+    periods: uniquePeriods([
       for (final p in (json['periods'] as List?) ?? const [])
         if (p is Map<String, dynamic>) HitRatePeriod.fromJson(p),
-    ],
+    ]),
     range: json['range'] is Map<String, dynamic>
         ? HitRatePeriod.fromJson(json['range'] as Map<String, dynamic>)
         : null,
   );
+}
+
+/// [periods] with each period (by its displayed [HitRatePeriod.label]) kept
+/// once, first occurrence wins, order preserved.
+///
+/// The admin lets the same period be added twice, and the API sends both, so
+/// a board showed two identical "Jun26 to Nov26" cards. The admin is being
+/// fixed; this keeps the app right for data already saved.
+List<HitRatePeriod> uniquePeriods(List<HitRatePeriod> periods) {
+  final seen = <String>{};
+  return [
+    for (final p in periods)
+      if (seen.add(p.label.trim().toLowerCase())) p,
+  ];
 }
 
 /// One hit-rate card: Trades Given, Trades Met and Met %. Also the shape of

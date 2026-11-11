@@ -46,7 +46,7 @@ class SignUpForm extends StatelessWidget {
               const SizedBox(height: AppSpacing.lg),
               AuthTextField(
                 label: 'Email Address',
-                hint: 'Enter your registered email',
+                hint: 'Enter your email',
                 iconAsset: AuthFieldIcons.mail,
                 errorText: state.emailError,
                 keyboardType: TextInputType.emailAddress,

@@ -21,6 +21,7 @@ class ProfileMenuRow extends StatelessWidget {
     this.trailing,
     this.onTap,
     this.showChevron = true,
+    this.danger = false,
   });
 
   /// An asset path from [ProfileGlyphs].
@@ -33,6 +34,9 @@ class ProfileMenuRow extends StatelessWidget {
   final Widget? trailing;
   final VoidCallback? onTap;
   final bool showChevron;
+
+  /// A destructive row (Delete account): the tile is red, not teal.
+  final bool danger;
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +53,9 @@ class ProfileMenuRow extends StatelessWidget {
               width: 36,
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: AppPalette.badgeTeal,
+                color: danger
+                    ? AppPalette.ticketRequired
+                    : AppPalette.badgeTeal,
                 borderRadius: BorderRadius.circular(11),
               ),
               child: SvgPicture.asset(glyph),

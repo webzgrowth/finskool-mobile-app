@@ -11,15 +11,18 @@ import 'package:finskool/src/presentation/bloc/services/enquiry/service_enquiry_
 import 'package:finskool/src/presentation/bloc/services/filter/services_filter_bloc.dart';
 import 'package:finskool/src/presentation/bloc/services/requests/service_requests_bloc.dart';
 import 'package:finskool/src/presentation/bloc/services/unread/services_unread_bloc.dart';
+import 'package:finskool/src/presentation/bloc/notifications/unread/notifications_unread_bloc.dart';
 
 import 'widgets/enquiry_submitted_dialog.dart';
+import 'widgets/my_requests_row.dart';
 import 'widgets/service_card.dart';
 import 'widgets/services_body.dart';
 
 /// The Services tab: what the support team can quote for, each with an
 /// "Enquire now". Tapping it opens a request (a chat with the team, who send
-/// a quote the member pays for), so the bell here opens **My requests** and
-/// carries their unread count.
+/// a quote the member pays for). The bell is the **same notification bell as on
+/// Feed and Communities** — same count, same inbox — and **My requests** (with
+/// its own unread count) is the row at the top of the list.
 class ServicesScreen extends StatelessWidget {
   const ServicesScreen({super.key});
 
@@ -142,9 +145,12 @@ class _ServicesViewState extends State<_ServicesView> {
                 elevation: 0,
                 flexibleSpace: SearchTopBar(
                   hintText: 'Search services.........',
-                  notificationCount: unread,
+                  notificationCount: context
+                      .watch<NotificationsUnreadBloc>()
+                      .state
+                      .count,
                   onNotificationsTap: () =>
-                      context.push(AppRoutes.SERVICE_REQUESTS_ROUTE_PATH),
+                      context.push(AppRoutes.NOTIFICATIONS_ROUTE_PATH),
                   onQueryChanged: (v) => context.read<ServicesFilterBloc>().add(
                     ServicesFilterEvent.queryChanged(v),
                   ),
@@ -152,6 +158,13 @@ class _ServicesViewState extends State<_ServicesView> {
               ),
               // Figma: the first card sits 20 under the bar.
               const SliverToBoxAdapter(child: SizedBox(height: 20)),
+              SliverToBoxAdapter(
+                child: MyRequestsRow(
+                  unread: unread,
+                  onTap: () =>
+                      context.push(AppRoutes.SERVICE_REQUESTS_ROUTE_PATH),
+                ),
+              ),
               BlocBuilder<ServiceRequestsBloc, ServiceRequestsState>(
                 builder: (context, requestsState) {
                   // serviceId -> the member's open request for it, if any.

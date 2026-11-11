@@ -1101,7 +1101,8 @@ Note `data` on the catalog endpoint is a **top-level array**, so it needs
 
 `saveLabel` and `perMonthLabel` **are** derived
 (`CommunityPlanModel.fromCatalogList`) — unlike `featured` these are
-arithmetic, not editorial: the per-month rate, and the saving against the
+arithmetic, not editorial: the per-month rate (comma-grouped, and **absent on a
+one-month plan** — it would only repeat the headline price), and the saving against the
 dearest per-month rate on offer.
 
 `subscriptionInfo` (transaction id, paid date, method) has no endpoint
@@ -1935,7 +1936,13 @@ and stops unread with the session) and the route-scoped `@injectable`
     device): Checkout itself, UPI intents, killing the app mid-payment.
 * Cancel is only before paying; the rating card is a single **Submit rating**
   and only for a `closed` + `completed` request (same call as tickets).
-* The Services bell opens **My requests** (`/services/requests`).
+* **The Services bell is the same notification bell as Feed and Communities** —
+  `NotificationsUnreadBloc`'s count, opening the inbox. It used to show the
+  *services* unread count and open My requests, so the badge differed per tab.
+  **My requests** (`/services/requests`) is now the `MyRequestsRow` at the top of
+  the list, which carries `ServicesUnreadBloc`'s own count.
+* **A service description renders `**bold**`** through `boldSpans`, like a
+  community's (it showed the asterisks literally).
 
 **Not in Figma** (built from the ticket chrome, flag for the designer): My
 requests list, the chat/quote card, the billing sheet and the payment states.
@@ -2169,8 +2176,21 @@ Rules worth not "fixing":
 * **Swing "Target Met" is the exit date, never the CMP**; `cmp` is as of the
   admin's last upload, not live; a null return / CMP / holding days is a dash and
   a null exit date is "Open".
-* **Rows have no serial number**, so the `#01` is the position in the loaded
-  list (newest first). Dates are calendar dates (`asDate` builds them from the
+* **S.N. is the admin's.** Rows carry none, and the admin counts **oldest first**
+  (guide §3), so for a paid member the first (newest) row is
+  `summary.totalTrades` and each next is one less (`serialFor`, passed down by
+  `TradeList.totalTrades`). A **free** member's list is a hand-picked subset, so
+  nothing can be derived and **no `#` is shown**. With a **month filter** on,
+  `totalTrades` is the filtered count, so the numbers restart from it — whether
+  the admin renumbers a filtered view is unknown.
+* **A period shown twice is shown once**: the admin allowed the same period to be
+  added twice and the API sends both; `uniquePeriods` keeps the first per label.
+  (The admin bug itself is the backend's to fix.)
+* **P/L percentages are signed both ways** — `formatSignedPct`: `+1.23%`,
+  `-14.79%`, and a bare `0.00%`. Plain shares (hit rate, the donut split) stay
+  `formatPct`. Rupee amounts are unchanged (a profit has no `+`).
+* The old "`#01` is the position in the loaded list" note is superseded by the
+  S.N. above. Dates are calendar dates (`asDate` builds them from the
   parts, no zone).
 * **The month filter is the API's, not a calendar.** `PerformanceMonthFilter`
   (`from`/`to`, `YYYY-MM`, inclusive; a single month is `from == to`) goes out as

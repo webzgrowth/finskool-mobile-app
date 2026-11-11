@@ -10,6 +10,10 @@
   // real JDK (Android Studio's bundled JBR) for every terminal VS Code
   // opens in this workspace, so the extension's injection is overridden
   // rather than needing `./gradlew --stop` after every build.
+  // And the extension's own Gradle import (the daemon that bit us) runs on this
+  // JDK instead of its bundled JRE, so it no longer starts a jlink-less daemon
+  // that a later `flutter build` reuses. Reload the window after changing it.
+  "java.import.gradle.java.home": "/Applications/Android Studio.app/Contents/jbr/Contents/Home",
   "terminal.integrated.env.osx": {
     "JAVA_HOME": "/Applications/Android Studio.app/Contents/jbr/Contents/Home"
   }

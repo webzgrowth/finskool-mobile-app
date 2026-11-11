@@ -29,8 +29,21 @@ String formatTradeDate(DateTime d) =>
 /// "1,231.50"-style price, two decimals.
 String formatPrice(num value) => value.toStringAsFixed(2);
 
-/// "-3.39%".
+/// "3.39%" / "-3.39%" — for a plain share (hit rate, a split), never a gain.
 String formatPct(num value) => '${value.toStringAsFixed(2)}%';
+
+/// A profit or loss percentage, signed both ways: "+1.23%", "-14.79%". Zero —
+/// and anything that rounds to it — is a bare "0.00%", never "+0.00%" or
+/// "-0.00%".
+String formatSignedPct(num value) {
+  final text = value.abs().toStringAsFixed(2);
+  if (double.parse(text) == 0) return '0.00%';
+  return '${value < 0 ? '-' : '+'}$text%';
+}
+
+/// The "#48 · " lead of a trade's meta line, or '' when there is no S.N.
+String serialLead(int? number) =>
+    number == null ? '' : '#${number.toString().padLeft(2, '0')}  ·  ';
 
 /// "Oct 26" for `2026-10`.
 String formatMonth(String yearMonth) {

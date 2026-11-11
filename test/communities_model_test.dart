@@ -44,11 +44,12 @@ void main() {
     final quarterly = c.plans.firstWhere((p) => p.months == 3);
     // The dearest per-month rate is the baseline, so it saves nothing.
     expect(monthly.saveLabel, isNull);
-    expect(monthly.perMonthLabel, '≈ ₹1500/month');
+    // A monthly plan's per-month figure is its own price: no second line.
+    expect(monthly.perMonthLabel, isNull);
     // 3 x 1500 = 4500 against 3900 paid, so 600 — left uncompacted, since
     // only four-figure savings read better as "1k".
     expect(quarterly.saveLabel, 'Save ₹ 600');
-    expect(quarterly.perMonthLabel, '≈ ₹1300/month');
+    expect(quarterly.perMonthLabel, '≈ ₹1,300/month');
   });
 
   test('a four-figure saving is compacted to Figma\'s "₹ 1k" form', () {

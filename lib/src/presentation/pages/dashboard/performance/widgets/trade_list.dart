@@ -14,6 +14,7 @@ class TradeList extends StatelessWidget {
     required this.title,
     required this.trades,
     required this.hasMore,
+    this.totalTrades,
     this.subtitle,
   });
 
@@ -22,6 +23,13 @@ class TradeList extends StatelessWidget {
 
   /// More pages exist, so the count is "N+".
   final bool hasMore;
+
+  /// The segment's total trade count, which makes the **admin's S.N.**
+  /// possible: the admin counts oldest first, the list is newest first, so the
+  /// first row is `totalTrades` and each next one is one less. Null (a free
+  /// member, whose list is a hand-picked subset, so a row's place in the whole
+  /// can't be known) shows no number rather than a wrong one.
+  final int? totalTrades;
 
   /// A free member's line under the title ("Past trades"); it replaces the
   /// count pill, which a paid member sees.
@@ -56,13 +64,13 @@ class TradeList extends StatelessWidget {
                     final IntradayTrade t => IntradayTradeTile(
                       key: ValueKey(t.id),
                       trade: t,
-                      number: i + 1,
+                      number: serialFor(i, trades.length, totalTrades),
                       initiallyOpen: i == 0 && subtitle == null,
                     ),
                     final SwingTrade t => SwingTradeTile(
                       key: ValueKey(t.id),
                       trade: t,
-                      number: i + 1,
+                      number: serialFor(i, trades.length, totalTrades),
                       initiallyOpen: i == 0 && subtitle == null,
                     ),
                   },
@@ -73,6 +81,15 @@ class TradeList extends StatelessWidget {
       ],
     );
   }
+}
+
+/// The admin's S.N. for row [index] of [loaded] newest-first rows, given the
+/// segment's [total]: `total - index`. Null when [total] is unknown or smaller
+/// than the rows already loaded (the list and the count disagree — number
+/// nothing rather than something wrong).
+int? serialFor(int index, int loaded, int? total) {
+  if (total == null || total < loaded) return null;
+  return total - index;
 }
 
 class _PaidHeader extends StatelessWidget {

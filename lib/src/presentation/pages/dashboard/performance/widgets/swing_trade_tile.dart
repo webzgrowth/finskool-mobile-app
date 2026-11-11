@@ -17,7 +17,7 @@ class SwingTradeTile extends StatelessWidget {
   });
 
   final SwingTrade trade;
-  final int number;
+  final int? number;
   final bool initiallyOpen;
 
   @override
@@ -31,14 +31,12 @@ class SwingTradeTile extends StatelessWidget {
       name: t.name,
       initials: t.initials,
       logoUrl: t.logoUrl,
-      meta:
-          '#${number.toString().padLeft(2, '0')}  ·  $code'
-          '${formatTradeDate(t.tradeDate)}',
+      meta: '${serialLead(number)}$code${formatTradeDate(t.tradeDate)}',
       initiallyOpen: initiallyOpen,
       result: t.targetMet
           ? const _TargetMetBadge()
           : Text(
-              t.returnPct == null ? '—' : formatPct(t.returnPct!),
+              t.returnPct == null ? '—' : formatSignedPct(t.returnPct!),
               style: type.result.copyWith(
                 color: t.returnPct == null
                     ? AppPalette.perfMuted

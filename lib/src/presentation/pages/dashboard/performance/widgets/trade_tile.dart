@@ -18,8 +18,9 @@ class IntradayTradeTile extends StatelessWidget {
 
   final IntradayTrade trade;
 
-  /// 1-based position in the list — the API sends no serial number.
-  final int number;
+  /// The admin's S.N. (oldest trade is 1), or null when it can't be known —
+  /// the API sends none; `TradeList` works it out with `serialFor`.
+  final int? number;
   final bool initiallyOpen;
 
   @override
@@ -31,9 +32,7 @@ class IntradayTradeTile extends StatelessWidget {
       name: t.name,
       initials: t.initials,
       logoUrl: t.logoUrl,
-      meta:
-          '#${number.toString().padLeft(2, '0')}  ·  '
-          '${formatTradeDate(t.tradeDate)}',
+      meta: '${serialLead(number)}${formatTradeDate(t.tradeDate)}',
       tag: _SideTag(side: t.side),
       initiallyOpen: initiallyOpen,
       result: Column(
@@ -44,7 +43,7 @@ class IntradayTradeTile extends StatelessWidget {
             style: type.result.copyWith(color: color),
           ),
           Text(
-            formatPct(t.plPct),
+            formatSignedPct(t.plPct),
             style: type.resultPct.copyWith(color: color),
           ),
         ],

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:finskool/src/comman/rich_text_spans.dart';
 import 'package:finskool/src/domain/model/service/service_model.dart';
 import 'package:finskool/src/presentation/pages/communities/widgets/announcement_tag.dart';
 import 'package:finskool/src/presentation/pages/communities/widgets/community_cta_button.dart';
@@ -80,7 +81,17 @@ class ServiceCard extends StatelessWidget {
                   Text(service.title, style: type.title),
                   if (service.description.isNotEmpty) ...[
                     const SizedBox(height: AppSpacing.sm),
-                    Text(service.description, style: type.description),
+                    // `**…**` runs render bold, exactly as a community
+                    // description does — the admin writes both the same way.
+                    Text.rich(
+                      TextSpan(
+                        children: boldSpans(
+                          service.description,
+                          type.description,
+                          type.descriptionBold,
+                        ),
+                      ),
+                    ),
                   ],
                   const SizedBox(height: AppSpacing.lg),
                   CommunityCtaButton(

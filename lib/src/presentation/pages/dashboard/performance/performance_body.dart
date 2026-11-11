@@ -133,6 +133,9 @@ class PerformanceBody extends StatelessWidget {
                     : '${board.communityName} Dashboard',
                 trades: state.items,
                 hasMore: state.hasMore,
+                // Only a paid member's list is complete and newest-first, so
+                // only theirs can carry the admin's S.N.
+                totalTrades: board.isPaid ? summary.totalTrades : null,
                 subtitle: board.isPaid
                     ? null
                     : UnlockCopy.of(

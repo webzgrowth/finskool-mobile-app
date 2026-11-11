@@ -21,6 +21,9 @@ class ProfileGlyphs {
   static const privacy = '${_dir}privacy.svg';
   static const document = '${_dir}document.svg';
 
+  /// White trash can, for the red "Delete account" tile — not a Figma export.
+  static const trash = '${_dir}trash.svg';
+
   /// The row chevron (7x3.95 box, drawn pointing right, `#153D3A` at 60%).
   static const chevron = '${_dir}chevron.svg';
   static const camera = '${_dir}camera.svg';

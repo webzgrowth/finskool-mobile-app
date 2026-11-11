@@ -40,15 +40,7 @@ class CommunityPlanModel {
 
   /// `12345` -> `₹12,345`, grouped Indian-style (the design only ever
   /// shows 4–5 digit amounts, where Indian and Western grouping agree).
-  String get priceLabel {
-    final digits = price.toString();
-    final buffer = StringBuffer();
-    for (var i = 0; i < digits.length; i++) {
-      if (i > 0 && (digits.length - i) % 3 == 0) buffer.write(',');
-      buffer.write(digits[i]);
-    }
-    return '₹$buffer';
-  }
+  String get priceLabel => '₹${_grouped(price)}';
 
   /// "/ 6 months" — the suffix beside the headline price.
   String? get periodLabel => months == null ? null : '/ $label';
@@ -95,9 +87,24 @@ class CommunityPlanModel {
         price: price,
         months: months,
         saveLabel: saved >= 1 ? 'Save ${_compact(saved.round())}' : null,
-        perMonthLabel: rate == null ? null : '≈ ₹${rate.round()}/month',
+        // A one-month plan's "per month" is its own price, so repeating it
+        // under the headline adds nothing; only longer plans get the line.
+        perMonthLabel: rate == null || months == 1
+            ? null
+            : '≈ ₹${_grouped(rate.round())}/month',
       );
     }).toList();
+  }
+
+  /// `12345` -> `12,345`.
+  static String _grouped(int n) {
+    final digits = n.toString();
+    final buffer = StringBuffer();
+    for (var i = 0; i < digits.length; i++) {
+      if (i > 0 && (digits.length - i) % 3 == 0) buffer.write(',');
+      buffer.write(digits[i]);
+    }
+    return buffer.toString();
   }
 
   static String _durationLabel(int? months) =>

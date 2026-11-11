@@ -74,7 +74,8 @@ class ProfileSections extends StatelessWidget {
                 onTap: () => go(AppRoutes.EDIT_PROFILE_ROUTE_PATH),
               ),
               ProfileMenuRow(
-                glyph: ProfileGlyphs.user,
+                glyph: ProfileGlyphs.trash,
+                danger: true,
                 title: 'Delete account',
                 subtitle: 'Ask us to remove your data',
                 onTap: () => go(AppRoutes.DELETE_ACCOUNT_ROUTE_PATH),
