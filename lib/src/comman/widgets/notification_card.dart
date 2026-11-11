@@ -67,7 +67,7 @@ class NotificationCard extends StatelessWidget {
                     Text(
                       title,
                       style: type.title,
-                      // Two lines: "New announcement in Investor Community"
+                      // Up to three lines: "New announcement in Investor Community"
                       // is longer than one, and the community name is the
                       // part that got cut.
                       maxLines: 3,

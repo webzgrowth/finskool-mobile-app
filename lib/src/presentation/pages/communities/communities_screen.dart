@@ -33,9 +33,51 @@ class CommunitiesScreen extends StatefulWidget {
 }
 
 class _CommunitiesScreenState extends State<CommunitiesScreen> {
+  final _scroll = ScrollController();
+
+  /// Where the member had scrolled to, kept **outside this State**: whatever
+  /// rebuilds or remounts the tab (a reload that swaps the list for its
+  /// skeleton and back, the shell being rebuilt on the way back from
+  /// Performance) can no longer send the list to the top. Cleared on sign-out.
+  static double _remembered = 0;
+
+  /// The list was replaced by a skeleton (or this State is new), so the next
+  /// time it is shown the remembered offset is put back.
+  bool _needsRestore = true;
+
+  @override
+  void dispose() {
+    _scroll.dispose();
+    super.dispose();
+  }
+
+  void _remember() {
+    // Only while the real list is on screen: a skeleton is short, and the
+    // scroll view clamps its offset to 0 — recording that would forget it.
+    if (!_needsRestore && _scroll.hasClients) _remembered = _scroll.offset;
+  }
+
+  /// Called from build with whether the list (not a skeleton) is showing.
+  void _syncScroll({required bool listShown, required bool signedOut}) {
+    if (signedOut) _remembered = 0;
+    if (!listShown) {
+      _needsRestore = true;
+      return;
+    }
+    if (!_needsRestore) return;
+    _needsRestore = false;
+    if (_remembered <= 0) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !_scroll.hasClients) return;
+      final max = _scroll.position.maxScrollExtent;
+      _scroll.jumpTo(_remembered.clamp(0, max));
+    });
+  }
+
   @override
   void initState() {
     super.initState();
+    _scroll.addListener(_remember);
     context.read<CommunitiesBloc>().add(
       const CommunitiesEvent.loadCommunities(),
     );
@@ -71,7 +113,14 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
                 builder: (context, state) {
                   final communities = _visible(state, filterState.query);
                   final boards = context.watch<PerformanceBoardsBloc>().state;
+                  _syncScroll(
+                    listShown:
+                        !(state.state.isLoading || state.state.isEmpty) &&
+                        communities.isNotEmpty,
+                    signedOut: state.state.isEmpty,
+                  );
                   return CustomScrollView(
+                    controller: _scroll,
                     slivers: [
                       SliverAppBar(
                         floating: true,

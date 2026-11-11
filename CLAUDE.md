@@ -1155,6 +1155,14 @@ Swing Alpha's *6-month* plan — neither the cheapest nor the dearest — so
 `CommunityPlanModel.featured` marks it and drives both the headline price
 and the default selection. Don't "simplify" this to a min/max over price.
 
+**The list remembers where the member scrolled** (`CommunitiesScreen._remembered`, a
+static, so it survives the State being rebuilt). Anything that swaps the list for its
+skeleton and back — a reload — clamps the scroll view to 0, which sent the member to the
+top after Performance → back. The offset is recorded only while the real list shows, put
+back the next time it does, and cleared on sign-out (the bloc's `empty` state). Pinned by
+`test/communities_scroll_test.dart`. If it still jumps, the cause is something that
+*recreates the shell*, not the list — look there.
+
 ### Communities blocs
 
 Four, one per responsibility (see "Bloc granularity"):
