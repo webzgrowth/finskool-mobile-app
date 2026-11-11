@@ -291,6 +291,72 @@ void main() {
       },
     );
 
+    test('a tab tap keeps the board and only the body reloads', () async {
+      final slow = Completer<Either<Failure, PerformanceBoard>>();
+      repo.onBoard = (c) => c.segment == PerformanceSegment.longTerm
+          ? slow.future
+          : Future.value(
+              Right(
+                _board(
+                  items: [_trade('inv')],
+                  segment: PerformanceSegment.investor,
+                ),
+              ),
+            );
+      bloc.add(
+        const PerformanceEvent.load(
+          communityId: 'c1',
+          segment: PerformanceSegment.investor,
+        ),
+      );
+      await pump();
+      final before = bloc.state.board;
+      bloc.add(
+        const PerformanceEvent.segmentChanged(PerformanceSegment.longTerm),
+      );
+      await pump();
+      // Not a blank screen: the tab row's board is still there.
+      expect(bloc.state.state.isLoaded, isTrue);
+      expect(bloc.state.board, same(before));
+      expect(bloc.state.isSegmentLoading, isTrue);
+      expect(bloc.state.segment, PerformanceSegment.longTerm);
+      expect(bloc.state.items, isEmpty);
+      slow.complete(
+        Right(
+          _board(items: [_trade('lt')], segment: PerformanceSegment.longTerm),
+        ),
+      );
+      await pump();
+      expect(bloc.state.isSegmentLoading, isFalse);
+      expect(bloc.state.items.single.id, 'lt');
+    });
+
+    test('a failed tab switch goes back to the tab being read', () async {
+      repo.onBoard = (c) async => c.segment == PerformanceSegment.longTerm
+          ? const Left(ServerFailure('No network.'))
+          : Right(
+              _board(
+                items: [_trade('inv')],
+                segment: PerformanceSegment.investor,
+              ),
+            );
+      bloc.add(
+        const PerformanceEvent.load(
+          communityId: 'c1',
+          segment: PerformanceSegment.investor,
+        ),
+      );
+      await pump();
+      bloc.add(
+        const PerformanceEvent.segmentChanged(PerformanceSegment.longTerm),
+      );
+      await pump();
+      expect(bloc.state.segment, PerformanceSegment.investor);
+      expect(bloc.state.items.single.id, 'inv');
+      expect(bloc.state.isSegmentLoading, isFalse);
+      expect(bloc.state.message, 'No network.');
+    });
+
     test('a slow answer for a filter the member left is dropped', () async {
       final slow = Completer<Either<Failure, PerformanceBoard>>();
       repo.onBoard = (c) => c.filter == _aug

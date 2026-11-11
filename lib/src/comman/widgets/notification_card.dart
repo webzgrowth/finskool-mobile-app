@@ -3,7 +3,7 @@ import 'package:finskool/src/utilities/theme/theme.dart';
 
 /// The OS-style notification card from Figma (`1629:2230`): a white r22 card
 /// with a soft teal shadow, the 38px app icon, "FINSKOOL21" and the time on
-/// one line, a semibold title and a two-line body.
+/// one line, a semibold title (up to two lines) and a two-line body.
 ///
 /// Shared by the in-app banner (which drops from the top) and the inbox rows,
 /// so the two can never drift apart. [unread] draws a small teal dot on the
@@ -67,7 +67,10 @@ class NotificationCard extends StatelessWidget {
                     Text(
                       title,
                       style: type.title,
-                      maxLines: 1,
+                      // Two lines: "New announcement in Investor Community"
+                      // is longer than one, and the community name is the
+                      // part that got cut.
+                      maxLines: 3,
                       overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 1),

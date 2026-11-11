@@ -29,6 +29,11 @@ sealed class PerformanceState with _$PerformanceState {
     /// until the answer replaces them.
     @Default(false) bool isListLoading,
     @Default(false) bool isLoadingMore,
+
+    /// A tab was tapped and its board is on the way. The tab row stays (the
+    /// selected tab already moved) and only what is **below** it is a
+    /// skeleton — the whole screen is not rebuilt.
+    @Default(false) bool isSegmentLoading,
   }) = _PerformanceState;
 
   factory PerformanceState.initial() => const PerformanceState();

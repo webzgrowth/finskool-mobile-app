@@ -39,6 +39,53 @@ extension _PerformanceActions on PerformanceBloc {
     );
   }
 
+  /// A tap on another tab. Unlike [_load] this keeps the board it already has
+  /// (for its tab row) and flags [PerformanceState.isSegmentLoading], so only
+  /// what is below the tabs reloads. Everything else in the query belongs to
+  /// the old tab — filter, items, cursor — and is dropped.
+  Future<void> _switchSegment(
+    PerformanceSegment segment,
+    Emitter<PerformanceState> emit,
+  ) async {
+    final board = state.board;
+    if (board == null || !state.state.isLoaded) {
+      return _load(state.communityId, segment, emit);
+    }
+    if (!state.isSegmentLoading) _beforeSwitch = state;
+    final generation = ++_generation;
+    emit(
+      PerformanceState(
+        state: RequestState.loaded,
+        communityId: state.communityId,
+        board: board,
+        segment: segment,
+        isSegmentLoading: true,
+      ),
+    );
+    final result = await holdSkeletonOnFailure(
+      () => _getBoard.execute(
+        communityId: state.communityId,
+        segment: segment,
+      ),
+    );
+    if (generation != _generation) return;
+    emit(
+      result.fold(
+        // A failed switch goes back to the tab the member was reading.
+        (failure) =>
+            (_beforeSwitch ?? state).copyWith(message: failure.message),
+        (page) => PerformanceState(
+          state: RequestState.loaded,
+          communityId: state.communityId,
+          board: page,
+          items: page.items,
+          nextCursor: page.nextCursor,
+          segment: page.segment,
+        ),
+      ),
+    );
+  }
+
   Future<void> _changeFilter(
     PerformanceMonthFilter? filter,
     Emitter<PerformanceState> emit,

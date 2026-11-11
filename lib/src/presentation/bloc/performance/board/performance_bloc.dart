@@ -29,7 +29,7 @@ class PerformanceBloc extends Bloc<PerformanceEvent, PerformanceState> {
         load: (e) => _load(e.communityId, e.segment, emit),
         segmentChanged: (e) => e.segment == state.segment
             ? Future<void>.value()
-            : _load(state.communityId, e.segment, emit),
+            : _switchSegment(e.segment, emit),
         filterChanged: (e) => _changeFilter(e.filter, emit),
         loadMore: (_) => _loadMore(emit),
       );
@@ -41,4 +41,8 @@ class PerformanceBloc extends Bloc<PerformanceEvent, PerformanceState> {
   /// Bumped by every load and filter change, so a slow answer for a list the
   /// member has already left (another segment, another month) is dropped.
   int _generation = 0;
+
+  /// The last settled screen before a tab switch began, so a failed switch can
+  /// put the member back where they were.
+  PerformanceState? _beforeSwitch;
 }

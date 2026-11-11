@@ -2138,7 +2138,10 @@ two blocs. The old `PerformanceDemoDatasource` / `PerformanceReport` are gone.
   query** and **every filter change replaces it whole**: the cards and the list
   can never describe different months. `loadMore` only extends `items`. A failed
   filter puts the old filter back and keeps the board. A segment change replaces
-  everything and clears the filter (each tab has its own `months`).
+  everything and clears the filter (each tab has its own `months`) — **but it does
+  not rebuild the screen**: `_switchSegment` keeps the board (for the tab row) and
+  sets `isSegmentLoading`, so the tabs stay put and only what is below them shows
+  the skeleton; a failed switch returns to the tab being read with a snackbar.
   `INVALID_CURSOR` restarts from page one; `PERFORMANCE_BOARD_NOT_FOUND` is
   "nothing to show", not "try again".
 
@@ -2199,6 +2202,11 @@ Rules worth not "fixing":
   (joined `A / B / C`; labelled "Theme" on the US tab); until it does the cell is
 nc  simply absent. The Investor tab is unchanged. **US prices are dollars** — Entry and CMP on that tab go through
   `formatUsd` (`$1,147.00`); every other board stays a bare number (rupees, no sign).
+* **The count pill is the real total** (`summary.totalTrades` — the tab's, or the picked
+  months' under a filter), not rows loaded so far (which read "20+" until every page
+  arrived). Without a known total it falls back to the loaded rows ("3+" while more pages).
+* **Each investor tab has the sheet's own heading** (`PerformanceSegment.dashboardTitle`):
+  "<community> Dashboard", "Long Term Dashboard", "US Stocks Dashboard".
 * **A period shown twice is shown once**: the admin allowed the same period to be
   added twice and the API sends both; `uniquePeriods` keeps the first per label.
   (The admin bug itself is the backend's to fix.)

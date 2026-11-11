@@ -82,88 +82,93 @@ class PerformanceBody extends StatelessWidget {
               ),
               const SizedBox(height: 14),
             ],
-            // A filter change is a new request that replaces the whole screen:
-            // the cards stay up, dimmed, until the answer replaces them.
-            AnimatedOpacity(
-              duration: const Duration(milliseconds: 150),
-              opacity: state.isListLoading ? 0.4 : 1,
-              child: switch (summary) {
-                final IntradaySummary s => Column(
-                  children: [
-                    OverallPlCard(summary: s),
-                    const SizedBox(height: 14),
-                    TradesSummaryCard(summary: s),
-                    if (board.noteText != null) ...[
+            // A tab tap reloads only what is below the tabs.
+            if (state.isSegmentLoading)
+              const PerformanceSkeleton()
+            else ...[
+              // A filter change is a new request that replaces the whole screen:
+              // the cards stay up, dimmed, until the answer replaces them.
+              AnimatedOpacity(
+                duration: const Duration(milliseconds: 150),
+                opacity: state.isListLoading ? 0.4 : 1,
+                child: switch (summary) {
+                  final IntradaySummary s => Column(
+                    children: [
+                      OverallPlCard(summary: s),
                       const SizedBox(height: 14),
-                      PerformanceNote(text: board.noteText!),
+                      TradesSummaryCard(summary: s),
+                      if (board.noteText != null) ...[
+                        const SizedBox(height: 14),
+                        PerformanceNote(text: board.noteText!),
+                      ],
                     ],
-                  ],
+                  ),
+                  // The Long Term and US sheets have no period or holding-days summary.
+                  final SwingSummary s =>
+                    board.segment.isSheetOnly
+                        ? const SizedBox.shrink()
+                        : SwingSummaryCard(summary: s),
+                },
+              ),
+              if (!board.segment.isSheetOnly) const SizedBox(height: 18),
+              MonthFilter(
+                // A new tab has its own months: start the pickers afresh.
+                key: ValueKey(state.segment),
+                range: board.kind != PerformanceKind.intraday,
+                months: board.months,
+                filter: state.filter,
+                onChanged: (f) => bloc.add(PerformanceEvent.filterChanged(f)),
+              ),
+              const SizedBox(height: 4),
+              if (state.isListLoading)
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 40),
+                  child: Center(child: CircularProgressIndicator()),
+                )
+              else if (state.items.isEmpty)
+                PerformanceMessage(
+                  title: board.isPaid
+                      ? 'No trades'
+                      : 'No trades to preview yet',
+                  body: state.filter != null
+                      ? 'Nothing was traded in the months you picked.'
+                      : board.isPaid
+                      ? 'No trades have been added yet.'
+                      : 'Subscribe to see every trade.',
+                )
+              else
+                TradeList(
+                  title: board.segment.dashboardTitle(board.communityName),
+                  trades: state.items,
+                  hasMore: state.hasMore,
+                  segment: board.segment,
+                  // Only a paid member's list is complete and newest-first, so
+                  // only theirs can carry the admin's S.N.
+                  totalTrades: board.isPaid ? summary.totalTrades : null,
+                  subtitle: board.isPaid
+                      ? null
+                      : UnlockCopy.of(
+                          board,
+                          shown: state.items.length,
+                        ).listSubtitle,
                 ),
-                // The Long Term and US sheets have no period or holding-days summary.
-                final SwingSummary s =>
-                  board.segment.isSheetOnly
-                      ? const SizedBox.shrink()
-                      : SwingSummaryCard(summary: s),
-              },
-            ),
-            if (!board.segment.isSheetOnly) const SizedBox(height: 18),
-            MonthFilter(
-              // A new tab has its own months: start the pickers afresh.
-              key: ValueKey(state.segment),
-              range: board.kind != PerformanceKind.intraday,
-              months: board.months,
-              filter: state.filter,
-              onChanged: (f) => bloc.add(PerformanceEvent.filterChanged(f)),
-            ),
-            const SizedBox(height: 4),
-            if (state.isListLoading)
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 40),
-                child: Center(child: CircularProgressIndicator()),
-              )
-            else if (state.items.isEmpty)
-              PerformanceMessage(
-                title: board.isPaid ? 'No trades' : 'No trades to preview yet',
-                body: state.filter != null
-                    ? 'Nothing was traded in the months you picked.'
-                    : board.isPaid
-                    ? 'No trades have been added yet.'
-                    : 'Subscribe to see every trade.',
-              )
-            else
-              TradeList(
-                title: board.communityName.isEmpty
-                    ? 'Trades'
-                    : '${board.communityName} Dashboard',
-                trades: state.items,
-                hasMore: state.hasMore,
-                segment: board.segment,
-                // Only a paid member's list is complete and newest-first, so
-                // only theirs can carry the admin's S.N.
-                totalTrades: board.isPaid ? summary.totalTrades : null,
-                subtitle: board.isPaid
-                    ? null
-                    : UnlockCopy.of(
-                        board,
-                        shown: state.items.length,
-                      ).listSubtitle,
-              ),
-            if (state.isLoadingMore)
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 20),
-                child: Center(child: CircularProgressIndicator()),
-              ),
-            // Counts the hidden trades in the picked months (or on the whole
-            // segment with no filter), and shows even when the list is empty:
-            // a free member who picks an old month sees none and a banner.
-            if (!board.isPaid && (board.hiddenCount ?? 0) > 0) ...[
-              const SizedBox(height: 14),
-              UnlockSection(
-                copy: UnlockCopy.of(board, shown: state.items.length),
-                // The plans are on the community's own card in the list this
-                // screen was opened from.
-                onTap: () => context.pop(),
-              ),
+              if (state.isLoadingMore)
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 20),
+                  child: Center(child: CircularProgressIndicator()),
+                ),
+              // Counts the hidden trades in the picked months (or on the whole
+              // segment with no filter), and shows even when the list is empty:
+              // a free member who picks an old month sees none and a banner.
+              if (!board.isPaid && (board.hiddenCount ?? 0) > 0) ...[
+                const SizedBox(height: 14),
+                UnlockSection(
+                  copy: UnlockCopy.of(board, shown: state.items.length),
+                  // The plans are on the community's own card in the list this
+                  // screen was opened from.
+                  onTap: () => context.pop(),
+                ),
+              ],
             ],
           ],
         );

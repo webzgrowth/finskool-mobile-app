@@ -40,7 +40,16 @@ class TradeList extends StatelessWidget {
   /// The investor board's tab (see `SwingTradeTile.segment`).
   final PerformanceSegment segment;
 
-  String get _count => '${trades.length}${hasMore ? '+' : ''} trades';
+  /// The real count: the summary's `totalTrades` (the segment's, or the picked
+  /// months') — not the rows loaded so far, which read "20+" until every page
+  /// had arrived. Only when no total is known does it fall back to the loaded
+  /// rows, with a "+" while more pages remain.
+  String get _count {
+    final total = totalTrades;
+    final n = total != null && total >= trades.length ? total : trades.length;
+    final more = total == null && hasMore ? '+' : '';
+    return '$n$more ${n == 1 && more.isEmpty ? 'trade' : 'trades'}';
+  }
 
   @override
   Widget build(BuildContext context) {

@@ -132,6 +132,53 @@ void main() {
     expect(formatUsd(-2500), '-\$2,500.00');
   });
 
+  test('each investor tab has the sheet\'s own heading', () {
+    const name = 'Investor Community';
+    expect(
+      PerformanceSegment.investor.dashboardTitle(name),
+      'Investor Community Dashboard',
+    );
+    expect(
+      PerformanceSegment.longTerm.dashboardTitle(name),
+      'Long Term Dashboard',
+    );
+    expect(
+      PerformanceSegment.usInvestment.dashboardTitle(name),
+      'US Stocks Dashboard',
+    );
+    expect(PerformanceSegment.main.dashboardTitle(''), 'Trades');
+  });
+
+  testWidgets('the count badge is the real total, not the page size', (
+    tester,
+  ) async {
+    Future<void> show({int? total, bool more = false, int rows = 3}) =>
+        tester.pumpWidget(
+          MaterialApp(
+            theme: AppTheme.light,
+            home: Scaffold(
+              body: SingleChildScrollView(
+                child: TradeList(
+                  title: 'T',
+                  trades: [for (var i = 0; i < rows; i++) _trade(i)],
+                  hasMore: more,
+                  totalTrades: total,
+                ),
+              ),
+            ),
+          ),
+        );
+    await show(total: 57, more: true);
+    expect(find.text('57 trades'), findsOneWidget);
+    await show(total: 2, rows: 2);
+    expect(find.text('2 trades'), findsOneWidget);
+    await show(total: 1, rows: 1);
+    expect(find.text('1 trade'), findsOneWidget);
+    // No total known: the loaded rows, with a plus while more pages remain.
+    await show(more: true);
+    expect(find.text('3+ trades'), findsOneWidget);
+  });
+
   group('profit and loss percentages', () {
     test('a profit has a plus, a loss a minus', () {
       expect(formatSignedPct(1.23), '+1.23%');

@@ -38,6 +38,15 @@ extension PerformanceSegmentX on PerformanceSegment {
       this == PerformanceSegment.longTerm ||
       this == PerformanceSegment.usInvestment;
 
+  /// The heading over the trade list. The client sheet titles each investor tab
+  /// differently; the Investor tab (and every other board) is the community's
+  /// own "<name> Dashboard".
+  String dashboardTitle(String communityName) => switch (this) {
+    PerformanceSegment.longTerm => 'Long Term Dashboard',
+    PerformanceSegment.usInvestment => 'US Stocks Dashboard',
+    _ => communityName.isEmpty ? 'Trades' : '$communityName Dashboard',
+  };
+
   /// What the sheet calls the classification column on this tab.
   String get classificationLabel => this == PerformanceSegment.usInvestment
       ? 'Theme'

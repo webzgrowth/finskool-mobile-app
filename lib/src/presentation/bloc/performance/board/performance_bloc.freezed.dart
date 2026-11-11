@@ -441,7 +441,10 @@ mixin _$PerformanceState {
  PerformanceBoard? get board; List<PerformanceTrade> get items; String? get nextCursor; PerformanceSegment? get segment;/// The months asked for, or null for every month.
  PerformanceMonthFilter? get filter;/// A filter change is reloading the screen. The old cards stay (dimmed)
 /// until the answer replaces them.
- bool get isListLoading; bool get isLoadingMore;
+ bool get isListLoading; bool get isLoadingMore;/// A tab was tapped and its board is on the way. The tab row stays (the
+/// selected tab already moved) and only what is **below** it is a
+/// skeleton — the whole screen is not rebuilt.
+ bool get isSegmentLoading;
 /// Create a copy of PerformanceState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -453,20 +456,20 @@ $PerformanceStateCopyWith<PerformanceState> get copyWith => _$PerformanceStateCo
 @override
 bool operator ==(Object other) {
   final _this = this as PerformanceState;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is PerformanceState&&(identical(other.state, _this.state) || other.state == _this.state)&&(identical(other.message, _this.message) || other.message == _this.message)&&(identical(other.errorCode, _this.errorCode) || other.errorCode == _this.errorCode)&&(identical(other.communityId, _this.communityId) || other.communityId == _this.communityId)&&(identical(other.board, _this.board) || other.board == _this.board)&&const DeepCollectionEquality().equals(other.items, _this.items)&&(identical(other.nextCursor, _this.nextCursor) || other.nextCursor == _this.nextCursor)&&(identical(other.segment, _this.segment) || other.segment == _this.segment)&&(identical(other.filter, _this.filter) || other.filter == _this.filter)&&(identical(other.isListLoading, _this.isListLoading) || other.isListLoading == _this.isListLoading)&&(identical(other.isLoadingMore, _this.isLoadingMore) || other.isLoadingMore == _this.isLoadingMore));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is PerformanceState&&(identical(other.state, _this.state) || other.state == _this.state)&&(identical(other.message, _this.message) || other.message == _this.message)&&(identical(other.errorCode, _this.errorCode) || other.errorCode == _this.errorCode)&&(identical(other.communityId, _this.communityId) || other.communityId == _this.communityId)&&(identical(other.board, _this.board) || other.board == _this.board)&&const DeepCollectionEquality().equals(other.items, _this.items)&&(identical(other.nextCursor, _this.nextCursor) || other.nextCursor == _this.nextCursor)&&(identical(other.segment, _this.segment) || other.segment == _this.segment)&&(identical(other.filter, _this.filter) || other.filter == _this.filter)&&(identical(other.isListLoading, _this.isListLoading) || other.isListLoading == _this.isListLoading)&&(identical(other.isLoadingMore, _this.isLoadingMore) || other.isLoadingMore == _this.isLoadingMore)&&(identical(other.isSegmentLoading, _this.isSegmentLoading) || other.isSegmentLoading == _this.isSegmentLoading));
 }
 
 
 @override
 int get hashCode {
   final _this = this as PerformanceState;
-  return Object.hash(runtimeType,_this.state,_this.message,_this.errorCode,_this.communityId,_this.board,const DeepCollectionEquality().hash(_this.items),_this.nextCursor,_this.segment,_this.filter,_this.isListLoading,_this.isLoadingMore);
+  return Object.hash(runtimeType,_this.state,_this.message,_this.errorCode,_this.communityId,_this.board,const DeepCollectionEquality().hash(_this.items),_this.nextCursor,_this.segment,_this.filter,_this.isListLoading,_this.isLoadingMore,_this.isSegmentLoading);
 }
 
 @override
 String toString() {
   final _this = this as PerformanceState;
-  return 'PerformanceState(state: ${_this.state}, message: ${_this.message}, errorCode: ${_this.errorCode}, communityId: ${_this.communityId}, board: ${_this.board}, items: ${_this.items}, nextCursor: ${_this.nextCursor}, segment: ${_this.segment}, filter: ${_this.filter}, isListLoading: ${_this.isListLoading}, isLoadingMore: ${_this.isLoadingMore})';
+  return 'PerformanceState(state: ${_this.state}, message: ${_this.message}, errorCode: ${_this.errorCode}, communityId: ${_this.communityId}, board: ${_this.board}, items: ${_this.items}, nextCursor: ${_this.nextCursor}, segment: ${_this.segment}, filter: ${_this.filter}, isListLoading: ${_this.isListLoading}, isLoadingMore: ${_this.isLoadingMore}, isSegmentLoading: ${_this.isSegmentLoading})';
 }
 
 
@@ -477,7 +480,7 @@ abstract mixin class $PerformanceStateCopyWith<$Res>  {
   factory $PerformanceStateCopyWith(PerformanceState value, $Res Function(PerformanceState) _then) = _$PerformanceStateCopyWithImpl;
 @useResult
 $Res call({
- RequestState state, String message, String? errorCode, String communityId, PerformanceBoard? board, List<PerformanceTrade> items, String? nextCursor, PerformanceSegment? segment, PerformanceMonthFilter? filter, bool isListLoading, bool isLoadingMore
+ RequestState state, String message, String? errorCode, String communityId, PerformanceBoard? board, List<PerformanceTrade> items, String? nextCursor, PerformanceSegment? segment, PerformanceMonthFilter? filter, bool isListLoading, bool isLoadingMore, bool isSegmentLoading
 });
 
 
@@ -494,7 +497,7 @@ class _$PerformanceStateCopyWithImpl<$Res>
 
 /// Create a copy of PerformanceState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? state = null,Object? message = null,Object? errorCode = freezed,Object? communityId = null,Object? board = freezed,Object? items = null,Object? nextCursor = freezed,Object? segment = freezed,Object? filter = freezed,Object? isListLoading = null,Object? isLoadingMore = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? state = null,Object? message = null,Object? errorCode = freezed,Object? communityId = null,Object? board = freezed,Object? items = null,Object? nextCursor = freezed,Object? segment = freezed,Object? filter = freezed,Object? isListLoading = null,Object? isLoadingMore = null,Object? isSegmentLoading = null,}) {
   return _then(PerformanceState(
 state: null == state ? _self.state : state // ignore: cast_nullable_to_non_nullable
 as RequestState,message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
@@ -507,6 +510,7 @@ as String?,segment: freezed == segment ? _self.segment : segment // ignore: cast
 as PerformanceSegment?,filter: freezed == filter ? _self.filter : filter // ignore: cast_nullable_to_non_nullable
 as PerformanceMonthFilter?,isListLoading: null == isListLoading ? _self.isListLoading : isListLoading // ignore: cast_nullable_to_non_nullable
 as bool,isLoadingMore: null == isLoadingMore ? _self.isLoadingMore : isLoadingMore // ignore: cast_nullable_to_non_nullable
+as bool,isSegmentLoading: null == isSegmentLoading ? _self.isSegmentLoading : isSegmentLoading // ignore: cast_nullable_to_non_nullable
 as bool,
   ));
 }
@@ -589,10 +593,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( RequestState state,  String message,  String? errorCode,  String communityId,  PerformanceBoard? board,  List<PerformanceTrade> items,  String? nextCursor,  PerformanceSegment? segment,  PerformanceMonthFilter? filter,  bool isListLoading,  bool isLoadingMore)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( RequestState state,  String message,  String? errorCode,  String communityId,  PerformanceBoard? board,  List<PerformanceTrade> items,  String? nextCursor,  PerformanceSegment? segment,  PerformanceMonthFilter? filter,  bool isListLoading,  bool isLoadingMore,  bool isSegmentLoading)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _PerformanceState() when $default != null:
-return $default(_that.state,_that.message,_that.errorCode,_that.communityId,_that.board,_that.items,_that.nextCursor,_that.segment,_that.filter,_that.isListLoading,_that.isLoadingMore);case _:
+return $default(_that.state,_that.message,_that.errorCode,_that.communityId,_that.board,_that.items,_that.nextCursor,_that.segment,_that.filter,_that.isListLoading,_that.isLoadingMore,_that.isSegmentLoading);case _:
   return orElse();
 
 }
@@ -610,10 +614,10 @@ return $default(_that.state,_that.message,_that.errorCode,_that.communityId,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( RequestState state,  String message,  String? errorCode,  String communityId,  PerformanceBoard? board,  List<PerformanceTrade> items,  String? nextCursor,  PerformanceSegment? segment,  PerformanceMonthFilter? filter,  bool isListLoading,  bool isLoadingMore)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( RequestState state,  String message,  String? errorCode,  String communityId,  PerformanceBoard? board,  List<PerformanceTrade> items,  String? nextCursor,  PerformanceSegment? segment,  PerformanceMonthFilter? filter,  bool isListLoading,  bool isLoadingMore,  bool isSegmentLoading)  $default,) {final _that = this;
 switch (_that) {
 case _PerformanceState():
-return $default(_that.state,_that.message,_that.errorCode,_that.communityId,_that.board,_that.items,_that.nextCursor,_that.segment,_that.filter,_that.isListLoading,_that.isLoadingMore);}
+return $default(_that.state,_that.message,_that.errorCode,_that.communityId,_that.board,_that.items,_that.nextCursor,_that.segment,_that.filter,_that.isListLoading,_that.isLoadingMore,_that.isSegmentLoading);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -627,10 +631,10 @@ return $default(_that.state,_that.message,_that.errorCode,_that.communityId,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( RequestState state,  String message,  String? errorCode,  String communityId,  PerformanceBoard? board,  List<PerformanceTrade> items,  String? nextCursor,  PerformanceSegment? segment,  PerformanceMonthFilter? filter,  bool isListLoading,  bool isLoadingMore)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( RequestState state,  String message,  String? errorCode,  String communityId,  PerformanceBoard? board,  List<PerformanceTrade> items,  String? nextCursor,  PerformanceSegment? segment,  PerformanceMonthFilter? filter,  bool isListLoading,  bool isLoadingMore,  bool isSegmentLoading)?  $default,) {final _that = this;
 switch (_that) {
 case _PerformanceState() when $default != null:
-return $default(_that.state,_that.message,_that.errorCode,_that.communityId,_that.board,_that.items,_that.nextCursor,_that.segment,_that.filter,_that.isListLoading,_that.isLoadingMore);case _:
+return $default(_that.state,_that.message,_that.errorCode,_that.communityId,_that.board,_that.items,_that.nextCursor,_that.segment,_that.filter,_that.isListLoading,_that.isLoadingMore,_that.isSegmentLoading);case _:
   return null;
 
 }
@@ -642,7 +646,7 @@ return $default(_that.state,_that.message,_that.errorCode,_that.communityId,_tha
 
 
 class _PerformanceState extends PerformanceState {
-  const _PerformanceState({this.state = RequestState.empty, this.message = '', this.errorCode, this.communityId = '', this.board,  List<PerformanceTrade> items = const <PerformanceTrade>[], this.nextCursor, this.segment, this.filter, this.isListLoading = false, this.isLoadingMore = false}): _items = items,super._();
+  const _PerformanceState({this.state = RequestState.empty, this.message = '', this.errorCode, this.communityId = '', this.board,  List<PerformanceTrade> items = const <PerformanceTrade>[], this.nextCursor, this.segment, this.filter, this.isListLoading = false, this.isLoadingMore = false, this.isSegmentLoading = false}): _items = items,super._();
   
 
 @override@JsonKey() final  RequestState state;
@@ -672,6 +676,10 @@ class _PerformanceState extends PerformanceState {
 /// until the answer replaces them.
 @override@JsonKey() final  bool isListLoading;
 @override@JsonKey() final  bool isLoadingMore;
+/// A tab was tapped and its board is on the way. The tab row stays (the
+/// selected tab already moved) and only what is **below** it is a
+/// skeleton — the whole screen is not rebuilt.
+@override@JsonKey() final  bool isSegmentLoading;
 
 /// Create a copy of PerformanceState
 /// with the given fields replaced by the non-null parameter values.
@@ -683,18 +691,18 @@ _$PerformanceStateCopyWith<_PerformanceState> get copyWith => __$PerformanceStat
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _PerformanceState&&(identical(other.state, state) || other.state == state)&&(identical(other.message, message) || other.message == message)&&(identical(other.errorCode, errorCode) || other.errorCode == errorCode)&&(identical(other.communityId, communityId) || other.communityId == communityId)&&(identical(other.board, board) || other.board == board)&&const DeepCollectionEquality().equals(other.items, _items)&&(identical(other.nextCursor, nextCursor) || other.nextCursor == nextCursor)&&(identical(other.segment, segment) || other.segment == segment)&&(identical(other.filter, filter) || other.filter == filter)&&(identical(other.isListLoading, isListLoading) || other.isListLoading == isListLoading)&&(identical(other.isLoadingMore, isLoadingMore) || other.isLoadingMore == isLoadingMore));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _PerformanceState&&(identical(other.state, state) || other.state == state)&&(identical(other.message, message) || other.message == message)&&(identical(other.errorCode, errorCode) || other.errorCode == errorCode)&&(identical(other.communityId, communityId) || other.communityId == communityId)&&(identical(other.board, board) || other.board == board)&&const DeepCollectionEquality().equals(other.items, _items)&&(identical(other.nextCursor, nextCursor) || other.nextCursor == nextCursor)&&(identical(other.segment, segment) || other.segment == segment)&&(identical(other.filter, filter) || other.filter == filter)&&(identical(other.isListLoading, isListLoading) || other.isListLoading == isListLoading)&&(identical(other.isLoadingMore, isLoadingMore) || other.isLoadingMore == isLoadingMore)&&(identical(other.isSegmentLoading, isSegmentLoading) || other.isSegmentLoading == isSegmentLoading));
 }
 
 
 @override
 int get hashCode {
-    return Object.hash(runtimeType,state,message,errorCode,communityId,board,const DeepCollectionEquality().hash(_items),nextCursor,segment,filter,isListLoading,isLoadingMore);
+    return Object.hash(runtimeType,state,message,errorCode,communityId,board,const DeepCollectionEquality().hash(_items),nextCursor,segment,filter,isListLoading,isLoadingMore,isSegmentLoading);
 }
 
 @override
 String toString() {
-    return 'PerformanceState(state: $state, message: $message, errorCode: $errorCode, communityId: $communityId, board: $board, items: $items, nextCursor: $nextCursor, segment: $segment, filter: $filter, isListLoading: $isListLoading, isLoadingMore: $isLoadingMore)';
+    return 'PerformanceState(state: $state, message: $message, errorCode: $errorCode, communityId: $communityId, board: $board, items: $items, nextCursor: $nextCursor, segment: $segment, filter: $filter, isListLoading: $isListLoading, isLoadingMore: $isLoadingMore, isSegmentLoading: $isSegmentLoading)';
 }
 
 
@@ -705,7 +713,7 @@ abstract mixin class _$PerformanceStateCopyWith<$Res> implements $PerformanceSta
   factory _$PerformanceStateCopyWith(_PerformanceState value, $Res Function(_PerformanceState) _then) = __$PerformanceStateCopyWithImpl;
 @override @useResult
 $Res call({
- RequestState state, String message, String? errorCode, String communityId, PerformanceBoard? board, List<PerformanceTrade> items, String? nextCursor, PerformanceSegment? segment, PerformanceMonthFilter? filter, bool isListLoading, bool isLoadingMore
+ RequestState state, String message, String? errorCode, String communityId, PerformanceBoard? board, List<PerformanceTrade> items, String? nextCursor, PerformanceSegment? segment, PerformanceMonthFilter? filter, bool isListLoading, bool isLoadingMore, bool isSegmentLoading
 });
 
 
@@ -722,7 +730,7 @@ class __$PerformanceStateCopyWithImpl<$Res>
 
 /// Create a copy of PerformanceState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? state = null,Object? message = null,Object? errorCode = freezed,Object? communityId = null,Object? board = freezed,Object? items = null,Object? nextCursor = freezed,Object? segment = freezed,Object? filter = freezed,Object? isListLoading = null,Object? isLoadingMore = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? state = null,Object? message = null,Object? errorCode = freezed,Object? communityId = null,Object? board = freezed,Object? items = null,Object? nextCursor = freezed,Object? segment = freezed,Object? filter = freezed,Object? isListLoading = null,Object? isLoadingMore = null,Object? isSegmentLoading = null,}) {
   return _then(_PerformanceState(
 state: null == state ? _self.state : state // ignore: cast_nullable_to_non_nullable
 as RequestState,message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
@@ -735,6 +743,7 @@ as String?,segment: freezed == segment ? _self.segment : segment // ignore: cast
 as PerformanceSegment?,filter: freezed == filter ? _self.filter : filter // ignore: cast_nullable_to_non_nullable
 as PerformanceMonthFilter?,isListLoading: null == isListLoading ? _self.isListLoading : isListLoading // ignore: cast_nullable_to_non_nullable
 as bool,isLoadingMore: null == isLoadingMore ? _self.isLoadingMore : isLoadingMore // ignore: cast_nullable_to_non_nullable
+as bool,isSegmentLoading: null == isSegmentLoading ? _self.isSegmentLoading : isSegmentLoading // ignore: cast_nullable_to_non_nullable
 as bool,
   ));
 }
