@@ -124,6 +124,14 @@ void main() {
     });
   });
 
+  test('US prices carry a dollar sign and thousands grouping', () {
+    expect(formatUsd(1147), '\$1,147.00');
+    expect(formatUsd(1410.99), '\$1,410.99');
+    expect(formatUsd(99.5), '\$99.50');
+    expect(formatUsd(1234567.891), '\$1,234,567.89');
+    expect(formatUsd(-2500), '-\$2,500.00');
+  });
+
   group('profit and loss percentages', () {
     test('a profit has a plus, a loss a minus', () {
       expect(formatSignedPct(1.23), '+1.23%');
@@ -179,6 +187,102 @@ void main() {
 
       await show(null);
       expect(find.textContaining('#'), findsNothing);
+    });
+  });
+
+  group('the Long Term tab shows only the client sheet\'s columns', () {
+    SwingTrade lt() => SwingTrade(
+      id: 'x',
+      tradeDate: DateTime(2026, 8, 1),
+      name: 'Acme Ltd',
+      symbol: 'ACME',
+      entryPrice: 100,
+      cmp: 120,
+      returnPct: 20,
+      targetMet: true,
+      targetPct: 10,
+      targetPrice: 110,
+      analysis: 'HOLD',
+      exitDate: DateTime(2026, 9, 1),
+      holdingDays: 31,
+      theme: 'EV',
+      sector: 'Auto',
+      stockType: 'Large',
+    );
+
+    testWidgets('no target, exit date, holding days or Target Met badge', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: AppTheme.light,
+          home: Scaffold(
+            body: SingleChildScrollView(
+              child: TradeList(
+                title: 'Investor Dashboard',
+                trades: [lt()],
+                hasMore: false,
+                segment: PerformanceSegment.longTerm,
+              ),
+            ),
+          ),
+        ),
+      );
+      for (final gone in [
+        'Target',
+        'Target Price',
+        'Exit Date',
+        'Holding Days',
+        'Target Met',
+      ]) {
+        expect(find.text(gone), findsNothing, reason: gone);
+      }
+      expect(find.text('+20.00%'), findsOneWidget);
+      expect(find.text('Theme / Sector / Type'), findsOneWidget);
+      expect(find.text('EV / Auto / Large'), findsOneWidget);
+      expect(find.text('HOLD'), findsOneWidget);
+    });
+
+    testWidgets('US Investment is the same, with a "Theme" cell', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: AppTheme.light,
+          home: Scaffold(
+            body: SingleChildScrollView(
+              child: TradeList(
+                title: 'Investor Dashboard',
+                trades: [lt()],
+                hasMore: false,
+                segment: PerformanceSegment.usInvestment,
+              ),
+            ),
+          ),
+        ),
+      );
+      expect(find.text('\$100.00'), findsOneWidget);
+      expect(find.text('\$120.00'), findsOneWidget);
+      expect(find.text('Theme'), findsOneWidget);
+      expect(find.text('Target Price'), findsNothing);
+      expect(find.text('Exit Date'), findsNothing);
+      expect(find.text('Holding Days'), findsNothing);
+    });
+
+    test('the classification is read from theme, sector and type', () {
+      final t = SwingTrade.fromJson(
+        {
+          'id': 'a',
+          'tradeDate': '2026-08-01',
+          'name': 'A',
+          'theme': 'EV',
+          'sector': ' ',
+          'type': 'Large',
+        },
+        'a',
+        DateTime(2026, 8, 1),
+      );
+      expect(t.classification, 'EV / Large');
     });
   });
 

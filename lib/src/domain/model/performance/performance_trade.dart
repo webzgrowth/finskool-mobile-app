@@ -112,6 +112,9 @@ class SwingTrade extends PerformanceTrade {
     required this.analysis,
     required this.exitDate,
     required this.holdingDays,
+    this.theme,
+    this.sector,
+    this.stockType,
   });
 
   final String? symbol;
@@ -135,6 +138,19 @@ class SwingTrade extends PerformanceTrade {
   /// Null means the trade is still open.
   final DateTime? exitDate;
   final int? holdingDays;
+
+  /// The Long Term sheet's "Theme / Sector / Type" column. **Not in the API
+  /// guide** — read from `theme`, `sector` and `type` if the backend sends them;
+  /// null otherwise.
+  final String? theme;
+  final String? sector;
+  final String? stockType;
+
+  /// "Theme / Sector / Type" joined, or null when none is known.
+  String? get classification {
+    final parts = [theme, sector, stockType].whereType<String>().toList();
+    return parts.isEmpty ? null : parts.join(' / ');
+  }
 
   bool get isOpen => exitDate == null;
 
@@ -161,8 +177,14 @@ class SwingTrade extends PerformanceTrade {
     holdingDays: json['holdingDays'] is num
         ? (json['holdingDays'] as num).toInt()
         : null,
+    theme: _text(json['theme']),
+    sector: _text(json['sector']),
+    stockType: _text(json['type']),
   );
 }
+
+String? _text(Object? v) =>
+    v is String && v.trim().isNotEmpty ? v.trim() : null;
 
 String? _logo(Map<String, dynamic> json) {
   final url = json['logoUrl'];

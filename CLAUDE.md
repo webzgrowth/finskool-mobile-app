@@ -2189,6 +2189,16 @@ Rules worth not "fixing":
   nothing can be derived and **no `#` is shown**. With a **month filter** on,
   `totalTrades` is the filtered count, so the numbers restart from it — whether
   the admin renumbers a filtered view is unknown.
+* **The Long Term and US Investment tabs are the client sheet, nothing more**
+  (`PerformanceSegment.isSheetOnly`; S.N., Theme [/ Sector / Type on Long Term], Date,
+  Company, code, Entry, CMP, Returns, Analysis): no summary card
+  (period cards, Average Holding Days, Total Trades), and its rows (`SwingTradeTile
+  .longTerm`) drop Target, Target Price, Exit Date, Holding Days and the Target Met
+  badge — Returns always shows the return. **Theme / Sector / Type isn't in the API
+  guide**: `SwingTrade` reads `theme`, `sector` and `type` if the backend sends them
+  (joined `A / B / C`; labelled "Theme" on the US tab); until it does the cell is
+nc  simply absent. The Investor tab is unchanged. **US prices are dollars** — Entry and CMP on that tab go through
+  `formatUsd` (`$1,147.00`); every other board stays a bare number (rupees, no sign).
 * **A period shown twice is shown once**: the admin allowed the same period to be
   added twice and the API sends both; `uniquePeriods` keeps the first per label.
   (The admin bug itself is the backend's to fix.)

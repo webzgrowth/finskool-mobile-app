@@ -32,6 +32,17 @@ extension PerformanceSegmentX on PerformanceSegment {
     PerformanceSegment.usInvestment => 'US Investment',
   };
 
+  /// Tabs whose client sheet is a plain list (no target, exit date, holding
+  /// days or period summary): Long Term and US Investment.
+  bool get isSheetOnly =>
+      this == PerformanceSegment.longTerm ||
+      this == PerformanceSegment.usInvestment;
+
+  /// What the sheet calls the classification column on this tab.
+  String get classificationLabel => this == PerformanceSegment.usInvestment
+      ? 'Theme'
+      : 'Theme / Sector / Type';
+
   static PerformanceSegment? fromWire(String? wire) {
     for (final segment in PerformanceSegment.values) {
       if (segment.wire == wire) return segment;

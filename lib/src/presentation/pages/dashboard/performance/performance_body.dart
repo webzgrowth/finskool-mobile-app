@@ -99,10 +99,14 @@ class PerformanceBody extends StatelessWidget {
                     ],
                   ],
                 ),
-                final SwingSummary s => SwingSummaryCard(summary: s),
+                // The Long Term and US sheets have no period or holding-days summary.
+                final SwingSummary s =>
+                  board.segment.isSheetOnly
+                      ? const SizedBox.shrink()
+                      : SwingSummaryCard(summary: s),
               },
             ),
-            const SizedBox(height: 18),
+            if (!board.segment.isSheetOnly) const SizedBox(height: 18),
             MonthFilter(
               // A new tab has its own months: start the pickers afresh.
               key: ValueKey(state.segment),
@@ -133,6 +137,7 @@ class PerformanceBody extends StatelessWidget {
                     : '${board.communityName} Dashboard',
                 trades: state.items,
                 hasMore: state.hasMore,
+                segment: board.segment,
                 // Only a paid member's list is complete and newest-first, so
                 // only theirs can carry the admin's S.N.
                 totalTrades: board.isPaid ? summary.totalTrades : null,

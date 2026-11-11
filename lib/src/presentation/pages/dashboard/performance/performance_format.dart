@@ -29,6 +29,18 @@ String formatTradeDate(DateTime d) =>
 /// "1,231.50"-style price, two decimals.
 String formatPrice(num value) => value.toStringAsFixed(2);
 
+/// "$1,147.00" — a US Investment price. The backend stores no currency, and the
+/// US tab's prices are dollars, so they carry the sign (and thousands grouping,
+/// which the plain [formatPrice] leaves off).
+String formatUsd(num value) {
+  final text = value.abs().toStringAsFixed(2);
+  final grouped = text.replaceAllMapped(
+    RegExp(r'\B(?=(\d{3})+(?!\d)(?=\.))'),
+    (_) => ',',
+  );
+  return '${value < 0 ? '-' : ''}\$$grouped';
+}
+
 /// "3.39%" / "-3.39%" — for a plain share (hit rate, a split), never a gain.
 String formatPct(num value) => '${value.toStringAsFixed(2)}%';
 

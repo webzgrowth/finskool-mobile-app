@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:finskool/src/domain/model/performance/performance_kind.dart';
 import 'package:finskool/src/domain/model/performance/performance_trade.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
 
@@ -16,6 +17,7 @@ class TradeList extends StatelessWidget {
     required this.hasMore,
     this.totalTrades,
     this.subtitle,
+    this.segment = PerformanceSegment.main,
   });
 
   final String title;
@@ -34,6 +36,9 @@ class TradeList extends StatelessWidget {
   /// A free member's line under the title ("Past trades"); it replaces the
   /// count pill, which a paid member sees.
   final String? subtitle;
+
+  /// The investor board's tab (see `SwingTradeTile.segment`).
+  final PerformanceSegment segment;
 
   String get _count => '${trades.length}${hasMore ? '+' : ''} trades';
 
@@ -72,6 +77,7 @@ class TradeList extends StatelessWidget {
                       trade: t,
                       number: serialFor(i, trades.length, totalTrades),
                       initiallyOpen: i == 0 && subtitle == null,
+                      segment: segment,
                     ),
                   },
                 ],
