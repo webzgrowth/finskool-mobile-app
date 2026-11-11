@@ -612,6 +612,12 @@ the embed's own sub-frames through, and once the embed has loaded hands any
 app or the browser, http/https/instagram schemes only) and cancels it in the
 page. Also `_loaded` makes a late error harmless — only a failure **before** the
 first paint blanks the card (the old `_failed || failed` let any later one do it).
+**A page can ask to navigate on its own** — after returning from Instagram the
+embed re-tried its "open in the app" jump and bounced the member straight out
+again, untouched. `OutsideLaunchGuard` (in `embed_navigation.dart`) therefore
+cancels every such navigation but only *launches* when a real touch on the embed
+came within 1.5 s, the app is foregrounded and 1.5 s past a resume, and nothing
+opened in the last 3 s (a double tap opens once). Not reproduced on a device.
 Pinned by `test/embed_navigation_test.dart` (the WebView itself can't run under
 `flutter_test`); verify on a device by tapping the profile name and the post.
 

@@ -33,6 +33,12 @@ class EmbedPlayer extends StatefulWidget {
 }
 
 class _EmbedPlayerState extends State<EmbedPlayer> {
+  final _guard = OutsideLaunchGuard();
+  late final AppLifecycleListener _lifecycle = AppLifecycleListener(
+    onStateChange: (s) =>
+        _guard.lifecycle(foreground: s == AppLifecycleState.resumed),
+  );
+
   late final WebViewController _controller = _build();
   bool _loading = true;
   bool _failed = false;
@@ -75,7 +81,9 @@ class _EmbedPlayerState extends State<EmbedPlayer> {
               isMainFrame: request.isMainFrame,
               pageLoaded: _loaded,
             )) {
-              openOutside(request.url);
+              // Cancelled either way; it only opens Instagram when the viewer
+              // really tapped (see [OutsideLaunchGuard]).
+              if (_guard.allow()) openOutside(request.url);
               return NavigationDecision.prevent;
             }
             return NavigationDecision.navigate;
@@ -213,24 +221,40 @@ class _EmbedPlayerState extends State<EmbedPlayer> {
   // No AspectRatio of its own: the carousel sizes the box, per item, because
   // an Instagram embed is portrait where a YouTube one is 16:9.
   @override
+  void initState() {
+    super.initState();
+    _lifecycle; // start listening
+  }
+
+  @override
+  void dispose() {
+    _lifecycle.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     if (_failed) return const _EmbedUnavailable();
     return Stack(
       fit: StackFit.expand,
       children: [
-        WebViewWidget(
-          controller: _controller,
-          // Left to the defaults, every horizontal drag on the post went to the
-          // carousel's `PageView` — so the video's scrubber (rewind / forward)
-          // could never be dragged, and a tap could be lost to the scroll
-          // arena. Claim taps and **horizontal** drags for the page; vertical
-          // drags still scroll the feed past it.
-          gestureRecognizers: {
-            Factory<TapGestureRecognizer>(TapGestureRecognizer.new),
-            Factory<HorizontalDragGestureRecognizer>(
-              HorizontalDragGestureRecognizer.new,
-            ),
-          },
+        Listener(
+          behavior: HitTestBehavior.translucent,
+          onPointerDown: (_) => _guard.touched(),
+          child: WebViewWidget(
+            controller: _controller,
+            // Left to the defaults, every horizontal drag on the post went to the
+            // carousel's `PageView` — so the video's scrubber (rewind / forward)
+            // could never be dragged, and a tap could be lost to the scroll
+            // arena. Claim taps and **horizontal** drags for the page; vertical
+            // drags still scroll the feed past it.
+            gestureRecognizers: {
+              Factory<TapGestureRecognizer>(TapGestureRecognizer.new),
+              Factory<HorizontalDragGestureRecognizer>(
+                HorizontalDragGestureRecognizer.new,
+              ),
+            },
+          ),
         ),
         if (_loading)
           const ColoredBox(
