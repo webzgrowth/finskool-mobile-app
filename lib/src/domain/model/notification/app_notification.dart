@@ -28,6 +28,20 @@ class AppNotification {
   final bool isRead;
   final DateTime createdAt;
 
+  /// What the inbox row shows as its title. The server words a post in the
+  /// free community "New announcement in Free" (`data.type == 'feed'`) — the
+  /// free community is the Feed, not a community called "Free" — so that one is
+  /// shown as "New announcement in the Feed". Everything else is the server's
+  /// words verbatim. (The OS push is drawn from the server's text and keeps
+  /// "Free" until the backend changes it.)
+  String get displayTitle {
+    const lead = 'New announcement in ';
+    if (data?['type'] == 'feed' && title.startsWith(lead)) {
+      return '${lead}the Feed';
+    }
+    return title;
+  }
+
   factory AppNotification.fromJson(Map<String, dynamic> json) {
     final raw = json['data'];
     return AppNotification(

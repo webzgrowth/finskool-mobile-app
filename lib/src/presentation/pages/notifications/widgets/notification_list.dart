@@ -56,7 +56,7 @@ List<Widget> notificationListChildren(
       Padding(
         padding: const EdgeInsets.only(bottom: 12),
         child: NotificationCard(
-          title: n.title,
+          title: n.displayTitle,
           body: n.message,
           time: relativeTime(n.createdAt),
           unread: !n.isRead,

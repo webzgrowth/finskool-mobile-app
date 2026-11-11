@@ -2305,6 +2305,10 @@ return a Firebase *Installation ID*, not the token the backend sends to.
   falls back to `/community/<id>` if it isn't there (cold start). A tap that
   **cold-starts** the app waits in `PushService.takePending()` until the shell
   sees `authenticated`.
+* **The one title the app rewrites:** a free-community post arrives as "New announcement
+  in Free" (`data.type == 'feed'`); the inbox row shows "New announcement in the Feed"
+  (`AppNotification.displayTitle`). The OS push is the server's text and still says
+  "Free" until the backend changes it — the proper fix, and the only one for the push.
 * **Two different `type`s.** The inbox row's own `type` (`ticket-update`,
   `post`…) is an open set — render from `title`/`message`; routing uses
   `data.type`. `data` is null on old rows → opens the inbox.
