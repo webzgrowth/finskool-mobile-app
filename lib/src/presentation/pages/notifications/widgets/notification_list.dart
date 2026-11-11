@@ -69,7 +69,7 @@ List<Widget> notificationListChildren(
                 const NotificationsUnreadEvent.decremented(1),
               );
             }
-            context.push(routeForPush(n.data));
+            context.push(routeForPush(n.data, rowCommunityId: n.communityId));
           },
         ),
       ),

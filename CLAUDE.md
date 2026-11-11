@@ -2268,7 +2268,10 @@ return a Firebase *Installation ID*, not the token the backend sends to.
   banner or toast — it would duplicate the push.
 * **Tap routing is one function**, `data/push/push_route.dart::routeForPush`, shared
   by an OS banner, the in-app banner and an inbox row: `ticket`→chat,
-  `service`→chat, `post`→`/community/<communityId|id>`,
+  `service`→chat, `post`→`/community/<communityId>?post=<postId>` (the inbox row's own
+  `communityId` if `data` has none — **never the post id**, which once opened the wrong
+  feed; the screen titles itself from the loaded catalog, and `FocusedPostLoader` pages
+  the feed until the post is found, `focusFirst` puts it on top),
   `subscription`→`/subscription-detail?id=<communityId>`, `feed`/`recommendation`
   →dashboard, **anything unknown → `/notifications`** (the guide's rule).
   `/subscription-detail` normally needs the whole `CommunityModel`; with only an

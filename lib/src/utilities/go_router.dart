@@ -218,7 +218,11 @@ GoRouter routerinit = GoRouter(
         final community = state.extra as CommunityModel?;
         return CommunityDetailScreen(
           communityId: community?.id ?? state.pathParameters['id'] ?? '',
-          communityName: community?.name ?? 'Community',
+          // Null from a notification: the screen finds the name in the
+          // catalog (and follows it if it loads later).
+          communityName: community?.name,
+          // A tapped "New announcement" names the post to open.
+          focusPostId: state.uri.queryParameters['post'],
         );
       },
     ),

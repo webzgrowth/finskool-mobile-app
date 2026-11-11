@@ -13,11 +13,20 @@ void main() {
     );
   });
 
-  test('a community post opens that community, preferring communityId', () {
+  test('a community post opens that community with the post to show', () {
     expect(
       routeForPush({'type': 'post', 'id': 'p1', 'communityId': 'c1'}),
-      '/community/c1',
+      '/community/c1?post=p1',
     );
+  });
+
+  test('a post with no communityId uses the row\'s, never the post id', () {
+    expect(
+      routeForPush({'type': 'post', 'id': 'p1'}, rowCommunityId: 'c9'),
+      '/community/c9?post=p1',
+    );
+    // The post's id is not a community: nothing to open but the inbox.
+    expect(routeForPush({'type': 'post', 'id': 'p1'}), '/notifications');
   });
 
   test('subscription events open My subscription by community id', () {

@@ -11,7 +11,11 @@ import 'package:finskool/src/comman/routes.dart';
 ///
 /// Matches Figma's "Tap opens": community post → the community feed, payment
 /// or expiry → My subscription, quote or ticket reply → the chat.
-String routeForPush(Map<String, dynamic>? data) {
+///
+/// [rowCommunityId] is the inbox row's own `communityId`, used when `data`
+/// carries none — and never replaced by the *post's* id, which used to be
+/// taken for a community's and opened the wrong feed.
+String routeForPush(Map<String, dynamic>? data, {String? rowCommunityId}) {
   if (data == null) return AppRoutes.NOTIFICATIONS_ROUTE_PATH;
   final id = data['id']?.toString();
   final communityId = data['communityId']?.toString();
@@ -22,10 +26,17 @@ String routeForPush(Map<String, dynamic>? data) {
     case 'service' when hasId:
       return AppRoutes.serviceChat(id);
     case 'post':
-      final community = (communityId?.isNotEmpty ?? false) ? communityId : id;
-      return (community == null || community.isEmpty)
-          ? AppRoutes.NOTIFICATIONS_ROUTE_PATH
-          : '/community/$community';
+      final community = (communityId?.isNotEmpty ?? false)
+          ? communityId
+          : rowCommunityId;
+      if (community == null || community.isEmpty) {
+        return AppRoutes.NOTIFICATIONS_ROUTE_PATH;
+      }
+      // `post` names the exact post to bring to the top of that feed.
+      return Uri(
+        path: '/community/$community',
+        queryParameters: {if (hasId) 'post': id},
+      ).toString();
     case 'subscription' when hasId || (communityId?.isNotEmpty ?? false):
       // Resolved by the router: the subscription screen needs the whole
       // community, which a cold tap doesn't have — see `go_router.dart`.

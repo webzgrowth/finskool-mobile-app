@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:finskool/src/comman/widgets/app_snack.dart';
+import 'package:finskool/src/domain/model/feed_post_model.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
 import 'package:finskool/src/presentation/bloc/feed/posts/feed_bloc.dart';
 import 'package:finskool/src/presentation/bloc/feed/filter/feed_filter_bloc.dart';
@@ -23,11 +24,20 @@ import 'feed_body_slivers.dart';
 /// only when empty (it stays mounted in an `IndexedStack`), a community
 /// loads once when its bloc is created. Each owner does its own.
 class FeedListView extends StatefulWidget {
-  const FeedListView({super.key, required this.topBar, this.toolbarHeight});
+  const FeedListView({
+    super.key,
+    required this.topBar,
+    this.toolbarHeight,
+    this.focusPostId,
+  });
 
   /// Rendered inside a floating [SliverAppBar] — Material's hide-on-scroll
   /// pattern, not a hand-rolled controller.
   final Widget topBar;
+
+  /// A post to show first (opened from a notification); the rest keep their
+  /// order below it.
+  final String? focusPostId;
 
   /// The `SliverAppBar` cannot size itself to [topBar], so a bar that is
   /// taller than the default — one carrying a back arrow and a community
@@ -132,7 +142,18 @@ class _FeedListViewState extends State<FeedListView> {
                   ),
                   // Figma: the first card sits 20 under the bar.
                   const SliverToBoxAdapter(child: SizedBox(height: 20)),
-                  ...feedBodySlivers(context, feedState, query),
+                  ...feedBodySlivers(
+                    context,
+                    widget.focusPostId == null
+                        ? feedState
+                        : feedState.copyWith(
+                            posts: focusFirst(
+                              feedState.posts,
+                              widget.focusPostId!,
+                            ),
+                          ),
+                    query,
+                  ),
                   const SliverToBoxAdapter(child: SizedBox(height: 20)),
                 ],
               ),
@@ -142,4 +163,12 @@ class _FeedListViewState extends State<FeedListView> {
       ),
     );
   }
+}
+
+/// [posts] with the one named [id] moved to the front; unchanged when it isn't
+/// there (yet). A stable move, so every other post keeps its order.
+List<FeedPostModel> focusFirst(List<FeedPostModel> posts, String id) {
+  final at = posts.indexWhere((p) => p.id == id);
+  if (at <= 0) return posts;
+  return [posts[at], ...posts.take(at), ...posts.skip(at + 1)];
 }
