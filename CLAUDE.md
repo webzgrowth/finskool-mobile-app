@@ -875,6 +875,9 @@ one.** `605:16036` renders every reaction badge in flat dark teal
 (`#153D3A`, kept as `AppPalette.reactionRing`); `605:15302` gives each
 reaction its own colour, and that's the shipped design.
 
+**The heart's badge disc is the Like control's grey** (`AppPalette.likeButtonSurface`), not
+Figma's red — on request; the other four keep their colours (`ReactionIcons.badgeColor`).
+
 **The badge stack shows reaction *types*, not people.** Five 20.65px discs
 on a 13px pitch, each holding ~12px of art, then the total. Who reacted is
 the Reactions sheet's job; `FeedPostModel.rankedReactions` drives the stack.
@@ -1803,10 +1806,11 @@ approved copy before release.** Same category as
 * Call / email / directions go through `url_launcher` (`openExternal`) and say
   so in a snackbar when the device can't handle the link. The registration
   number copies to the clipboard.
-* **The compliance documents are in the app, under Profile → Settings.**
+* **The compliance documents are in the app, under Profile → Compliances** (their own
+  card after Settings; they used to sit in Settings).
   "Finskool21 App – Compliance Documents" (7 Nov 2026) supplies all of it. The
   About screen's old *Documents* list is **gone** (it moved to Settings, and
-  `SebiInfo.documents` was deleted): Settings now holds **Disclosures**,
+  `SebiInfo.documents` was deleted): Compliances now holds **Disclosures**,
   **Investor charter**, **Refund policy** and **Terms & privacy policy**. The PDF has
   **no standalone refund policy**: `refund_text.dart` is its "5. No refunds" Terms
   clause verbatim — swap it if a separate policy is written. The first two, and the

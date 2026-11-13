@@ -12,7 +12,7 @@ import 'profile_section_card.dart';
 import 'profile_toggle.dart';
 import 'subscription_row.dart';
 
-/// The five cards under the header, each fading up a beat after the one above.
+/// The six cards under the header, each fading up a beat after the one above.
 ///
 /// Takes plain data so it can be rendered (and golden-tested) without the
 /// blocs that feed it; `ProfileScreen` does the composing.
@@ -157,6 +157,14 @@ class ProfileSections extends StatelessWidget {
                     onChanged: onTogglePostAlerts!,
                   ),
                 ),
+            ],
+          ),
+        ),
+        FadeSlideIn(
+          index: 5,
+          child: ProfileSectionCard(
+            title: 'Compliances',
+            rows: [
               ProfileMenuRow(
                 glyph: ProfileGlyphs.document,
                 title: 'Disclosures',

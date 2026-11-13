@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:finskool/src/presentation/pages/dashboard/profile/widgets/profile_glyphs.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
 
 /// "My requests" — the way into the member's service requests, now that the
@@ -16,38 +18,67 @@ class MyRequestsRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final type = context.communityType;
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(
+    final type = context.profileType;
+    // The service cards' own chrome (white, r20, soft shadow) with the Profile
+    // rows' content (teal tile + Figma glyph, title over subtitle, chevron), so
+    // it reads as part of the same screen rather than a stray bar.
+    return Container(
+      margin: const EdgeInsets.fromLTRB(
         AppSpacing.lg,
         0,
         AppSpacing.lg,
         AppSpacing.lg,
       ),
-      child: Material(
+      decoration: BoxDecoration(
         color: context.gradients.feedCard,
         borderRadius: BorderRadius.circular(AppRadii.lg),
-        clipBehavior: Clip.antiAlias,
+        boxShadow: [
+          BoxShadow(
+            color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Material(
+        type: MaterialType.transparency,
         child: InkWell(
           onTap: onTap,
+          borderRadius: BorderRadius.circular(AppRadii.lg),
           child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.lg,
-              vertical: AppSpacing.md,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
             child: Row(
               children: [
-                Icon(
-                  Icons.chat_bubble_outline_rounded,
-                  size: 18,
-                  color: Theme.of(context).colorScheme.primary,
+                Container(
+                  height: 36,
+                  width: 36,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: AppPalette.badgeTeal,
+                    borderRadius: BorderRadius.circular(11),
+                  ),
+                  child: SvgPicture.asset(ProfileGlyphs.support),
                 ),
-                const SizedBox(width: AppSpacing.sm),
-                Expanded(child: Text('My requests', style: type.title)),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text('My requests', style: type.rowTitle),
+                      const SizedBox(height: 2),
+                      Text(
+                        'Your enquiries, quotes and payments',
+                        style: type.rowSubtitle,
+                      ),
+                    ],
+                  ),
+                ),
                 if (unread > 0) ...[
+                  const SizedBox(width: 8),
                   Container(
-                    constraints: const BoxConstraints(minWidth: 20),
-                    height: 20,
+                    constraints: const BoxConstraints(minWidth: 22),
+                    height: 22,
                     padding: const EdgeInsets.symmetric(horizontal: 6),
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
@@ -56,16 +87,12 @@ class MyRequestsRow extends StatelessWidget {
                     ),
                     child: Text(
                       unread > 99 ? '99+' : '$unread',
-                      style: context.profileType.badge,
+                      style: type.badge,
                     ),
                   ),
-                  const SizedBox(width: AppSpacing.sm),
                 ],
-                Icon(
-                  Icons.chevron_right_rounded,
-                  size: 20,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
+                const SizedBox(width: 10),
+                SvgPicture.asset(ProfileGlyphs.chevron),
               ],
             ),
           ),

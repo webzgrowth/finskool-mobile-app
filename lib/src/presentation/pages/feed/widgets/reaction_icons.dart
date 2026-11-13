@@ -50,7 +50,8 @@ class ReactionIcons {
     final g = context.gradients;
     return switch (reaction) {
       ReactionType.like => g.badgeLike,
-      ReactionType.love => g.badgeLove,
+      // The heart sits on the same soft grey as the Like control, not red.
+      ReactionType.love => AppPalette.likeButtonSurface,
       ReactionType.insightful => g.badgeInsightful,
       ReactionType.haha => g.badgeHaha,
       ReactionType.celebrate => g.badgeCelebrate,
