@@ -110,6 +110,13 @@ class AppRoutes {
   static const String ABOUT_SEBI_ROUTE_NAME = "about-sebi";
   static const String ABOUT_SEBI_ROUTE_PATH = "/profile/about-sebi";
 
+  static const String TRANSACTIONS_ROUTE_NAME = "transactions";
+  static const String TRANSACTIONS_ROUTE_PATH = "/profile/transactions";
+  static const String TRANSACTION_DETAIL_ROUTE_NAME = "transaction-detail";
+  static const String TRANSACTION_DETAIL_ROUTE_PATH =
+      "/profile/transactions/:id";
+  static String transactionDetail(String id) => "/profile/transactions/$id";
+
   static const String SUPPORT_TICKETS_ROUTE_NAME = "support-tickets";
   static const String SUPPORT_TICKETS_ROUTE_PATH = "/profile/support-tickets";
 

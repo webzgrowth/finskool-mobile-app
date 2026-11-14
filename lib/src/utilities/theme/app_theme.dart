@@ -20,6 +20,7 @@ import 'extensions/performance_typography.dart';
 import 'extensions/profile_typography.dart';
 import 'extensions/subscription_detail_typography.dart';
 import 'extensions/ticket_typography.dart';
+import 'extensions/transaction_typography.dart';
 import 'text/app_text_theme.dart';
 import 'tokens/app_typography.dart';
 
@@ -57,6 +58,7 @@ class AppTheme {
         TopBarTypography.of(cs.brightness),
         SubscriptionDetailTypography.of(cs.brightness),
         TicketTypography.of(cs.brightness),
+        TransactionTypography.of(cs.brightness),
       ],
       appBarTheme: buildAppBarTheme(cs, tt),
       iconTheme: buildIconTheme(cs),

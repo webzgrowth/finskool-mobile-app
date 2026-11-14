@@ -2269,6 +2269,39 @@ free swing board to `build/performance_goldens/`; its pickers read "Select"
 because the golden injects a filtered answer without the request that would set
 them). The `TradesSummaryCard` also shows each side's trade *count* beside its %.
 
+## Transaction history
+
+Profile → **My Subscription** card, **last row** (Figma draws it there, under the
+subscriptions; the card now always renders, so a member with none still reaches
+it) → `/profile/transactions` (`TransactionsScreen`) → a row → `/profile/
+transactions/:id` (`TransactionDetailScreen`, gets the model via `extra`; with none
+it redirects to the list). Design: Figma Final page `Profile / Transaction History –
+V1` (`1809:5414`) — the **My Tickets chrome** (`TicketSheetPage`, a new
+`TicketHeaderSpec.transactions`: same positions as the list, but 69 tall because
+Figma's body starts at 47 with 22 above the first card), a `TicketCard` per payment
+(tile · title over "plan · date" · amount over a Paid/Failed pill · rule · invoice
+number + Download chip, or the bank's reason for a failed one). Everything reuses the
+ticket palette; `TransactionTypography` (`context.transactionType`) holds only the
+new styles. Tile glyphs: the Profile's own (academy, investor, intraday chart) plus
+`assets/icons/txn_*.svg` (pie, briefcase, download, alert) and `profile_receipt.svg`
+for the row. A **failed** tile is the teal at 45% (measured), the glyph stays white.
+
+* **The data is demo.** No endpoint returns a member's payments. `TransactionsDemoDatasource`
+  holds Figma's seven rows behind `TransactionsRepository` → `GetTransactions` →
+  `TransactionsBloc` (`@injectable`, route-scoped); delete the datasource and put a
+  remote one behind the same repository when the API exists. `TransactionModel.fromJson`
+  is the shape to map it onto. Payment methods and ids are invented.
+* **Download uses the real invoice machinery** (`InvoiceDownloadBloc`, route-scoped on
+  both screens, `InvoiceSaveListener` → the device's save dialog) but demo rows have
+  `invoiceId == null`, so a tap says "No invoice is available for this payment yet."
+  rather than calling `/payments/receipts/{id}/download` with an id the server never
+  issued. A real row with an `invoiceId` works with no further change.
+* **The detail screen is not in Figma** — built from the Subscription Detail chrome
+  (`TealSheetScaffold`, `TealSectionCard` of `DetailCell`s, the teal Download bar).
+  Flag it for the designer. It shows only the cells that exist (no invoice number or
+  payment id for a failed payment). Pinned by `test/transactions_test.dart`;
+  `transactions_goldens_test.dart` (tag `golden`) renders to `build/transaction_goldens/`.
+
 ## Push notifications, the inbox and the in-app banner
 
 Contract: `mobile-push-notifications-integration.md` (guide) +

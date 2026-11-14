@@ -24,6 +24,15 @@ class TicketHeaderSpec {
     height: 75,
   );
 
+  /// Transaction history: the same positions as [list], but the cards start at
+  /// 69 (Figma's body sits at y=47 with 22 above its first card), not 75.
+  static const transactions = TicketHeaderSpec(
+    arrowTop: 17,
+    titleTop: 14,
+    subtitleTop: 41,
+    height: 69,
+  );
+
   /// Raise a Ticket.
   static const form = TicketHeaderSpec(
     arrowTop: 13,

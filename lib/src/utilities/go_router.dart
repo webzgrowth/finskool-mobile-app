@@ -16,6 +16,9 @@ import 'package:finskool/src/presentation/pages/authentication/social_verify/soc
 import 'package:finskool/src/presentation/pages/authentication/signup_success/signup_success_screen.dart';
 import 'package:finskool/src/presentation/pages/dashboard/dashboard_shell_screen.dart';
 import 'package:finskool/src/presentation/pages/communities/detail/community_detail_screen.dart';
+import 'package:finskool/src/domain/model/transaction/transaction_model.dart';
+import 'package:finskool/src/presentation/pages/transactions/detail/transaction_detail_screen.dart';
+import 'package:finskool/src/presentation/pages/transactions/transactions_screen.dart';
 import 'package:finskool/src/presentation/pages/communities/checkout/checkout_webview_screen.dart';
 import 'package:finskool/src/presentation/pages/dashboard/performance/performance_screen.dart';
 import 'package:finskool/src/presentation/pages/notifications/notifications_screen.dart';
@@ -246,6 +249,28 @@ GoRouter routerinit = GoRouter(
       builder: (BuildContext context, GoRouterState state) {
         return const AboutSebiScreen();
       },
+    ),
+    GoRoute(
+      name: AppRoutes.TRANSACTIONS_ROUTE_NAME,
+      path: AppRoutes.TRANSACTIONS_ROUTE_PATH,
+      builder: (BuildContext context, GoRouterState state) =>
+          const TransactionsScreen(),
+      routes: [
+        GoRoute(
+          name: AppRoutes.TRANSACTION_DETAIL_ROUTE_NAME,
+          path: ':id',
+          // The row hands over the whole payment; a link with none (a cold
+          // start) has nothing to show, so it falls back to the list.
+          redirect: (BuildContext context, GoRouterState state) =>
+              state.extra is TransactionModel
+              ? null
+              : AppRoutes.TRANSACTIONS_ROUTE_PATH,
+          builder: (BuildContext context, GoRouterState state) =>
+              TransactionDetailScreen(
+                transaction: state.extra! as TransactionModel,
+              ),
+        ),
+      ],
     ),
     GoRoute(
       name: AppRoutes.SUPPORT_TICKETS_ROUTE_NAME,

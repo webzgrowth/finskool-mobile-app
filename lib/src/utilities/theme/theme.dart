@@ -15,6 +15,7 @@ export 'extensions/performance_typography.dart';
 export 'extensions/profile_typography.dart';
 export 'extensions/subscription_detail_typography.dart';
 export 'extensions/ticket_typography.dart';
+export 'extensions/transaction_typography.dart';
 export 'text/app_text_theme.dart';
 export 'text/text_style_factory.dart';
 export 'tokens/app_palette.dart';

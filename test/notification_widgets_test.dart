@@ -18,26 +18,27 @@ import 'support/ticket_fakes.dart';
 void main() {
   setUpAll(loadAppFonts);
 
-  testWidgets('a long title wraps (up to three lines) instead of cutting the name', (
-    tester,
-  ) async {
-    tester.view.physicalSize = const Size(360, 640);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.reset);
-    const title = 'New announcement in Investor Community Premium Plus';
-    await tester.pumpWidget(
-      MaterialApp(
-        theme: AppTheme.light,
-        home: const Scaffold(
-          body: NotificationCard(title: title, body: 'b', time: '1m'),
+  testWidgets(
+    'a long title wraps (up to three lines) instead of cutting the name',
+    (tester) async {
+      tester.view.physicalSize = const Size(360, 640);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      const title = 'New announcement in Investor Community Premium Plus';
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: AppTheme.light,
+          home: const Scaffold(
+            body: NotificationCard(title: title, body: 'b', time: '1m'),
+          ),
         ),
-      ),
-    );
-    final text = tester.widget<Text>(find.text(title));
-    expect(text.maxLines, 3);
-    // It really takes more than one line (so was being cut before).
-    expect(tester.getSize(find.text(title)).height, greaterThan(20));
-  });
+      );
+      final text = tester.widget<Text>(find.text(title));
+      expect(text.maxLines, 3);
+      // It really takes more than one line (so was being cut before).
+      expect(tester.getSize(find.text(title)).height, greaterThan(20));
+    },
+  );
 
   testWidgets('the card shows the Figma anatomy and reports taps', (
     tester,

@@ -59,6 +59,13 @@ class ProfileSections extends StatelessWidget {
                   ),
                   onRenew: () => onRenew(c),
                 ),
+              // Figma puts it last in this card, under the subscriptions.
+              ProfileMenuRow(
+                glyph: ProfileGlyphs.receipt,
+                title: 'Transaction history',
+                subtitle: 'All your past payments and invoices',
+                onTap: () => go(AppRoutes.TRANSACTIONS_ROUTE_PATH),
+              ),
             ],
           ),
         ),

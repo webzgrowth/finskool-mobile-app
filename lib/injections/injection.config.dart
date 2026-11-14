@@ -35,6 +35,8 @@ import 'package:finskool/src/data/datasource/social_auth_remote_datasource.dart'
     as _i938;
 import 'package:finskool/src/data/datasource/tickets_remote_datasource.dart'
     as _i559;
+import 'package:finskool/src/data/datasource/transactions_demo_datasource.dart'
+    as _i621;
 import 'package:finskool/src/data/push/push_service.dart' as _i548;
 import 'package:finskool/src/data/repository/auth_repository_impl.dart'
     as _i141;
@@ -59,6 +61,8 @@ import 'package:finskool/src/data/repository/social_auth_repository_impl.dart'
     as _i22;
 import 'package:finskool/src/data/repository/tickets_repository_impl.dart'
     as _i745;
+import 'package:finskool/src/data/repository/transactions_repository_impl.dart'
+    as _i733;
 import 'package:finskool/src/data/social/social_credential_source.dart'
     as _i593;
 import 'package:finskool/src/data/socket/notifications_socket.dart' as _i415;
@@ -84,6 +88,8 @@ import 'package:finskool/src/domain/repository/social_auth_repository.dart'
     as _i1071;
 import 'package:finskool/src/domain/repository/tickets_repository.dart'
     as _i343;
+import 'package:finskool/src/domain/repository/transactions_repository.dart'
+    as _i935;
 import 'package:finskool/src/domain/usecases/auth/get_auth_status.dart'
     as _i741;
 import 'package:finskool/src/domain/usecases/auth/login_user.dart' as _i379;
@@ -118,7 +124,7 @@ import 'package:finskool/src/domain/usecases/feed/react_to_post.dart' as _i644;
 import 'package:finskool/src/domain/usecases/feed/remove_reaction.dart'
     as _i757;
 import 'package:finskool/src/domain/usecases/kyc/get_kyc_status.dart' as _i674;
-import 'package:finskool/src/domain/usecases/kyc/submit_kyc.dart' as _i935;
+import 'package:finskool/src/domain/usecases/kyc/submit_kyc.dart' as _i936;
 import 'package:finskool/src/domain/usecases/notifications/get_notifications.dart'
     as _i583;
 import 'package:finskool/src/domain/usecases/notifications/get_notifications_unread_count.dart'
@@ -178,7 +184,7 @@ import 'package:finskool/src/domain/usecases/services/upload_service_attachment.
 import 'package:finskool/src/domain/usecases/services/verify_service_payment.dart'
     as _i868;
 import 'package:finskool/src/domain/usecases/social/link_social_account.dart'
-    as _i771;
+    as _i772;
 import 'package:finskool/src/domain/usecases/social/request_social_phone.dart'
     as _i513;
 import 'package:finskool/src/domain/usecases/social/social_sign_in.dart'
@@ -204,6 +210,8 @@ import 'package:finskool/src/domain/usecases/tickets/send_ticket_message.dart'
     as _i233;
 import 'package:finskool/src/domain/usecases/tickets/upload_ticket_attachment.dart'
     as _i816;
+import 'package:finskool/src/domain/usecases/transactions/get_transactions.dart'
+    as _i771;
 import 'package:finskool/src/presentation/bloc/authentication/authenticator_watcher/authenticator_watcher_bloc.dart'
     as _i821;
 import 'package:finskool/src/presentation/bloc/authentication/login_form/login_form_bloc.dart'
@@ -270,6 +278,8 @@ import 'package:finskool/src/presentation/bloc/tickets/list/tickets_list_bloc.da
     as _i374;
 import 'package:finskool/src/presentation/bloc/tickets/unread/tickets_unread_bloc.dart'
     as _i142;
+import 'package:finskool/src/presentation/bloc/transactions/list/transactions_bloc.dart'
+    as _i87;
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:injectable/injectable.dart' as _i526;
 
@@ -285,6 +295,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.singleton<_i64.BottomNavBloc>(() => _i64.BottomNavBloc());
     gh.singleton<_i348.ServicesFilterBloc>(() => _i348.ServicesFilterBloc());
     gh.lazySingleton<_i373.ApiClient>(() => _i373.ApiClient());
+    gh.lazySingleton<_i621.TransactionsDemoDatasource>(
+      () => _i621.TransactionsDemoDatasource(),
+    );
     gh.lazySingleton<_i415.NotificationsSocket>(
       () => _i415.NotificationsSocket(),
     );
@@ -294,6 +307,14 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i593.SocialCredentialSource>(
       () => _i593.PlatformSocialCredentialSource(),
+    );
+    gh.lazySingleton<_i935.TransactionsRepository>(
+      () => _i733.TransactionsRepositoryImpl(
+        gh<_i621.TransactionsDemoDatasource>(),
+      ),
+    );
+    gh.lazySingleton<_i771.GetTransactions>(
+      () => _i771.GetTransactions(gh<_i935.TransactionsRepository>()),
     );
     gh.lazySingleton<_i10.AuthRemoteDatasource>(
       () => _i10.AuthRemoteDatasource(gh<_i373.ApiClient>()),
@@ -340,6 +361,9 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i373.ApiClient>(),
         gh<_i867.ReactionTypeCatalog>(),
       ),
+    );
+    gh.factory<_i87.TransactionsBloc>(
+      () => _i87.TransactionsBloc(gh<_i771.GetTransactions>()),
     );
     gh.lazySingleton<_i645.ServicesRemoteDatasource>(
       () => _i645.ServicesRemoteDatasource(
@@ -506,8 +530,8 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i674.GetKycStatus>(
       () => _i674.GetKycStatus(gh<_i427.KycRepository>()),
     );
-    gh.lazySingleton<_i935.SubmitKyc>(
-      () => _i935.SubmitKyc(gh<_i427.KycRepository>()),
+    gh.lazySingleton<_i936.SubmitKyc>(
+      () => _i936.SubmitKyc(gh<_i427.KycRepository>()),
     );
     gh.factory<_i177.TicketFormBloc>(
       () => _i177.TicketFormBloc(
@@ -517,7 +541,7 @@ extension GetItInjectableX on _i174.GetIt {
       ),
     );
     gh.singleton<_i967.ComplianceBloc>(
-      () => _i967.ComplianceBloc(gh<_i935.SubmitKyc>()),
+      () => _i967.ComplianceBloc(gh<_i936.SubmitKyc>()),
     );
     gh.lazySingleton<_i970.GetPostReactions>(
       () => _i970.GetPostReactions(gh<_i365.PostsRepository>()),
@@ -709,8 +733,8 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i916.TicketsSocket>(),
       ),
     );
-    gh.lazySingleton<_i771.LinkSocialAccount>(
-      () => _i771.LinkSocialAccount(gh<_i1071.SocialAuthRepository>()),
+    gh.lazySingleton<_i772.LinkSocialAccount>(
+      () => _i772.LinkSocialAccount(gh<_i1071.SocialAuthRepository>()),
     );
     gh.lazySingleton<_i513.RequestSocialPhone>(
       () => _i513.RequestSocialPhone(gh<_i1071.SocialAuthRepository>()),
@@ -762,7 +786,7 @@ extension GetItInjectableX on _i174.GetIt {
     gh.singleton<_i728.SocialAuthBloc>(
       () => _i728.SocialAuthBloc(
         gh<_i922.SocialSignIn>(),
-        gh<_i771.LinkSocialAccount>(),
+        gh<_i772.LinkSocialAccount>(),
         gh<_i513.RequestSocialPhone>(),
         gh<_i384.VerifySocialOtp>(),
         gh<_i775.ResendOtp>(),
