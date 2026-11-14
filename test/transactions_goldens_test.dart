@@ -5,13 +5,13 @@ import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:finskool/src/data/datasource/transactions_demo_datasource.dart';
 import 'package:finskool/src/domain/usecases/transactions/get_transactions.dart';
 import 'package:finskool/src/domain/usecases/community/download_invoice.dart';
 import 'package:finskool/src/domain/repository/invoice_repository.dart';
 import 'package:finskool/src/domain/model/community/invoice_file.dart';
 import 'package:finskool/src/comman/failure.dart';
-import 'package:finskool/src/data/repository/transactions_repository_impl.dart';
+import 'package:finskool/src/domain/model/transaction/transactions_page.dart';
+import 'package:finskool/src/domain/repository/transactions_repository.dart';
 import 'package:finskool/src/presentation/bloc/communities/invoice/invoice_download_bloc.dart';
 import 'package:finskool/src/presentation/bloc/transactions/list/transactions_bloc.dart';
 import 'package:finskool/src/presentation/pages/transactions/detail/transaction_detail_screen.dart';
@@ -19,6 +19,7 @@ import 'package:finskool/src/presentation/pages/transactions/transactions_screen
 import 'package:finskool/src/utilities/theme/theme.dart';
 
 import 'support/ticket_fakes.dart';
+import 'support/transaction_fixtures.dart';
 
 /// Renders the list and a detail to `build/transaction_goldens/` for a
 /// side-by-side look with Figma's `1809:5414`. Eyeballing, not CI:
@@ -39,7 +40,7 @@ void main() {
   }
 
   testWidgets('list', (t) async {
-    final repo = TransactionsRepositoryImpl(TransactionsDemoDatasource());
+    final repo = _Repo();
     final bloc = TransactionsBloc(GetTransactions(repo))
       ..add(const TransactionsEvent.load());
     addTearDown(bloc.close);
@@ -54,21 +55,20 @@ void main() {
         child: const TransactionsView(),
       ),
       'list',
-      1238,
+      560,
     );
   });
 
-  for (final id in ['txn-0511', 'txn-failed']) {
+  for (final id in ['plan:1', 'svc:55d2', 'svc:77aa']) {
     testWidgets('detail $id', (t) async {
-      final rows = await TransactionsDemoDatasource().getTransactions();
-      final row = rows.firstWhere((r) => r.id == id);
+      final row = sampleTransactions().firstWhere((r) => r.id == id);
       await shot(
         t,
         BlocProvider<InvoiceDownloadBloc>(
           create: (_) => _fakeInvoiceBloc(),
           child: TransactionDetailView(transaction: row),
         ),
-        'detail_$id',
+        'detail_${id.replaceAll(':', '_')}',
         812,
       );
     });
@@ -79,7 +79,19 @@ class _NoInvoices implements InvoiceRepository {
   @override
   Future<Either<Failure, InvoiceFile>> download(String invoiceId) async =>
       const Left(ServerFailure('No invoice.'));
+
+  @override
+  Future<Either<Failure, InvoiceFile>> downloadFromPath(String path) async =>
+      const Left(ServerFailure('No invoice.'));
 }
 
 InvoiceDownloadBloc _fakeInvoiceBloc() =>
     InvoiceDownloadBloc(DownloadInvoice(_NoInvoices()));
+
+class _Repo implements TransactionsRepository {
+  @override
+  Future<Either<Failure, TransactionsPage>> getTransactions(int page) async =>
+      Right(
+        TransactionsPage(items: sampleTransactions(), page: 1, totalPages: 1),
+      );
+}

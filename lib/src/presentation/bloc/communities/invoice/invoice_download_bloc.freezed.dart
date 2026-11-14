@@ -56,11 +56,12 @@ extension InvoiceDownloadEventPatterns on InvoiceDownloadEvent {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _Requested value)?  requested,TResult Function( _Reset value)?  reset,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _Requested value)?  requested,TResult Function( _RequestedPath value)?  requestedPath,TResult Function( _Reset value)?  reset,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case _Requested() when requested != null:
-return requested(_that);case _Reset() when reset != null:
+return requested(_that);case _RequestedPath() when requestedPath != null:
+return requestedPath(_that);case _Reset() when reset != null:
 return reset(_that);case _:
   return orElse();
 
@@ -79,11 +80,12 @@ return reset(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _Requested value)  requested,required TResult Function( _Reset value)  reset,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _Requested value)  requested,required TResult Function( _RequestedPath value)  requestedPath,required TResult Function( _Reset value)  reset,}){
 final _that = this;
 switch (_that) {
 case _Requested():
-return requested(_that);case _Reset():
+return requested(_that);case _RequestedPath():
+return requestedPath(_that);case _Reset():
 return reset(_that);case _:
   throw StateError('Unexpected subclass');
 
@@ -101,11 +103,12 @@ return reset(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _Requested value)?  requested,TResult? Function( _Reset value)?  reset,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _Requested value)?  requested,TResult? Function( _RequestedPath value)?  requestedPath,TResult? Function( _Reset value)?  reset,}){
 final _that = this;
 switch (_that) {
 case _Requested() when requested != null:
-return requested(_that);case _Reset() when reset != null:
+return requested(_that);case _RequestedPath() when requestedPath != null:
+return requestedPath(_that);case _Reset() when reset != null:
 return reset(_that);case _:
   return null;
 
@@ -123,10 +126,11 @@ return reset(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String invoiceId)?  requested,TResult Function()?  reset,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String invoiceId)?  requested,TResult Function( String path)?  requestedPath,TResult Function()?  reset,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Requested() when requested != null:
-return requested(_that.invoiceId);case _Reset() when reset != null:
+return requested(_that.invoiceId);case _RequestedPath() when requestedPath != null:
+return requestedPath(_that.path);case _Reset() when reset != null:
 return reset();case _:
   return orElse();
 
@@ -145,10 +149,11 @@ return reset();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String invoiceId)  requested,required TResult Function()  reset,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String invoiceId)  requested,required TResult Function( String path)  requestedPath,required TResult Function()  reset,}) {final _that = this;
 switch (_that) {
 case _Requested():
-return requested(_that.invoiceId);case _Reset():
+return requested(_that.invoiceId);case _RequestedPath():
+return requestedPath(_that.path);case _Reset():
 return reset();case _:
   throw StateError('Unexpected subclass');
 
@@ -166,10 +171,11 @@ return reset();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String invoiceId)?  requested,TResult? Function()?  reset,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String invoiceId)?  requested,TResult? Function( String path)?  requestedPath,TResult? Function()?  reset,}) {final _that = this;
 switch (_that) {
 case _Requested() when requested != null:
-return requested(_that.invoiceId);case _Reset() when reset != null:
+return requested(_that.invoiceId);case _RequestedPath() when requestedPath != null:
+return requestedPath(_that.path);case _Reset() when reset != null:
 return reset();case _:
   return null;
 
@@ -239,6 +245,74 @@ class __$RequestedCopyWithImpl<$Res>
 @pragma('vm:prefer-inline') $Res call({Object? invoiceId = null,}) {
   return _then(_Requested(
 null == invoiceId ? _self.invoiceId : invoiceId // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class _RequestedPath implements InvoiceDownloadEvent {
+  const _RequestedPath(this.path);
+  
+
+ final  String path;
+
+/// Create a copy of InvoiceDownloadEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$RequestedPathCopyWith<_RequestedPath> get copyWith => __$RequestedPathCopyWithImpl<_RequestedPath>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _RequestedPath&&(identical(other.path, path) || other.path == path));
+}
+
+
+@override
+int get hashCode {
+    return Object.hash(runtimeType,path);
+}
+
+@override
+String toString() {
+    return 'InvoiceDownloadEvent.requestedPath(path: $path)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$RequestedPathCopyWith<$Res> implements $InvoiceDownloadEventCopyWith<$Res> {
+  factory _$RequestedPathCopyWith(_RequestedPath value, $Res Function(_RequestedPath) _then) = __$RequestedPathCopyWithImpl;
+@useResult
+$Res call({
+ String path
+});
+
+
+
+
+}
+/// @nodoc
+class __$RequestedPathCopyWithImpl<$Res>
+    implements _$RequestedPathCopyWith<$Res> {
+  __$RequestedPathCopyWithImpl(this._self, this._then);
+
+  final _RequestedPath _self;
+  final $Res Function(_RequestedPath) _then;
+
+/// Create a copy of InvoiceDownloadEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? path = null,}) {
+  return _then(_RequestedPath(
+null == path ? _self.path : path // ignore: cast_nullable_to_non_nullable
 as String,
   ));
 }

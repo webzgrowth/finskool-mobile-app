@@ -35,6 +35,14 @@ class _Repo implements InvoiceRepository {
     asked.add(invoiceId);
     return answer(invoiceId);
   }
+
+  final askedPaths = <String>[];
+
+  @override
+  Future<Either<Failure, InvoiceFile>> downloadFromPath(String path) {
+    askedPaths.add(path);
+    return answer(path);
+  }
 }
 
 /// The `invoice` object on a `/auth/mobile/me` community row.
@@ -127,6 +135,15 @@ void main() {
         expect(bloc.state.file!.bytes, isNotEmpty);
       },
     );
+
+    test('a transaction downloads from the path the server sent', () async {
+      const path = '/api/v1/payments/receipts/r1/download';
+      bloc.add(const InvoiceDownloadEvent.requestedPath(path));
+      await pump();
+      expect(repo.askedPaths, [path]);
+      expect(repo.asked, isEmpty);
+      expect(bloc.state.state, RequestState.loaded);
+    });
 
     test('every tap downloads again — nothing is reused', () async {
       bloc.add(const InvoiceDownloadEvent.requested('inv-1'));

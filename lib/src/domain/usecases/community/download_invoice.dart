@@ -13,4 +13,7 @@ class DownloadInvoice {
 
   Future<Either<Failure, InvoiceFile>> execute(String invoiceId) =>
       _repository.download(invoiceId);
+
+  Future<Either<Failure, InvoiceFile>> fromPath(String path) =>
+      _repository.downloadFromPath(path);
 }

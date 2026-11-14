@@ -8,4 +8,7 @@ abstract class InvoiceRepository {
   /// The invoice's PDF, fetched fresh. Never cache it: the signed link it comes
   /// from lives only a few minutes.
   Future<Either<Failure, InvoiceFile>> download(String invoiceId);
+
+  /// The same, for the `downloadPath` the server gave a transaction.
+  Future<Either<Failure, InvoiceFile>> downloadFromPath(String path);
 }

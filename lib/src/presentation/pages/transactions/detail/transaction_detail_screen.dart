@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 import 'package:finskool/injections/injection.dart';
+import 'package:finskool/src/comman/ist_time.dart';
 import 'package:finskool/src/comman/widgets/detail_cell.dart';
 import 'package:finskool/src/comman/widgets/teal_section_card.dart';
 import 'package:finskool/src/comman/widgets/teal_sheet_scaffold.dart';
@@ -11,8 +11,8 @@ import 'package:finskool/src/presentation/bloc/communities/invoice/invoice_downl
 import 'package:finskool/src/presentation/pages/tickets/widgets/ticket_card.dart';
 
 import '../widgets/transaction_invoice.dart';
+import '../widgets/transaction_status_note.dart';
 import '../widgets/transaction_summary_row.dart';
-import 'transaction_failed_note.dart';
 import 'transaction_invoice_button.dart';
 
 /// One payment's receipt. **Not in Figma** — the design draws only the list —
@@ -51,8 +51,8 @@ class TransactionDetailView extends StatelessWidget {
           const SizedBox(height: 7),
           TicketCard(child: TransactionSummaryRow(transaction: t)),
           const SizedBox(height: 14),
-          if (t.isFailed) ...[
-            TransactionFailedNote(reason: t.failureReason),
+          if (!t.isPaid) ...[
+            TransactionStatusNote(transaction: t, plate: true),
             const SizedBox(height: 16),
           ],
           _Details(transaction: t),
@@ -83,21 +83,24 @@ class _Details extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = transaction;
-    final service = t.kind == TransactionKind.service;
-    // Only what exists, paired two to a row: a failed payment has no invoice
-    // number or payment id, and the grid should not show dashes for them.
+    // Only what the API sent, paired two to a row: a failed payment has no
+    // invoice number, a card-less one no method, and the grid shows no dashes.
     final cells = <_Cell>[
       if (t.invoiceNumber != null)
         _Cell('sub_copy', 'Invoice', t.invoiceNumber!),
-      _Cell(
-        'sub_calendar_check',
-        t.isPaid ? 'Paid on' : 'Attempted on',
-        DateFormat('d MMM yyyy').format(t.date),
-      ),
-      _Cell('sub_plan', service ? 'Quote' : 'Plan', t.descriptor),
+      _Cell('sub_calendar_check', switch (t.status) {
+        TransactionStatus.paid => 'Paid on',
+        TransactionStatus.failed => 'Attempted on',
+        TransactionStatus.flagged => 'Received on',
+      }, formatIst(t.occurredAt, 'd MMM yyyy,\nh:mm a')),
+      if (t.kind == TransactionKind.service && t.reference != null)
+        _Cell('sub_plan', 'Request', t.reference!),
+      if (t.planName != null) _Cell('sub_plan', 'Plan', t.planName!),
+      if (t.planDuration != null)
+        _Cell('sub_calendar_add', 'Duration', t.planDuration!),
       _Cell('sub_dollar', 'Amount', t.amountLabel),
-      if (t.paymentMethod != null)
-        _Cell('sub_card', 'Payment method', t.paymentMethod!),
+      if (t.methodLabel != null)
+        _Cell('sub_card', 'Payment method', t.methodLabel!),
       if (t.paymentId != null) _Cell('sub_copy', 'Payment ID', t.paymentId!),
     ];
     final rows = <(_Cell, _Cell?)>[
@@ -145,8 +148,12 @@ class _CellRow extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Expanded(child: left.build()),
-            const GridVRule(),
-            Expanded(child: right?.build() ?? const SizedBox.shrink()),
+            // A lone last cell has nothing to divide from.
+            if (right != null) ...[
+              const GridVRule(),
+              Expanded(child: right!.build()),
+            ] else
+              const Spacer(),
           ],
         ),
       ),

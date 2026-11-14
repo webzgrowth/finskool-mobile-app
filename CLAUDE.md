@@ -2279,27 +2279,49 @@ it redirects to the list). Design: Figma Final page `Profile / Transaction Histo
 V1` (`1809:5414`) — the **My Tickets chrome** (`TicketSheetPage`, a new
 `TicketHeaderSpec.transactions`: same positions as the list, but 69 tall because
 Figma's body starts at 47 with 22 above the first card), a `TicketCard` per payment
-(tile · title over "plan · date" · amount over a Paid/Failed pill · rule · invoice
-number + Download chip, or the bank's reason for a failed one). Everything reuses the
-ticket palette; `TransactionTypography` (`context.transactionType`) holds only the
-new styles. Tile glyphs: the Profile's own (academy, investor, intraday chart) plus
-`assets/icons/txn_*.svg` (pie, briefcase, download, alert) and `profile_receipt.svg`
-for the row. A **failed** tile is the teal at 45% (measured), the glyph stays white.
+(tile · title over "plan · date" · amount over a Paid/Failed/Under-review pill · rule ·
+invoice number + Download chip, or what happened for a payment that is not simply paid).
+Everything reuses the ticket palette; `TransactionTypography` (`context.transactionType`)
+holds only the new styles. Assets: `txn_briefcase.svg`, `txn_download.svg`,
+`txn_alert.svg`, `profile_receipt.svg`; the community glyph is the Profile's chart. A
+**failed** tile is the teal at 45% (measured), the glyph stays white.
 
-* **The data is demo.** No endpoint returns a member's payments. `TransactionsDemoDatasource`
-  holds Figma's seven rows behind `TransactionsRepository` → `GetTransactions` →
-  `TransactionsBloc` (`@injectable`, route-scoped); delete the datasource and put a
-  remote one behind the same repository when the API exists. `TransactionModel.fromJson`
-  is the shape to map it onto. Payment methods and ids are invented.
-* **Download uses the real invoice machinery** (`InvoiceDownloadBloc`, route-scoped on
-  both screens, `InvoiceSaveListener` → the device's save dialog) but demo rows have
-  `invoiceId == null`, so a tap says "No invoice is available for this payment yet."
-  rather than calling `/payments/receipts/{id}/download` with an id the server never
-  issued. A real row with an `invoiceId` works with no further change.
+**Wired to the real API** (`GET /mobile/transactions`, `Api.transactions`):
+`TransactionsRemoteDatasource` → `TransactionsRepository` → `GetTransactions(page)` →
+`TransactionsBloc` (`@injectable`, route-scoped). The demo datasource is deleted. **The
+screens show only fields the endpoint sends** — nothing is invented client-side.
+
+* **Paged, 20 a time**, `loadMore` from a scroll listener in the list (`extentAfter <
+  600`, `maxScrollExtent > 0`, plus the bloc's own `hasMore` / in-flight guard — the
+  same trap as the feed). The API warns a new payment can **repeat a row on the next
+  page**, so appending drops ids already held. `_generation` drops a "next page" that
+  belongs to a list since reloaded; a failed next page keeps the rows and raises
+  `message`. `isRefreshing` is what the pull-to-refresh spinner waits on. The `from`/`to`
+  date params exist but no screen filters by date.
+* **Three statuses.** `paid`; `failed` (nothing deducted — the backend's `failureReason`
+  is shown **verbatim**, local wording only when it sent none); `flagged` = money
+  received but not applied → pill **Under review** plus our own note ("…you do not need
+  to pay again") — the API sends no text for it, and it must never invite a second
+  payment. An unknown status is treated as `flagged`, not as success.
+* **No product on the wire**, so the tile follows `kind` (community → chart, service →
+  briefcase) and the subtitle is `planName` (or `planMonths` "12 months") for a community
+  and `reference` ("SR-12 · Quote 1") for a service. The date goes through `formatIst`
+  (`occurredAt` is UTC); the dot + date are no-break-joined so the date never splits.
+* **Download** reuses `InvoiceDownloadBloc` / `InvoiceSaveListener`, but calls the
+  row's own **`invoice.downloadPath`** as sent (`InvoiceDownloadEvent.requestedPath` →
+  `DownloadInvoice.fromPath` → `InvoiceRemoteDatasource.downloadFromPath`) — a fresh
+  signed link on every tap, then the PDF. The path already carries `/api/v1`, so
+  `Api.fromHostRoot` makes it an absolute URL on the API's host instead of appending it
+  to `baseUrl` (which would double the prefix; pinned in `transactions_test`). The
+  community Subscription Detail still uses the id-based `requested`. `invoice` is null
+  for failed and flagged rows, so they show no Download.
 * **The detail screen is not in Figma** — built from the Subscription Detail chrome
   (`TealSheetScaffold`, `TealSectionCard` of `DetailCell`s, the teal Download bar).
-  Flag it for the designer. It shows only the cells that exist (no invoice number or
-  payment id for a failed payment). Pinned by `test/transactions_test.dart`;
+  Flag it for the designer. Cells appear only when the API sent the field (Invoice,
+  Paid/Attempted/Received on with the IST time, Request, Plan, Duration, Amount, Payment
+  method, Payment ID). "Invoices are also sent to your registered email." is Figma's
+  footnote, not an API fact — drop it if the backend does not email them. Pinned by
+  `test/transactions_test.dart` (fixtures in `test/support/transaction_fixtures.dart`);
   `transactions_goldens_test.dart` (tag `golden`) renders to `build/transaction_goldens/`.
 
 ## Push notifications, the inbox and the in-app banner

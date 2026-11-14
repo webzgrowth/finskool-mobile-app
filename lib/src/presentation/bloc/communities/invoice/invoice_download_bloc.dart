@@ -1,7 +1,9 @@
 import 'package:bloc/bloc.dart';
+import 'package:dartz/dartz.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:finskool/src/comman/enum.dart';
+import 'package:finskool/src/comman/failure.dart';
 import 'package:finskool/src/domain/model/community/invoice_file.dart';
 import 'package:finskool/src/domain/usecases/community/download_invoice.dart';
 
@@ -22,7 +24,8 @@ class InvoiceDownloadBloc
   InvoiceDownloadBloc(this._download) : super(InvoiceDownloadState.initial()) {
     on<InvoiceDownloadEvent>((event, emit) async {
       await event.map(
-        requested: (e) => _request(e.invoiceId, emit),
+        requested: (e) => _request(() => _download.execute(e.invoiceId), emit),
+        requestedPath: (e) => _request(() => _download.fromPath(e.path), emit),
         reset: (_) async => emit(InvoiceDownloadState.initial()),
       );
     });
@@ -31,13 +34,13 @@ class InvoiceDownloadBloc
   final DownloadInvoice _download;
 
   Future<void> _request(
-    String invoiceId,
+    Future<Either<Failure, InvoiceFile>> Function() fetch,
     Emitter<InvoiceDownloadState> emit,
   ) async {
     // A second tap while the first is in flight must not fire a second call.
     if (state.state.isLoading) return;
     emit(const InvoiceDownloadState(state: RequestState.loading));
-    final result = await _download.execute(invoiceId);
+    final result = await fetch();
     emit(
       result.fold(
         (failure) => InvoiceDownloadState(

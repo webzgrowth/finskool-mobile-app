@@ -35,8 +35,8 @@ import 'package:finskool/src/data/datasource/social_auth_remote_datasource.dart'
     as _i938;
 import 'package:finskool/src/data/datasource/tickets_remote_datasource.dart'
     as _i559;
-import 'package:finskool/src/data/datasource/transactions_demo_datasource.dart'
-    as _i621;
+import 'package:finskool/src/data/datasource/transactions_remote_datasource.dart'
+    as _i88;
 import 'package:finskool/src/data/push/push_service.dart' as _i548;
 import 'package:finskool/src/data/repository/auth_repository_impl.dart'
     as _i141;
@@ -295,9 +295,6 @@ extension GetItInjectableX on _i174.GetIt {
     gh.singleton<_i64.BottomNavBloc>(() => _i64.BottomNavBloc());
     gh.singleton<_i348.ServicesFilterBloc>(() => _i348.ServicesFilterBloc());
     gh.lazySingleton<_i373.ApiClient>(() => _i373.ApiClient());
-    gh.lazySingleton<_i621.TransactionsDemoDatasource>(
-      () => _i621.TransactionsDemoDatasource(),
-    );
     gh.lazySingleton<_i415.NotificationsSocket>(
       () => _i415.NotificationsSocket(),
     );
@@ -307,14 +304,6 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i593.SocialCredentialSource>(
       () => _i593.PlatformSocialCredentialSource(),
-    );
-    gh.lazySingleton<_i935.TransactionsRepository>(
-      () => _i733.TransactionsRepositoryImpl(
-        gh<_i621.TransactionsDemoDatasource>(),
-      ),
-    );
-    gh.lazySingleton<_i771.GetTransactions>(
-      () => _i771.GetTransactions(gh<_i935.TransactionsRepository>()),
     );
     gh.lazySingleton<_i10.AuthRemoteDatasource>(
       () => _i10.AuthRemoteDatasource(gh<_i373.ApiClient>()),
@@ -346,6 +335,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i559.TicketsRemoteDatasource>(
       () => _i559.TicketsRemoteDatasource(gh<_i373.ApiClient>()),
     );
+    gh.lazySingleton<_i88.TransactionsRemoteDatasource>(
+      () => _i88.TransactionsRemoteDatasource(gh<_i373.ApiClient>()),
+    );
     gh.lazySingleton<_i560.NotificationsRepository>(
       () => _i646.NotificationsRepositoryImpl(
         gh<_i469.NotificationsRemoteDatasource>(),
@@ -361,9 +353,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i373.ApiClient>(),
         gh<_i867.ReactionTypeCatalog>(),
       ),
-    );
-    gh.factory<_i87.TransactionsBloc>(
-      () => _i87.TransactionsBloc(gh<_i771.GetTransactions>()),
     );
     gh.lazySingleton<_i645.ServicesRemoteDatasource>(
       () => _i645.ServicesRemoteDatasource(
@@ -434,6 +423,11 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i365.PostsRepository>(
       () => _i1039.PostsRepositoryImpl(gh<_i45.PostsRemoteDatasource>()),
     );
+    gh.lazySingleton<_i935.TransactionsRepository>(
+      () => _i733.TransactionsRepositoryImpl(
+        gh<_i88.TransactionsRemoteDatasource>(),
+      ),
+    );
     gh.lazySingleton<_i370.DownloadInvoice>(
       () => _i370.DownloadInvoice(gh<_i121.InvoiceRepository>()),
     );
@@ -453,6 +447,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i505.AuthRepository>(
       () => _i141.AuthRepositoryImpl(gh<_i10.AuthRemoteDatasource>()),
+    );
+    gh.lazySingleton<_i771.GetTransactions>(
+      () => _i771.GetTransactions(gh<_i935.TransactionsRepository>()),
     );
     gh.factory<_i531.PerformanceBloc>(
       () => _i531.PerformanceBloc(gh<_i530.GetPerformanceBoard>()),
@@ -493,6 +490,9 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i890.GetPushEnabled>(),
         gh<_i43.SetPushEnabled>(),
       ),
+    );
+    gh.factory<_i87.TransactionsBloc>(
+      () => _i87.TransactionsBloc(gh<_i771.GetTransactions>()),
     );
     gh.lazySingleton<_i325.CreateTicket>(
       () => _i325.CreateTicket(gh<_i343.TicketsRepository>()),

@@ -56,12 +56,13 @@ extension TransactionsEventPatterns on TransactionsEvent {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _Load value)?  load,TResult Function( _Refresh value)?  refresh,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _Load value)?  load,TResult Function( _Refresh value)?  refresh,TResult Function( _LoadMore value)?  loadMore,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case _Load() when load != null:
 return load(_that);case _Refresh() when refresh != null:
-return refresh(_that);case _:
+return refresh(_that);case _LoadMore() when loadMore != null:
+return loadMore(_that);case _:
   return orElse();
 
 }
@@ -79,12 +80,13 @@ return refresh(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _Load value)  load,required TResult Function( _Refresh value)  refresh,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _Load value)  load,required TResult Function( _Refresh value)  refresh,required TResult Function( _LoadMore value)  loadMore,}){
 final _that = this;
 switch (_that) {
 case _Load():
 return load(_that);case _Refresh():
-return refresh(_that);case _:
+return refresh(_that);case _LoadMore():
+return loadMore(_that);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -101,12 +103,13 @@ return refresh(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _Load value)?  load,TResult? Function( _Refresh value)?  refresh,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _Load value)?  load,TResult? Function( _Refresh value)?  refresh,TResult? Function( _LoadMore value)?  loadMore,}){
 final _that = this;
 switch (_that) {
 case _Load() when load != null:
 return load(_that);case _Refresh() when refresh != null:
-return refresh(_that);case _:
+return refresh(_that);case _LoadMore() when loadMore != null:
+return loadMore(_that);case _:
   return null;
 
 }
@@ -123,11 +126,12 @@ return refresh(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  load,TResult Function()?  refresh,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  load,TResult Function()?  refresh,TResult Function()?  loadMore,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Load() when load != null:
 return load();case _Refresh() when refresh != null:
-return refresh();case _:
+return refresh();case _LoadMore() when loadMore != null:
+return loadMore();case _:
   return orElse();
 
 }
@@ -145,11 +149,12 @@ return refresh();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  load,required TResult Function()  refresh,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  load,required TResult Function()  refresh,required TResult Function()  loadMore,}) {final _that = this;
 switch (_that) {
 case _Load():
 return load();case _Refresh():
-return refresh();case _:
+return refresh();case _LoadMore():
+return loadMore();case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -166,11 +171,12 @@ return refresh();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  load,TResult? Function()?  refresh,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  load,TResult? Function()?  refresh,TResult? Function()?  loadMore,}) {final _that = this;
 switch (_that) {
 case _Load() when load != null:
 return load();case _Refresh() when refresh != null:
-return refresh();case _:
+return refresh();case _LoadMore() when loadMore != null:
+return loadMore();case _:
   return null;
 
 }
@@ -243,10 +249,43 @@ String toString() {
 
 
 /// @nodoc
+
+
+class _LoadMore implements TransactionsEvent {
+  const _LoadMore();
+  
+
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _LoadMore);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+    return 'TransactionsEvent.loadMore()';
+}
+
+
+}
+
+
+
+
+/// @nodoc
 mixin _$TransactionsState {
 
  RequestState get state;/// The server's own words for a failure.
- String get message; List<TransactionModel> get transactions;
+ String get message; List<TransactionModel> get transactions;/// The last page held (1-based) and whether the server has another.
+ int get page; bool get hasMore; bool get isLoadingMore; bool get isRefreshing;
 /// Create a copy of TransactionsState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -258,20 +297,20 @@ $TransactionsStateCopyWith<TransactionsState> get copyWith => _$TransactionsStat
 @override
 bool operator ==(Object other) {
   final _this = this as TransactionsState;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is TransactionsState&&(identical(other.state, _this.state) || other.state == _this.state)&&(identical(other.message, _this.message) || other.message == _this.message)&&const DeepCollectionEquality().equals(other.transactions, _this.transactions));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is TransactionsState&&(identical(other.state, _this.state) || other.state == _this.state)&&(identical(other.message, _this.message) || other.message == _this.message)&&const DeepCollectionEquality().equals(other.transactions, _this.transactions)&&(identical(other.page, _this.page) || other.page == _this.page)&&(identical(other.hasMore, _this.hasMore) || other.hasMore == _this.hasMore)&&(identical(other.isLoadingMore, _this.isLoadingMore) || other.isLoadingMore == _this.isLoadingMore)&&(identical(other.isRefreshing, _this.isRefreshing) || other.isRefreshing == _this.isRefreshing));
 }
 
 
 @override
 int get hashCode {
   final _this = this as TransactionsState;
-  return Object.hash(runtimeType,_this.state,_this.message,const DeepCollectionEquality().hash(_this.transactions));
+  return Object.hash(runtimeType,_this.state,_this.message,const DeepCollectionEquality().hash(_this.transactions),_this.page,_this.hasMore,_this.isLoadingMore,_this.isRefreshing);
 }
 
 @override
 String toString() {
   final _this = this as TransactionsState;
-  return 'TransactionsState(state: ${_this.state}, message: ${_this.message}, transactions: ${_this.transactions})';
+  return 'TransactionsState(state: ${_this.state}, message: ${_this.message}, transactions: ${_this.transactions}, page: ${_this.page}, hasMore: ${_this.hasMore}, isLoadingMore: ${_this.isLoadingMore}, isRefreshing: ${_this.isRefreshing})';
 }
 
 
@@ -282,7 +321,7 @@ abstract mixin class $TransactionsStateCopyWith<$Res>  {
   factory $TransactionsStateCopyWith(TransactionsState value, $Res Function(TransactionsState) _then) = _$TransactionsStateCopyWithImpl;
 @useResult
 $Res call({
- RequestState state, String message, List<TransactionModel> transactions
+ RequestState state, String message, List<TransactionModel> transactions, int page, bool hasMore, bool isLoadingMore, bool isRefreshing
 });
 
 
@@ -299,12 +338,16 @@ class _$TransactionsStateCopyWithImpl<$Res>
 
 /// Create a copy of TransactionsState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? state = null,Object? message = null,Object? transactions = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? state = null,Object? message = null,Object? transactions = null,Object? page = null,Object? hasMore = null,Object? isLoadingMore = null,Object? isRefreshing = null,}) {
   return _then(TransactionsState(
 state: null == state ? _self.state : state // ignore: cast_nullable_to_non_nullable
 as RequestState,message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
 as String,transactions: null == transactions ? _self.transactions : transactions // ignore: cast_nullable_to_non_nullable
-as List<TransactionModel>,
+as List<TransactionModel>,page: null == page ? _self.page : page // ignore: cast_nullable_to_non_nullable
+as int,hasMore: null == hasMore ? _self.hasMore : hasMore // ignore: cast_nullable_to_non_nullable
+as bool,isLoadingMore: null == isLoadingMore ? _self.isLoadingMore : isLoadingMore // ignore: cast_nullable_to_non_nullable
+as bool,isRefreshing: null == isRefreshing ? _self.isRefreshing : isRefreshing // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 
@@ -386,10 +429,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( RequestState state,  String message,  List<TransactionModel> transactions)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( RequestState state,  String message,  List<TransactionModel> transactions,  int page,  bool hasMore,  bool isLoadingMore,  bool isRefreshing)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _TransactionsState() when $default != null:
-return $default(_that.state,_that.message,_that.transactions);case _:
+return $default(_that.state,_that.message,_that.transactions,_that.page,_that.hasMore,_that.isLoadingMore,_that.isRefreshing);case _:
   return orElse();
 
 }
@@ -407,10 +450,10 @@ return $default(_that.state,_that.message,_that.transactions);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( RequestState state,  String message,  List<TransactionModel> transactions)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( RequestState state,  String message,  List<TransactionModel> transactions,  int page,  bool hasMore,  bool isLoadingMore,  bool isRefreshing)  $default,) {final _that = this;
 switch (_that) {
 case _TransactionsState():
-return $default(_that.state,_that.message,_that.transactions);}
+return $default(_that.state,_that.message,_that.transactions,_that.page,_that.hasMore,_that.isLoadingMore,_that.isRefreshing);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -424,10 +467,10 @@ return $default(_that.state,_that.message,_that.transactions);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( RequestState state,  String message,  List<TransactionModel> transactions)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( RequestState state,  String message,  List<TransactionModel> transactions,  int page,  bool hasMore,  bool isLoadingMore,  bool isRefreshing)?  $default,) {final _that = this;
 switch (_that) {
 case _TransactionsState() when $default != null:
-return $default(_that.state,_that.message,_that.transactions);case _:
+return $default(_that.state,_that.message,_that.transactions,_that.page,_that.hasMore,_that.isLoadingMore,_that.isRefreshing);case _:
   return null;
 
 }
@@ -439,7 +482,7 @@ return $default(_that.state,_that.message,_that.transactions);case _:
 
 
 class _TransactionsState implements TransactionsState {
-  const _TransactionsState({this.state = RequestState.empty, this.message = '',  List<TransactionModel> transactions = const <TransactionModel>[]}): _transactions = transactions;
+  const _TransactionsState({this.state = RequestState.empty, this.message = '',  List<TransactionModel> transactions = const <TransactionModel>[], this.page = 0, this.hasMore = false, this.isLoadingMore = false, this.isRefreshing = false}): _transactions = transactions;
   
 
 @override@JsonKey() final  RequestState state;
@@ -452,6 +495,11 @@ class _TransactionsState implements TransactionsState {
   return EqualUnmodifiableListView(_transactions);
 }
 
+/// The last page held (1-based) and whether the server has another.
+@override@JsonKey() final  int page;
+@override@JsonKey() final  bool hasMore;
+@override@JsonKey() final  bool isLoadingMore;
+@override@JsonKey() final  bool isRefreshing;
 
 /// Create a copy of TransactionsState
 /// with the given fields replaced by the non-null parameter values.
@@ -463,18 +511,18 @@ _$TransactionsStateCopyWith<_TransactionsState> get copyWith => __$TransactionsS
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _TransactionsState&&(identical(other.state, state) || other.state == state)&&(identical(other.message, message) || other.message == message)&&const DeepCollectionEquality().equals(other.transactions, _transactions));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _TransactionsState&&(identical(other.state, state) || other.state == state)&&(identical(other.message, message) || other.message == message)&&const DeepCollectionEquality().equals(other.transactions, _transactions)&&(identical(other.page, page) || other.page == page)&&(identical(other.hasMore, hasMore) || other.hasMore == hasMore)&&(identical(other.isLoadingMore, isLoadingMore) || other.isLoadingMore == isLoadingMore)&&(identical(other.isRefreshing, isRefreshing) || other.isRefreshing == isRefreshing));
 }
 
 
 @override
 int get hashCode {
-    return Object.hash(runtimeType,state,message,const DeepCollectionEquality().hash(_transactions));
+    return Object.hash(runtimeType,state,message,const DeepCollectionEquality().hash(_transactions),page,hasMore,isLoadingMore,isRefreshing);
 }
 
 @override
 String toString() {
-    return 'TransactionsState(state: $state, message: $message, transactions: $transactions)';
+    return 'TransactionsState(state: $state, message: $message, transactions: $transactions, page: $page, hasMore: $hasMore, isLoadingMore: $isLoadingMore, isRefreshing: $isRefreshing)';
 }
 
 
@@ -485,7 +533,7 @@ abstract mixin class _$TransactionsStateCopyWith<$Res> implements $TransactionsS
   factory _$TransactionsStateCopyWith(_TransactionsState value, $Res Function(_TransactionsState) _then) = __$TransactionsStateCopyWithImpl;
 @override @useResult
 $Res call({
- RequestState state, String message, List<TransactionModel> transactions
+ RequestState state, String message, List<TransactionModel> transactions, int page, bool hasMore, bool isLoadingMore, bool isRefreshing
 });
 
 
@@ -502,12 +550,16 @@ class __$TransactionsStateCopyWithImpl<$Res>
 
 /// Create a copy of TransactionsState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? state = null,Object? message = null,Object? transactions = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? state = null,Object? message = null,Object? transactions = null,Object? page = null,Object? hasMore = null,Object? isLoadingMore = null,Object? isRefreshing = null,}) {
   return _then(_TransactionsState(
 state: null == state ? _self.state : state // ignore: cast_nullable_to_non_nullable
 as RequestState,message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
 as String,transactions: null == transactions ? _self._transactions : transactions // ignore: cast_nullable_to_non_nullable
-as List<TransactionModel>,
+as List<TransactionModel>,page: null == page ? _self.page : page // ignore: cast_nullable_to_non_nullable
+as int,hasMore: null == hasMore ? _self.hasMore : hasMore // ignore: cast_nullable_to_non_nullable
+as bool,isLoadingMore: null == isLoadingMore ? _self.isLoadingMore : isLoadingMore // ignore: cast_nullable_to_non_nullable
+as bool,isRefreshing: null == isRefreshing ? _self.isRefreshing : isRefreshing // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 

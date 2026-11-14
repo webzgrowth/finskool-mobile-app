@@ -8,18 +8,17 @@ import 'package:finskool/src/presentation/bloc/communities/invoice/invoice_downl
 
 /// The Download tap, shared by the list and the detail screen.
 ///
-/// It uses the app's one invoice machinery — [InvoiceDownloadBloc] asks
-/// `GET /payments/receipts/{id}/download` for a fresh link on every tap, fetches
-/// the PDF and hands it to the device's save dialog. A payment with no
-/// `invoiceId` (a failed one, or one the server has no invoice for) says so
-/// instead of calling the API with nothing.
+/// It uses the app's one invoice machinery — [InvoiceDownloadBloc] calls the
+/// row's own `invoice.downloadPath` for a fresh link on every tap, fetches the
+/// PDF and hands it to the device's save dialog. A payment with no invoice (a
+/// failed or under-review one) says so instead of calling the API with nothing.
 void requestInvoice(BuildContext context, TransactionModel t) {
-  final id = t.invoiceId;
-  if (id == null) {
+  final path = t.invoicePath;
+  if (path == null) {
     AppSnack.show('No invoice is available for this payment yet.');
     return;
   }
-  context.read<InvoiceDownloadBloc>().add(InvoiceDownloadEvent.requested(id));
+  context.read<InvoiceDownloadBloc>().add(InvoiceDownloadEvent.requestedPath(path));
 }
 
 /// Wraps a screen so a finished download is saved and a failure is shown.

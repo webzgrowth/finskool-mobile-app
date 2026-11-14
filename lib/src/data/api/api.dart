@@ -74,6 +74,24 @@ class Api {
   static String receiptDownload(String receiptId) =>
       '/payments/receipts/$receiptId/download';
 
+  /// A path the server sent **already rooted at the host** (it carries the
+  /// `/api/v1` prefix, e.g. an invoice's `downloadPath`) as an absolute URL.
+  /// Appending it to [baseUrl] would double the prefix.
+  static String fromHostRoot(String path) {
+    final base = Uri.parse(baseUrl);
+    return Uri(
+      scheme: base.scheme,
+      host: base.host,
+      port: base.hasPort ? base.port : null,
+      path: path,
+    ).toString();
+  }
+
+  /// The member's own payments, newest first — community plans and service
+  /// quotes, failed attempts included. `page` / `pageSize` (max 50); `from` /
+  /// `to` (`YYYY-MM-DD`, IST) exist but no screen filters by date.
+  static const String transactions = '/mobile/transactions';
+
   ///  =================================================================
   ///  ********************** Forgot password **************************
   ///  =================================================================

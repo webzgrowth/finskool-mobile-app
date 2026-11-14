@@ -5,7 +5,6 @@ import 'package:finskool/injections/injection.dart';
 import 'package:finskool/src/comman/routes.dart';
 import 'package:finskool/src/comman/widgets/app_snack.dart';
 import 'package:finskool/src/comman/widgets/skeleton.dart';
-import 'package:finskool/src/domain/model/transaction/transaction_model.dart';
 import 'package:finskool/src/presentation/bloc/communities/invoice/invoice_download_bloc.dart';
 import 'package:finskool/src/presentation/bloc/transactions/list/transactions_bloc.dart';
 import 'package:finskool/src/presentation/pages/tickets/widgets/ticket_header.dart';
@@ -94,14 +93,14 @@ class TransactionsView extends StatelessWidget {
     if (state.transactions.isEmpty) {
       return const _Message(text: 'You have no payments yet.');
     }
-    return _List(rows: state.transactions);
+    return _List(state: state);
   }
 }
 
 class _List extends StatefulWidget {
-  const _List({required this.rows});
+  const _List({required this.state});
 
-  final List<TransactionModel> rows;
+  final TransactionsState state;
 
   @override
   State<_List> createState() => _ListState();
@@ -111,41 +110,71 @@ class _ListState extends State<_List> {
   /// The row whose Download was tapped last — only that one shows a spinner.
   String? _active;
 
+  /// Asks for the next page when the end is near. `maxScrollExtent > 0` keeps a
+  /// list that does not scroll from asking on every notification; the bloc
+  /// repeats the `hasMore` / in-flight guard.
+  bool _onScroll(ScrollNotification n) {
+    final s = widget.state;
+    if (n.metrics.maxScrollExtent > 0 &&
+        n.metrics.extentAfter < 600 &&
+        s.hasMore &&
+        !s.isLoadingMore) {
+      context.read<TransactionsBloc>().add(const TransactionsEvent.loadMore());
+    }
+    return false;
+  }
+
   @override
   Widget build(BuildContext context) {
-    final rows = widget.rows;
+    final s = widget.state;
     final bottom = MediaQuery.paddingOf(context).bottom;
     final busy = context.watch<InvoiceDownloadBloc>().state.state.isLoading;
     return RefreshIndicator(
       onRefresh: () async {
         final bloc = context.read<TransactionsBloc>()
           ..add(const TransactionsEvent.refresh());
-        await bloc.stream.firstWhere((s) => !s.state.isLoading);
+        await bloc.stream.firstWhere((s) => !s.isRefreshing);
       },
-      child: ListView(
-        // The header is 69 tall, which already holds Figma's 22 above the first
-        // card; the footnote sits 12 under the last one.
-        padding: EdgeInsets.fromLTRB(20, 0, 20, 24 + bottom),
-        children: [
-          for (final t in rows) ...[
-            TransactionCard(
-              transaction: t,
-              downloading: busy && _active == t.id,
-              onTap: () =>
-                  context.push(AppRoutes.transactionDetail(t.id), extra: t),
-              onDownload: () {
-                setState(() => _active = t.id);
-                requestInvoice(context, t);
-              },
-            ),
-            const SizedBox(height: 12),
+      child: NotificationListener<ScrollNotification>(
+        onNotification: _onScroll,
+        child: ListView(
+          // The header is 69 tall, which already holds Figma's 22 above the
+          // first card; the footnote sits 12 under the last one.
+          padding: EdgeInsets.fromLTRB(20, 0, 20, 24 + bottom),
+          children: [
+            for (final t in s.transactions) ...[
+              TransactionCard(
+                key: ValueKey(t.id),
+                transaction: t,
+                downloading: busy && _active == t.id,
+                onTap: () =>
+                    context.push(AppRoutes.transactionDetail(t.id), extra: t),
+                onDownload: () {
+                  setState(() => _active = t.id);
+                  requestInvoice(context, t);
+                },
+              ),
+              const SizedBox(height: 12),
+            ],
+            if (s.isLoadingMore)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 8),
+                child: Center(
+                  child: SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                ),
+              )
+            else if (!s.hasMore)
+              Text(
+                'Invoices are also sent to your registered email.',
+                textAlign: TextAlign.center,
+                style: context.transactionType.footnote,
+              ),
           ],
-          Text(
-            'Invoices are also sent to your registered email.',
-            textAlign: TextAlign.center,
-            style: context.transactionType.footnote,
-          ),
-        ],
+        ),
       ),
     );
   }

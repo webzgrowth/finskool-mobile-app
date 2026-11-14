@@ -4,25 +4,20 @@ import 'package:finskool/src/domain/model/transaction/transaction_model.dart';
 import 'package:finskool/src/presentation/pages/dashboard/profile/widgets/profile_glyphs.dart';
 import 'package:finskool/src/utilities/theme/theme.dart';
 
-/// Figma's `Icon tile`: 36px, r11, `#108B8B`, holding a white glyph — one per
-/// product. A **failed** payment's tile is the same teal at 45% (measured from
-/// Figma's render: `#8EC6C6` over the card's `#F6F6F6`); the glyph stays white.
-///
-/// Three glyphs are the Profile's own exports (the academy cap, the investor
-/// pointer, the intraday chart); the pie and the briefcase are new
-/// (`assets/icons/txn_*.svg`).
+/// Figma's `Icon tile`: 36px, r11, `#108B8B`, holding a white glyph. The API
+/// names no product, so the glyph follows what the payment bought — the chart
+/// for a community plan, the briefcase for a service quote. A **failed**
+/// payment's tile is the same teal at 45% (measured from Figma's render:
+/// `#8EC6C6` over the card's `#F6F6F6`); the glyph stays white.
 class TransactionTile extends StatelessWidget {
-  const TransactionTile({super.key, required this.glyph, this.faded = false});
+  const TransactionTile({super.key, required this.kind, this.faded = false});
 
-  final TransactionGlyph glyph;
+  final TransactionKind kind;
   final bool faded;
 
-  static String asset(TransactionGlyph glyph) => switch (glyph) {
-    TransactionGlyph.pie => 'assets/icons/txn_pie.svg',
-    TransactionGlyph.briefcase => 'assets/icons/txn_briefcase.svg',
-    TransactionGlyph.education => ProfileGlyphs.education,
-    TransactionGlyph.investor => ProfileGlyphs.investor,
-    TransactionGlyph.chart => ProfileGlyphs.chart,
+  static String asset(TransactionKind kind) => switch (kind) {
+    TransactionKind.community => ProfileGlyphs.chart,
+    TransactionKind.service => 'assets/icons/txn_briefcase.svg',
   };
 
   @override
@@ -35,7 +30,7 @@ class TransactionTile extends StatelessWidget {
         color: AppPalette.badgeTeal.withValues(alpha: faded ? 0.45 : 1),
         borderRadius: BorderRadius.circular(11),
       ),
-      child: SvgPicture.asset(asset(glyph)),
+      child: SvgPicture.asset(asset(kind)),
     );
   }
 }

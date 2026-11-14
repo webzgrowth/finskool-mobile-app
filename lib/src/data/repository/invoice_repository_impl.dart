@@ -15,4 +15,8 @@ class InvoiceRepositoryImpl implements InvoiceRepository {
   @override
   Future<Either<Failure, InvoiceFile>> download(String invoiceId) =>
       handleErrors(() => _remote.download(invoiceId));
+
+  @override
+  Future<Either<Failure, InvoiceFile>> downloadFromPath(String path) =>
+      handleErrors(() => _remote.downloadFromPath(path));
 }

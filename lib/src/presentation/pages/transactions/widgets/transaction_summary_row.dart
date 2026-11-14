@@ -21,7 +21,7 @@ class TransactionSummaryRow extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        TransactionTile(glyph: t.glyph, faded: t.isFailed),
+        TransactionTile(kind: t.kind, faded: t.isFailed),
         const SizedBox(width: 12),
         Expanded(
           child: Column(
